@@ -1,27 +1,66 @@
-# Laravel PHP Framework
+# Busca Ativa Escolar - Back-end API
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
+## Repositórios do projeto
+- [lqdi/busca-ativa-escolar-api](https://github.com/lqdi/busca-ativa-escolar-api) - Back-end / API (este repositório)
+- [lqdi/busca-ativa-escolar-web](https://github.com/lqdi/busca-ativa-escolar-web) - Front-end / Cliente Web
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
+Garantir que cada criança e adolescente dos 4 aos 17 anos esteja na escola – e aprendendo – é, hoje, um dos principais desafios do Brasil. Também é parte da Agenda 2030 das Nações Unidas, um conjunto de programas, ações e diretrizes que devem ser implantados por todos os países nos próximos 15 anos para alcançar o desenvolvimento sustentável.
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
+Pensando nisso, o UNICEF, a União Nacional dos Dirigentes Municipais de Educação (Undime), o Colegiado Nacional de Gestores Municipais de Assistência Social (Congemas) e o Instituto TIM desenvolveram o Projeto de Busca Ativa de Crianças e Adolescentes. O projeto disponibiliza gratuitamente aos municípios uma ferramenta tecnológica e uma metodologia social que permitem à sociedade local (governos municipais) fazer com que isso aconteça na prática.
 
-## Official Documentation
+Como o município é o lugar no qual as políticas públicas realmente se concretizam a partir das demandas da população, é importante que os governos (municipal, estadual e federal) e as organizações da sociedade civil organizada se mobilizem para colocar na escola cada criança e adolescente que nunca estudou ou que abandonou os estudos em algum momento de sua trajetória.
 
-Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
+O Projeto de Busca Ativa de Crianças e Adolescentes cria condições práticas para que cada comunidade se engaje pelo fim da exclusão escolar.
 
-## Contributing
+Batendo de porta em porta e mapeando os motivos da exclusão/evasão, vamos conseguir colocar cada uma dessas crianças e adolescentes na escola. A intenção é entender, na prática, por que isso ocorre, possibilitando a realização de políticas coordenadas de forma intersetorial para evitar que os casos voltem a se repetir.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
+Assinam a construção do sistema para esse projeto:
 
-## Security Vulnerabilities
+* Fundo das Nações Unidas para a Infância (UNICEF)
+* União Nacional dos Dirigentes Municipais de Educação (Undime)
+* Colegiado Nacional de Gestores Municipais de Assistência Social (Congemas)
+* Instituto TIM
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+A plataforma estará em uso em diversos municipios através da URL [http://foradaescolanaopode.org.br]
 
-## License
+## Sobre a aplicação
+Busca Ativa Escolar é uma aplicação web server-side baseada em linguagem PHP e banco de dados Postgres, com front-end em AngularJS, entre outras tecnologias e componentes, que propicia um ambiente virtual para busca, pesquisa, geolocalização e acompanhamento de caso de crianças e adolescentes que estejam em situação ausência escolar entre 04 e 17 anos de idade. A aplicação
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+### Documentação 
+Toda documentação da aplicação está na pasta [doc](doc). Esta aplicação usa o Jekyll como engine de documentação:
+- [Deploy](doc/bae_deploy.md)
+
+### [Software] Requisitos para Instalação
+Lista dos principais softwares que compõe e aplicação. Maiores detalhes, ver documentação de [instalação](doc/deploy.md) ou [guia do desenvolvedor](doc/developer_guide.md).
+
+- [Ubuntu Server >= 16.04](http://www.ubuntu.com) ou [Debian Server >= 8](https://www.debian.org.)
+- [PHP >= 7.1](http://php.net)
+	- [Composer](https://getcomposer.org)
+	- [Laravel = 5.3](https://laravel.com)
+- [MariaDB >= 5.5](https://www.mariadb.org/)
+- [Memcached >= 1.4](https://memcached.org)
+
+
+### [Hardware] Requisitos para instalação
+
+Benchmark recomendado para ambiente de produção com capacidade de gestão de até 50k registros:
+
+*  4 cores de CPU;
+* 4gb de RAM;
+* 100mbit de rede;
+
+Benchmark recomendado para ambiente de produção com capacidade de gestão de até 1m registros:
+
+* 8 cores de CPU
+* 8gb de RAM
+* 500mbit de rede
+
+Vale lembrar que os requisitos de hardware podem variar de acordo com a latência da rede, velocidade dos cores dos cpus, uso de proxies, entre outros fatores. Recomendamos aos sysadmin da rede em que a aplicação será instalada um monitoramento de tráfego e uso durante o período de 6 meses a 1 ano para avaliação de cenário de uso.
+
+
+### Ambientes de desenvolvimento e teste
+[http://busca-ativa-escolar-web.dev.lqdi.net]
+
+### Licença de uso e desenvolvimento
+
+Busca Ativa Escolar é um software livre licenciado com [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html).
