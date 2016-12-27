@@ -14,6 +14,8 @@
 namespace BuscaAtivaEscolar\Traits\Data;
 
 
+use BuscaAtivaEscolar\Scopes\TenantScope;
+
 trait TenantScopedModel {
 
 	public static function bootTenantScopedModelTrait()

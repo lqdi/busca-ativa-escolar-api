@@ -15,13 +15,6 @@ class CreateBaseTables extends Migration
     {
 
 	    Schema::table("users", function (Blueprint $table) {
-		    $table->dropColumn('id');
-	    });
-
-	    Schema::table("users", function (Blueprint $table) {
-		    $table->uuid('id');
-		    $table->primary('id');
-
 		    $table->string('type')->index();
 		    $table->uuid('tenant_id')->index()->nullable();
 		    $table->uuid('city_id')->index()->nullable();

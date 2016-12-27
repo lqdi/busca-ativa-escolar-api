@@ -24,10 +24,20 @@ class TenantScope implements Scope  {
 	public function apply(Builder $builder, Model $model) {
 		$currentUser = Auth::user();
 
-		// Let superusers access all tenants
-		if(!$currentUser->isRestrictedToTenant()) return;
+		// Curries regular users to their own tenants
+		if($currentUser->isRestrictedToTenant()) {
+			$builder->where('tenant_id', $currentUser->tenant_id);
+			return;
+		}
 
-		$builder->where('tenant_id', $currentUser->tenant_id);
+		// When operating as a global user, URI-defined tenant is stored on TENANT_ID envvar
+		// When it's != "global", it means we're scoped to a specific tenant
+		// Else, it's meant to query all tenants
+
+		if(strlen(getenv('TENANT_ID')) > 0 && getenv('TENANT_ID') != "global") {
+			$builder->where('tenant_id', getenv('TENANT_ID'));
+		}
+
 	}
 
 }

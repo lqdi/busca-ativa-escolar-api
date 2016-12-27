@@ -30,7 +30,6 @@ class User extends Authenticatable {
 	const TYPE_TECNICO_VERIFICADOR = "tecnico_verificador";
 	const TYPE_AGENTE_COMUNITARIO = "agente_comunitario";
 
-
     protected $fillable = [
         'name',
 	    'email',
@@ -61,5 +60,15 @@ class User extends Authenticatable {
 
 	public function isRestrictedToTenant() {
 		return !($this->type == self::TYPE_SUPERUSER || $this->type == self::TYPE_GESTOR_NACIONAL);
+	}
+
+	public static function register(array $data) {
+		$data['email'] = trim(strtolower($data['email']));
+		$data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+
+		$existingUser = self::query()->where('email', $data['email'])->first();
+		if($existingUser) throw new \Exception("email_already_exists");
+
+		return self::create($data);
 	}
 }
