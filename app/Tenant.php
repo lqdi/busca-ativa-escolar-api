@@ -23,7 +23,6 @@ class Tenant extends Model  {
 	use IndexedByUUID;
 	use SoftDeletes;
 
-	protected $incrementing = false;
 	protected $table = "tenants";
 
 	protected $fillable = [
@@ -60,6 +59,10 @@ class Tenant extends Model  {
 
 	public function city() {
 		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
+	}
+
+	public function getRouteKeyName() {
+		return 'id';
 	}
 
 }

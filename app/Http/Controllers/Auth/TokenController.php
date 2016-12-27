@@ -19,7 +19,7 @@ use Illuminate\Http\Request;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
-class TokenBaseController extends BaseController  {
+class TokenController extends BaseController  {
 
 	public function authenticate(Request $request) {
 

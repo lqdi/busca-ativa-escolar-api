@@ -172,10 +172,12 @@ return [
 	    Maatwebsite\Excel\ExcelServiceProvider::class,
 	    Intervention\Image\ImageServiceProvider::class,
 	    Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
+	    Ixudra\Curl\CurlServiceProvider::class,
 
-        /*
-         * Application Service Providers...
-         */
+
+	    /*
+		 * Application Service Providers...
+		 */
         BuscaAtivaEscolar\Providers\AppServiceProvider::class,
         BuscaAtivaEscolar\Providers\AuthServiceProvider::class,
         // BuscaAtivaEscolar\Providers\BroadcastServiceProvider::class,
@@ -234,6 +236,7 @@ return [
 	    'Image' => Intervention\Image\Facades\Image::class,
 	    'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
 	    'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+	    'Curl' => Ixudra\Curl\Facades\Curl::class,
 
     ],
 

@@ -18,10 +18,16 @@ use Webpatser\Uuid\Uuid;
 
 trait IndexedByUUID {
 
+	public function __construct() {
+		$this->incrementing = false;
+		parent::__construct();
+	}
+
 	protected static function boot() {
 		parent::boot();
 
 		static::creating(function ($model) {
+			if(isset($model->{$model->getKeyName()})) return;
 			$model->{$model->getKeyName()} = Uuid::generate()->string;
 		});
 	}

@@ -14,9 +14,16 @@ use Illuminate\Http\Request;
 */
 
 Route::group(['prefix' => 'auth'], function () {
-	Route::post('token', 'Auth\TokenBaseController@authenticate');
-	Route::get('profile', 'Auth\TokenBaseController@profile')->middleware('jwt.auth');
+	Route::post('token', 'Auth\TokenController@authenticate');
+	Route::get('profile', 'Auth\TokenController@profile')->middleware('jwt.auth');
 });
 
-Route::group(['prefix' => 'v1', 'middleware' => 'jwt.auth'], function () {
+Route::group(['prefix' => 'v1'], function () {
+
+	Route::group(['middleware' => 'jwt.auth'], function() {
+		// Authenticated routes
+	});
+
+	Route::resource('cities', 'Resources\CitiesController');
+
 });

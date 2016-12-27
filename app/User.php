@@ -13,11 +13,13 @@
 
 namespace BuscaAtivaEscolar;
 
+use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable {
 
+	use IndexedByUUID;
 	use Notifiable;
 
 	const TYPE_SUPERUSER = "superuser";
@@ -51,6 +53,10 @@ class User extends Authenticatable {
 
 	public function city() {
 		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
+	}
+
+	public function getRouteKeyName() {
+		return 'id';
 	}
 
 	public function isRestrictedToTenant() {

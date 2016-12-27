@@ -14,3 +14,7 @@
 Route::get('/', function () {
     return redirect()->away(env('APP_PANEL_URL'));
 });
+
+Route::group(['prefix' => 'maintenance'], function() {
+
+});
