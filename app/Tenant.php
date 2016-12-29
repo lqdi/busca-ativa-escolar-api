@@ -65,4 +65,8 @@ class Tenant extends Model  {
 		return 'id';
 	}
 
+	public static function generateNameFromCity(City $city) {
+		return strtoupper($city->uf) . ' / ' . ucwords($city->name);
+	}
+
 }
