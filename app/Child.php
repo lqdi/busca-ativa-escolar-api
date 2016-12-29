@@ -68,4 +68,20 @@ class Child extends Model  {
 		return $this->hasMany('BuscaAtivaEscolar\ChildCase', 'child_id', 'id');
 	}
 
+	// ------------------------------------------------------------------------
+
+	public static function createAlert(Tenant $tenant, array $data) {
+
+		$data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
+		$data['tenant_id'] = $tenant->id;
+		$data['city_id'] = $tenant->city_id;
+
+		$child = self::create($data);
+
+		ChildCase::create($tenant, $child, $data);
+
+		return $child;
+
+	}
+
 }

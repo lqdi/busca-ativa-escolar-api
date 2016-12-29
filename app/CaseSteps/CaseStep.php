@@ -25,6 +25,9 @@ abstract class CaseStep extends Model {
 	use IndexedByUUID;
 	use TenantScopedModel;
 
+	// TODO: lay out step statuses (or should we use flags?)
+	// TODO: maybe move mandatory step fields to __construct, or use a way to compose it
+
 	public function getRouteKeyName() {
 		return 'id';
 	}
@@ -35,6 +38,16 @@ abstract class CaseStep extends Model {
 
 	public function childCase() {
 		return $this->hasOne('BuscaAtivaEscolar\ChildCase', 'id', 'case_id');
+	}
+
+	public static function generate(Tenant $tenant, ChildCase $case, $class, array $data) {
+		$data['tenant_id'] = $tenant->id;
+		$data['case_id'] = $case->id;
+		$data['step_type'] = $class;
+
+		// TODO: does this work? or do we need a linear factory method?
+
+		return ($class)::create($data);
 	}
 
 }

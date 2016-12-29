@@ -72,4 +72,6 @@ class Pesquisa extends CaseStep {
 
 	];
 
+	// TODO: when this step is filled, calculate "age" field via "dob" field
+
 }

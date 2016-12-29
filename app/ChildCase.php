@@ -30,6 +30,10 @@ class ChildCase extends Model  {
 	const STATUS_INTERRUPTED = "interrupted";
 	const STATUS_COMPLETED = "completed";
 
+	const RISK_LEVEL_HIGH = "high";
+	const RISK_LEVEL_MEDIUM = "medium";
+	const RISK_LEVEL_LOW = "low";
+
 	static $REQUIRED_STEPS = [ // TODO: on creation, these get created as well
 		1 => ['index' => 1, 'class' => 'Alerta'],
 		2 => ['index' => 2, 'class' => 'Pesquisa'],
@@ -65,6 +69,7 @@ class ChildCase extends Model  {
 	];
 
 	protected $casts = [
+		'is_current' => 'boolean',
 		'linked_steps' => 'collection',
 	];
 
@@ -85,17 +90,51 @@ class ChildCase extends Model  {
 	public function getSteps() {
 		if($this->_steps != null) return $this->_steps;
 
-		// TODO: maybe linked_steps could be in format {StepClassName => StepID}?
-
 		$this->_steps = [];
 
 		foreach($this->linked_steps as $step) {
 			// TODO: does this work? test in CLI beforehand
-			$step = call_user_func_array([$step->type, 'find'], [$step->id]);
+			$step = ($step->type)::find($step->id);
 			array_push($this->_steps, $step);
 		}
 
 		return $this->_steps;
+	}
+
+	public static function generateName(Child $child) {
+		$numCases = self::query()->where('child_id', $child->id)->count();
+		return date('Y') . '/' . (intval($numCases) + 1);
+	}
+
+	public static function create(Tenant $tenant, Child $child, array $data) {
+
+		$data['child_id'] = $child->id;
+		$data['risk_level'] = self::RISK_LEVEL_HIGH; // TODO: fetch from tenant settings
+		$data['is_current'] = true;
+
+		$data['name'] = self::generateName($child);
+
+		// TODO: set assigned group/user via tenant settings
+		// TODO: figure out which user created this case
+
+		$case = parent::create($data); /* @var $case ChildCase */
+		$steps = [];
+
+		foreach(self::$REQUIRED_STEPS as $index => $step) {
+			array_push($steps, CaseStep::generate($tenant, $case, $step['class'], $step['fill'] ?? []));
+		}
+
+		$case->linked_steps = collect($steps)->map(function ($step, $key) {
+			return ['id' => $step->id, 'type' => $step->step_type];
+		});
+
+		$current_step = array_shift($steps);
+		$case->current_step_id = $current_step->id;
+		$case->current_step_type = $current_step->step_type;
+
+		$case->save();
+
+		return $case;
 	}
 
 }
