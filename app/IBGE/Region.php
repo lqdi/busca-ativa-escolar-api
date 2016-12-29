@@ -14,7 +14,9 @@
 namespace BuscaAtivaEscolar\IBGE;
 
 
-class Region {
+use BuscaAtivaEscolar\Data\StaticObject;
+
+class Region extends StaticObject  {
 
 	private static $cached = [];
 
@@ -26,12 +28,14 @@ class Region {
 		5 => ['id' => 5, 'name' => 'CENTRO OESTE', 'code' => 'CO', 'uf_ids' => [50, 51, 52, 53]],
 	];
 
-	private static $indexByCode = [
-		'NO' => 1,
-		'NE' => 2,
-		'SE' => 3,
-		'SU' => 4,
-		'CO' => 5,
+	private static $indexes = [
+		'code' => [
+			'NO' => 1,
+			'NE' => 2,
+			'SE' => 3,
+			'SU' => 4,
+			'CO' => 5,
+		]
 	];
 
 	const NORTE = 1;
@@ -42,33 +46,12 @@ class Region {
 
 
 	/**
-	 * Gets a region by it's unique ID
-	 * @param integer $id The region ID
-	 * @return Region
-	 * @throws \Exception if ID is invalid
-	 */
-	public static function getByID($id) {
-		$id = intval($id);
-
-		if(isset(self::$cached[$id])) {
-			return self::$cached[$id];
-		}
-
-		if(!isset(self::$data[$id])) {
-			throw new \Exception("Invalid Region ID: {$id}");
-		}
-
-		return self::$cached[$id] = new Region(self::$data[$id]);
-	}
-
-	/**
 	 * Gets a region by it's short code
 	 * @param string $code The short region code (eg.: NE)
 	 * @return Region
 	 */
 	public static function getByCode($code) {
-		$id = self::$indexByCode[strtoupper(trim($code))];
-		return self::getByID($id);
+		return self::getByIndex('code', $code);
 	}
 
 	/**
@@ -96,16 +79,6 @@ class Region {
 	 */
 	protected $uf_ids = [];
 
-	/**
-	 * Region constructor.
-	 * @param array $data Expects the keys 'id', 'name' and 'code'
-	 */
-	public function __construct(array $data) {
-		$this->id = $data['id'];
-		$this->name = $data['name'];
-		$this->code = $data['code'];
-		$this->uf_ids = $data['uf_ids'];
-	}
 
 	/**
 	 * Gets the list of UFs in this Region

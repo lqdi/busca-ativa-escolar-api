@@ -14,7 +14,9 @@
 namespace BuscaAtivaEscolar\IBGE;
 
 
-class UF {
+use BuscaAtivaEscolar\Data\StaticObject;
+
+class UF extends StaticObject  {
 
 	private static $cached = [];
 
@@ -48,55 +50,37 @@ class UF {
 		53 => ['id' => '53', 'region_id' => 5, 'name' => 'Distrito Federal', 'code' => 'DF'],
 	];
 
-	private static $indexByCode = [
-		'RO' => 11,
-		'AC' => 12,
-		'AM' => 13,
-		'RR' => 14,
-		'PA' => 15,
-		'AP' => 16,
-		'TO' => 17,
-		'MA' => 21,
-		'PI' => 22,
-		'CE' => 23,
-		'RN' => 24,
-		'PB' => 25,
-		'PE' => 26,
-		'AL' => 27,
-		'SE' => 28,
-		'BA' => 29,
-		'MG' => 31,
-		'ES' => 32,
-		'RJ' => 33,
-		'SP' => 35,
-		'PR' => 41,
-		'SC' => 42,
-		'RS' => 43,
-		'MS' => 50,
-		'MT' => 51,
-		'GO' => 52,
-		'DF' => 53,
+	private static $indexes = [
+		'code' => [
+			'RO' => 11,
+			'AC' => 12,
+			'AM' => 13,
+			'RR' => 14,
+			'PA' => 15,
+			'AP' => 16,
+			'TO' => 17,
+			'MA' => 21,
+			'PI' => 22,
+			'CE' => 23,
+			'RN' => 24,
+			'PB' => 25,
+			'PE' => 26,
+			'AL' => 27,
+			'SE' => 28,
+			'BA' => 29,
+			'MG' => 31,
+			'ES' => 32,
+			'RJ' => 33,
+			'SP' => 35,
+			'PR' => 41,
+			'SC' => 42,
+			'RS' => 43,
+			'MS' => 50,
+			'MT' => 51,
+			'GO' => 52,
+			'DF' => 53,
+		]
 	];
-
-	/**
-	 * Gets an UF by it's unique ID
-	 * @param integer $id The UF ID
-	 * @return UF
-	 * @throws \Exception if ID is invalid
-	 */
-	public static function getByID($id) {
-		$id = intval($id);
-
-		if(isset(self::$cached[$id])) {
-			return self::$cached[$id];
-		}
-
-		if(!isset(self::$data[$id])) {
-			throw new \Exception("Invalid UF ID: {$id}");
-		}
-
-		return self::$cached[$id] = new UF(self::$data[$id]);
-	}
 
 	/**
 	 * Gets an UF by it's short code
@@ -104,8 +88,7 @@ class UF {
 	 * @return UF
 	 */
 	public static function getByCode($code) {
-		$id = self::$indexByCode[strtoupper(trim($code))];
-		return self::getByID($id);
+		return self::getByIndex('code', $code);
 	}
 
 	/**
@@ -124,16 +107,9 @@ class UF {
 	public $code;
 
 	/**
-	 * UF constructor.
-	 *
-	 * @param array $data Expects the keys 'id', 'region_id', 'name' and 'code'
+	 * @var integer The ID of the region this UF is contained by
 	 */
-	public function __construct(array $data) {
-		$this->id = $data['id'];
-		$this->region_id = $data['region_id'];
-		$this->name = $data['name'];
-		$this->code = $data['code'];
-	}
+	public $region_id;
 
 	/**
 	 * Gets the region that contains the UF
