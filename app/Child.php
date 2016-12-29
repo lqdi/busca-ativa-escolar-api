@@ -25,6 +25,10 @@ class Child extends Model  {
 	use IndexedByUUID;
 	use TenantScopedModel;
 
+	const STATUS_OUT_OF_SCHOOL = "out_of_school";
+	const STATUS_OBSERVATION = "in_observation";
+	const STATUS_IN_SCHOOL = "in_school";
+
 	protected $table = "children";
 	protected $fillable = [
 		'name',
@@ -32,24 +36,36 @@ class Child extends Model  {
 		'tenant_id',
 		'city_id',
 
+		'mother_name',
+		'father_name',
+		'age',
+
+		'current_case_id',
+
+		'current_step_type',
+		'current_step_id',
+
 		'child_status',
 	];
 
-
-	// TODO: REFACTOR: push these out by creating an Indexer observer (currently violates SRP)
-
-	public function buildSearchQuery() {
-		// TODO: builds ElasticSearch query
+	public function tenant() {
+		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
 	}
 
-	public function saveSearchIndex() {
-		// TODO: creates/updates ElasticSearch document
+	public function city() {
+		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
 	}
 
-	private function buildSearchableDocument() {
-		// TODO: generate object with all available case properties
+	public function currentCase() {
+		return $this->hasOne('BuscaAtivaEscolar\ChildCase', 'id', 'current_case_id');
 	}
 
+	public function currentStep() {
+		return $this->morphTo();
+	}
 
+	public function cases() {
+		return $this->hasMany('BuscaAtivaEscolar\ChildCase', 'child_id', 'id');
+	}
 
 }
