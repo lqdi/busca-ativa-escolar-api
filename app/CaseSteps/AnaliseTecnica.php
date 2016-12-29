@@ -17,12 +17,9 @@ namespace BuscaAtivaEscolar;
 class AnaliseTecnica extends CaseStep {
 
 	protected $table = "case_steps_analise_tecnica";
-	protected $fillable = [
-		'child_id',
-		'case_id',
-		'step_type',
 
-		'identified_causes',
+	public $stepFields = [
+		'identified_cause_ids',
 		'risk_level',
 
 		'analysis_description'

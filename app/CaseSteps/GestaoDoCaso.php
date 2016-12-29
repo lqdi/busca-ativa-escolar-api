@@ -17,11 +17,8 @@ namespace BuscaAtivaEscolar;
 class GestaoDoCaso extends CaseStep {
 
 	protected $table = "case_steps_gestao_do_caso";
-	protected $fillable = [
-		'child_id',
-		'case_id',
-		'step_type',
 
+	protected $stepFields = [
 		'actions_description',
 	];
 

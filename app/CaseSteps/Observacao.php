@@ -17,10 +17,12 @@ namespace BuscaAtivaEscolar;
 class Observacao extends CaseStep {
 
 	protected $table = "case_steps_observacao";
-	protected $fillable = [
+
+	public $stepFields = [
 		'child_id',
 		'case_id',
 		'step_type',
+		'is_completed',
 
 		'report_date',
 		'report_index',

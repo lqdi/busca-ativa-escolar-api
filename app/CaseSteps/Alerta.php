@@ -18,12 +18,7 @@ class Alerta extends CaseStep  {
 
 	protected $table = "case_steps_alerta";
 
-	protected $fillable = [
-
-		'child_id',
-		'case_id',
-		'step_type',
-
+	public $stepFields = [
 		'name',
 		'gender',
 		'race',
@@ -32,7 +27,7 @@ class Alerta extends CaseStep  {
 
 		'cpf',
 		'nis',
-		'alert_cause',
+		'alert_cause_id',
 
 		'mother_name',
 		'mother_rg',

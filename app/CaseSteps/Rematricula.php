@@ -17,11 +17,8 @@ namespace BuscaAtivaEscolar;
 class Rematricula extends CaseStep {
 
 	protected $table = 'case_steps_rematricula';
-	protected $fillable = [
-		'child_id',
-		'case_id',
-		'step_type',
 
+	public $stepFields = [
 		'reinsertion_date',
 		'reinsertion_grade',
 

@@ -78,7 +78,7 @@ class Child extends Model  {
 
 		$child = self::create($data);
 
-		ChildCase::create($tenant, $child, $data);
+		ChildCase::generate($tenant, $child, $data);
 
 		return $child;
 

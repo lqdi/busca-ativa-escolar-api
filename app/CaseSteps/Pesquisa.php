@@ -17,12 +17,8 @@ namespace BuscaAtivaEscolar;
 class Pesquisa extends CaseStep {
 
 	protected $table = "case_steps_pesquisa";
-	protected $fillable = [
 
-		'child_id',
-		'case_id',
-		'step_type',
-
+	public $stepFields = [
 		'name',
 		'gender',
 		'race',
@@ -59,7 +55,7 @@ class Pesquisa extends CaseStep {
 		'guardian_schooling',
 		'guardian_job',
 
-		'case_causes',
+		'case_cause_ids',
 
 		'place_address',
 		'place_cep',

@@ -34,7 +34,7 @@ class ChildCase extends Model  {
 	const RISK_LEVEL_MEDIUM = "medium";
 	const RISK_LEVEL_LOW = "low";
 
-	static $REQUIRED_STEPS = [ // TODO: on creation, these get created as well
+	static $REQUIRED_STEPS = [
 		1 => ['index' => 1, 'class' => 'Alerta'],
 		2 => ['index' => 2, 'class' => 'Pesquisa'],
 		3 => ['index' => 3, 'class' => 'GestaoDoCaso'],
@@ -106,7 +106,7 @@ class ChildCase extends Model  {
 		return date('Y') . '/' . (intval($numCases) + 1);
 	}
 
-	public static function create(Tenant $tenant, Child $child, array $data) {
+	public static function generate(Tenant $tenant, Child $child, array $data) {
 
 		$data['child_id'] = $child->id;
 		$data['risk_level'] = self::RISK_LEVEL_HIGH; // TODO: fetch from tenant settings
