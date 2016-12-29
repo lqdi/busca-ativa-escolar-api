@@ -13,9 +13,13 @@ use Illuminate\Http\Request;
 |
 */
 
+Route::get('/versions', function() {
+	return response()->json(['available_versions' => ['v1']]);
+});
+
 Route::group(['prefix' => 'auth'], function () {
-	Route::post('token', 'Auth\TokenController@authenticate');
-	Route::get('profile', 'Auth\TokenController@profile')->middleware('jwt.auth');
+	Route::post('/token', 'Auth\TokenController@authenticate');
+	Route::get('/identity', 'Auth\TokenController@identity')->middleware('jwt.auth');
 });
 
 Route::group(['prefix' => 'v1'], function () {
@@ -24,6 +28,10 @@ Route::group(['prefix' => 'v1'], function () {
 		// Authenticated routes
 	});
 
-	Route::resource('cities', 'Resources\CitiesController');
+	Route::get('/static/alert_causes', 'Resources\CausesController@alert_causes');
+	Route::get('/static/case_causes', 'Resources\CausesController@case_causes');
+
+	Route::resource('/cities', 'Resources\CitiesController');
+	Route::resource('/tenants', 'Tenants\TenantsController');
 
 });

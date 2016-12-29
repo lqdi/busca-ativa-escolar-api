@@ -40,7 +40,7 @@ class TokenController extends BaseController  {
 		return response()->json(compact('token'));
 	}
 
-	public function profile() {
+	public function identity() {
 
 		$user = Auth::user();
 
