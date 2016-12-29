@@ -11,8 +11,7 @@
  * Created at: 29/12/2016, 13:51
  */
 
-namespace BuscaAtivaEscolar;
-
+namespace BuscaAtivaEscolar\CaseSteps;
 
 class Pesquisa extends CaseStep {
 

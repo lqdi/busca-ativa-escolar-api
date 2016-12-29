@@ -11,8 +11,7 @@
  * Created at: 29/12/2016, 13:22
  */
 
-namespace BuscaAtivaEscolar;
-
+namespace BuscaAtivaEscolar\CaseSteps;
 
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;

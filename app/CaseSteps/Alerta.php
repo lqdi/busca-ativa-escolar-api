@@ -11,8 +11,7 @@
  * Created at: 29/12/2016, 13:43
  */
 
-namespace BuscaAtivaEscolar;
-
+namespace BuscaAtivaEscolar\CaseSteps;
 
 class Alerta extends CaseStep  {
 

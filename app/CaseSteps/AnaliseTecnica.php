@@ -11,8 +11,7 @@
  * Created at: 29/12/2016, 14:10
  */
 
-namespace BuscaAtivaEscolar;
-
+namespace BuscaAtivaEscolar\CaseSteps;
 
 class AnaliseTecnica extends CaseStep {
 

@@ -11,8 +11,7 @@
  * Created at: 29/12/2016, 14:11
  */
 
-namespace BuscaAtivaEscolar;
-
+namespace BuscaAtivaEscolar\CaseSteps;
 
 class GestaoDoCaso extends CaseStep {
 
