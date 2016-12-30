@@ -13,6 +13,8 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\ChildCase;
+use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +37,8 @@ abstract class CaseStep extends Model {
 
 	public function __construct(array $attributes = []) {
 		$this->fillable = array_merge($this->baseFillable, $this->stepFields);
+		$this->incrementing = false; // This is already defined by IndexedByUUID, but we're overriding __construct here
+
 		parent::__construct($attributes);
 	}
 
@@ -50,13 +54,16 @@ abstract class CaseStep extends Model {
 		return $this->hasOne('BuscaAtivaEscolar\ChildCase', 'id', 'case_id');
 	}
 
-	public static function generate(Tenant $tenant, ChildCase $case, $class, array $data) {
+	public static function generate(Tenant $tenant, ChildCase $case, string $class, array $data) {
 		$data['tenant_id'] = $tenant->id;
 		$data['case_id'] = $case->id;
-		$data['step_type'] = $class;
+		$data['child_id'] = $case->child_id;
+
+		$data['step_type'] = "BuscaAtivaEscolar\\CaseSteps\\{$class}";
+
 		$data['is_completed'] = false;
 
-		return ($class)::create($data);
+		return ($data['step_type'])::create($data);
 	}
 
 }

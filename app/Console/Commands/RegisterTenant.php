@@ -5,60 +5,15 @@ namespace BuscaAtivaEscolar\Console\Commands;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
-use Illuminate\Console\Command;
 
-class RegisterTenant extends Command
-{
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+class RegisterTenant extends Command {
+
     protected $signature = 'maintenance:register_tenant';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Creates a tenant and assigns to a city';
 
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle() {
 
-	    $cityUF = strtoupper(trim($this->ask("Enter city UF")));
-	    $cityNameSearch = $this->ask("Enter city name (search):");
-
-	    $cities = City::search(['uf' => $cityUF, 'name' => $cityNameSearch])->get(); /* @var $cities City[] */
-
-	    if(sizeof($cities) <= 0) {
-		    $this->error("No cities found in query! Try again with different search parameters.");
-		    return;
-	    }
-
-	    $this->info("Select a city:");
-
-	    foreach($cities as $i => $city) {
-		    $this->comment("\t #{$i} -> {$city->uf}/{$city->name} (ID={$city->id}, IBGE_ID={$city->ibge_city_id})");
-	    }
-
-	    $cityNum = $this->ask("Create tenant for city #:");
-
-	    $city = $cities[intval($cityNum)];
+	    $city = $this->askForCity();
 
 	    $confirmed = $this->confirm("Create tenant for city: {$city->uf}/{$city->name} (ID={$city->id}, IBGE_ID={$city->ibge_city_id})");
 

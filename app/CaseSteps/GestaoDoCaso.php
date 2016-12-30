@@ -17,7 +17,7 @@ class GestaoDoCaso extends CaseStep {
 
 	protected $table = "case_steps_gestao_do_caso";
 
-	protected $stepFields = [
+	public $stepFields = [
 		'actions_description',
 	];
 

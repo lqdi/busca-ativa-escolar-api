@@ -13,7 +13,7 @@
 
 namespace BuscaAtivaEscolar;
 
-
+use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use Illuminate\Database\Eloquent\Model;
@@ -38,7 +38,7 @@ class ChildCase extends Model  {
 		1 => ['index' => 1, 'class' => 'Alerta'],
 		2 => ['index' => 2, 'class' => 'Pesquisa'],
 		3 => ['index' => 3, 'class' => 'GestaoDoCaso'],
-		4 => ['index' => 4, 'class' => 'Reinsercao'],
+		4 => ['index' => 4, 'class' => 'Rematricula'],
 		5 => ['index' => 5, 'class' => 'Observacao', 'fill' => ['report_index' => 1]],
 		6 => ['index' => 6, 'class' => 'Observacao', 'fill' => ['report_index' => 2]],
 		7 => ['index' => 7, 'class' => 'Observacao', 'fill' => ['report_index' => 3]],

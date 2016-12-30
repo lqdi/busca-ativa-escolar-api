@@ -5,39 +5,12 @@ namespace BuscaAtivaEscolar\Console\Commands;
 use BuscaAtivaEscolar\User;
 use Illuminate\Console\Command;
 
-class RegisterSuperUser extends Command
-{
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
+class RegisterSuperUser extends Command {
+
     protected $signature = 'maintenance:register_superuser';
+	protected $description = 'Registers a superuser';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Registers a superuser';
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
-    public function handle()
-    {
+    public function handle() {
 
 	    $name = $this->ask("Enter a name for the user:", "Engineering LQDI");
 	    $email = $this->ask("Enter an email for the user:", "dev@lqdi.net");

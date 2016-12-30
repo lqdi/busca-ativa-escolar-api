@@ -13,7 +13,6 @@
 
 namespace BuscaAtivaEscolar;
 
-
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use Illuminate\Database\Eloquent\Model;
@@ -78,7 +77,16 @@ class Child extends Model  {
 
 		$child = self::create($data);
 
-		ChildCase::generate($tenant, $child, $data);
+		$case = ChildCase::generate($tenant, $child, $data);
+		$alertStep = $case->currentStep;
+
+		$child->current_case_id = $case->id;
+		$child->current_step_type = $alertStep->step_type;
+		$child->current_step_id = $alertStep->id;
+		$child->save();
+
+		$alertStep->fill($data);
+		$alertStep->save();
 
 		return $child;
 

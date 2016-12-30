@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         Commands\ImportCitiesFromIBGE::class,
         Commands\RegisterSuperUser::class,
         Commands\RegisterTenant::class,
+        Commands\SpawnChildAlert::class,
     ];
 
     /**
