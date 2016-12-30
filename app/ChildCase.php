@@ -87,7 +87,7 @@ class ChildCase extends Model  {
 		return $this->morphTo();
 	}
 
-	public function getSteps() {
+	public function fetchSteps() {
 		if($this->_steps != null) return $this->_steps;
 
 		$this->_steps = [];

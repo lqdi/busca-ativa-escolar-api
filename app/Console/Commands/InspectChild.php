@@ -27,7 +27,7 @@ class InspectChild extends Command {
 	    $case = $cases[intval($selectedCase)];
 
 	    $this->info("Case: {$case->name} (ID={$case->id})");
-	    $steps = $case->getSteps();
+	    $steps = $case->fetchSteps();
 
 	    foreach($steps as $stepIndex => $step) {
 		    $this->comment("\t Step #{$stepIndex} - " . ($step->is_completed ? 'COMPLETED' : 'PENDING') . " - {$step->step_type} (ID={$case->id})");
