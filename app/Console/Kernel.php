@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         Commands\RegisterSuperUser::class,
         Commands\RegisterTenant::class,
         Commands\SpawnChildAlert::class,
+        Commands\InspectChild::class,
     ];
 
     /**

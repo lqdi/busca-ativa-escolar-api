@@ -93,8 +93,7 @@ class ChildCase extends Model  {
 		$this->_steps = [];
 
 		foreach($this->linked_steps as $step) {
-			// TODO: does this work? test in CLI beforehand
-			$step = ($step->type)::find($step->id);
+			$step = ($step['type'])::find($step['id']);
 			array_push($this->_steps, $step);
 		}
 
