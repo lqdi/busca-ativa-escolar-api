@@ -49,22 +49,48 @@ class Tenant extends Model  {
 		'activated_at' => 'datetime'
 	];
 
+	// ------------------------------------------------------------------------
+
+	/**
+	 * The operational admin ("coordenador operacional") for this instance
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function operationalAdmin() {
 		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'operational_admin_id');
 	}
 
+	/**
+	 * The political admin ("gestor político") for this instance
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function politicalAdmin() {
 		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'political_admin_id');
 	}
 
+	/**
+	 * The city this tenant is associated with
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function city() {
 		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
 	}
 
+	/**
+	 * Internal, primary key for API routing.
+	 * @return string
+	 */
 	public function getRouteKeyName() {
 		return 'id';
 	}
 
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Generates a display name for a tenant, based on city UF code and name.
+	 * Formats using national standards (UF always uppercase, city name with each word first char uppercase).
+	 * @param City $city The city the tenant will be associated with
+	 * @return string
+	 */
 	public static function generateNameFromCity(City $city) {
 		return strtoupper($city->uf) . ' / ' . ucwords($city->name);
 	}

@@ -22,6 +22,7 @@ class User extends Authenticatable {
 	use IndexedByUUID;
 	use Notifiable;
 
+	// Types of user
 	const TYPE_SUPERUSER = "superuser";
 	const TYPE_GESTOR_NACIONAL = "gestor_nacional";
 	const TYPE_GESTOR_POLITICO = "gestor_politico";
@@ -46,22 +47,52 @@ class User extends Authenticatable {
 	    'remember_token',
     ];
 
+	// ------------------------------------------------------------------------
+
+	/**
+	 * The tenant this user belongs to.
+	 * Will be null when users are global users (SUPERUSER and GESTOR_NACIONAL)
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function tenant() {
 		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
 	}
 
+	/**
+	 * The city this user registered at, always the same city as the tenant.
+	 * Will be null when users are global users (SUPERUSER and GESTOR_NACIONAL)
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function city() {
 		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
 	}
 
+	/**
+	 * Internal, primary key for API routing.
+	 * @return string
+	 */
 	public function getRouteKeyName() {
 		return 'id';
 	}
 
+	/**
+	 * Checks if a user is global or restricted/assigned to a specific tenant.
+	 * @return bool True when tenant-based, false when global.
+	 */
 	public function isRestrictedToTenant() {
 		return !($this->type == self::TYPE_SUPERUSER || $this->type == self::TYPE_GESTOR_NACIONAL);
 	}
 
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Registers a user with given data.
+	 * Expected fields are "email" and "password".
+	 *
+	 * @param array $data The user data
+	 * @return User A registered user
+	 * @throws \Exception When a user already exists with same e-mail, or when query fails
+	 */
 	public static function register(array $data) {
 		$data['email'] = trim(strtolower($data['email']));
 		$data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);

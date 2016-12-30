@@ -40,13 +40,25 @@ class City extends Model {
 		'webdoc_url',
 	];
 
+	// ------------------------------------------------------------------------
+
+	/**
+	 * The tenant associated with this city.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function tenant() {
 		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'city_id', 'id');
 	}
 
+	/**
+	 * Internal, determines primary key for API routing.
+	 * @return string
+	 */
 	public function getRouteKeyName() {
 		return 'id';
 	}
+
+	// ------------------------------------------------------------------------
 
 	/**
 	 * Gets the UF that contains this city
@@ -64,9 +76,11 @@ class City extends Model {
 		return $this->getUF()->getRegion();
 	}
 
+	// ------------------------------------------------------------------------
+
 	/**
 	 * Builds a query for searching cities
-	 * @param array $filters
+	 * @param array $filters The associative array of filter keys and values
 	 * @return \Illuminate\Database\Eloquent\Builder
 	 */
 	public static function search(array $filters) {

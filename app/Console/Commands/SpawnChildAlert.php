@@ -41,7 +41,7 @@ class SpawnChildAlert extends Command {
 		    return;
 	    }
 
-	    $child = Child::createAlert($tenant, $data);
+	    $child = Child::spawnFromAlertData($tenant, $data);
 
 	    $this->info("Child alert created! ");
 

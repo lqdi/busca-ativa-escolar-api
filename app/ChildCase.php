@@ -25,16 +25,22 @@ class ChildCase extends Model  {
 	use IndexedByUUID;
 	use TenantScopedModel;
 
+	// Case statuses
 	const STATUS_CANCELLED = "cancelled";
 	const STATUS_IN_PROGRESS = "in_progress";
 	const STATUS_INTERRUPTED = "interrupted";
 	const STATUS_COMPLETED = "completed";
 
+	// Case risk levels
 	const RISK_LEVEL_HIGH = "high";
 	const RISK_LEVEL_MEDIUM = "medium";
 	const RISK_LEVEL_LOW = "low";
 
-	static $REQUIRED_STEPS = [
+	/**
+	 * The list and order of the default steps a case has.
+	 * @var array
+	 */
+	public static $REQUIRED_STEPS = [
 		1 => ['index' => 1, 'class' => 'Alerta'],
 		2 => ['index' => 2, 'class' => 'Pesquisa'],
 		3 => ['index' => 3, 'class' => 'GestaoDoCaso'],
@@ -73,20 +79,44 @@ class ChildCase extends Model  {
 		'linked_steps' => 'collection',
 	];
 
+	/**
+	 * Internal cache of steps filled by fetchSteps()
+	 * @var CaseStep[]
+	 */
 	protected $_steps = null;
 
+	/**
+	 * The child this case belongs to.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function child() {
 		return $this->hasOne('BuscaAtivaEscolar\Child', 'id', 'child_id');
 	}
 
+	/**
+	 * The user that is assigned as responsible for this case.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function assignedUser() {
 		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'assigned_user_id');
 	}
 
+	/**
+	 * The current step this case is at.
+	 * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+	 */
 	public function currentStep() {
 		return $this->morphTo();
 	}
 
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Fetches (as model instances) all steps associated with this case.
+	 * This method uses the linked_steps JSON to resolve step type and IDs.
+	 *
+	 * @return CaseStep[]
+	 */
 	public function fetchSteps() {
 		if($this->_steps != null) return $this->_steps;
 
@@ -100,16 +130,38 @@ class ChildCase extends Model  {
 		return $this->_steps;
 	}
 
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Generates a name for a new case, based on the current year and how many cases there has been for this child.
+	 *
+	 * @param Child $child The child we're creating a new case for
+	 * @return string The generated name
+	 */
 	public static function generateName(Child $child) {
 		$numCases = self::query()->where('child_id', $child->id)->count();
 		return date('Y') . '/' . (intval($numCases) + 1);
 	}
 
-	public static function generate(Tenant $tenant, Child $child, array $data) {
+	/**
+	 * Spawns a new Child Case, along with the default Case Steps.
+	 * Internally resolves risk level and responsability via Tenant workflow settings.
+	 * Also handles linking the spawned steps, and pre-fills the Alerta step with given data.
+	 *
+	 * @param Child $child The child this case belongs to
+	 * @param array $data Data to pre-fill the Alerta step (as well as internal child data, such as "name" and "age")
+	 * @param bool $is_current Is this case the current case (does NOT mark other cases as non-current!)
+	 * @return ChildCase The spawned case
+	 */
+	public static function spawn(Child $child, array $data, bool $is_current = true) {
 
+		$tenant = $child->tenant;
+
+		$data['tenant_id'] = $tenant->id;
 		$data['child_id'] = $child->id;
-		$data['risk_level'] = self::RISK_LEVEL_HIGH; // TODO: fetch from tenant settings
-		$data['is_current'] = true;
+
+		$data['risk_level'] = self::RISK_LEVEL_HIGH; // TODO: fetch risk level from tenant settings
+		$data['is_current'] = $is_current;
 
 		$data['name'] = self::generateName($child);
 
@@ -119,14 +171,15 @@ class ChildCase extends Model  {
 		$case = parent::create($data); /* @var $case ChildCase */
 		$steps = [];
 
-		foreach(self::$REQUIRED_STEPS as $index => $step) {
-			array_push($steps, CaseStep::generate($tenant, $case, $step['class'], $step['fill'] ?? []));
+		foreach(self::$REQUIRED_STEPS as $index => $step) { // Spawns out the default step structure
+			array_push($steps, CaseStep::spawn($case, $step['class'], $step['fill'] ?? []));
 		}
 
-		$case->linked_steps = collect($steps)->map(function ($step, $key) {
+		$case->linked_steps = collect($steps)->map(function ($step, $key) { // Builds linked steps structure
 			return ['id' => $step->id, 'type' => $step->step_type];
 		});
 
+		// Sets the first step as the current step (Alerta)
 		$current_step = array_shift($steps);
 		$case->current_step_id = $current_step->id;
 		$case->current_step_type = $current_step->step_type;

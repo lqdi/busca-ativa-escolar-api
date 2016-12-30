@@ -47,37 +47,66 @@ class Child extends Model  {
 		'child_status',
 	];
 
+	/**
+	 * The tenant that "owns" this child.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function tenant() {
 		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
 	}
 
+	/**
+	 * This child's origin instance city.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function city() {
 		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
 	}
 
+	/**
+	 * The current case that is dealing with this child.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
 	public function currentCase() {
 		return $this->hasOne('BuscaAtivaEscolar\ChildCase', 'id', 'current_case_id');
 	}
 
+	/**
+	 * The current case step this child is at.
+	 * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+	 */
 	public function currentStep() {
 		return $this->morphTo();
 	}
 
+	/**
+	 * Cases belonging to this child
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
 	public function cases() {
 		return $this->hasMany('BuscaAtivaEscolar\ChildCase', 'child_id', 'id');
 	}
 
 	// ------------------------------------------------------------------------
 
-	public static function createAlert(Tenant $tenant, array $data) {
+	/**
+	 * Creates a new Child case chain by data received by an alert.
+	 * This will create a new child, with a new ChildCase and the default CaseStep structure.
+	 *
+	 * @param Tenant $tenant The tenant this child will be attached to
+	 * @param array $data The data received
+	 * @return Child
+	 */
+	public static function spawnFromAlertData(Tenant $tenant, array $data) {
 
-		$data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
 		$data['tenant_id'] = $tenant->id;
 		$data['city_id'] = $tenant->city_id;
 
+		$data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
+
 		$child = self::create($data);
 
-		$case = ChildCase::generate($tenant, $child, $data);
+		$case = ChildCase::spawn($child, $data);
 		$alertStep = $case->currentStep;
 
 		$child->current_case_id = $case->id;
