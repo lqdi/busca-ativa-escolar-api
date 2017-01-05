@@ -22,10 +22,11 @@ Route::group(['prefix' => 'auth'], function () {
 	Route::get('/identity', 'Auth\TokenController@identity')->middleware('jwt.auth');
 });
 
-Route::group(['prefix' => 'v1'], function () {
+Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
-	Route::group(['middleware' => 'jwt.auth'], function() {
-		// Authenticated routes
+	Route::group(['middleware' => 'jwt.auth'], function() { // Authenticated routes
+		Route::resource('/children', 'Resources\ChildrenController');
+		Route::resource('/cases', 'Resources\CasesController');
 	});
 
 	Route::get('/static/alert_causes', 'Resources\CausesController@alert_causes');

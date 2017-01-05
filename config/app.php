@@ -173,6 +173,8 @@ return [
 	    Intervention\Image\ImageServiceProvider::class,
 	    Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
 	    Ixudra\Curl\CurlServiceProvider::class,
+	    Spatie\Fractal\FractalServiceProvider::class,
+	    Barryvdh\Cors\ServiceProvider::class,
 
 
 	    /*
@@ -237,6 +239,8 @@ return [
 	    'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
 	    'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
 	    'Curl' => Ixudra\Curl\Facades\Curl::class,
+	    'Fractal' => Spatie\Fractal\FractalFacade::class,
+
 
     ],
 
