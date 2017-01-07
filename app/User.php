@@ -26,7 +26,7 @@ class User extends Authenticatable {
 	const TYPE_SUPERUSER = "superuser";
 	const TYPE_GESTOR_NACIONAL = "gestor_nacional";
 	const TYPE_GESTOR_POLITICO = "gestor_politico";
-	const TYPE_GESTOR_OPERACIONAL = "gestor_operacional";
+	const TYPE_GESTOR_OPERACIONAL = "coordenador_operacional";
 	const TYPE_SUPERVISOR_INSTITUCIONAL = "supervisor_institucional";
 	const TYPE_TECNICO_VERIFICADOR = "tecnico_verificador";
 	const TYPE_AGENTE_COMUNITARIO = "agente_comunitario";

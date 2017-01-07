@@ -31,10 +31,9 @@ class TokenController extends BaseController  {
 
 		try {
 
-			$access_token = JWTAuth::attempt($credentials);
-			$refresh_token = "not_implemented";
+			$token = JWTAuth::attempt($credentials);
 
-			if (!$access_token) return response()->json(['error' => 'invalid_credentials'], 401);
+			if (!$token) return response()->json(['error' => 'invalid_credentials'], 401);
 
 			$user = Auth::user();
 
@@ -45,16 +44,24 @@ class TokenController extends BaseController  {
 
 		}
 
-		return response()->json(compact('access_token', 'refresh_token', 'user'));
+		return response()->json(compact('token', 'user'));
 	}
 
 	public function refresh(Request $request) {
 
-		// TODO: validate token; check against blacklist
-		// TODO: return new access JWT
-		// @see JWTAuth::refresh()
+		$token = $request->get('token', false);
 
-		throw new \Exception("not_implemented");
+		if(!$token) {
+			return response()->json(['error' => 'no_token_provided'], 500);
+		}
+
+		try {
+			$token = JWTAuth::refresh($token);
+		} catch (JWTException $ex) {
+			return response()->json(['error' => 'token_refresh_fail', 'reason' => $ex->getMessage()], 500);
+		}
+
+		return response()->json(compact('token'));
 	}
 
 	public function identity() {
