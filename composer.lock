@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8b8c153baaf25c7ddfdfe8c3c407cc5",
+    "content-hash": "2e5f4e4249117acb7638bd9268674991",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -2325,16 +2325,16 @@
         },
         {
             "name": "spatie/laravel-fractal",
-            "version": "3.0.1",
+            "version": "3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-fractal.git",
-                "reference": "6c9e7a5c1fb8510cde42038f841a92cd9707a486"
+                "reference": "677957c62dbe2323be62a88fbce23c185f488e55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-fractal/zipball/6c9e7a5c1fb8510cde42038f841a92cd9707a486",
-                "reference": "6c9e7a5c1fb8510cde42038f841a92cd9707a486",
+                "url": "https://api.github.com/repos/spatie/laravel-fractal/zipball/677957c62dbe2323be62a88fbce23c185f488e55",
+                "reference": "677957c62dbe2323be62a88fbce23c185f488e55",
                 "shasum": ""
             },
             "require": {
@@ -2378,7 +2378,7 @@
                 "spatie",
                 "transform"
             ],
-            "time": "2016-12-11T07:24:43+00:00"
+            "time": "2017-01-05T22:36:38+00:00"
         },
         {
             "name": "spatie/laravel-sluggable",

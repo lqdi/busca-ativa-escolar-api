@@ -57,14 +57,6 @@ abstract class CaseStep extends Model {
 		parent::__construct($attributes);
 	}
 
-	/**
-	 * Internal, determines primary key for API routing.
-	 * @return string
-	 */
-	public function getRouteKeyName() {
-		return 'id';
-	}
-
 	// ------------------------------------------------------------------------
 
 	/**
@@ -86,11 +78,22 @@ abstract class CaseStep extends Model {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * Finds a Child case by it's type class name and ID
+	 *
+	 * @param string $step_type The fully-qualified (w/ namespace) step class name
+	 * @param string $step_id The step ID
+	 * @return CaseStep
+	 */
+	public static function fetch($step_type, $step_id) {
+		return ($step_type)::findOrFail($step_id);
+	}
+
+	/**
 	 * Spawns a case step by it's class, pre-filling it with data and attaching it to a case.
 	 * Does not modify the parent ChildCase instance.
 	 *
 	 * @param ChildCase $case The case this step belongs to.
-	 * @param string $class The fully-qualified step class name to use. Must inherit this class (CaseStep).
+	 * @param string $class The step class name (without namespace) to use. Must inherit this class (CaseStep).
 	 * @param array $data The data to fill this step with.
 	 * @return CaseStep
 	 */

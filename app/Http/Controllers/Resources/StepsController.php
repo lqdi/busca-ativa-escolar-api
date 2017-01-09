@@ -1,30 +1,33 @@
 <?php
 /**
  * busca-ativa-escolar-api
- * CasesController.php
+ * StepsController.php
  *
  * Copyright (c) LQDI Digital
- * www.lqdi.net - 2016
+ * www.lqdi.net - 2017
  *
  * @author Aryel Tupinambá <aryel.tupinamba@lqdi.net>
  *
- * Created at: 30/12/2016, 16:22
+ * Created at: 08/01/2017, 01:29
  */
 
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
-use BuscaAtivaEscolar\ChildCase;
+use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
-use BuscaAtivaEscolar\Transformers\CaseTransformer;
+use BuscaAtivaEscolar\Transformers\StepTransformer;
 
-class CasesController extends BaseController  {
+class StepsController extends BaseController {
 
-	public function show(ChildCase $case) {
+	public function show($step_type, $step_id) {
+
+		$step = CaseStep::fetch($step_type, $step_id);
+
 		return fractal()
-			->item($case)
-			->transformWith(new CaseTransformer())
+			->item($step)
+			->transformWith(new StepTransformer())
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();

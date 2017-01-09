@@ -160,7 +160,6 @@ class ChildCase extends Model  {
 		$data['tenant_id'] = $tenant->id;
 		$data['child_id'] = $child->id;
 
-		$data['risk_level'] = self::RISK_LEVEL_HIGH; // TODO: fetch risk level from tenant settings
 		$data['is_current'] = $is_current;
 
 		$data['name'] = self::generateName($child);

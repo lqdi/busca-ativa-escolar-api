@@ -27,6 +27,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::group(['middleware' => 'jwt.auth'], function() { // Authenticated routes
 		Route::resource('/children', 'Resources\ChildrenController');
 		Route::resource('/cases', 'Resources\CasesController');
+
+		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show');
 	});
 
 	Route::get('/static/alert_causes', 'Resources\CausesController@alert_causes');

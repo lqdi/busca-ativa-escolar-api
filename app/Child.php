@@ -37,6 +37,9 @@ class Child extends Model  {
 
 		'mother_name',
 		'father_name',
+
+		'risk_level',
+		'gender',
 		'age',
 
 		'current_case_id',
@@ -103,6 +106,7 @@ class Child extends Model  {
 		$data['city_id'] = $tenant->city_id;
 
 		$data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
+		$data['risk_level'] = self::RISK_LEVEL_HIGH; // TODO: fetch risk level from tenant settings
 
 		$child = self::create($data);
 

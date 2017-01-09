@@ -16,20 +16,34 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Transformers\ChildTransformer;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class ChildrenController extends BaseController  {
 
-	// TODO: use Fractal/Larasponse to separate models from API resources (via transformers)
-
 	public function index() {
-		$children = Child::query()->simplePaginate(64);
+		$paginator = Child::with('cases')->paginate(64);
+		$collection = $paginator->getCollection();
+
 		// TODO: child searching
-		return response()->json($children);
+
+		return fractal()
+			->collection($collection)
+			->transformWith(new ChildTransformer)
+			->paginateWith(new IlluminatePaginatorAdapter($paginator))
+			->excludeCases()
+			->respond();
 	}
 
 	public function show(Child $child) {
 
-		return response()->json($child);
+		return fractal()
+			->item($child)
+			->transformWith(new ChildTransformer)
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->respond();
 	}
 
 }
