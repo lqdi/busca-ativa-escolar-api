@@ -23,10 +23,12 @@ class CaseTransformer extends TransformerAbstract {
 		'steps',
 		'child',
 		'assignedUser',
+		'currentStep',
 	];
 
 	protected $defaultIncludes = [
 		'steps',
+		'currentStep',
 	];
 
 	public function transform(ChildCase $case) {
@@ -53,6 +55,11 @@ class CaseTransformer extends TransformerAbstract {
 			'created_at' => $case->created_at->toIso8601String(),
 			'updated_at' => $case->created_at->toIso8601String(),
 		];
+	}
+
+	public function includeCurrentStep(ChildCase $case) {
+		$currentStep = $case->currentStep;
+		return $this->item($currentStep, new StepTransformer(), false);
 	}
 
 	public function includeSteps(ChildCase $case) {

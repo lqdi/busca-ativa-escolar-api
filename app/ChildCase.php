@@ -122,8 +122,9 @@ class ChildCase extends Model  {
 
 		$this->_steps = [];
 
-		foreach($this->linked_steps as $step) {
+		foreach($this->linked_steps as $i => $step) {
 			$step = ($step['type'])::find($step['id']);
+			$step->order = $i;
 			array_push($this->_steps, $step);
 		}
 

@@ -28,6 +28,9 @@ class StepTransformer extends TransformerAbstract {
 			'id' => $step->id,
 			'child_id' => $step->child_id,
 			'case_id' => $step->case_id,
+			'order' => $step->order,
+
+			'name' => trans('case_step.name.' . $step->step_type, ['report_index' => ($step->report_index ?? '')]),
 
 			'step_type' => $step->step_type,
 			'is_completed' => $step->is_completed,
