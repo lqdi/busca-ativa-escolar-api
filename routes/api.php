@@ -31,8 +31,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show');
 	});
 
-	Route::get('/static/alert_causes', 'Resources\CausesController@alert_causes');
-	Route::get('/static/case_causes', 'Resources\CausesController@case_causes');
+	Route::get('/static/static_data', 'Resources\StaticDataController@render');
 
 	Route::resource('/cities', 'Resources\CitiesController');
 	Route::resource('/tenants', 'Tenants\TenantsController');

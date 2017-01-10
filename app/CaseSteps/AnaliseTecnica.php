@@ -18,9 +18,6 @@ class AnaliseTecnica extends CaseStep {
 	protected $table = "case_steps_analise_tecnica";
 
 	public $stepFields = [
-		'identified_cause_ids',
-		'risk_level',
-
 		'analysis_description'
 	];
 

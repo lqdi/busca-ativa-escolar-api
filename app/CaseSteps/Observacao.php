@@ -27,6 +27,7 @@ class Observacao extends CaseStep {
 		'report_index',
 
 		'is_child_still_in_school',
+		'evasion_reason',
 
 		'observations',
 	];

@@ -38,17 +38,22 @@ class ChildCase extends Model  {
 
 	/**
 	 * The list and order of the default steps a case has.
+	 *
+	 * Warning: do NOT rely on lookups on this table for info; the structure/order may change as the application evolves
+	 * Use instead the case "linked_steps" array and metadata on each step row
+	 *
 	 * @var array
 	 */
 	public static $REQUIRED_STEPS = [
-		1 => ['index' => 1, 'class' => 'Alerta'],
-		2 => ['index' => 2, 'class' => 'Pesquisa'],
-		3 => ['index' => 3, 'class' => 'GestaoDoCaso'],
-		4 => ['index' => 4, 'class' => 'Rematricula'],
-		5 => ['index' => 5, 'class' => 'Observacao', 'fill' => ['report_index' => 1]],
-		6 => ['index' => 6, 'class' => 'Observacao', 'fill' => ['report_index' => 2]],
-		7 => ['index' => 7, 'class' => 'Observacao', 'fill' => ['report_index' => 3]],
-		8 => ['index' => 8, 'class' => 'Observacao', 'fill' => ['report_index' => 4]],
+		10 => ['index' => 10, 'class' => 'Alerta', 'next' => 20, 'fill' => ['is_completed' => 1]],
+		20 => ['index' => 20, 'class' => 'Pesquisa', 'next' => 30],
+		30 => ['index' => 30, 'class' => 'AnaliseTecnica', 'next' => 40],
+		40 => ['index' => 40, 'class' => 'GestaoDoCaso', 'next' => 50],
+		50 => ['index' => 50, 'class' => 'Rematricula', 'next' => 60],
+		60 => ['index' => 60, 'class' => 'Observacao', 'next' => 70, 'fill' => ['report_index' => 1]],
+		70 => ['index' => 70, 'class' => 'Observacao', 'next' => 80, 'fill' => ['report_index' => 2]],
+		80 => ['index' => 80, 'class' => 'Observacao', 'next' => 90, 'fill' => ['report_index' => 3]],
+		90 => ['index' => 90, 'class' => 'Observacao', 'next' => null, 'fill' => ['report_index' => 4]],
 	];
 
 	protected $table = "children_cases";
@@ -166,17 +171,24 @@ class ChildCase extends Model  {
 		$data['name'] = self::generateName($child);
 
 		// TODO: set assigned group/user via tenant settings
-		// TODO: figure out which user created this case
 
 		$case = parent::create($data); /* @var $case ChildCase */
 		$steps = [];
 
 		foreach(self::$REQUIRED_STEPS as $index => $step) { // Spawns out the default step structure
-			array_push($steps, CaseStep::spawn($case, $step['class'], $step['fill'] ?? []));
+			$next = self::$REQUIRED_STEPS[$step['next']] ?? [];
+			$spawnedStep = CaseStep::spawn($case, $step['index'], $step['class'], $next, $step['fill'] ?? []);
+
+			array_push($steps, $spawnedStep);
 		}
 
 		$case->linked_steps = collect($steps)->map(function ($step, $key) { // Builds linked steps structure
-			return ['id' => $step->id, 'type' => $step->step_type];
+			return [
+				'id' => $step->id,
+				'type' => $step->step_type,
+				'index' => $step->step_index,
+				'next' => ['type' => $step->next_type, 'index' => $step->next_index]
+			];
 		});
 
 		// Sets the first step as the current step (Alerta)

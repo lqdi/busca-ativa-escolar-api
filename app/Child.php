@@ -97,16 +97,19 @@ class Child extends Model  {
 	 * This will create a new child, with a new ChildCase and the default CaseStep structure.
 	 *
 	 * @param Tenant $tenant The tenant this child will be attached to
+	 * @param mixed $creatorUserID The ID of the user that created this alert (null if not available)
 	 * @param array $data The data received
 	 * @return Child
 	 */
-	public static function spawnFromAlertData(Tenant $tenant, array $data) {
+	public static function spawnFromAlertData(Tenant $tenant, $creatorUserID = null, array $data) {
 
 		$data['tenant_id'] = $tenant->id;
 		$data['city_id'] = $tenant->city_id;
 
+		$data['created_by_user_id'] = $creatorUserID;
+
 		$data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
-		$data['risk_level'] = self::RISK_LEVEL_HIGH; // TODO: fetch risk level from tenant settings
+		$data['risk_level'] = ChildCase::RISK_LEVEL_HIGH; // TODO: fetch risk level from tenant settings
 
 		$child = self::create($data);
 

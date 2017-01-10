@@ -14,8 +14,8 @@ class AddFieldsToChildren extends Migration
     public function up()
     {
         Schema::table("children", function (Blueprint $table) {
-        	$table->string("gender")->index()->nullable();
-        	$table->string("risk_level")->index()->default("low");
+        	$table->string("gender")->after('age')->index()->nullable();
+        	$table->string("risk_level")->after('gender')->index()->default("low");
         });
     }
 

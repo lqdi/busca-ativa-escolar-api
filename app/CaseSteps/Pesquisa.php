@@ -26,14 +26,18 @@ class Pesquisa extends CaseStep {
 		'cpf',
 
 		'has_been_in_school',
+		'reason_not_enrolled',
+
 		'school_last_grade',
 		'school_last_year',
+		'school_last_name',
 		'school_last_status',
 		'school_last_age',
 		'school_last_address',
 
 		'is_working',
 		'work_activity',
+		'work_activity_other',
 		'work_is_paid',
 		'work_weekly_hours',
 
@@ -55,6 +59,9 @@ class Pesquisa extends CaseStep {
 		'guardian_job',
 
 		'case_cause_ids',
+
+		'handicapped_at_sus',
+		'handicapped_reason_not_enrolled',
 
 		'place_address',
 		'place_cep',
