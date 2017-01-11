@@ -14,9 +14,11 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
+use Auth;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\ChildTransformer;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
@@ -44,6 +46,24 @@ class ChildrenController extends BaseController  {
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
+	}
+
+	public function store() {
+
+		$user = Auth::user();
+		$tenant = $user->isRestrictedToTenant() ? $user->tenant : Tenant::findOrFail(request('tenant_id'));
+
+		try {
+			$child = Child::spawnFromAlertData($tenant, $user->id, request()->toArray());
+		} catch (\Exception $ex) {
+			return response()->json(['error' => 'child_spawn_failed', 'reason' => $ex->getMessage()], 500);
+		}
+
+		return response()->json([
+			'tenant_id' => $tenant->id,
+			'child_id' => $child->id,
+		]);
+
 	}
 
 }
