@@ -76,4 +76,68 @@ class Pesquisa extends CaseStep {
 
 	// TODO: when this step is filled, calculate "age" field via "dob" field
 
+	protected function onStart($prevStep = null) {
+		$this->flagAsPendingAssignment();
+	}
+
+	public function validate($data, $isCompletingStep = false) {
+		$data['is_completing_step'] = $isCompletingStep;
+
+		return validator($data, [
+			'name' => 'required_for_completion',
+			'gender' => 'required_for_completion|' . \BuscaAtivaEscolar\Data\Gender::getSlugValidationMask(),
+			'race' => 'required_for_completion|' . \BuscaAtivaEscolar\Data\Race::getSlugValidationMask(),
+			'dob' => 'required_for_completion|date',
+			'rg' => 'alpha_num',
+			'cpf' => 'digits:11',
+
+			'has_been_in_school' => 'required_for_completion|boolean',
+			'reason_not_enrolled' => 'required_if:has_been_in_school,true|string',
+
+			'school_last_grade' => 'required_if:has_been_in_school,true|' . \BuscaAtivaEscolar\Data\SchoolGrade::getSlugValidationMask(),
+			'school_last_year' => 'required_if:has_been_in_school,true|digits:4',
+			'school_last_name' => 'required_if:has_been_in_school,true|string',
+			'school_last_status' => 'required_if:has_been_in_school,true|string',
+			'school_last_age' => 'required_if:has_been_in_school,true|numeric',
+			'school_last_address' => 'required_if:has_been_in_school,true|string',
+
+			'is_working' => 'required_for_completion|boolean',
+			'work_activity' => 'required_if:is_working,true|' . \BuscaAtivaEscolar\Data\WorkActivity::getSlugValidationMask(),
+			'work_activity_other' => 'required_if:work_activity,other|string',
+			'work_is_paid' => 'required_if:is_working,true|boolean',
+			'work_weekly_hours' => 'required_if:is_working,true|numeric',
+
+			'parents_has_mother' => 'required_for_completion|boolean',
+			'parents_has_father' => 'required_for_completion|boolean',
+			'parents_has_brother' => 'required_for_completion|boolean',
+
+			'parents_who_is_guardian' => 'required_for_completion|in:mother,father,brother',
+			'parents_income' => 'required_for_completion|numeric',
+			'mother_name' => 'required_for_completion|string',
+
+			'guardian_name' => 'required_for_completion|string',
+			'guardian_rg' => 'alpha_num',
+			'guardian_cpf' => 'digits:11',
+			'guardian_dob' => 'date',
+			'guardian_phone' => 'alpha_dash',
+			'guardian_race' =>  \BuscaAtivaEscolar\Data\Race::getSlugValidationMask(),
+			'guardian_schooling' =>  \BuscaAtivaEscolar\Data\SchoolingLevel::getSlugValidationMask(),
+			'guardian_job' => 'string',
+
+			'case_cause_ids' => 'array|min:1',
+
+			'handicapped_at_sus' => 'required_for_completion|boolean',
+			'handicapped_reason_not_enrolled' => 'required_if:handicapped_at_sus,true|string',
+
+			'place_address' => 'required_for_completion|string',
+			'place_cep' => 'digits:8',
+			'place_reference' => 'string',
+			'place_neighborhood' => 'required_for_completion|string',
+			'place_city' => 'required_for_completion|string',
+			'place_uf' => 'required_for_completion|string|size:2',
+			'place_kind' => 'required_for_completion|in:urbano,rural',
+			'place_is_quilombola' => 'required_for_completion|boolean',
+		]);
+	}
+
 }

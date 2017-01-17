@@ -61,6 +61,7 @@ class ChildCase extends Model  {
 		'child_id',
 
 		'case_status',
+		'cancel_reason',
 
 		'name',
 
@@ -70,6 +71,9 @@ class ChildCase extends Model  {
 
 		'assigned_group_id',
 		'assigned_user_id',
+
+		'alert_cause_id',
+		'case_cause_ids',
 
 		'created_by_user_id',
 
@@ -134,6 +138,81 @@ class ChildCase extends Model  {
 		}
 
 		return $this->_steps;
+	}
+
+	/**
+	 * Advances the case current step pointer to the next step in the sequence, effectively starting it.
+	 * This does NOT complete the current step, and is actually called by the "complete()" method in CaseStep.
+	 * This is to allow for future non-linear sequence progressions (multiple uncompleted steps).
+	 *
+	 * @param CaseStep|null $current The case step to consider as current; defaults to the one marked in current_step_id
+	 * @return CaseStep|null The next step in the sequence, or null if none
+	 */
+	public function advanceToNextStep($current = null) {
+		if(!$current) $current = $this->currentStep;
+		$next = $current->fetchNextStep(); /* @var $next CaseStep */
+
+		if(!$next) return null;
+
+		// Assigned user is resolved here when possible, via overridden "CaseStep::onStart"
+		$next->start($current);
+
+		$this->current_step_type = $next->step_type;
+		$this->current_step_id = $next->id;
+
+		if($next->assigned_user_id) {
+			$this->assigned_user_id = $next->assigned_user_id;
+		}
+
+		$this->save();
+
+		return $next;
+
+	}
+
+	/**
+	 * Completes the current case, signalling the children has been reinserted in school.
+	 * This sets the child status to In School. Emits the "completed" and "closed" events.
+	 */
+	public function complete() {
+		$this->case_status = self::STATUS_COMPLETED;
+		$this->save();
+
+		$this->child->setStatus(Child::STATUS_IN_SCHOOL);
+
+		event("child_case.completed", [$this]);
+		event("child_case.closed", [$this]);
+	}
+
+	/**
+	 * Cancels the current case due to a specific reason (duplicate, invalid, etc).
+	 * This sets the child status to Cancelled. Will emit the "cancelled" and "closed" events.
+	 *
+	 * @param string $reason The reason for cancellation.
+	 */
+	public function cancel($reason = "") {
+		$this->case_status = self::STATUS_CANCELLED;
+		$this->cancel_reason = $reason;
+		$this->save();
+
+		$this->child->setStatus(Child::STATUS_CANCELLED);
+
+		event("child_case.cancelled", [$this]);
+		event("child_case.closed", [$this]);
+	}
+
+	/**
+	 * Closes the case due to an interruption (i.e. another evasion by the child).
+	 * This sets the child status to Out of School, and emits the "interrupted" and "closed" events.
+	 */
+	public function interrupt() {
+		$this->case_status = self::STATUS_INTERRUPTED;
+		$this->save();
+
+		$this->child->setStatus(Child::STATUS_OUT_OF_SCHOOL);
+
+		event("child_case.interrupted", [$this]);
+		event("child_case.closed", [$this]);
 	}
 
 	// ------------------------------------------------------------------------

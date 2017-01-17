@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Transformers;
 
 
+use BuscaAtivaEscolar\User;
 use League\Fractal\TransformerAbstract;
 
 class UserTransformer extends TransformerAbstract {

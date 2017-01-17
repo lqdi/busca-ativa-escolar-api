@@ -30,4 +30,33 @@ class CasesController extends BaseController  {
 			->respond();
 	}
 
+	public function cancel(ChildCase $case) {
+		try {
+
+			$reason = request('reason');
+			$case->cancel($reason);
+
+			return response()->json(['status' => 'ok']);
+
+		} catch (\Exception $ex) {
+			return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
+		}
+	}
+
+	public function interrupt(ChildCase $case) {
+		try {
+
+			if($case->current_step_type !== 'BuscaAtivaEscolar\CaseSteps\Observacao') {
+				throw new \Exception("cannot_interrupt_in_current_step");
+			}
+
+			$case->interrupt();
+
+			return response()->json(['status' => 'ok']);
+
+		} catch (\Exception $ex) {
+			return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
+		}
+	}
+
 }

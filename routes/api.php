@@ -28,6 +28,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::resource('/children', 'Resources\ChildrenController');
 		Route::resource('/cases', 'Resources\CasesController');
 
+		Route::post('/steps/{step_type}/{step_id}/complete', 'Resources\StepsController@complete');
+		Route::get('/steps/{step_type}/{step_id}/assignable_users', 'Resources\StepsController@getAssignableUsers');
+		Route::post('/steps/{step_type}/{step_id}/assign_user', 'Resources\StepsController@assignUser');
+		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update');
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show');
 	});
 

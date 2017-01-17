@@ -27,6 +27,7 @@ class Child extends Model  {
 	const STATUS_OUT_OF_SCHOOL = "out_of_school";
 	const STATUS_OBSERVATION = "in_observation";
 	const STATUS_IN_SCHOOL = "in_school";
+	const STATUS_CANCELLED = "cancelled";
 
 	protected $table = "children";
 	protected $fillable = [
@@ -93,6 +94,19 @@ class Child extends Model  {
 	// ------------------------------------------------------------------------
 
 	/**
+	 * Sets the child's current status
+	 * @param string $status The child status. See Child::STATUS_*
+	 */
+	public function setStatus($status) {
+		$this->child_status = $status;
+		$this->save();
+
+		event("child.status_change", [$status]);
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
 	 * Creates a new Child case chain by data received by an alert.
 	 * This will create a new child, with a new ChildCase and the default CaseStep structure.
 	 *
@@ -122,7 +136,11 @@ class Child extends Model  {
 		$child->save();
 
 		$alertStep->fill($data);
+		$alertStep->assigned_user_id = $creatorUserID;
 		$alertStep->save();
+
+		// Advances to Pesquisa step
+		$alertStep->complete();
 
 		return $child;
 

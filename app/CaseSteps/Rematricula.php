@@ -37,4 +37,37 @@ class Rematricula extends CaseStep {
 		'observations',
 	];
 
+	protected function onStart($prevStep = null) {
+		$this->flagAsPendingAssignment();
+	}
+
+	protected function onComplete($nextStep = null) {
+		$this->childCase->enrolled_at = $this->reinsertion_date;
+		$this->childCase->save();
+	}
+
+	public function validate($data, $isCompletingStep = false) {
+		$data['is_completing_step'] = $isCompletingStep;
+
+		return validator($data, [
+			'reinsertion_date' => 'required_for_completion|date',
+			'reinsertion_grade' => 'required_for_completion|' . \BuscaAtivaEscolar\Data\SchoolGrade::getSlugValidationMask(),
+
+			'school_name' => 'required_for_completion|string',
+			'school_censo_id' => 'string',
+			'school_address' => 'required_for_completion|string',
+			'school_cep' => 'digits:8',
+			'school_neighborhood' => 'string',
+			'school_city' => 'required_for_completion|string',
+			'school_uf' => 'required_for_completion|string|size:2',
+			'school_contact_name' => 'required_for_completion|string',
+			'school_contact_email' => 'email',
+			'school_contact_position' => 'string',
+			'school_phone' => 'required_for_completion|alpha_dash',
+			'school_email' => 'email',
+
+			'observations' => 'string',
+		]);
+	}
+
 }

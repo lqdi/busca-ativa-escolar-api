@@ -50,8 +50,8 @@ class ChildTransformer extends TransformerAbstract {
 
 			'child_status' => $child->child_status,
 
-			'created_at' => $child->created_at->toIso8601String(),
-			'updated_at' => $child->created_at->toIso8601String(),
+			'created_at' => $child->created_at ? $child->created_at->toIso8601String() : null,
+			'updated_at' => $child->updated_at ? $child->updated_at->toIso8601String() : null,
 		];
 	}
 

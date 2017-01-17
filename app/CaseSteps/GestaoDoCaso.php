@@ -21,4 +21,14 @@ class GestaoDoCaso extends CaseStep {
 		'actions_description',
 	];
 
+	protected function onStart($prevStep = null) {
+		$this->flagAsPendingAssignment();
+	}
+
+	public function validate($data, $isCompletingStep = false) {
+		return validator($data, [
+			'actions_description' => 'required|string',
+		]);
+	}
+
 }

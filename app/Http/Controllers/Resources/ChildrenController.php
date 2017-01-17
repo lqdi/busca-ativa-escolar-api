@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use Auth;
+use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
@@ -50,19 +51,28 @@ class ChildrenController extends BaseController  {
 
 	public function store() {
 
-		$user = Auth::user();
-		$tenant = $user->isRestrictedToTenant() ? $user->tenant : Tenant::findOrFail(request('tenant_id'));
-
 		try {
-			$child = Child::spawnFromAlertData($tenant, $user->id, request()->toArray());
-		} catch (\Exception $ex) {
-			return response()->json(['error' => 'child_spawn_failed', 'reason' => $ex->getMessage()], 500);
-		}
+			$user = Auth::user();
+			$tenant = $user->isRestrictedToTenant() ? $user->tenant : Tenant::findOrFail(request('tenant_id'));
 
-		return response()->json([
-			'tenant_id' => $tenant->id,
-			'child_id' => $child->id,
-		]);
+			$data = request()->toArray();
+			$validation = (new Alerta())->validate($data);
+
+			if($validation->fails()) {
+				return response()->json(['status' => 'error', 'reason' => 'validation_failed', 'fields' => $validation->failed()]);
+			}
+
+			$child = Child::spawnFromAlertData($tenant, $user->id, $data);
+
+			return response()->json([
+				'status' => 'ok',
+				'tenant_id' => $tenant->id,
+				'child_id' => $child->id,
+			]);
+
+		} catch (\Exception $ex) {
+			return response()->json(['status' => 'error', 'error' => 'child_spawn_failed', 'reason' => $ex->getMessage()], 500);
+		}
 
 	}
 

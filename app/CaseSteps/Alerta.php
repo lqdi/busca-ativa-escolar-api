@@ -46,4 +46,35 @@ class Alerta extends CaseStep  {
 		'place_mobile'
 	];
 
+	public function validate($data, $isCompletingStep = false) {
+		return validator($data, [
+			'name' => 'required',
+			'gender' => \BuscaAtivaEscolar\Data\Gender::getSlugValidationMask(),
+			'race' => \BuscaAtivaEscolar\Data\Race::getSlugValidationMask(),
+			'dob' => 'date',
+			'rg' => 'alpha_num',
+
+			'cpf' => 'digits:11',
+			'nis' => 'alpha_num',
+			'alert_cause_id' => 'required|' . \BuscaAtivaEscolar\Data\AlertCause::getSlugValidationMask('id'),
+
+			'mother_name' => 'required|string',
+			'mother_rg' => 'alpha_num',
+			'mother_phone' => 'alpha_dash',
+
+			'father_name' => 'string',
+			'father_rg' => 'alpha',
+			'father_phone' => 'alpha_dash',
+
+			'place_address' => 'required|string',
+			'place_cep' => 'digits:8',
+			'place_reference' => 'string',
+			'place_neighborhood' => 'required|string',
+			'place_city' => 'required|string',
+			'place_uf' => 'required|string|size:2',
+			'place_phone' => 'alpha_dash',
+			'place_mobile' => 'alpha_dash',
+		]);
+	}
+
 }

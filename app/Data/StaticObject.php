@@ -85,4 +85,13 @@ abstract class StaticObject {
 		return static::$data;
 	}
 
+	/**
+	 * Gets the validation mask for all possible values in a key
+	 * @param string $key The key to build the mask with (default: slug)
+	 * @return string
+	 */
+	public static function getSlugValidationMask($key =  "slug") {
+		return "in:" . join(",", array_pluck(static::$data, $key));
+	}
+
 }

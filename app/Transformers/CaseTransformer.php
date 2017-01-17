@@ -52,8 +52,9 @@ class CaseTransformer extends TransformerAbstract {
 			'current_step_id' => $case->current_step_id,
 			'current_step_type' => $case->current_step_type,
 
-			'created_at' => $case->created_at->toIso8601String(),
-			'updated_at' => $case->created_at->toIso8601String(),
+			'created_at' => $case->created_at ? $case->created_at->toIso8601String() : null,
+			'updated_at' => $case->updated_at ? $case->updated_at->toIso8601String() : null,
+			'enrolled_at' => $case->enrolled_at,
 		];
 	}
 

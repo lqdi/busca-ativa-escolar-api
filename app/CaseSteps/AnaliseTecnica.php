@@ -21,4 +21,15 @@ class AnaliseTecnica extends CaseStep {
 		'analysis_description'
 	];
 
+	protected function onStart($prevStep = null) {
+		if(!$prevStep || !$prevStep->assignedUser) return $this->flagAsPendingAssignment();
+		$this->assignToUser($prevStep->assignedUser);
+	}
+
+	public function validate($data, $isCompletingStep = false) {
+		return validator($data, [
+			'analysis_description' => 'required|string',
+		]);
+	}
+
 }
