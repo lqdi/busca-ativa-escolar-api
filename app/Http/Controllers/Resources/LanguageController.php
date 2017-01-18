@@ -22,7 +22,7 @@ class LanguageController extends BaseController {
 	public function generateLanguageFile() {
 
 		$base = [];
-		$dictionaries = ['case_step', 'child_case', 'risk_level', 'user'];
+		$dictionaries = ['case_step', 'child_case', 'risk_level', 'user', 'child'];
 
 		foreach($dictionaries as $dictionary) {
 			$base[$dictionary] = Lang::get($dictionary);

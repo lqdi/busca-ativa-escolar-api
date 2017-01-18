@@ -47,8 +47,16 @@ class Alerta extends CaseStep  {
 	];
 
 	protected function onComplete($nextStep = null) {
+
+		if($this->gender) {
+			$this->child->gender = $this->gender;
+			$this->child->save();
+		}
+
 		if(!$this->dob) return;
+
 		$this->child->calculateAgeThroughBirthday($this->dob);
+
 	}
 
 	public function validate($data, $isCompletingStep = false) {

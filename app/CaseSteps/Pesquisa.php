@@ -90,8 +90,16 @@ class Pesquisa extends CaseStep {
 	}
 
 	protected function onUpdated() {
-		$this->childCase->case_cause_ids = $this->case_cause_ids;
-		$this->childCase->save();
+
+		if($this->gender) {
+			$this->child->gender = $this->gender;
+			$this->save();
+		}
+
+		if($this->case_cause_ids) {
+			$this->childCase->case_cause_ids = $this->case_cause_ids;
+			$this->childCase->save();
+		}
 
 		$this->child->calculateAgeThroughBirthday($this->dob);
 	}
