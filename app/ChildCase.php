@@ -86,6 +86,7 @@ class ChildCase extends Model  {
 	protected $casts = [
 		'is_current' => 'boolean',
 		'linked_steps' => 'collection',
+		'case_cause_ids' => 'array',
 	];
 
 	/**
@@ -160,10 +161,14 @@ class ChildCase extends Model  {
 		$this->current_step_type = $next->step_type;
 		$this->current_step_id = $next->id;
 
+		$this->child->current_step_type = $next->step_type;
+		$this->child->current_step_id = $next->id;
+
 		if($next->assigned_user_id) {
 			$this->assigned_user_id = $next->assigned_user_id;
 		}
 
+		$this->child->save();
 		$this->save();
 
 		return $next;

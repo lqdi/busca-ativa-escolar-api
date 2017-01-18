@@ -20,4 +20,22 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class BaseController extends Controller {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    protected function api_exception(\Exception $exception) {
+
+	    $exceptionInfo = $exception->getMessage();
+
+	    if(env('APP_DEBUG', false)) {
+	    	$exceptionInfo = [
+			    'message' => $exception->getMessage(),
+			    'stack' => $exception->getTrace()
+		    ];
+	    }
+
+    	return response()->json([
+    		'status' => 'error',
+		    'reason' => 'exception',
+		    'exception' => $exceptionInfo
+	    ]);
+    }
 }

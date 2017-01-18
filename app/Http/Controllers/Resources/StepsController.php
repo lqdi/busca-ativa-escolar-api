@@ -57,7 +57,7 @@ class StepsController extends BaseController {
 			return response()->json(['status' => 'ok', 'updated' => $input]);
 
 		} catch (\Exception $ex) {
-			return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
+			return $this->api_exception($ex);
 		}
 	}
 
@@ -92,7 +92,7 @@ class StepsController extends BaseController {
 			]);
 
 		} catch (\Exception $ex) {
-			return response()->json(['status' => 'error', 'reason' => 'exception', 'exception' => $ex->getMessage()]);
+			return $this->api_exception($ex);
 		}
 
 	}
@@ -108,7 +108,7 @@ class StepsController extends BaseController {
 				->respond();
 
 		} catch (\Exception $ex) {
-			return response()->json(['status' => 'error', 'reason' => 'exception', 'exception' => $ex->getMessage()]);
+			return $this->api_exception($ex);
 		}
 	}
 
@@ -122,7 +122,7 @@ class StepsController extends BaseController {
 			return response()->json(['status' => 'ok', 'user' => fractal()->item($user, new UserTransformer())]);
 
 		} catch (\Exception $ex) {
-			return response()->json(['status' => 'error', 'reason' => 'exception', 'exception' => $ex->getMessage()]);
+			return $this->api_exception($ex);
 		}
 	}
 

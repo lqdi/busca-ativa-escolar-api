@@ -204,6 +204,8 @@ abstract class CaseStep extends Model {
 		$this->fill($input);
 		$this->save();
 
+		$this->onUpdated();
+
 		event('case_step.updated', ['data' => $data]);
 
 		return $input;
@@ -214,6 +216,7 @@ abstract class CaseStep extends Model {
 
 	protected function onStart($prevStep = null) {}
 	protected function onComplete($nextStep = null) {}
+	protected function onUpdated() {}
 	protected function onAssign(User $user) {}
 
 	// ------------------------------------------------------------------------

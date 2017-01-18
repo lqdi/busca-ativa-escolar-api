@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -102,6 +103,22 @@ class Child extends Model  {
 		$this->save();
 
 		event("child.status_change", [$status]);
+	}
+
+	/**
+	 * Recalculates and updates the child's age through their birthday.
+	 * Internally users Carbon for the calculations.
+	 * Emits "age_updated" event.
+	 *
+	 * @param string $birthday The birthday in ISO format (YYYY-MM-DD)
+	 */
+	public function calculateAgeThroughBirthday(string $birthday) {
+		$dob = Carbon::createFromFormat('Y-m-d', $birthday);
+
+		$this->age = $dob->diffInYears();
+		$this->save();
+
+		event("child.age_updated", [$this]);
 	}
 
 	// ------------------------------------------------------------------------

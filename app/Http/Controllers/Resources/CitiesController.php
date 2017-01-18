@@ -30,11 +30,14 @@ class CitiesController extends BaseController  {
 		$query = City::search($filters);
 		$results = $query->simplePaginate(64);
 
+		// TODO: move to fractal response
+
 		return response()->json($results);
 
 	}
 
 	public function show(City $city) {
+		// TODO: move to fractal response
 		return response()->json($city);
 	}
 

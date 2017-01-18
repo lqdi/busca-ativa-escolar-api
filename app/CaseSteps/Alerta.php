@@ -46,6 +46,11 @@ class Alerta extends CaseStep  {
 		'place_mobile'
 	];
 
+	protected function onComplete($nextStep = null) {
+		if(!$this->dob) return;
+		$this->child->calculateAgeThroughBirthday($this->dob);
+	}
+
 	public function validate($data, $isCompletingStep = false) {
 		return validator($data, [
 			'name' => 'required',

@@ -27,6 +27,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::group(['middleware' => 'jwt.auth'], function() { // Authenticated routes
 		Route::resource('/children', 'Resources\ChildrenController');
 		Route::resource('/cases', 'Resources\CasesController');
+		Route::resource('/users', 'Resources\UsersController');
 
 		Route::post('/steps/{step_type}/{step_id}/complete', 'Resources\StepsController@complete');
 		Route::get('/steps/{step_type}/{step_id}/assignable_users', 'Resources\StepsController@getAssignableUsers');
@@ -35,6 +36,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show');
 	});
 
+	Route::get('/language.json', 'Resources\LanguageController@generateLanguageFile');
 	Route::get('/static/static_data', 'Resources\StaticDataController@render');
 
 	Route::resource('/cities', 'Resources\CitiesController');

@@ -19,6 +19,10 @@ use League\Fractal\TransformerAbstract;
 
 class UserTransformer extends TransformerAbstract {
 
+	protected $availableIncludes = [
+		'tenant'
+	];
+
 	public function transform(User $user) {
 
 		return [
@@ -31,6 +35,11 @@ class UserTransformer extends TransformerAbstract {
 			'tenant_id' => $user->tenant_id,
 		];
 
+	}
+
+	public function includeTenant(User $user) {
+		if(!$user->tenant) return null;
+		return $this->item($user->tenant, new TenantTransformer(), false);
 	}
 
 }
