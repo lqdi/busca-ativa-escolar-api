@@ -34,6 +34,11 @@ class StaticDataController extends BaseController {
 				'SchoolGrade' => \BuscaAtivaEscolar\Data\SchoolGrade::getAllAsArray(),
 				'SchoolingLevel' => \BuscaAtivaEscolar\Data\SchoolingLevel::getAllAsArray(),
 				'WorkActivity' => \BuscaAtivaEscolar\Data\WorkActivity::getAllAsArray(),
+				'Config' => [
+					'uploads' => [
+						'allowed_mime_types' => config('uploads.allowed_mime_types'),
+					]
+				],
 			]
 		]);
 

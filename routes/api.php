@@ -26,6 +26,12 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	Route::group(['middleware' => 'jwt.auth'], function() { // Authenticated routes
 		Route::resource('/children', 'Resources\ChildrenController');
+		Route::get('/children/{child}/comments', 'Resources\ChildrenController@comments');
+		Route::get('/children/{child}/attachments', 'Resources\ChildrenController@attachments');
+		Route::get('/children/{child}/activity', 'Resources\ChildrenController@activity_log');
+		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment');
+		Route::post('/children/{child}/attachments', 'Resources\ChildrenController@addAttachment');
+
 		Route::resource('/cases', 'Resources\CasesController');
 		Route::resource('/users', 'Resources\UsersController');
 

@@ -92,6 +92,30 @@ class Child extends Model  {
 		return $this->hasMany('BuscaAtivaEscolar\ChildCase', 'child_id', 'id');
 	}
 
+	/**
+	 * Comments registered on this child's file
+	 * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+	 */
+	public function comments() {
+		return $this->morphMany( 'BuscaAtivaEscolar\Comment', 'content')->ordered();
+	}
+
+	/**
+	 * Attachments uploaded on this child's file
+	 * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+	 */
+	public function attachments() {
+		return $this->morphMany( 'BuscaAtivaEscolar\Attachment', 'content')->ordered();
+	}
+
+	/**
+	 * Activity log entries related to this child's file.
+	 * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+	 */
+	public function activity() {
+		return $this->morphMany('BuscaAtivaEscolar\ActivityLog', 'content')->ordered();
+	}
+
 	// ------------------------------------------------------------------------
 
 	/**

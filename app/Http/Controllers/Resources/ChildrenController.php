@@ -15,12 +15,17 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use Auth;
+use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\Transformers\AttachmentTransformer;
 use BuscaAtivaEscolar\Transformers\ChildTransformer;
+use BuscaAtivaEscolar\Transformers\CommentTransformer;
+use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class ChildrenController extends BaseController  {
@@ -47,6 +52,60 @@ class ChildrenController extends BaseController  {
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
+	}
+
+	public function comments(Child $child) {
+		return fractal()
+			->collection($child->comments)
+			->transformWith(new CommentTransformer())
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->respond();
+	}
+
+	public function attachments(Child $child) {
+		return fractal()
+			->collection($child->attachments)
+			->transformWith(new AttachmentTransformer())
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->respond();
+	}
+
+	public function activity_log(Child $child) {
+		return fractal()
+			->collection($child->activity)
+			->transformWith(new LogEntryTransformer())
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->respond();
+	}
+
+	public function addComment(Child $child) {
+		try {
+
+			$message = request('message');
+			$comment = Comment::post($child, Auth::user(), $message);
+
+			return response()->json(['status' => 'ok', 'comment_id' => $comment->id]);
+
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+	}
+
+	public function addAttachment(Child $child) {
+		try {
+
+			$file = request()->file('file');
+			$description = request('description', '');
+			$attachment = Attachment::createFromUpload($file, $child, Auth::user(), $description);
+
+			return response()->json(['status' => 'ok', 'comment_id' => $attachment->id]);
+
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
 	}
 
 	public function store() {
