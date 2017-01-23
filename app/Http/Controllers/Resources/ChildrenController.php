@@ -20,6 +20,7 @@ use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\SearchQuery;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Services\Search;
 use BuscaAtivaEscolar\Tenant;
@@ -34,49 +35,18 @@ class ChildrenController extends BaseController  {
 
 	public function search(Search $search) {
 
-		$query = [
-			'bool' => [
-				'must' => [],
-				'should' => [],
-				'filter' => []
-			]
-		];
-
-		// TODO: refactor this, moving all filtering logic to a fluid composer class
-		// TODO: build good seeder so we have more data to test this
-
-		if(request()->has('name')) array_push($query['bool']['must'], ['term' => ['name' => request('name')]]);
-		if(request()->has('cause_name')) array_push($query['bool']['must'], ['term' => ['cause_name' => request('cause_name')]]);
-		if(request()->has('step_name')) array_push($query['bool']['must'], ['term' => ['step_name' => request('step_name')]]);
-		if(request()->has('assigned_user_name')) array_push($query['bool']['must'], ['term' => ['assigned_user_name' => request('assigned_user_name')]]);
-		if(request()->has('location_full')) {
-			array_push($query['bool']['must'], ['multi_match' => [
-				'query' => request('location_full'),
-				'fields' => ['place_address^3', 'place_cep^2', 'place_city^2', 'place_uf', 'place_neighborhood', 'place_reference']
-			]]);
-		}
-
-		if(request()->has('risk_level')) array_push($query['bool']['filter'], ['terms' => ['risk_level' => request('risk_level')]]);
-
-		if(request()->has('gender')) {
-			$filter = ['bool' => ['should' => [['terms' => ['gender' => request('gender')]]]]];
-			if(request('gender_null', false)) array_push($filter['bool']['should'], ['missing' => ['field' => 'gender']]);
-			array_push($query['bool']['filter'], $filter);
-		}
-
-		if(request()->has('place_kind')) {
-			$filter = ['bool' => ['should' => [['terms' => ['place_kind' => request('place_kind')]]]]];
-			if(request('place_kind_null', false)) array_push($filter['bool']['should'], ['missing' => ['field' => 'place_kind']]);
-			array_push($query['bool']['filter'], $filter);
-		}
-
-		if(request()->has('age')) {
-			$filter = ['bool' => ['should' => [['range' => ['age' => request('age')]]]]];
-			if(request('age_null', false)) array_push($filter['bool']['should'], ['missing' => ['field' => 'age']]);
-			array_push($query['bool']['filter'], $filter);
-		}
-
-		//return response()->json($query);
+		$params = request()->all();
+		$query = SearchQuery::withParameters($params)
+			->addTextFields(['name', 'cause_name', 'step_name', 'assigned_user_name'])
+			->searchTextInColumns(
+				'location_full',
+				['place_address^3', 'place_cep^2', 'place_city^2', 'place_uf', 'place_neighborhood', 'place_reference']
+			)
+			->filterByTerms('risk_level', $params['risk_level_null'] ?? false)
+			->filterByTerms('gender',$params['gender_null'] ?? false)
+			->filterByTerms('place_kind',$params['place_kind_null'] ?? false)
+			->filterByRange('age',$params['age_null'] ?? false)
+			->getQuery();
 
 		$results = $search->search(new Child(), $query);
 
