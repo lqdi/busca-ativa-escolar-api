@@ -18,7 +18,7 @@ use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
-use BuscaAtivaEscolar\Traits\Search\Searchable;
+use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;

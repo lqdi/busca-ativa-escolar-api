@@ -11,7 +11,7 @@
  * Created at: 22/01/2017, 21:57
  */
 
-namespace BuscaAtivaEscolar\Traits\Search;
+namespace BuscaAtivaEscolar\Search\Interfaces;
 
 
 interface Searchable {

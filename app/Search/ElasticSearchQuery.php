@@ -11,10 +11,10 @@
  * Created at: 23/01/2017, 14:19
  */
 
-namespace BuscaAtivaEscolar;
+namespace BuscaAtivaEscolar\Search;
 
 
-class SearchQuery {
+class ElasticSearchQuery {
 
 	/**
 	 * @var array The given search parameters.
@@ -50,7 +50,7 @@ class SearchQuery {
 	 *
 	 * @param string $name The name of the field in both search parameters and document.
 	 * @param string $priority The 'priority' to use (must/should/filter). See ElasticSearch docs for more info.
-	 * @return SearchQuery Same query instance, for fluid composition.
+	 * @return self Same query instance, for fluid composition.
 	 */
 	public function addTextField(string $name, string $priority = 'must') : self {
 		if(!isset($this->params[$name])) return $this;
@@ -68,7 +68,7 @@ class SearchQuery {
 	 *
 	 * @param array $names List of names of the fields in both search parameters and document.
 	 * @param string $priority The 'priority' to use (must/should/filter). See ElasticSearch docs for more info.
-	 * @return SearchQuery Same query instance, for fluid composition.
+	 * @return self Same query instance, for fluid composition.
 	 */
 	public function addTextFields(array $names, string $priority = 'must') : self {
 		if(sizeof($names) <= 0) return $this;
@@ -84,7 +84,7 @@ class SearchQuery {
 	 * @param string $name The name of the field in the search parameters.
 	 * @param array $fields The list of fields to search for; allows appending "^n" to designate weights (eg. ['name^3', 'nickname'])
 	 * @param string $priority The 'priority' to use (must/should/filter). See ElasticSearch docs for more info.
-	 * @return SearchQuery Same query instance, for fluid composition.
+	 * @return self Same query instance, for fluid composition.
 	 */
 	public function searchTextInColumns(string $name, array $fields = [], string $priority = 'must') : self {
 		if(!isset($this->params[$name])) return $this;
@@ -108,7 +108,7 @@ class SearchQuery {
 	 * @param string $name The name of the field in both search parameters and document.
 	 * @param bool $includeNullFields Should the results include the documents that are missing the field?
 	 * @param string $priority The 'priority' to use (must/should/filter). See ElasticSearch docs for more info.
-	 * @return SearchQuery Same query instance, for fluid composition.
+	 * @return self Same query instance, for fluid composition.
 	 */
  	public function filterByTerms(string $name, bool $includeNullFields = false, string $priority = 'filter') : self {
 		if(!isset($this->params[$name])) return $this;
@@ -132,7 +132,7 @@ class SearchQuery {
 	 * @param string $name The name of the field in both search parameters and document.
 	 * @param bool $includeNullFields Should the results include the documents that are missing the field?
 	 * @param string $priority The 'priority' to use (must/should/filter). See ElasticSearch docs for more info.
-	 * @return SearchQuery Same query instance, for fluid composition.
+	 * @return self Same query instance, for fluid composition.
 	 */
 	public function filterByRange(string $name, bool $includeNullFields = false, string $priority = 'filter') : self {
 		if(!isset($this->params[$name])) return $this;
@@ -160,7 +160,7 @@ class SearchQuery {
 	 * Creates a search query and gives it a specified set of search parameters.
 	 *
 	 * @param array $params The search parameters (associative array of fields to search and expected values).
-	 * @return SearchQuery The created search query, for fluid composition.
+	 * @return self The created search query, for fluid composition.
 	 */
 	public static function withParameters(array $params) : self {
 		return new self($params);

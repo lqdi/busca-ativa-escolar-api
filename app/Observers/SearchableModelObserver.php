@@ -13,9 +13,8 @@
 
 namespace BuscaAtivaEscolar\Observers;
 
-
-use BuscaAtivaEscolar\Services\Search;
-use BuscaAtivaEscolar\Traits\Search\Searchable;
+use BuscaAtivaEscolar\Search\Interfaces\Searchable;
+use BuscaAtivaEscolar\Search\Search;
 
 class SearchableModelObserver {
 

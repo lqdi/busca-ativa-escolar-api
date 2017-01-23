@@ -11,9 +11,9 @@
  * Created at: 22/01/2017, 21:55
  */
 
-namespace BuscaAtivaEscolar\Services;
+namespace BuscaAtivaEscolar\Search;
 
-use BuscaAtivaEscolar\Traits\Search\Searchable;
+use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use Elasticsearch\Client;
 
 class Search {

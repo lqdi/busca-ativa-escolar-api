@@ -20,9 +20,9 @@ use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
-use BuscaAtivaEscolar\SearchQuery;
+use BuscaAtivaEscolar\Search\ElasticSearchQuery;
+use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
-use BuscaAtivaEscolar\Services\Search;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\AttachmentTransformer;
 use BuscaAtivaEscolar\Transformers\ChildSearchTransformer;
@@ -36,7 +36,7 @@ class ChildrenController extends BaseController  {
 	public function search(Search $search) {
 
 		$params = request()->all();
-		$query = SearchQuery::withParameters($params)
+		$query = ElasticSearchQuery::withParameters($params)
 			->addTextFields(['name', 'cause_name', 'step_name', 'assigned_user_name'])
 			->searchTextInColumns(
 				'location_full',

@@ -15,7 +15,7 @@ namespace BuscaAtivaEscolar\Providers;
 
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Observers\SearchableModelObserver;
-use BuscaAtivaEscolar\Services\Search;
+use BuscaAtivaEscolar\Search\Search;
 use Elasticsearch\ClientBuilder;
 use Illuminate\Support\ServiceProvider;
 
