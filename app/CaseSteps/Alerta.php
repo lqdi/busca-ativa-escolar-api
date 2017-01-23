@@ -48,10 +48,12 @@ class Alerta extends CaseStep  {
 
 	protected function onComplete($nextStep = null) {
 
-		if($this->gender) {
-			$this->child->gender = $this->gender;
-			$this->child->save();
-		}
+		if($this->gender) $this->child->gender = $this->gender;
+		if($this->name) $this->child->name = $this->name;
+		if($this->mother_name) $this->child->mother_name = $this->mother_name;
+		if($this->father_name) $this->child->father_name = $this->father_name;
+
+		$this->child->save();
 
 		if(!$this->dob) return;
 

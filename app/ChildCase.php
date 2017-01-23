@@ -158,18 +158,21 @@ class ChildCase extends Model  {
 		// Assigned user is resolved here when possible, via overridden "CaseStep::onStart"
 		$next->start($current);
 
+
+		// Update case pointers
 		$this->current_step_type = $next->step_type;
 		$this->current_step_id = $next->id;
 
+		if($next->assigned_user_id) $this->assigned_user_id = $next->assigned_user_id;
+
+		$this->save();
+
+
+		// Update child pointers
 		$this->child->current_step_type = $next->step_type;
 		$this->child->current_step_id = $next->id;
 
-		if($next->assigned_user_id) {
-			$this->assigned_user_id = $next->assigned_user_id;
-		}
-
 		$this->child->save();
-		$this->save();
 
 		return $next;
 

@@ -13,13 +13,17 @@
 
 namespace BuscaAtivaEscolar;
 
+use BuscaAtivaEscolar\CaseSteps\CaseStep;
+use BuscaAtivaEscolar\Data\AlertCause;
+use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
+use BuscaAtivaEscolar\Traits\Search\Searchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Child extends Model  {
+class Child extends Model implements Searchable  {
 
 	use SoftDeletes;
 	use IndexedByUUID;
@@ -143,6 +147,50 @@ class Child extends Model  {
 		$this->save();
 
 		event("child.age_updated", [$this]);
+	}
+
+	// ------------------------------------------------------------------------
+
+	public function getSearchIndex() : string { return 'children'; }
+	public function getSearchType() : string { return 'child'; }
+	public function getSearchID() { return $this->id; }
+
+	/**
+	 * Builds the searchable document for the child.
+	 * @return array
+	 */
+	public function buildSearchDocument() : array {
+
+		$steps = $this->currentCase->fetchSteps(); /* @var $steps CaseStep[] */
+		$data = [];
+
+		foreach($steps as $step) {
+			$data = $step->getFields() + $data;
+		}
+
+		$data = $this->toArray() + $data;
+
+		//$data['name'] = $this->name;
+
+		$data['assigned_user_id'] = $this->currentStep->assignedUser->id ?? null;
+		$data['assigned_user_name'] = $this->currentStep->assignedUser->name ?? null;
+
+		$data['step_name'] = $this->currentStep->getName() ?? null;
+
+		if($this->currentCase->case_cause_ids) { // TODO: refactor this
+			$data['cause_name'] = join(", ", array_map(function ($cause_id) {
+				return CaseCause::getByID(intval($cause_id))->label ?? '';
+			}, $this->currentCase->case_cause_ids));
+		} else if($this->currentCase->alert_cause_id) {
+			$data['cause_name'] = AlertCause::getByID(intval($this->currentCase->alert_cause_id))->label ?? '';
+		}
+
+		$data['city_name'] = $this->city->name ?? null;
+		$data['uf'] = $this->city->uf ?? null;
+		$data['country_region'] = $this->city->region ?? null;
+
+		return $data;
+
 	}
 
 	// ------------------------------------------------------------------------

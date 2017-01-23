@@ -145,6 +145,9 @@ abstract class CaseStep extends Model {
 
 		$this->onStart($prevStep);
 
+		// Update search index
+		$this->child->save();
+
 		event('case_step.start', ['step' => $this, 'previous' => $prevStep]);
 	}
 
@@ -160,6 +163,9 @@ abstract class CaseStep extends Model {
 		$nextStep = $this->childCase->advanceToNextStep($this);
 
 		$this->onComplete($nextStep);
+
+		// Update search index
+		$this->child->save();
 
 		event('case_step.complete', ['step' => $this, 'next' => $nextStep]);
 
@@ -206,9 +212,30 @@ abstract class CaseStep extends Model {
 
 		$this->onUpdated();
 
+		// Update search index
+		$this->child->save();
+
 		event('case_step.updated', ['data' => $data]);
 
 		return $input;
+	}
+
+	/**
+	 * Gets an associative array with all step fields in this step.
+	 * Skips step metadata.
+	 *
+	 * @return array
+	 */
+	public function getFields() {
+		return collect($this->toArray())->only($this->stepFields)->toArray();
+	}
+
+	/**
+	 * Gets the human-readable name for the step
+	 * @return string|\Symfony\Component\Translation\TranslatorInterface
+	 */
+	public function getName() {
+		return trans('case_step.name.' . $this->step_type, ['report_index' => ($this->report_index ?? '')]);
 	}
 
 	// ------------------------------------------------------------------------

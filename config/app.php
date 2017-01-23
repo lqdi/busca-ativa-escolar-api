@@ -185,6 +185,7 @@ return [
         // BuscaAtivaEscolar\Providers\BroadcastServiceProvider::class,
         BuscaAtivaEscolar\Providers\EventServiceProvider::class,
         BuscaAtivaEscolar\Providers\RouteServiceProvider::class,
+        BuscaAtivaEscolar\Providers\SearchServiceProvider::class,
 
     ],
 

@@ -40,7 +40,7 @@ class StepTransformer extends TransformerAbstract {
 				'next' => ['type' => $step->next_type, 'index' => $step->next_index]
 			],
 
-			'name' => trans('case_step.name.' . $step->step_type, ['report_index' => ($step->report_index ?? '')]),
+			'name' => $step->getName(),
 
 			'step_type' => $step->step_type,
 
