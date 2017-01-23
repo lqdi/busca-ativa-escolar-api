@@ -100,6 +100,30 @@ class ElasticSearchQuery {
 	}
 
 	/**
+	 * Filters the documents that contains the term given. Allows you to include documents missing the given field.
+	 * Will search for the $params[$name] value in the $name field in the documents.
+	 * Adds a 'terms' search.
+	 * When including null fields, will push for a 'bool' section with two 'should' queries: 'range' and 'missing'.
+	 *
+	 * @param string $name The name of the field in both search parameters and document.
+	 * @param bool $includeNullFields Should the results include the documents that are missing the field?
+	 * @param string $priority The 'priority' to use (must/should/filter). See ElasticSearch docs for more info.
+	 * @return self Same query instance, for fluid composition.
+	 */
+	public function filterByTerm(string $name, bool $includeNullFields = false, string $priority = 'filter') : self {
+		if(!isset($this->params[$name])) return $this;
+		if(strlen($this->params[$name]) <= 0) return $this;
+
+		$filter = ['bool' => ['should' => [['term' => [$name => $this->params[$name]]]]]];
+
+		if($includeNullFields) array_push($filter['bool']['should'], ['missing' => ['field' => $name]]);
+
+		array_push($this->query['bool'][$priority], $filter);
+
+		return $this;
+	}
+
+	/**
 	 * Filters the documents that contain atleast one of the terms given. Allows you to include documents missing the given field.
 	 * Will search for the $params[$name] value in the $name field in the documents.
 	 * Adds a 'terms' search.

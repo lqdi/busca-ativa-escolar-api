@@ -36,7 +36,12 @@ class ChildrenController extends BaseController  {
 	public function search(Search $search) {
 
 		$params = request()->all();
+
+		// Scope the query within the tenant
+		if(Auth::user()->isRestrictedToTenant()) $params['tenant_id'] = Auth::user()->tenant_id;
+
 		$query = ElasticSearchQuery::withParameters($params)
+			->filterByTerm('tenant_id', false)
 			->addTextFields(['name', 'cause_name', 'step_name', 'assigned_user_name'])
 			->searchTextInColumns(
 				'location_full',
@@ -56,6 +61,7 @@ class ChildrenController extends BaseController  {
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
+
 	}
 
 	protected function list() {

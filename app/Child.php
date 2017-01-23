@@ -161,28 +161,34 @@ class Child extends Model implements Searchable  {
 	 */
 	public function buildSearchDocument() : array {
 
-		$steps = $this->currentCase->fetchSteps(); /* @var $steps CaseStep[] */
+		if(!$this->exists) return null;
+
 		$data = [];
 
-		foreach($steps as $step) {
-			$data = $step->getFields() + $data;
+		if($this->currentCase) {
+			$steps = $this->currentCase->fetchSteps(); /* @var $steps CaseStep[] */
+
+			foreach($steps as $step) {
+				$data = $step->getFields() + $data;
+			}
 		}
 
 		$data = $this->toArray() + $data;
 
-		//$data['name'] = $this->name;
+		if($this->currentStep) {
+			$data['assigned_user_id'] = $this->currentStep->assignedUser->id ?? null;
+			$data['assigned_user_name'] = $this->currentStep->assignedUser->name ?? null;
+			$data['step_name'] = $this->currentStep->getName() ?? null;
+		}
 
-		$data['assigned_user_id'] = $this->currentStep->assignedUser->id ?? null;
-		$data['assigned_user_name'] = $this->currentStep->assignedUser->name ?? null;
-
-		$data['step_name'] = $this->currentStep->getName() ?? null;
-
-		if($this->currentCase->case_cause_ids) { // TODO: refactor this
-			$data['cause_name'] = join(", ", array_map(function ($cause_id) {
-				return CaseCause::getByID(intval($cause_id))->label ?? '';
-			}, $this->currentCase->case_cause_ids));
-		} else if($this->currentCase->alert_cause_id) {
-			$data['cause_name'] = AlertCause::getByID(intval($this->currentCase->alert_cause_id))->label ?? '';
+		if($this->currentCase) {
+			if($this->currentCase->case_cause_ids) { // TODO: refactor this
+				$data['cause_name'] = join(", ", array_map(function ($cause_id) {
+					return CaseCause::getByID(intval($cause_id))->label ?? '';
+				}, $this->currentCase->case_cause_ids));
+			} else if($this->currentCase->alert_cause_id) {
+				$data['cause_name'] = AlertCause::getByID(intval($this->currentCase->alert_cause_id))->label ?? '';
+			}
 		}
 
 		$data['city_name'] = $this->city->name ?? null;
