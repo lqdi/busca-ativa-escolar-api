@@ -23,9 +23,7 @@ trait IndexedByUUID {
 		call_user_func_array(['parent','__construct'], func_get_args());
 	}
 
-	protected static function boot() {
-		parent::boot();
-
+	protected static function bootIndexedByUUID() {
 		static::creating(function ($model) {
 			if(isset($model->{$model->getKeyName()})) return;
 			$model->{$model->getKeyName()} = Uuid::generate()->string;

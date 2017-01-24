@@ -18,21 +18,15 @@ use BuscaAtivaEscolar\Scopes\TenantScope;
 
 trait TenantScopedModel {
 
-	public static function bootTenantScopedModelTrait()
-	{
-		$tenantScope = App::make('Acme\Scoping\TenantScope');
-
-		// Add Global scope that will handle all operations except create()
-		static::addGlobalScope($tenantScope);
+	public static function bootTenantScopedModel() {
+		static::addGlobalScope(new TenantScope());
 	}
 
-	public static function allTenants()
-	{
+	public static function allTenants() {
 		return with(new static())->newQueryWithoutScope(new TenantScope());
 	}
 
-	public function getTenantWhereClause($tenantColumn, $tenantId)
-	{
+	public function getTenantWhereClause($tenantColumn, $tenantId) {
 		return "{$this->getTable()}.{$tenantColumn} = '{$tenantId}''";
 	}
 

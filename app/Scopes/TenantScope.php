@@ -22,6 +22,9 @@ use Illuminate\Database\Eloquent\Scope;
 class TenantScope implements Scope  {
 
 	public function apply(Builder $builder, Model $model) {
+
+		if(!Auth::check()) return;
+
 		$currentUser = Auth::user();
 
 		// Curries regular users to their own tenants

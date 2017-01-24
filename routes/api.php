@@ -1,18 +1,4 @@
 <?php
-
-use Illuminate\Http\Request;
-
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
 Route::get('/versions', function() {
 	return response()->json(['available_versions' => ['v1']]);
 });
@@ -25,19 +11,27 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	Route::group(['middleware' => 'jwt.auth'], function() { // Authenticated routes
+
+		// Children
 		Route::resource('/children', 'Resources\ChildrenController');
-
 		Route::post('/children/search', 'Resources\ChildrenController@search');
-
 		Route::get('/children/{child}/comments', 'Resources\ChildrenController@comments');
 		Route::get('/children/{child}/attachments', 'Resources\ChildrenController@attachments');
 		Route::get('/children/{child}/activity', 'Resources\ChildrenController@activity_log');
 		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment');
 		Route::post('/children/{child}/attachments', 'Resources\ChildrenController@addAttachment');
 
+		// Child Cases
 		Route::resource('/cases', 'Resources\CasesController');
-		Route::resource('/users', 'Resources\UsersController');
 
+		// Users
+		Route::resource('/users', 'Resources\UsersController');
+		Route::post('/users/search', 'Resources\UsersController@search');
+
+		// User Groups
+		Route::resource('/groups', 'Resources\GroupsController');
+
+		// Case Steps
 		Route::post('/steps/{step_type}/{step_id}/complete', 'Resources\StepsController@complete');
 		Route::get('/steps/{step_type}/{step_id}/assignable_users', 'Resources\StepsController@getAssignableUsers');
 		Route::post('/steps/{step_type}/{step_id}/assign_user', 'Resources\StepsController@assignUser');
@@ -45,9 +39,11 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show');
 	});
 
+	// Static data
 	Route::get('/language.json', 'Resources\LanguageController@generateLanguageFile');
 	Route::get('/static/static_data', 'Resources\StaticDataController@render');
 
+	// Open data for sign-up
 	Route::resource('/cities', 'Resources\CitiesController');
 	Route::resource('/tenants', 'Tenants\TenantsController');
 

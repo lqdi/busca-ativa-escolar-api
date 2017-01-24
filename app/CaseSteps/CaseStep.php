@@ -32,6 +32,7 @@ abstract class CaseStep extends Model {
 	 * @var array
 	 */
 	protected $baseFillable = [
+		'tenant_id',
 		'child_id',
 		'case_id',
 		'step_type',
@@ -81,6 +82,15 @@ abstract class CaseStep extends Model {
 	}
 
 	// ------------------------------------------------------------------------
+
+	/**
+	 * The tenant this step belongs to.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 * @var $tenant \BuscaAtivaEscolar\Tenant
+	 */
+	public function tenant() {
+		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
+	}
 
 	/**
 	 * The child this step belongs to.

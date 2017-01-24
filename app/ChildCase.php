@@ -58,6 +58,7 @@ class ChildCase extends Model  {
 
 	protected $table = "children_cases";
 	protected $fillable = [
+		'tenant_id',
 		'child_id',
 
 		'case_status',
@@ -94,6 +95,14 @@ class ChildCase extends Model  {
 	 * @var CaseStep[]
 	 */
 	protected $_steps = null;
+
+	/**
+	 * The tenant this case belongs to.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function tenant() {
+		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
+	}
 
 	/**
 	 * The child this case belongs to.

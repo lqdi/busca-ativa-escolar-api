@@ -3,6 +3,7 @@
 namespace BuscaAtivaEscolar\Console\Commands;
 
 use BuscaAtivaEscolar\City;
+use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
 
@@ -49,10 +50,15 @@ class RegisterTenant extends Command {
 
 	    $this->info("Tenant created: {$tenant->id} - {$tenant->name}");
 
+	    $group = Group::createDefaultPrimaryGroup($tenant);
+	    $this->info("Tenant primary group created: {$group->id} - {$group->name}");
+
+	    $manager->group_id = $group->id;
 	    $manager->tenant_id = $tenant->id;
 	    $manager->save();
 
-	    $this->info("Assigned tenant {$tenant->id} to manager {$manager->id}");
+
+	    $this->info("Assigned tenant {$tenant->id} and group {$group->id} to manager {$manager->id}");
 
 	    return;
 

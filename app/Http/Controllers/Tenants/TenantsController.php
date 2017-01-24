@@ -15,9 +15,22 @@ namespace BuscaAtivaEscolar\Http\Controllers\Tenants;
 
 
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\Transformers\TenantTransformer;
 
 class TenantsController extends BaseController  {
+
+	public function index() {
+		$tenants = Tenant::all();
+
+		return fractal()
+			->collection($tenants)
+			->transformWith(new TenantTransformer())
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->respond();
+	}
 
 	public function show(Tenant $tenant) {
 		return response()->json($tenant);

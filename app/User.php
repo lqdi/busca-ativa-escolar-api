@@ -14,6 +14,8 @@
 namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
+use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -21,6 +23,8 @@ class User extends Authenticatable {
 
 	use IndexedByUUID;
 	use Notifiable;
+	use SoftDeletes;
+	use TenantScopedModel;
 
 	// Types of user
 	const TYPE_SUPERUSER = "superuser";
@@ -31,6 +35,15 @@ class User extends Authenticatable {
 	const TYPE_TECNICO_VERIFICADOR = "tecnico_verificador";
 	const TYPE_AGENTE_COMUNITARIO = "agente_comunitario";
 
+	// Which user types are allowed to be assigned
+	static $ALLOWED_TYPES = [
+		self::TYPE_GESTOR_POLITICO,
+		self::TYPE_GESTOR_OPERACIONAL,
+		self::TYPE_SUPERVISOR_INSTITUCIONAL,
+		self::TYPE_TECNICO_VERIFICADOR,
+		self::TYPE_AGENTE_COMUNITARIO,
+	];
+
     protected $fillable = [
         'name',
 	    'email',
@@ -38,8 +51,28 @@ class User extends Authenticatable {
 
 	    'tenant_id',
 	    'city_id',
+	    'group_id',
 
 	    'type',
+
+	    'dob',
+		'cpf',
+
+		'work_phone',
+		'work_mobile',
+
+		'personal_email',
+		'personal_mobile',
+		'skype_username',
+
+		'work_address',
+		'work_cep',
+		'work_neighborhood',
+		'work_city',
+		'work_uf',
+
+		'institution',
+		'position',
     ];
 
     protected $hidden = [
@@ -68,6 +101,15 @@ class User extends Authenticatable {
 	}
 
 	/**
+	 * The user group this user belongs to.
+	 * Will be null when users are global users (SUPERUSER and GESTOR_NACIONAL)
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function group() {
+		return $this->hasOne('BuscaAtivaEscolar\Group', 'id', 'group_id');
+	}
+
+	/**
 	 * Internal, primary key for API routing.
 	 * @return string
 	 */
@@ -81,6 +123,47 @@ class User extends Authenticatable {
 	 */
 	public function isRestrictedToTenant() {
 		return !($this->type == self::TYPE_SUPERUSER || $this->type == self::TYPE_GESTOR_NACIONAL);
+	}
+
+	/**
+	 * Validates data inputted to the user
+	 *
+	 * @param array $data The given data
+	 * @param bool $isCreating Are we creating or updating a user?
+	 *
+	 * @return \Illuminate\Contracts\Validation\Validator
+	 */
+	public function validate($data, $isCreating = false) {
+		return validator($data, [
+			'name' => 'required|string',
+			'email' => ($isCreating ? 'required' : 'nullable') . '|email|unique:users',
+			'password' => ($isCreating ? 'required' : 'nullable') . '|min:6',
+
+			'tenant_id' => 'nullable',
+			'city_id' => 'nullable',
+			'group_id' => 'nullable',
+
+			'type' => 'required:in:' . join(",", self::$ALLOWED_TYPES),
+
+			'dob' => 'required|date',
+			'cpf' => 'required|alpha_dash',
+
+			'work_phone' => 'required|alpha_dash',
+			'work_mobile' => 'nullable|alpha_dash',
+
+			'personal_email' => 'nullable|email',
+			'personal_mobile' => 'nullable|email',
+			'skype_username' => 'nullable|alpha_dash',
+
+			'work_address' => 'required|string',
+			'work_cep' => 'required|string',
+			'work_neighborhood' => 'required|string',
+			'work_city' => 'required|string',
+			'work_uf' => 'required|string',
+
+			'institution' => 'required|string',
+			'position' => 'required|string',
+		]);
 	}
 
 	// ------------------------------------------------------------------------

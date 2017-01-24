@@ -20,7 +20,12 @@ use League\Fractal\TransformerAbstract;
 class UserTransformer extends TransformerAbstract {
 
 	protected $availableIncludes = [
-		'tenant'
+		'tenant',
+		'group',
+	];
+
+	protected $defaultIncludes = [
+		'group'
 	];
 
 	public function transform(User $user) {
@@ -33,6 +38,23 @@ class UserTransformer extends TransformerAbstract {
 			'email' => $user->email,
 
 			'tenant_id' => $user->tenant_id,
+			'group_id' => $user->group_id,
+			'city_id' => $user->city_id,
+
+			'cpf' => $user->cpf,
+			'dob' => $user->dob,
+			'work_phone' => $user->work_phone,
+			'work_mobile' => $user->work_mobile,
+			'personal_email' => $user->personal_email,
+			'personal_mobile' => $user->personal_mobile,
+			'skype_username' => $user->skype_username,
+			'work_address' => $user->work_address,
+			'work_cep' => $user->work_cep,
+			'work_neighborhood' => $user->work_neighborhood,
+			'work_city' => $user->work_city,
+			'work_uf' => $user->work_uf,
+			'institution' => $user->institution,
+			'position' => $user->position,
 		];
 
 	}
@@ -40,6 +62,11 @@ class UserTransformer extends TransformerAbstract {
 	public function includeTenant(User $user) {
 		if(!$user->tenant) return null;
 		return $this->item($user->tenant, new TenantTransformer(), false);
+	}
+
+	public function includeGroup(User $user) {
+		if(!$user->group) return null;
+		return $this->item($user->group, new GroupTransformer(), false);
 	}
 
 }
