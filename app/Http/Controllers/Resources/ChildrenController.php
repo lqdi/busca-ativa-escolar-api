@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use Auth;
+use BuscaAtivaEscolar\ActivityLog;
 use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
@@ -108,7 +109,7 @@ class ChildrenController extends BaseController  {
 
 	public function activity_log(Child $child) {
 		return fractal()
-			->collection($child->activity)
+			->collection(ActivityLog::fetchEntries($child, 64, true))
 			->transformWith(new LogEntryTransformer())
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))

@@ -16,6 +16,7 @@ namespace BuscaAtivaEscolar;
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
+use BuscaAtivaEscolar\Events\AlertSpawned;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
@@ -173,7 +174,8 @@ class Child extends Model implements Searchable  {
 			}
 		}
 
-		$data = $this->toArray() + $data;
+		$data = $this->getAttributes() + $data;
+
 
 		if($this->currentStep) {
 			$data['assigned_user_id'] = $this->currentStep->assignedUser->id ?? null;
@@ -233,6 +235,8 @@ class Child extends Model implements Searchable  {
 		$alertStep->fill($data);
 		$alertStep->assigned_user_id = $creatorUserID;
 		$alertStep->save();
+
+		event(new AlertSpawned($child, $case, $alertStep));
 
 		// Advances to Pesquisa step
 		$alertStep->complete();

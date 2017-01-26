@@ -83,6 +83,32 @@ class ActivityLog extends Model {
 	// -----------------------------------------------------------------------------------------------------------------
 
 	/**
+	 * Fetches the last activity log entries for the specified model.
+	 *
+	 * @param Model $content The parent content, whose activity are related to
+	 * @param int $max The maximum entries to fetch. If given 0, will return all.
+	 * @param bool $onlyVisibleEntries Filter only "visible" actions? Those are configured in config/activity_log.php
+	 * @return \Illuminate\Database\Eloquent\Collection|static[]
+	 */
+	public static function fetchEntries(Model $content, int $max = 10, bool $onlyVisibleEntries = true) {
+
+		$query = self::query()
+			->where('content_id', $content->id)
+			->where('content_type', get_class($content))
+			->orderBy('created_at', 'DESC');
+
+		if($max > 0) {
+			$query->limit($max);
+		}
+
+		if($onlyVisibleEntries) {
+			$query->whereIn('action', config('activity_log.visible_events.' . get_class($content), []));
+		}
+
+		return $query->get();
+	}
+
+	/**
 	 * Registers an activity in the activity log
 	 * @param Model $content The target content the activity was performed on
 	 * @param string $action The code of the activity that was performed. All similar actions must share the action code.
@@ -95,6 +121,19 @@ class ActivityLog extends Model {
 		$entry->tenant_id = $content->tenant_id ?? null;
 		$entry->content_type= get_class($content);
 		$entry->content_id = $content->id;
+
+		if(auth()->check()) {
+			$entry->user_id = auth()->user()->id;
+			$metadata['user'] = [
+				'id' => auth()->user()->id,
+				'name' => auth()->user()->name,
+				'type' => auth()->user()->type,
+				'email' => auth()->user()->email,
+				'group_id' => auth()->user()->group_id,
+				'tenant_id' => auth()->user()->tenant_id,
+			];
+		}
+
 		$entry->action = $action;
 		$entry->parameters = $parameters;
 		$entry->metadata = $metadata;

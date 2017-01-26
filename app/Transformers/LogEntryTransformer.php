@@ -37,7 +37,9 @@ class LogEntryTransformer extends TransformerAbstract {
 			'content_id' => $entry->content_id,
 			'action' => $entry->action,
 			'parameters' => $entry->parameters,
-			'metadata' => $entry->metadata,
+			'user' => $entry->metadata->user ?? null,
+			'message_template' => trans('activity_log.child.' . $entry->action),
+			'message' => trans('activity_log.child.' . $entry->action, (array) $entry->parameters),
 			'created_at' => $entry->created_at ? $entry->created_at->toIso8601String() : null,
 		];
 	}

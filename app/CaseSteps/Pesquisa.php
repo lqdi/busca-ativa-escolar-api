@@ -103,7 +103,9 @@ class Pesquisa extends CaseStep {
 			$this->childCase->save();
 		}
 
-		$this->child->calculateAgeThroughBirthday($this->dob);
+		if($this->dob) {
+			$this->child->calculateAgeThroughBirthday($this->dob);
+		}
 	}
 
 	public function validate($data, $isCompletingStep = false) {

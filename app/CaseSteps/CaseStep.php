@@ -14,6 +14,10 @@
 namespace BuscaAtivaEscolar\CaseSteps;
 
 use BuscaAtivaEscolar\ChildCase;
+use BuscaAtivaEscolar\Events\CaseStepAssigned;
+use BuscaAtivaEscolar\Events\CaseStepCompleted;
+use BuscaAtivaEscolar\Events\CaseStepStarted;
+use BuscaAtivaEscolar\Events\CaseStepUpdated;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use BuscaAtivaEscolar\User;
@@ -158,7 +162,7 @@ abstract class CaseStep extends Model {
 		// Update search index
 		$this->child->save();
 
-		event('case_step.start', ['step' => $this, 'previous' => $prevStep]);
+		event(new CaseStepStarted($this, $prevStep));
 	}
 
 	/**
@@ -177,7 +181,7 @@ abstract class CaseStep extends Model {
 		// Update search index
 		$this->child->save();
 
-		event('case_step.complete', ['step' => $this, 'next' => $nextStep]);
+		event(new CaseStepCompleted($this, $nextStep));
 
 		return $nextStep;
 	}
@@ -205,7 +209,7 @@ abstract class CaseStep extends Model {
 
 		$this->onAssign($user);
 
-		event('case_step.assigned', ['step' => $this, 'user' => $user]);
+		event(new CaseStepAssigned($this, $user));
 	}
 
 	/**
@@ -225,7 +229,7 @@ abstract class CaseStep extends Model {
 		// Update search index
 		$this->child->save();
 
-		event('case_step.updated', ['data' => $data]);
+		event(new CaseStepUpdated($this, $data));
 
 		return $input;
 	}

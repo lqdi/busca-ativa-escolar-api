@@ -1,14 +1,13 @@
 <?php
 /**
  * busca-ativa-escolar-api
- * Region.php
+ * SearchServiceProvider.php
  *
  * Copyright (c) LQDI Digital
  * www.lqdi.net - 2017
  *
  * @author Aryel Tupinambá <aryel.tupinamba@lqdi.net>
  *
- * Created at: 22/01/2017, 21:52
  */
 
 namespace BuscaAtivaEscolar\Providers;
