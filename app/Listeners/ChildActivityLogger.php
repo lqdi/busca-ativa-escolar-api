@@ -20,6 +20,9 @@ use BuscaAtivaEscolar\Events\CaseStepAssigned;
 use BuscaAtivaEscolar\Events\CaseStepCompleted;
 use BuscaAtivaEscolar\Events\CaseStepStarted;
 use BuscaAtivaEscolar\Events\CaseStepUpdated;
+use BuscaAtivaEscolar\Events\ChildCaseCancelled;
+use BuscaAtivaEscolar\Events\ChildCaseCompleted;
+use BuscaAtivaEscolar\Events\ChildCaseInterrupted;
 
 class ChildActivityLogger {
 
@@ -119,12 +122,49 @@ class ChildActivityLogger {
 		]);
 	}
 
+	public function onCaseCompleted(ChildCaseCompleted $event) {
+		ActivityLog::writeEntry($event->child, 'status_completed', [
+			'child_name' => $event->child->name,
+			'child_id' => $event->child->id,
+		], [
+			'source' => get_class(),
+			'child' => $event->child,
+			'request' => request()->all()
+		]);
+	}
+
+	public function onCaseInterrupted(ChildCaseInterrupted $event) {
+		ActivityLog::writeEntry($event->child, 'status_interrupted', [
+			'child_name' => $event->child->name,
+			'child_id' => $event->child->id,
+		], [
+			'source' => get_class(),
+			'child' => $event->child,
+			'request' => request()->all()
+		]);
+	}
+
+	public function onCaseCancelled(ChildCaseCancelled $event) {
+		ActivityLog::writeEntry($event->child, 'status_cancelled', [
+			'child_name' => $event->child->name,
+			'child_id' => $event->child->id,
+			'reason' => $event->reason,
+		], [
+			'source' => get_class(),
+			'child' => $event->child,
+			'request' => request()->all()
+		]);
+	}
+
 	public function subscribe($events) {
 		$events->listen(AlertSpawned::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onAlertSpawned');
 		$events->listen(CaseStepUpdated::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onStepUpdated');
 		$events->listen(CaseStepAssigned::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onStepAssigned');
 		$events->listen(CaseStepStarted::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onStepStarted');
 		$events->listen(CaseStepCompleted::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onStepCompleted');
+		$events->listen(ChildCaseCompleted::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onCaseCompleted');
+		$events->listen(ChildCaseInterrupted::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onCaseInterrupted');
+		$events->listen(ChildCaseCancelled::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onCaseCancelled');
 	}
 
 }

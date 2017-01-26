@@ -174,16 +174,19 @@ abstract class CaseStep extends Model {
 		$this->is_completed = true;
 		$this->save();
 
-		$nextStep = $this->childCase->advanceToNextStep($this);
+		$shouldContinue = $this->onComplete();
 
-		$this->onComplete($nextStep);
+		if($shouldContinue) {
+			$nextStep = $this->childCase->advanceToNextStep($this);
+		}
+
 
 		// Update search index
 		$this->child->save();
 
-		event(new CaseStepCompleted($this, $nextStep));
+		event(new CaseStepCompleted($this, $nextStep ?? null));
 
-		return $nextStep;
+		return ($nextStep ?? null);
 	}
 
 	/**
@@ -256,7 +259,7 @@ abstract class CaseStep extends Model {
 	// These are not abstract because they're optional
 
 	protected function onStart($prevStep = null) {}
-	protected function onComplete($nextStep = null) {}
+	protected function onComplete() : bool { return true; }
 	protected function onUpdated() {}
 	protected function onAssign(User $user) {}
 

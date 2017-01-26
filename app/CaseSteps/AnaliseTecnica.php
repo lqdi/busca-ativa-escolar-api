@@ -18,7 +18,7 @@ class AnaliseTecnica extends CaseStep {
 	protected $table = "case_steps_analise_tecnica";
 
 	public $stepFields = [
-		'analysis_description'
+		'analysis_details'
 	];
 
 	protected function onStart($prevStep = null) {
@@ -28,7 +28,7 @@ class AnaliseTecnica extends CaseStep {
 
 	public function validate($data, $isCompletingStep = false) {
 		return validator($data, [
-			'analysis_description' => 'required|string',
+			'analysis_details' => 'required|string',
 		]);
 	}
 

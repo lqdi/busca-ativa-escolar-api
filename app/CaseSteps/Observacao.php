@@ -32,7 +32,7 @@ class Observacao extends CaseStep {
 		$this->assignToUser($prevStep->assignedUser);
 	}
 
-	protected function onComplete($nextStep = null) {
+	protected function onComplete() : bool {
 
 		// Closes or interrupts the underlying case, depending on the child's status on the last report
 		if($this->report_index === 4 && $this->is_child_still_in_school) {
@@ -42,6 +42,8 @@ class Observacao extends CaseStep {
 		if(!$this->is_child_still_in_school) {
 			return $this->childCase->interrupt();
 		}
+
+		return true;
 
 	}
 

@@ -84,9 +84,11 @@ class Pesquisa extends CaseStep {
 		$this->flagAsPendingAssignment();
 	}
 
-	protected function onComplete($nextStep = null) {
+	protected function onComplete() : bool {
 		// While on the front-end we technically save before completing, this may not always be true
 		$this->onUpdated();
+
+		return true;
 	}
 
 	protected function onUpdated() {

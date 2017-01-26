@@ -18,10 +18,10 @@ class CaseCause extends StaticObject  {
 
 	protected static $data = [
 		10 => ['id' => 10, 'alert_cause_id' => 10, 'slug' => 'adolescente_em_conflito_com_a_lei', 'label' => "Adolescente em conflito com a lei "],
-		21 => ['id' => 21, 'alert_cause_id' => 20, 'slug' => 'crianca_com_deficiencia_fisica', 'label' => "Criança ou adolescente com deficiência física "],
-		22 => ['id' => 22, 'alert_cause_id' => 20, 'slug' => 'crianca_com_deficiencia_intelectual', 'label' => "Criança ou adolescente com deficiência intelectual "],
-		23 => ['id' => 23, 'alert_cause_id' => 20, 'slug' => 'crianca_com_deficiencia_mental', 'label' => "Criança ou adolescente com deficiência mental"],
-		24 => ['id' => 24, 'alert_cause_id' => 20, 'slug' => 'crianca_com_deficiencia_sensorial', 'label' => "Criança ou adolescente com deficiência sensorial"],
+		21 => ['id' => 21, 'alert_cause_id' => 20, 'slug' => 'crianca_com_deficiencia_fisica', 'label' => "Criança ou adolescente com deficiência física ", 'is_handicapped' => true],
+		22 => ['id' => 22, 'alert_cause_id' => 20, 'slug' => 'crianca_com_deficiencia_intelectual', 'label' => "Criança ou adolescente com deficiência intelectual ", 'is_handicapped' => true],
+		23 => ['id' => 23, 'alert_cause_id' => 20, 'slug' => 'crianca_com_deficiencia_mental', 'label' => "Criança ou adolescente com deficiência mental", 'is_handicapped' => true],
+		24 => ['id' => 24, 'alert_cause_id' => 20, 'slug' => 'crianca_com_deficiencia_sensorial', 'label' => "Criança ou adolescente com deficiência sensorial", 'is_handicapped' => true],
 		30 => ['id' => 30, 'alert_cause_id' => 30, 'slug' => 'crianca_com_doencas', 'label' => "Criança ou adolescente com doenças (que impedem e/ou dificultem a frequência à escola)"],
 		40 => ['id' => 40, 'alert_cause_id' => 40, 'slug' => 'crianca_em_abrigo', 'label' => "Criança ou adolescente em abrigos"],
 		50 => ['id' => 50, 'alert_cause_id' => 50, 'slug' => 'crianca_na_rua', 'label' => "Criança ou adolescente em situação de rua "],
@@ -87,6 +87,11 @@ class CaseCause extends StaticObject  {
 	 * @var integer The ID of the alert cause this case cause relates to
 	 */
 	public $alert_cause_id;
+
+	/**
+	 * @var bool Does this cause imply the child is handicapped?
+	 */
+	public $is_handicapped = false;
 
 	/**
 	 * Gets an alert cause by it's slug

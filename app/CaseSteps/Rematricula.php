@@ -41,9 +41,11 @@ class Rematricula extends CaseStep {
 		$this->flagAsPendingAssignment();
 	}
 
-	protected function onComplete($nextStep = null) {
+	protected function onComplete() : bool {
 		$this->childCase->enrolled_at = $this->reinsertion_date;
 		$this->childCase->save();
+
+		return true;
 	}
 
 	public function validate($data, $isCompletingStep = false) {
@@ -54,19 +56,19 @@ class Rematricula extends CaseStep {
 			'reinsertion_grade' => 'required_for_completion|' . \BuscaAtivaEscolar\Data\SchoolGrade::getSlugValidationMask(),
 
 			'school_name' => 'required_for_completion|string',
-			'school_censo_id' => 'string',
+			'school_censo_id' => 'nullable|string',
 			'school_address' => 'required_for_completion|string',
-			'school_cep' => 'digits:8',
-			'school_neighborhood' => 'string',
+			'school_cep' => 'nullable|digits:8',
+			'school_neighborhood' => 'nullable|string',
 			'school_city' => 'required_for_completion|string',
 			'school_uf' => 'required_for_completion|string|size:2',
 			'school_contact_name' => 'required_for_completion|string',
-			'school_contact_email' => 'email',
-			'school_contact_position' => 'string',
+			'school_contact_email' => 'nullable|email',
+			'school_contact_position' => 'nullable|string',
 			'school_phone' => 'required_for_completion|alpha_dash',
-			'school_email' => 'email',
+			'school_email' => 'nullable|email',
 
-			'observations' => 'string',
+			'observations' => 'nullable|string',
 		]);
 	}
 

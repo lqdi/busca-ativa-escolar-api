@@ -47,6 +47,9 @@ class CaseTransformer extends TransformerAbstract {
 			'assigned_group_id' => $case->assigned_group_id,
 			'assigned_user_id' => $case->assigned_user_id,
 
+			'alert_cause_id' => $case->alert_cause_id,
+			'case_cause_ids' => $case->case_cause_ids,
+
 			'created_by_user_id' => $case->created_by_user_id,
 
 			'current_step_id' => $case->current_step_id,

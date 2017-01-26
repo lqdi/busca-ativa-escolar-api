@@ -14,6 +14,10 @@
 namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
+use BuscaAtivaEscolar\Events\ChildCaseCancelled;
+use BuscaAtivaEscolar\Events\ChildCaseClosed;
+use BuscaAtivaEscolar\Events\ChildCaseCompleted;
+use BuscaAtivaEscolar\Events\ChildCaseInterrupted;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use Illuminate\Database\Eloquent\Model;
@@ -190,6 +194,8 @@ class ChildCase extends Model  {
 	/**
 	 * Completes the current case, signalling the children has been reinserted in school.
 	 * This sets the child status to In School. Emits the "completed" and "closed" events.
+	 *
+	 * @return bool Should the case continue?
 	 */
 	public function complete() {
 		$this->case_status = self::STATUS_COMPLETED;
@@ -197,8 +203,10 @@ class ChildCase extends Model  {
 
 		$this->child->setStatus(Child::STATUS_IN_SCHOOL);
 
-		event("child_case.completed", [$this]);
-		event("child_case.closed", [$this]);
+		event(new ChildCaseCompleted($this->child, $this));
+		event(new ChildCaseClosed($this->child, $this));
+
+		return false;
 	}
 
 	/**
@@ -206,6 +214,8 @@ class ChildCase extends Model  {
 	 * This sets the child status to Cancelled. Will emit the "cancelled" and "closed" events.
 	 *
 	 * @param string $reason The reason for cancellation.
+	 *
+	 * @return bool Should the case continue?
 	 */
 	public function cancel($reason = "") {
 		$this->case_status = self::STATUS_CANCELLED;
@@ -214,13 +224,17 @@ class ChildCase extends Model  {
 
 		$this->child->setStatus(Child::STATUS_CANCELLED);
 
-		event("child_case.cancelled", [$this]);
-		event("child_case.closed", [$this]);
+		event(new ChildCaseCancelled($this->child, $this, $reason));
+		event(new ChildCaseClosed($this->child, $this));
+
+		return false;
 	}
 
 	/**
 	 * Closes the case due to an interruption (i.e. another evasion by the child).
 	 * This sets the child status to Out of School, and emits the "interrupted" and "closed" events.
+	 *
+	 * @return bool Should the case continue?
 	 */
 	public function interrupt() {
 		$this->case_status = self::STATUS_INTERRUPTED;
@@ -228,8 +242,10 @@ class ChildCase extends Model  {
 
 		$this->child->setStatus(Child::STATUS_OUT_OF_SCHOOL);
 
-		event("child_case.interrupted", [$this]);
-		event("child_case.closed", [$this]);
+		event(new ChildCaseInterrupted($this->child, $this));
+		event(new ChildCaseClosed($this->child, $this));
+
+		return false;
 	}
 
 	// ------------------------------------------------------------------------

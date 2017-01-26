@@ -51,6 +51,7 @@ class ChildSearchResultsTransformer extends TransformerAbstract {
 
 			'current_case_id' => $document['_source']['current_case_id'] ?? null,
 
+			'step_name' => $document['_source']['step_name'] ?? null,
 			'current_step_type' => $document['_source']['current_step_type'] ?? null,
 			'current_step_id' => $document['_source']['current_step_id'] ?? null,
 

@@ -22,7 +22,7 @@ class CaseStepCompleted extends Event {
 	public $step;
 	public $next;
 
-	public function __construct(CaseStep $step, CaseStep $next) {
+	public function __construct(CaseStep $step, CaseStep $next = null) {
 		$this->step = $step;
 		$this->next = $next;
 	}

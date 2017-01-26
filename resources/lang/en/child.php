@@ -9,5 +9,10 @@ return [
 		'male' => 'fa-mars',
 		'female' => 'fa-venus',
 		'undefined' => 'fa-transgender',
-	]
+	],
+	'risk_level' => [
+		'high' => 'Alto',
+		'medium' => 'Médio',
+		'low' => 'Baixo'
+	],
 ];

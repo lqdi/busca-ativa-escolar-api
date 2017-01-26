@@ -46,7 +46,7 @@ class Alerta extends CaseStep  {
 		'place_mobile'
 	];
 
-	protected function onComplete($nextStep = null) {
+	protected function onComplete() : bool {
 
 		if($this->gender) $this->child->gender = $this->gender;
 		if($this->name) $this->child->name = $this->name;
@@ -55,9 +55,11 @@ class Alerta extends CaseStep  {
 
 		$this->child->save();
 
-		if(!$this->dob) return;
+		if(!$this->dob) return true;
 
 		$this->child->calculateAgeThroughBirthday($this->dob);
+
+		return true;
 
 	}
 
