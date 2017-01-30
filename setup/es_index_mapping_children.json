@@ -235,6 +235,12 @@
 		"place_city": {
 			"type": "string"
 		},
+		"place_city_id": {
+			"type": "string"
+		},
+		"place_city_name": {
+			"type": "string"
+		},
 		"uf": {
 			"store": true,
 			"type": "string"

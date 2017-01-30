@@ -26,10 +26,12 @@ use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\AttachmentTransformer;
+use BuscaAtivaEscolar\Transformers\ChildSearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\ChildSearchTransformer;
 use BuscaAtivaEscolar\Transformers\ChildTransformer;
 use BuscaAtivaEscolar\Transformers\CommentTransformer;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
+use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class ChildrenController extends BaseController  {
@@ -58,7 +60,7 @@ class ChildrenController extends BaseController  {
 
 		return fractal()
 			->item($results)
-			->transformWith(new ChildSearchTransformer($query))
+			->transformWith(new SearchResultsTransformer(new ChildSearchResultsTransformer(), $query))
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
@@ -165,7 +167,7 @@ class ChildrenController extends BaseController  {
 			]);
 
 		} catch (\Exception $ex) {
-			return response()->json(['status' => 'error', 'error' => 'child_spawn_failed', 'reason' => $ex->getMessage()], 500);
+			return $this->api_exception($ex);
 		}
 
 	}

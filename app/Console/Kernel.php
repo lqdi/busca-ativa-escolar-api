@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         Commands\SpawnChildAlert::class,
         Commands\InspectChild::class,
         Commands\ReindexAllChildren::class,
+        Commands\ReindexAllCities::class,
     ];
 
     /**

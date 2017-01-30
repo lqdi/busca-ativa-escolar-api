@@ -35,6 +35,8 @@ class StaticDataController extends BaseController {
 				'SchoolingLevel' => \BuscaAtivaEscolar\Data\SchoolingLevel::getAllAsArray(),
 				'WorkActivity' => \BuscaAtivaEscolar\Data\WorkActivity::getAllAsArray(),
 				'UserType' => \BuscaAtivaEscolar\User::$ALLOWED_TYPES,
+				'UFs' => \BuscaAtivaEscolar\IBGE\UF::getAllAsArray(),
+				'Regions' => \BuscaAtivaEscolar\IBGE\Region::getAllAsArray(),
 				'Config' => [
 					'uploads' => [
 						'allowed_mime_types' => config('uploads.allowed_mime_types'),

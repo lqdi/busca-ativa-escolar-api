@@ -18,9 +18,9 @@ use BuscaAtivaEscolar\Data\StaticObject;
 
 class UF extends StaticObject  {
 
-	private static $cached = [];
+	protected static $cached = [];
 
-	private static $data = [
+	protected static $data = [
 		11 => ['id' => '11', 'region_id' => 1, 'name' => 'Rondônia', 'code' => 'RO'],
 		12 => ['id' => '12', 'region_id' => 1, 'name' => 'Acre', 'code' => 'AC'],
 		13 => ['id' => '13', 'region_id' => 1, 'name' => 'Amazonas', 'code' => 'AM'],
@@ -50,7 +50,7 @@ class UF extends StaticObject  {
 		53 => ['id' => '53', 'region_id' => 5, 'name' => 'Distrito Federal', 'code' => 'DF'],
 	];
 
-	private static $indexes = [
+	protected static $indexes = [
 		'code' => [
 			'RO' => 11,
 			'AC' => 12,

@@ -59,6 +59,7 @@ abstract class StaticObject {
 	 */
 	public static function getByIndex($index, $value) {
 		if(!isset(static::$indexes[$index])) return null;
+		if(!isset(static::$indexes[$index][$value])) return null;
 
 		$id = static::$indexes[$index][$value];
 

@@ -36,6 +36,6 @@ class BaseController extends Controller {
     		'status' => 'error',
 		    'reason' => 'exception',
 		    'exception' => $exceptionInfo
-	    ]);
+	    ], 500);
     }
 }

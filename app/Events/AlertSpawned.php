@@ -39,7 +39,8 @@ class AlertSpawned extends Event {
 	}
 
 	public function getGenderLabel() {
-		return Gender::getBySlug($this->child->gender)->label ?? '???';
+		if(!$this->child->gender) return 'gênero desconhecido';
+		return Gender::getBySlug($this->child->gender)->label ?? 'gênero desconhecido';
 	}
 
 }

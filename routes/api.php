@@ -44,6 +44,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::get('/static/static_data', 'Resources\StaticDataController@render');
 
 	// Open data for sign-up
+	Route::post('/cities/search', 'Resources\CitiesController@search');
 	Route::resource('/cities', 'Resources\CitiesController');
 	Route::resource('/tenants', 'Tenants\TenantsController');
 

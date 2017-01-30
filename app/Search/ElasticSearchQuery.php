@@ -98,6 +98,32 @@ class ElasticSearchQuery {
 
 		return $this;
 	}
+	/**
+	 * Searches for a text value in more then one column. Allows you to specify which columns and priorities to search for.
+	 * Will search for the $params[$name] value in the $name field in the documents.
+	 * Adds a 'multi_match' search.
+	 *
+	 * @param string $name The name of the field in the search parameters.
+	 * @param array $fields The list of fields to search for; allows appending "^n" to designate weights (eg. ['name^3', 'nickname'])
+	 * @param string $priority The 'priority' to use (must/should/filter). See ElasticSearch docs for more info.
+	 * @return self Same query instance, for fluid composition.
+	 */
+	public function autocompleteTextInColumns(string $name, array $fields = [], string $priority = 'must') : self {
+		if(!isset($this->params[$name])) return $this;
+		if(strlen($this->params[$name]) <= 0) return $this;
+		if(sizeof($fields) <= 0) return $this;
+
+		array_push($this->query['bool'][$priority], ['suggest' => [
+
+			"prefix" => $this->params[$name],
+	        "completion" => [
+				"field" => "name_ascii"
+	        ],
+
+		]]);
+
+		return $this;
+	}
 
 	/**
 	 * Filters the documents that contains the term given. Allows you to include documents missing the given field.

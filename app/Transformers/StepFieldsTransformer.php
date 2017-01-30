@@ -20,11 +20,31 @@ use League\Fractal\TransformerAbstract;
 class StepFieldsTransformer extends TransformerAbstract {
 
 	public function transform($step) {
-		return collect($step->stepFields)
+		$data = collect($step->stepFields)
 			->mapWithKeys(function ($item) use ($step) {
 				return [$item => ($step->$item ?? null)];
 			})
 			->toArray();
+
+		// TODO: refactor this for clarity
+
+		if(isset($data['place_city_id'])) {
+			$data['place_city'] = [
+				'id' => $data['place_city_id'],
+				'uf' => $data['place_uf'],
+				'name' => $data['place_city_name'],
+			];
+		}
+
+		if(isset($data['school_city_id'])) {
+			$data['school_city'] = [
+				'id' => $data['school_city_id'],
+				'uf' => $data['school_uf'],
+				'name' => $data['school_city_name'],
+			];
+		}
+
+		return $data;
 	}
 
 }

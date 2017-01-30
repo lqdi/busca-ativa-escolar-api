@@ -14,14 +14,13 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
-use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
+use Illuminate\Support\Str;
 
-class City extends Model {
+class City extends Model implements Searchable {
 
 	use SoftDeletes;
 	use IndexedByUUID;
@@ -96,5 +95,22 @@ class City extends Model {
 		return $query;
 	}
 
+	public function getSearchIndex(): string { return 'cities'; }
+	public function getSearchType(): string { return 'city'; }
+	public function getSearchID() { return $this->id; }
 
+	public function buildSearchDocument(): array {
+		return [
+			'id' => $this->id,
+			'uf' => $this->uf,
+			'name' => $this->name,
+			'name_suggest' => $this->name,
+			'name_ascii' => Str::ascii($this->name),
+			'region' => $this->region,
+			'tenant' => ($this->tenant ?? null),
+			'ibge_city_id' => $this->ibge_city_id,
+			'ibge_uf_id' => $this->ibge_uf_id,
+			'ibge_region_id' => $this->ibge_region_id,
+		];
+	}
 }

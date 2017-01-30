@@ -16,6 +16,12 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Search\ElasticSearchQuery;
+use BuscaAtivaEscolar\Search\Search;
+use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Transformers\CitySearchResultsTransformer;
+use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
+use Illuminate\Support\Str;
 
 class CitiesController extends BaseController  {
 
@@ -33,6 +39,28 @@ class CitiesController extends BaseController  {
 		// TODO: move to fractal response
 
 		return response()->json($results);
+
+	}
+
+	public function search(Search $search) {
+
+		$parameters = request()->only(['uf', 'name']);
+		$parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
+		$parameters['name_ascii'] = Str::ascii($parameters['name']);
+
+		$query = ElasticSearchQuery::withParameters($parameters)
+			->addTextField('name_ascii')
+			->filterByTerm('uf', false)
+			->getQuery();
+
+		$results = $search->search(new City(), $query, 15);
+
+		return fractal()
+			->item($results)
+			->transformWith(new SearchResultsTransformer(CitySearchResultsTransformer::class, $query))
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->respond();
 
 	}
 

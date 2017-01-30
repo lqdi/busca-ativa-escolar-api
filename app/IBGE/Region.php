@@ -18,9 +18,9 @@ use BuscaAtivaEscolar\Data\StaticObject;
 
 class Region extends StaticObject  {
 
-	private static $cached = [];
+	protected static $cached = [];
 
-	private static $data = [
+	protected static $data = [
 		1 => ['id' => 1, 'name' => 'NORTE', 'code' => 'NO', 'uf_ids' => [11, 12, 13, 14, 15, 16, 17]],
 		2 => ['id' => 2, 'name' => 'NORDESTE', 'code' => 'NE', 'uf_ids' => [21, 22, 23, 24, 25, 26, 27, 28, 29]],
 		3 => ['id' => 3, 'name' => 'SUDESTE', 'code' => 'SE', 'uf_ids' => [31, 32, 33, 35]],
@@ -28,7 +28,7 @@ class Region extends StaticObject  {
 		5 => ['id' => 5, 'name' => 'CENTRO OESTE', 'code' => 'CO', 'uf_ids' => [50, 51, 52, 53]],
 	];
 
-	private static $indexes = [
+	protected static $indexes = [
 		'code' => [
 			'NO' => 1,
 			'NE' => 2,
