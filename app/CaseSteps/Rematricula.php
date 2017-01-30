@@ -21,6 +21,7 @@ class Rematricula extends CaseStep {
 		'reinsertion_date',
 		'reinsertion_grade',
 
+		'school_id',
 		'school_name',
 		'school_censo_id',
 		'school_address',
@@ -56,6 +57,7 @@ class Rematricula extends CaseStep {
 			'reinsertion_date' => 'required_for_completion|date',
 			'reinsertion_grade' => 'required_for_completion|' . \BuscaAtivaEscolar\Data\SchoolGrade::getSlugValidationMask(),
 
+			'school_id' => 'required_for_completion|string',
 			'school_name' => 'required_for_completion|string',
 			'school_censo_id' => 'nullable|string',
 			'school_address' => 'required_for_completion|string',

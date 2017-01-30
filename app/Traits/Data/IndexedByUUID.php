@@ -18,10 +18,7 @@ use Webpatser\Uuid\Uuid;
 
 trait IndexedByUUID {
 
-	public function __construct() {
-		$this->incrementing = false;
-		call_user_func_array(['parent','__construct'], func_get_args());
-	}
+	use NonIncrementingIndex;
 
 	protected static function bootIndexedByUUID() {
 		static::creating(function ($model) {

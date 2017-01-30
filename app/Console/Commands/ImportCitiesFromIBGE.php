@@ -15,26 +15,11 @@ namespace BuscaAtivaEscolar\Console\Commands;
 
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\IBGE\Importing\CityListXls;
-use Illuminate\Console\Command;
-use Log;
 
 class ImportCitiesFromIBGE extends Command {
 
-    protected $signature = 'ibge:import_cities';
+    protected $signature = 'import:ibge_cities';
     protected $description = 'Import cities from the IBGE database';
-
-    private function setupLogging() {
-	    Log::listen(function ($level, $message, $context) {
-
-		    if($level == "error") {
-			    $this->error($message);
-			    return;
-		    }
-
-		    $this->comment($message);
-
-	    });
-    }
 
     public function handle(CityListXls $file) {
 

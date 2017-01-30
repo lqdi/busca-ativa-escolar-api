@@ -18,8 +18,22 @@ use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Tenant;
 use Closure;
 use Exception;
+use Log;
 
 abstract class Command extends \Illuminate\Console\Command {
+
+	protected function setupLogging() {
+		Log::listen(function ($level, $message, $context) {
+
+			if($level == "error") {
+				$this->error($message);
+				return;
+			}
+
+			$this->comment($message);
+
+		});
+	}
 
 	public function askForTenant($message = "Please select a tenant: ") : Tenant {
 

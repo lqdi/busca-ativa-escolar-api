@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\ImportCitiesFromIBGE::class,
+        Commands\ImportSchoolsFromINEP::class,
         Commands\RegisterSuperUser::class,
         Commands\RegisterTenant::class,
         Commands\SpawnChildAlert::class,

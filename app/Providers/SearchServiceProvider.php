@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Providers;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Observers\SearchableModelObserver;
+use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\Search;
 use Elasticsearch\ClientBuilder;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +28,7 @@ class SearchServiceProvider extends ServiceProvider {
 
 	    Child::observe($observer);
 	    City::observe($observer);
+	    School::observe($observer);
 
     }
 

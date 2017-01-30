@@ -3,7 +3,6 @@
 namespace BuscaAtivaEscolar\Console\Commands;
 
 use BuscaAtivaEscolar\User;
-use Illuminate\Console\Command;
 
 class RegisterSuperUser extends Command {
 

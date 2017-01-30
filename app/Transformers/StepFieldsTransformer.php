@@ -44,6 +44,20 @@ class StepFieldsTransformer extends TransformerAbstract {
 			];
 		}
 
+		if(isset($data['school_last_id'])) {
+			$data['school_last'] = [
+				'id' => $data['school_last_id'],
+				'name' => $data['school_last_name'],
+			];
+		}
+
+		if(isset($data['school_id'])) {
+			$data['school'] = [
+				'id' => $data['school_id'],
+				'name' => $data['school_name'],
+			];
+		}
+
 		return $data;
 	}
 

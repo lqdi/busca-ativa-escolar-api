@@ -37,6 +37,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/steps/{step_type}/{step_id}/assign_user', 'Resources\StepsController@assignUser');
 		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update');
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show');
+
+		// INEP Schools
+		Route::post('/schools/search', 'Resources\SchoolsController@search');
 	});
 
 	// Static data

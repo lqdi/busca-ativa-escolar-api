@@ -32,6 +32,7 @@ class Pesquisa extends CaseStep {
 
 		'school_last_grade',
 		'school_last_year',
+		'school_last_id',
 		'school_last_name',
 		'school_last_status',
 		'school_last_age',
@@ -127,6 +128,7 @@ class Pesquisa extends CaseStep {
 
 			'school_last_grade' => 'nullable|required_if:has_been_in_school,1|' . \BuscaAtivaEscolar\Data\SchoolGrade::getSlugValidationMask(),
 			'school_last_year' => 'nullable|required_if:has_been_in_school,1|digits:4',
+			'school_last_id' => 'nullable|required_if:has_been_in_school,1|string',
 			'school_last_name' => 'nullable|required_if:has_been_in_school,1|string',
 			'school_last_status' => 'nullable|required_if:has_been_in_school,1|string',
 			'school_last_age' => 'nullable|required_if:has_been_in_school,1|numeric',
