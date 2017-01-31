@@ -36,6 +36,7 @@ class SearchServiceProvider extends ServiceProvider {
 	    $this->app->singleton(Search::class, function ($app) {
 		    return new Search(
 			    ClientBuilder::create()
+				    ->setHosts([env('ELASTICSEARCH_ADDR')])
 				    ->setLogger(ClientBuilder::defaultLogger(storage_path('logs/elastic.log')))
 				    ->build()
 		    );

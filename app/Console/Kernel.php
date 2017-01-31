@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
         Commands\InspectChild::class,
         Commands\ReindexAllChildren::class,
         Commands\ReindexAllCities::class,
+        Commands\ReindexAllSchools::class,
     ];
 
     /**

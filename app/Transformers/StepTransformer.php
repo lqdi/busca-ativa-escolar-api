@@ -22,6 +22,7 @@ class StepTransformer extends TransformerAbstract {
 	protected $availableIncludes = [
 		'fields',
 		'assigned_user',
+		'case',
 	];
 
 	protected $defaultIncludes = [
@@ -64,6 +65,11 @@ class StepTransformer extends TransformerAbstract {
 
 	public function includeFields(CaseStep $step) {
 		return $this->item($step, new StepFieldsTransformer, false);
+	}
+
+	public function includeCase(CaseStep $step) {
+		if(!$step->childCase) return null;
+		return $this->item($step->childCase, new CaseTransformer(), false);
 	}
 
 	public function includeAssignedUser(CaseStep $step) {

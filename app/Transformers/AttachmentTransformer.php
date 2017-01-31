@@ -43,7 +43,7 @@ class AttachmentTransformer extends TransformerAbstract {
 			'description' => $attachment->description,
 
 			'uri' => $attachment->uri,
-			'url' => $attachment->getURL(),
+			'url' => $attachment->getDownloadURL(),
 
 			'location' => $attachment->location,
 			'metadata' => $attachment->metadata,

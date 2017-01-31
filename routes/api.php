@@ -42,6 +42,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/schools/search', 'Resources\SchoolsController@search');
 	});
 
+	// Attachment download
+	// TODO: IMPORTANT: authenticate this with special timed download token
+	Route::get('/attachments/download/{attachment}', 'Resources\AttachmentsController@download')->name('api.attachments.download');
+
 	// Static data
 	Route::get('/language.json', 'Resources\LanguageController@generateLanguageFile');
 	Route::get('/static/static_data', 'Resources\StaticDataController@render');

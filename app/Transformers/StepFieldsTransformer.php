@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Transformers;
 
 
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
+use BuscaAtivaEscolar\School;
 use League\Fractal\TransformerAbstract;
 
 class StepFieldsTransformer extends TransformerAbstract {
@@ -45,17 +46,11 @@ class StepFieldsTransformer extends TransformerAbstract {
 		}
 
 		if(isset($data['school_last_id'])) {
-			$data['school_last'] = [
-				'id' => $data['school_last_id'],
-				'name' => $data['school_last_name'],
-			];
+			$data['school_last'] = School::find($data['school_last_id'])->toArray();
 		}
 
 		if(isset($data['school_id'])) {
-			$data['school'] = [
-				'id' => $data['school_id'],
-				'name' => $data['school_name'],
-			];
+			$data['school'] = School::find($data['school_id'])->toArray();
 		}
 
 		return $data;

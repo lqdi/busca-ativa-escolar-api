@@ -23,7 +23,7 @@ class Rematricula extends CaseStep {
 
 		'school_id',
 		'school_name',
-		'school_censo_id',
+		//'school_censo_id', // school_id is now school_censo_id
 		'school_address',
 		'school_cep',
 		'school_neighborhood',
@@ -59,7 +59,7 @@ class Rematricula extends CaseStep {
 
 			'school_id' => 'required_for_completion|string',
 			'school_name' => 'required_for_completion|string',
-			'school_censo_id' => 'nullable|string',
+			//'school_censo_id' => 'nullable|string',
 			'school_address' => 'required_for_completion|string',
 			'school_cep' => 'nullable|digits:8',
 			'school_neighborhood' => 'nullable|string',

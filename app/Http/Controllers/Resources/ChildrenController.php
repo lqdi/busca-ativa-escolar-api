@@ -138,7 +138,7 @@ class ChildrenController extends BaseController  {
 			$description = request('description', '');
 			$attachment = Attachment::createFromUpload($file, $child, Auth::user(), $description);
 
-			return response()->json(['status' => 'ok', 'comment_id' => $attachment->id]);
+			return response()->json(['status' => 'ok', 'attachment_id' => $attachment->id]);
 
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);

@@ -13,6 +13,12 @@
 			"search_analyzer": "standard"
 		},
 
+		"city_id": {
+			"store": true,
+			"type": "string",
+			"index": "not_analyzed"
+		},
+
 		"city_name": {
 			"store": true,
 			"type": "string",

@@ -92,6 +92,16 @@ class Attachment extends Model {
 		}
 	}
 
+	public function getFile() {
+		switch($this->location) {
+			case "local":default: return storage_path("app/{$this->uri}");
+		}
+	}
+
+	public function getDownloadURL() {
+		return url(route('api.attachments.download', [$this->id]));
+	}
+
 	public function getMimeCategory() {
 		if(!$this->mime_type) return 'application';
 		return substr($this->mime_type, 0, strpos($this->mime_type, '/'));
