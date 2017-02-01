@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Providers;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Observers\SearchableModelObserver;
+use BuscaAtivaEscolar\Reports\Reports;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\Search;
 use Elasticsearch\ClientBuilder;
@@ -33,13 +34,18 @@ class SearchServiceProvider extends ServiceProvider {
     }
 
     public function register() {
-	    $this->app->singleton(Search::class, function ($app) {
-		    return new Search(
-			    ClientBuilder::create()
-				    ->setHosts([env('ELASTICSEARCH_ADDR')])
-				    ->setLogger(ClientBuilder::defaultLogger(storage_path('logs/elastic.log')))
-				    ->build()
-		    );
+
+    	$esClient = ClientBuilder::create()
+		    ->setHosts([env('ELASTICSEARCH_ADDR')])
+		    ->setLogger(ClientBuilder::defaultLogger(storage_path('logs/elastic.log')))
+		    ->build();
+
+	    $this->app->singleton(Search::class, function ($app) use ($esClient) {
+		    return new Search($esClient);
+	    });
+
+	    $this->app->singleton(Reports::class, function ($app) use ($esClient) {
+		    return new Reports($esClient);
 	    });
 
 	    $this->app->singleton(SearchableModelObserver::class, function($app) {

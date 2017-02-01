@@ -17,18 +17,24 @@ use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Events\AlertSpawned;
+use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
+use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
+use BuscaAtivaEscolar\Reports\Traits\AggregatedBySearchDocument;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
 
-class Child extends Model implements Searchable  {
+class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyMetrics {
 
 	use SoftDeletes;
 	use IndexedByUUID;
 	use TenantScopedModel;
+
+	use AggregatedBySearchDocument;
 
 	const STATUS_OUT_OF_SCHOOL = "out_of_school";
 	const STATUS_OBSERVATION = "in_observation";
@@ -203,6 +209,64 @@ class Child extends Model implements Searchable  {
 
 	// ------------------------------------------------------------------------
 
+	public function getTimeSeriesIndex() : string { return 'children_metrics'; }
+	public function getTimeSeriesType(): string { return 'child'; }
+
+	/**
+	 * Builds a documents with aggregable & filterable metrics for the reporting system
+	 * @return array
+	 */
+	public function buildMetricsDocument(): array {
+
+		return Arr::only($this->buildSearchDocument(), [
+			"id",
+            "tenant_id",
+            "city_id",
+            "child_status",
+            "age",
+            "gender",
+            "risk_level",
+            "current_step_type",
+            "is_child_still_in_school",
+            "reinsertion_grade",
+            "school_city_id",
+            "school_id",
+            "school_uf",
+            "race",
+            "has_been_in_school",
+            "school_last_grade",
+            "school_last_year",
+            "school_last_status",
+            "school_last_age",
+            "is_working",
+            "work_activity",
+            "work_is_paid",
+            "work_weekly_hours",
+            "parents_has_mother",
+            "parents_has_father",
+            "parents_has_brother",
+            "parents_who_is_guardian",
+            "parents_income",
+            "guardian_race",
+            "guardian_schooling",
+            "case_cause_ids",
+            "handicapped_reason_not_enrolled",
+            "handicapped_at_sus",
+            "place_city_id",
+            "place_uf",
+            "place_kind",
+            "place_is_quilombola",
+            "school_last_id",
+            "alert_cause_id",
+            "assigned_user_id",
+            "uf",
+            "country_region",
+		]);
+
+	}
+
+	// ------------------------------------------------------------------------
+
 	/**
 	 * Creates a new Child case chain by data received by an alert.
 	 * This will create a new child, with a new ChildCase and the default CaseStep structure.
@@ -244,5 +308,4 @@ class Child extends Model implements Searchable  {
 		return $child;
 
 	}
-
 }

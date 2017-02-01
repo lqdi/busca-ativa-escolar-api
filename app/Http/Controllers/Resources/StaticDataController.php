@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use Route;
 
 class StaticDataController extends BaseController {
 
@@ -37,6 +38,7 @@ class StaticDataController extends BaseController {
 				'UserType' => \BuscaAtivaEscolar\User::$ALLOWED_TYPES,
 				'UFs' => \BuscaAtivaEscolar\IBGE\UF::getAllAsArray(),
 				'Regions' => \BuscaAtivaEscolar\IBGE\Region::getAllAsArray(),
+				'APIEndpoints' => $this->buildAPIEndpointList(),
 				'Config' => [
 					'uploads' => [
 						'allowed_mime_types' => config('uploads.allowed_mime_types'),
@@ -45,6 +47,35 @@ class StaticDataController extends BaseController {
 			]
 		]);
 
+	}
+
+	public function buildAPIEndpointList() {
+		$methods = Route::getRoutes()->getRoutesByMethod();
+		$list = [];
+
+		$prefix = 'api/v1/';
+
+		foreach($methods as $method => $routes) {
+			if($method == "HEAD") continue;
+			if($method == "PATCH") continue;
+			if($method == "OPTIONS") continue;
+
+			foreach($routes as $route) {
+				$path = $route->getPath();
+				if(substr($path, 0, 7) !== $prefix) continue;
+
+				$path = substr($path, 7);
+
+				array_push($list, [
+					'name' => "{$method} {$path}",
+					'method' => $method,
+					'path' => $path,
+					'action' => $route->getAction()
+				]);
+			}
+		}
+
+		return $list;
 	}
 
 }

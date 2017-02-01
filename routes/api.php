@@ -40,6 +40,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search');
+
+		// Reports
+		Route::post('/reports/children', 'Resources\ReportsController@query_children');
+
 	});
 
 	// Attachment download
