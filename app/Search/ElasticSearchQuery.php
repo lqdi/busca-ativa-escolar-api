@@ -32,6 +32,8 @@ class ElasticSearchQuery {
 		]
 	];
 
+	protected $attemptedQuery = [];
+
 	/**
 	 * SearchQuery constructor.
 	 * Creates a search query and gives it a specified set of search parameters.
@@ -53,6 +55,8 @@ class ElasticSearchQuery {
 	 * @return self Same query instance, for fluid composition.
 	 */
 	public function addTextField(string $name, string $priority = 'must') : self {
+		array_push($this->attemptedQuery, ['addTextField', $name, $priority, $this->params[$name] ?? null]);
+
 		if(!isset($this->params[$name])) return $this;
 		if(strlen($this->params[$name]) <= 0) return $this;
 
@@ -71,6 +75,8 @@ class ElasticSearchQuery {
 	 * @return self Same query instance, for fluid composition.
 	 */
 	public function addTextFields(array $names, string $priority = 'must') : self {
+		array_push($this->attemptedQuery, ['addTextFields+', $names, $priority, sizeof($names)]);
+
 		if(sizeof($names) <= 0) return $this;
 		foreach($names as $name) $this->addTextField($name, $priority);
 		return $this;
@@ -87,6 +93,8 @@ class ElasticSearchQuery {
 	 * @return self Same query instance, for fluid composition.
 	 */
 	public function searchTextInColumns(string $name, array $fields = [], string $priority = 'must') : self {
+		array_push($this->attemptedQuery, ['searchTextInColumns', $name, $fields, $priority, $this->params[$name] ?? null, sizeof($fields)]);
+
 		if(!isset($this->params[$name])) return $this;
 		if(strlen($this->params[$name]) <= 0) return $this;
 		if(sizeof($fields) <= 0) return $this;
@@ -109,6 +117,8 @@ class ElasticSearchQuery {
 	 * @return self Same query instance, for fluid composition.
 	 */
 	public function autocompleteTextInColumns(string $name, array $fields = [], string $priority = 'must') : self {
+		array_push($this->attemptedQuery, ['autocompleteTextInColumns', $name, $fields, $priority, $this->params[$name] ?? null]);
+
 		if(!isset($this->params[$name])) return $this;
 		if(strlen($this->params[$name]) <= 0) return $this;
 		if(sizeof($fields) <= 0) return $this;
@@ -137,6 +147,8 @@ class ElasticSearchQuery {
 	 * @return self Same query instance, for fluid composition.
 	 */
 	public function filterByTerm(string $name, bool $includeNullFields = false, string $priority = 'filter') : self {
+		array_push($this->attemptedQuery, ['filterByTerm', $name, $includeNullFields, $priority, $this->params[$name] ?? null]);
+
 		if(!isset($this->params[$name])) return $this;
 		if(strlen($this->params[$name]) <= 0) return $this;
 
@@ -161,6 +173,8 @@ class ElasticSearchQuery {
 	 * @return self Same query instance, for fluid composition.
 	 */
  	public function filterByTerms(string $name, bool $includeNullFields = false, string $priority = 'filter') : self {
+		array_push($this->attemptedQuery, ['filterByTerms', $name, $includeNullFields, $priority, $this->params[$name] ?? null]);
+
 		if(!isset($this->params[$name])) return $this;
 		if(!is_array($this->params[$name])) return $this;
 
@@ -185,6 +199,8 @@ class ElasticSearchQuery {
 	 * @return self Same query instance, for fluid composition.
 	 */
 	public function filterByRange(string $name, bool $includeNullFields = false, string $priority = 'filter') : self {
+		array_push($this->attemptedQuery, ['filterByRange', $name, $priority, $this->params[$name] ?? null, is_array($this->params[$name] ?? null)]);
+
 		if(!isset($this->params[$name])) return $this;
 		if(!is_array($this->params[$name])) return $this;
 
@@ -204,6 +220,10 @@ class ElasticSearchQuery {
 	 */
 	public function getQuery() : array {
 		return $this->query;
+	}
+
+	public function getAttemptedQuery() : array {
+		return $this->attemptedQuery;
 	}
 
 	/**

@@ -28,10 +28,12 @@ class SearchResultsTransformer extends TransformerAbstract {
 
 	protected $resultsTransformer;
 	protected $query;
+	protected $attempted;
 
-	public function __construct($resultsTransformer, array $query) {
+	public function __construct($resultsTransformer, array $query, $attempted = null) {
 		$this->resultsTransformer = $resultsTransformer;
 		$this->query = $query;
+		$this->attempted = $attempted;
 
 		if(!$this->resultsTransformer) throw new \Exception("Invalid transformer class: {$this->resultsTransformer}");
 	}
@@ -56,6 +58,7 @@ class SearchResultsTransformer extends TransformerAbstract {
 				'shards' => $result['_shards'] ?? [],
 			],
 			'query' => $this->query,
+			'attempted' => $this->attempted,
 		];
 	}
 

@@ -53,14 +53,17 @@ class ChildrenController extends BaseController  {
 			->filterByTerms('risk_level', $params['risk_level_null'] ?? false)
 			->filterByTerms('gender',$params['gender_null'] ?? false)
 			->filterByTerms('place_kind',$params['place_kind_null'] ?? false)
-			->filterByRange('age',$params['age_null'] ?? false)
-			->getQuery();
+			->filterByRange('age',$params['age_null'] ?? false);
+
+
+		$attempted = $query->getAttemptedQuery();
+		$query = $query->getQuery();
 
 		$results = $search->search(new Child(), $query);
 
 		return fractal()
 			->item($results)
-			->transformWith(new SearchResultsTransformer(new ChildSearchResultsTransformer(), $query))
+			->transformWith(new SearchResultsTransformer(new ChildSearchResultsTransformer(), $query, $attempted))
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
@@ -70,8 +73,6 @@ class ChildrenController extends BaseController  {
 	protected function list() {
 		$paginator = Child::with('cases')->paginate(64);
 		$collection = $paginator->getCollection();
-
-		// TODO: child searching
 
 		return fractal()
 			->collection($collection)
