@@ -187,6 +187,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 			$data['assigned_user_id'] = $this->currentStep->assignedUser->id ?? null;
 			$data['assigned_user_name'] = $this->currentStep->assignedUser->name ?? null;
 			$data['step_name'] = $this->currentStep->getName() ?? null;
+			$data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
 		}
 
 		if($this->currentCase) {
@@ -226,7 +227,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             "age",
             "gender",
             "risk_level",
-            "current_step_type",
+            "step_slug",
             "is_child_still_in_school",
             "reinsertion_grade",
             "school_city_id",
