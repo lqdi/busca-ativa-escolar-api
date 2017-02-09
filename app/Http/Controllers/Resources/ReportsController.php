@@ -25,17 +25,27 @@ class ReportsController extends BaseController {
 	public function query_children(Reports $reports) {
 
 		$params = request()->all();
+		$filters = request('filters', []);
 
 		// Scope the query within the tenant
-		if(Auth::user()->isRestrictedToTenant()) $params['tenant_id'] = Auth::user()->tenant_id;
+		if(Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
 
 		$entity = new Child();
-		$query = ElasticSearchQuery::withParameters($params)
+		$query = ElasticSearchQuery::withParameters($filters)
 			->filterByTerm('tenant_id', false)
-			->filterByTerms('risk_level', $params['risk_level_null'] ?? false)
-			->filterByTerms('gender',$params['gender_null'] ?? false)
-			->filterByTerms('place_kind',$params['place_kind_null'] ?? false)
-			->filterByRange('age',$params['age_null'] ?? false);
+			//->filterByTerms('deadline_status', false)
+			//->filterByTerms('case_status', false)
+			//->filterByTerms('alert_status', false)
+			->filterByTerm('step_slug',false)
+			->filterByTerm('case_cause_ids',false)
+			->filterByTerms('child_status', false)
+			->filterByTerms('risk_level', $filters['risk_level_null'] ?? false)
+			->filterByTerms('gender',$filters['gender_null'] ?? false)
+			->filterByTerms('place_kind',$filters['place_kind_null'] ?? false)
+			//->filterByTerm('race',$filters['race_null'] ?? false)
+			//->filterByTerm('guardian_schooling',$filters['guardian_schooling_null'] ?? false)
+			//->filterByTerm('parents_income',$filters['parents_income_null'] ?? false)
+			->filterByRange('age',$filters['age_null'] ?? false);
 
 
 		$index = ($params['view'] == 'linear') ? $entity->getAggregationIndex() : $entity->getTimeSeriesIndex();
@@ -50,7 +60,8 @@ class ReportsController extends BaseController {
 		// TODO: return with Fractal transformation
 
 		return response()->json([
-			'query' => $query,
+			'query' => $query->getQuery(),
+			'attempted' => $query->getAttemptedQuery(),
 			'response' => $response
 		]);
 	}

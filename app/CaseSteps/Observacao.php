@@ -13,6 +13,8 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\Child;
+
 class Observacao extends CaseStep {
 
 	protected $table = "case_steps_observacao";
@@ -28,8 +30,12 @@ class Observacao extends CaseStep {
 	];
 
 	protected function onStart($prevStep = null) {
+
+		$this->child->setStatus(Child::STATUS_OBSERVATION);
+
 		if(!$prevStep || !$prevStep->assignedUser) return $this->flagAsPendingAssignment();
 		$this->assignToUser($prevStep->assignedUser);
+
 	}
 
 	protected function onComplete() : bool {
