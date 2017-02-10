@@ -22,11 +22,13 @@ class ChildTransformer extends TransformerAbstract {
 	protected $availableIncludes = [
 		'cases',
 		'currentCase',
-		'currentStep'
+		'currentStep',
+		'submitter',
 	];
 
 	protected $defaultIncludes = [
-		'cases'
+		'cases',
+		'submitter',
 	];
 
 	public function transform(Child $child) {
@@ -48,6 +50,8 @@ class ChildTransformer extends TransformerAbstract {
 			'current_step_type' => $child->current_step_type,
 			'current_step_id' => $child->current_step_id,
 
+			'alert_status' => $child->alert_status,
+			'deadline_status' => $child->deadline_status,
 			'child_status' => $child->child_status,
 
 			'created_at' => $child->created_at ? $child->created_at->toIso8601String() : null,
@@ -68,6 +72,11 @@ class ChildTransformer extends TransformerAbstract {
 	public function includeCurrentStep(Child $child) {
 		$currentStep = $child->currentStep;
 		return $this->item($currentStep, new StepTransformer, false);
+	}
+
+	public function includeSubmitter(Child $child) {
+		if(!$child->submitter) return null;
+		return $this->item($child->submitter, new UserTransformer(), false);
 	}
 
 }

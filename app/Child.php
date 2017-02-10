@@ -352,6 +352,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$data['city_id'] = $tenant->city_id;
 
 		$data['created_by_user_id'] = $creatorUserID;
+		$data['alert_submitter_id'] = $creatorUserID;
 
 		$data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
 		$data['alert_status'] = self::ALERT_STATUS_PENDING;
