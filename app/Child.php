@@ -258,6 +258,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		}
 
 		if($this->currentCase) {
+			$data['case_status'] = $this->currentCase->case_status;
+
 			if($this->currentCase->case_cause_ids) { // TODO: refactor this
 				$data['cause_name'] = join(", ", array_map(function ($cause_id) {
 					return CaseCause::getByID(intval($cause_id))->label ?? '';
@@ -265,6 +267,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 			} else if($this->currentCase->alert_cause_id) {
 				$data['cause_name'] = AlertCause::getByID(intval($this->currentCase->alert_cause_id))->label ?? '';
 			}
+
 		}
 
 		$data['city_name'] = $this->city->name ?? null;
