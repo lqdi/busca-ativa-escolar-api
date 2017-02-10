@@ -239,7 +239,10 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 			$steps = $this->currentCase->fetchSteps(); /* @var $steps CaseStep[] */
 
 			foreach($steps as $step) {
-				$data = $step->getFields() + $data;
+				$fields = $step->getFields();
+				$data = array_filter($fields)
+					+ array_filter($data)
+					+ array_fill_keys(array_keys($fields) + array_keys($data),null);
 			}
 		}
 
