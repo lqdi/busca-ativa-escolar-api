@@ -15,6 +15,8 @@ namespace BuscaAtivaEscolar\Listeners;
 
 
 use BuscaAtivaEscolar\ActivityLog;
+use BuscaAtivaEscolar\Events\AlertAccepted;
+use BuscaAtivaEscolar\Events\AlertRejected;
 use BuscaAtivaEscolar\Events\AlertSpawned;
 use BuscaAtivaEscolar\Events\CaseStepAssigned;
 use BuscaAtivaEscolar\Events\CaseStepCompleted;
@@ -40,6 +42,28 @@ class ChildActivityLogger {
 			'case' => $event->case,
 			'alert' => $event->alert,
 			'child' => $event->case->child,
+			'request' => request()->all()
+		]);
+	}
+
+	public function onAlertAccepted(AlertAccepted $event) {
+		ActivityLog::writeEntry($event->child, 'alert_accepted', [
+			'child_name' => $event->child->name,
+			'child_id' => $event->child->id,
+		], [
+			'source' => get_class(),
+			'child' => $event->child,
+			'request' => request()->all()
+		]);
+	}
+
+	public function onAlertRejected(AlertRejected $event) {
+		ActivityLog::writeEntry($event->child, 'alert_rejected', [
+			'child_name' => $event->child->name,
+			'child_id' => $event->child->id,
+		], [
+			'source' => get_class(),
+			'child' => $event->child,
 			'request' => request()->all()
 		]);
 	}
@@ -158,6 +182,8 @@ class ChildActivityLogger {
 
 	public function subscribe($events) {
 		$events->listen(AlertSpawned::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onAlertSpawned');
+		$events->listen(AlertAccepted::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onAlertAccepted');
+		$events->listen(AlertRejected::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onAlertRejected');
 		$events->listen(CaseStepUpdated::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onStepUpdated');
 		$events->listen(CaseStepAssigned::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onStepAssigned');
 		$events->listen(CaseStepStarted::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onStepStarted');

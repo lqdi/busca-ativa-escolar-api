@@ -21,6 +21,11 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment');
 		Route::post('/children/{child}/attachments', 'Resources\ChildrenController@addAttachment');
 
+		// Pending alerts
+		Route::get('/alerts/pending', 'Resources\AlertsController@get_pending');
+		Route::post('/alerts/{child}/accept', 'Resources\AlertsController@accept');
+		Route::post('/alerts/{child}/reject', 'Resources\AlertsController@reject');
+
 		// Child Cases
 		Route::resource('/cases', 'Resources\CasesController');
 

@@ -35,7 +35,7 @@ class ReportsController extends BaseController {
 			->filterByTerm('tenant_id', false)
 			//->filterByTerms('deadline_status', false)
 			//->filterByTerms('case_status', false)
-			//->filterByTerms('alert_status', false)
+			->filterByTerms('alert_status', false)
 			->filterByTerm('step_slug',false)
 			->filterByTerm('case_cause_ids',false)
 			->filterByTerms('child_status', false)

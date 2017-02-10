@@ -23,6 +23,22 @@
 		"work_activity": {
 			"type": "string"
 		},
+		"alert_status": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"alert_submitter_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"alert_submitter_name": {
+			"analyzer": "folding",
+			"type": "string"
+		},
+		"deadline_status": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
 		"school_contact_name": {
 			"analyzer": "folding",
 			"type": "string"

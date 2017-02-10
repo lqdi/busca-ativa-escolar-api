@@ -13,10 +13,15 @@
 
 namespace BuscaAtivaEscolar;
 
+use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
+use BuscaAtivaEscolar\Events\AlertAccepted;
+use BuscaAtivaEscolar\Events\AlertRejected;
 use BuscaAtivaEscolar\Events\AlertSpawned;
+use BuscaAtivaEscolar\Events\AlertStatusChanged;
+use BuscaAtivaEscolar\Events\ChildStatusChanged;
 use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
 use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Reports\Traits\AggregatedBySearchDocument;
@@ -41,6 +46,13 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	const STATUS_IN_SCHOOL = "in_school";
 	const STATUS_CANCELLED = "cancelled";
 
+	const ALERT_STATUS_PENDING = "pending";
+	const ALERT_STATUS_ACCEPTED = "accepted";
+	const ALERT_STATUS_REJECTED = "rejected";
+
+	const DEADLINE_STATUS_NORMAL = "normal";
+	const DEADLINE_STATUS_LATE = "late";
+
 	protected $table = "children";
 	protected $fillable = [
 		'name',
@@ -55,11 +67,15 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		'gender',
 		'age',
 
+		'alert_submitter_id',
+		'alert_status',
+
 		'current_case_id',
 
 		'current_step_type',
 		'current_step_id',
 
+		'deadline_status',
 		'child_status',
 	];
 
@@ -85,6 +101,25 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	 */
 	public function currentCase() {
 		return $this->hasOne('BuscaAtivaEscolar\ChildCase', 'id', 'current_case_id');
+	}
+
+	/**
+	 * The alert data that originated the current case
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function alert() {
+		// TODO: figure out how to filter this by current case
+		return $this
+			->hasOne('BuscaAtivaEscolar\CaseSteps\Alerta', 'child_id', 'id');
+			//->where('case_id', $this->current_case_id);
+	}
+
+	/**
+	 * The user that submitted the child alert
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function submitter() {
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'alert_submitter_id');
 	}
 
 	/**
@@ -134,10 +169,38 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	 * @param string $status The child status. See Child::STATUS_*
 	 */
 	public function setStatus($status) {
+		$prevStatus = $this->child_status;
 		$this->child_status = $status;
 		$this->save();
 
-		event("child.status_change", [$status]);
+		event(new ChildStatusChanged($this, $prevStatus, $status));
+	}
+
+	/**
+	 * Accepts a child alert, moving it to the list of ongoing cases
+	 */
+	public function acceptAlert() {
+		$prevStatus = $this->alert_status;
+		$this->alert_status = 'accepted';
+		$this->save();
+
+		$alertStep = $this->currentStep; /* @var $alertStep Alerta */
+		$alertStep->complete();
+
+		event(new AlertStatusChanged($this, $prevStatus, 'accepted'));
+		event(new AlertAccepted($this));
+	}
+
+	/**
+	 * Rejects a child alert, moving it to the list of rejected cases
+	 */
+	public function rejectAlert() {
+		$prevStatus = $this->alert_status;
+		$this->alert_status = 'rejected';
+		$this->save();
+
+		event(new AlertStatusChanged($this, $prevStatus, 'rejected'));
+		event(new AlertRejected($this));
 	}
 
 	/**
@@ -190,6 +253,10 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 			$data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
 		}
 
+		if($this->submitter) {
+			$data['alert_submitter_name'] = $this->submitter->name;
+		}
+
 		if($this->currentCase) {
 			if($this->currentCase->case_cause_ids) { // TODO: refactor this
 				$data['cause_name'] = join(", ", array_map(function ($cause_id) {
@@ -224,6 +291,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             "tenant_id",
             "city_id",
             "child_status",
+            "alert_status",
+            "deadline_status",
             "age",
             "gender",
             "risk_level",
@@ -285,6 +354,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$data['created_by_user_id'] = $creatorUserID;
 
 		$data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
+		$data['alert_status'] = self::ALERT_STATUS_PENDING;
 		$data['risk_level'] = ChildCase::RISK_LEVEL_HIGH; // TODO: fetch risk level from tenant settings
 
 		$child = self::create($data);
@@ -302,9 +372,6 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$alertStep->save();
 
 		event(new AlertSpawned($child, $case, $alertStep));
-
-		// Advances to Pesquisa step
-		$alertStep->complete();
 
 		return $child;
 
