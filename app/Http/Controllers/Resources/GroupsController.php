@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
+use Auth;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
@@ -23,7 +24,7 @@ class GroupsController extends BaseController {
 
 	public function index() {
 
-		$groups = Group::all();
+		$groups = Group::orderBy('created_at', 'ASC')->get();
 
 		return fractal()
 			->collection($groups)
@@ -32,6 +33,34 @@ class GroupsController extends BaseController {
 			->parseIncludes(request('with'))
 			->respond();
 
+	}
+
+	public function store() {
+		$group = new Group();
+		$group->fill(request()->all());
+		$group->is_primary = false;
+		$group->tenant_id = Auth::user()->tenant_id;
+		$group->save();
+
+		return response()->json(['status' => 'ok', 'group' => $group]);
+
+	}
+
+	public function update(Group $group) {
+		$group->fill(request()->only(['name']));
+		$group->save();
+
+		return response()->json(['status' => 'ok', 'group' => $group]);
+	}
+
+	public function destroy(Group $group) {
+
+		$tenant = $group->tenant;
+
+		$group->users()->update(['group_id' => $tenant->primaryGroup->id]);
+		$group->delete();
+
+		return response()->json(['status' => 'ok', 'users_moved_to' => $tenant->primaryGroup->id]);
 	}
 
 }

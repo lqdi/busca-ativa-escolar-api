@@ -68,6 +68,14 @@ class Tenant extends Model  {
 	}
 
 	/**
+	 * The primary/default group for users
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function primaryGroup() {
+		return $this->hasOne('BuscaAtivaEscolar\Group', 'tenant_id', 'id');
+	}
+
+	/**
 	 * The city this tenant is associated with
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
