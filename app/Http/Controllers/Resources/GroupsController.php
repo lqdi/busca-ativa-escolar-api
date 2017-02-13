@@ -46,6 +46,14 @@ class GroupsController extends BaseController {
 
 	}
 
+	public function update_settings(Group $group) {
+		$settings = $group->getSettings();
+		$settings->update( request('settings', []) );
+		$group->setSettings($settings);
+
+		return response()->json(['status' => 'ok']);
+	}
+
 	public function update(Group $group) {
 		$group->fill(request()->only(['name']));
 		$group->save();

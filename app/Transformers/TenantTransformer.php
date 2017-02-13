@@ -21,6 +21,7 @@ class TenantTransformer extends TransformerAbstract {
 
 	protected $availableIncludes = [
 		'city',
+		'settings',
 		'political_admin',
 		'operational_admin',
 	];
@@ -78,6 +79,12 @@ class TenantTransformer extends TransformerAbstract {
 	public function includeOperationalAdmin(Tenant $tenant) {
 		if(!$tenant->operationalAdmin) return null;
 		return $this->item($tenant->operationalAdmin, new UserTransformer(), false);
+	}
+
+	public function includeSettings(Tenant $tenant) {
+		$settings = $tenant->getSettings();
+		if(!$settings) return null;
+		return $this->item($settings, new GenericTransformer(), false);
 	}
 
 }

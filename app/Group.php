@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\Settings\GroupSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use Illuminate\Database\Eloquent\Model;
@@ -56,6 +57,24 @@ class Group extends Model {
 	}
 
 	// -----------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Updates the group settings object
+	 * @param GroupSettings $settings
+	 */
+	public function setSettings(GroupSettings $settings) {
+		$this->settings = $settings->serialize();
+		$this->save();
+	}
+
+	/**
+	 * Gets the group settings object
+	 * @return GroupSettings
+	 */
+	public function getSettings() {
+		if(!$this->settings) return new GroupSettings();
+		return GroupSettings::unserialize($this->settings);
+	}
 
 	/**
 	 * Creates the default primary group for a tenant (Secretaria da Educação)

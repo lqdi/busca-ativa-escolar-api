@@ -34,6 +34,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/users/search', 'Resources\UsersController@search');
 
 		// User Groups
+		Route::put('/groups/{group}/settings', 'Resources\GroupsController@update_settings');
 		Route::resource('/groups', 'Resources\GroupsController');
 
 		// Case Steps
@@ -43,7 +44,12 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update');
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show');
 
+		// Tenants (authenticated)
 		Route::get('/tenants/all', 'Tenants\TenantsController@all');
+
+		// Settings
+		Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings');
+		Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings');
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search');

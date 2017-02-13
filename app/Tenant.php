@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -89,6 +90,26 @@ class Tenant extends Model  {
 	 */
 	public function getRouteKeyName() {
 		return 'id';
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Updates the tenant settings object
+	 * @param TenantSettings $settings
+	 */
+	public function setSettings(TenantSettings $settings) {
+		$this->settings = $settings->serialize();
+		$this->save();
+	}
+
+	/**
+	 * Gets the tenant's current settings
+	 * @return TenantSettings
+	 */
+	public function getSettings() {
+		if(!$this->settings) return new TenantSettings();
+		return TenantSettings::unserialize($this->settings);
 	}
 
 	// ------------------------------------------------------------------------

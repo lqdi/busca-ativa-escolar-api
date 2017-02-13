@@ -31,6 +31,18 @@ abstract class CaseStep extends Model {
 	use IndexedByUUID;
 	use TenantScopedModel;
 
+	const SLUGS = [
+		'alerta',
+		'pesquisa',
+		'analise_tecnica',
+		'gestao_do_caso',
+		'rematricula',
+		'1a_observacao',
+		'2a_observacao',
+		'3a_observacao',
+		'4a_observacao',
+	];
+
 	/**
 	 * Base array of fillable fields, shared between all case steps.
 	 * @var array
