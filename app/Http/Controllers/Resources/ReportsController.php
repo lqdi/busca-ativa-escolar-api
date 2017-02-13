@@ -60,19 +60,25 @@ class ReportsController extends BaseController {
 			//->filterByTerm('parents_income',$filters['parents_income_null'] ?? false)
 			->filterByRange('age',$filters['age_null'] ?? false);
 
+		if($params['view'] == "time_series") {
+			if(!isset($filters['date'])) $filters['date'] = ['lte' => 'now', 'gte' => 'now-2d'];
+			$query->filterByRange('date', false);
+		}
 
 		$index = ($params['view'] == 'linear') ? $entity->getAggregationIndex() : $entity->getTimeSeriesIndex();
 		$type = ($params['view'] == 'linear') ? $entity->getAggregationType() : $entity->getTimeSeriesType();
 
 		try {
-			$response = $reports->query($index, $type, $params['dimension'], $query);
+			$response = ($params['view'] == 'time_series') ?
+				$reports->timeline($index, $type, $params['dimension'], $query) :
+				$reports->linear($index, $type, $params['dimension'], $query);
+
 			$ids = array_keys($response['report'] ?? []);
 			$labels = $this->fetchDimensionLabels($params['dimension'], $ids);
+
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
 		}
-
-		// TODO: return with Fractal transformation
 
 		return response()->json([
 			'query' => $query->getQuery(),

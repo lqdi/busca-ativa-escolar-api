@@ -27,7 +27,7 @@ class Reports {
 		$this->client = $client;
 	}
 
-	public function query(string $index, string $type, string $dimension, ElasticSearchQuery $query = null) {
+	public function linear(string $index, string $type, string $dimension, ElasticSearchQuery $query = null) {
 
 		$request = [
 			'size' => 0,
@@ -58,13 +58,60 @@ class Reports {
 
 	}
 
+	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null) {
+
+		$request = [
+			'size' => 0,
+			'aggs' => [
+				'daily' => [
+					'date_histogram' => [
+						'field' => 'date',
+						'interval' => '1D',
+						'format' => 'yyyy-MM-dd'
+					],
+					'aggs' => [
+						'num_entities' => [
+							'terms' => [
+								'size' => 0,
+								'field' => $dimension
+							]
+						]
+					]
+				]
+			]
+		];
+
+		if($query !== null) {
+			$request['query'] = $query->getQuery();
+		}
+
+		$response = $this->rawSearch([
+			'index' => $index,
+			'type' => $type,
+			'body' => $request
+		]);
+
+		$report = [];
+
+		foreach($response['aggregations']['daily']['buckets'] as $bucket) {
+			$report[$bucket['key_as_string']] = array_pluck($bucket['num_entities']['buckets'] ?? [], 'doc_count', 'key');
+		}
+
+		return [
+			'records_total' => $response['hits']['total'] ?? 0,
+			'report' => $report,
+		];
+
+	}
+
 	public function buildSnapshot(CollectsDailyMetrics $entity, string $date) {
-		$metrics['date'] = $date;
+		$doc = $entity->buildMetricsDocument();
+		$doc['date'] = $date;
 
 		$this->rawIndex([
 			'index' => $entity->getTimeSeriesIndex(),
 			'type' => $entity->getTimeSeriesType(),
-			'body' => $metrics
+			'body' => $doc
 		]);
 	}
 

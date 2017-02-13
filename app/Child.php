@@ -283,7 +283,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	// ------------------------------------------------------------------------
 
-	public function getTimeSeriesIndex() : string { return 'children_metrics'; }
+	public function getTimeSeriesIndex() : string { return 'children_daily'; }
 	public function getTimeSeriesType(): string { return 'child'; }
 
 	/**
@@ -297,6 +297,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             "tenant_id",
             "city_id",
             "child_status",
+            "case_status",
             "alert_status",
             "deadline_status",
             "age",
@@ -335,6 +336,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             "school_last_id",
             "alert_cause_id",
             "assigned_user_id",
+            "alert_submitter_id",
             "uf",
             "country_region",
 		]);

@@ -1,0 +1,173 @@
+{
+	"properties": {
+		"date": {
+			"type": "date",
+			"format": "date",
+			"store": true
+		},
+		"assigned_user_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"step_slug": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"work_activity": {
+			"type": "string"
+		},
+		"alert_status": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"alert_submitter_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"deadline_status": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"place_is_quilombola": {
+			"type": "string"
+		},
+		"parents_who_is_guardian": {
+			"type": "string"
+		},
+		"reinsertion_grade": {
+			"type": "string"
+		},
+		"school_last_status": {
+			"type": "string"
+		},
+		"handicapped_at_sus": {
+			"type": "boolean"
+		},
+		"reinsertion_date": {
+			"format": "dateOptionalTime",
+			"type": "date"
+		},
+		"race": {
+			"store": true,
+			"type": "string"
+		},
+		"is_working": {
+			"type": "boolean"
+		},
+		"school_last_age": {
+			"type": "integer"
+		},
+		"school_last_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"school_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"age": {
+			"type": "integer"
+		},
+		"gender": {
+			"store": true,
+			"type": "string"
+		},
+		"parents_income": {
+			"type": "string"
+		},
+		"is_child_still_in_school": {
+			"type": "boolean"
+		},
+		"parents_has_mother": {
+			"type": "boolean"
+		},
+		"guardian_race": {
+			"type": "string"
+		},
+		"place_kind": {
+			"type": "string"
+		},
+		"work_is_paid": {
+			"type": "boolean"
+		},
+		"risk_level": {
+			"store": true,
+			"type": "string"
+		},
+		"alert_cause_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"parents_has_father": {
+			"type": "boolean"
+		},
+		"parents_has_brother": {
+			"type": "boolean"
+		},
+		"tenant_id": {
+			"store": true,
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"city_id": {
+			"store": true,
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"has_been_in_school": {
+			"type": "boolean"
+		},
+		"school_last_year": {
+			"type": "integer"
+		},
+		"place_uf": {
+			"type": "string"
+		},
+		"school_uf": {
+			"type": "string"
+		},
+		"place_city_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"school_city_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"uf": {
+			"store": true,
+			"type": "string"
+		},
+		"case_cause_ids": {
+			"type": "string"
+		},
+		"country_region": {
+			"store": true,
+			"type": "string"
+		},
+		"case_status": {
+			"store": true,
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"work_weekly_hours": {
+			"type": "integer"
+		},
+		"school_last_grade": {
+			"type": "string"
+		},
+		"handicapped_reason_not_enrolled": {
+			"type": "string"
+		},
+		"guardian_schooling": {
+			"type": "string"
+		},
+		"child_status": {
+			"store": true,
+			"type": "string"
+		},
+		"reason_not_enrolled": {
+			"type": "string"
+		}
+	}
+}

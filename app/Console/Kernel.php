@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         Commands\ReindexAllChildren::class,
         Commands\ReindexAllCities::class,
         Commands\ReindexAllSchools::class,
+        Commands\SnapshotDailyMetrics::class,
     ];
 
     /**
@@ -32,8 +33,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->command('snapshot:daily_metrics')->dailyAt('23:00');
     }
 
     /**

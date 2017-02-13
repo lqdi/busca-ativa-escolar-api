@@ -62,6 +62,10 @@
 		"school_last_status": {
 			"type": "string"
 		},
+		"school_last_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
 		"handicapped_at_sus": {
 			"type": "boolean"
 		},
@@ -93,7 +97,11 @@
 			"store": true,
 			"type": "string"
 		},
-		"school_censo_id": {
+		"school_id": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"school_city_id": {
 			"type": "string",
 			"index": "not_analyzed"
 		},
