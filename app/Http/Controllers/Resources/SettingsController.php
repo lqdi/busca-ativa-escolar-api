@@ -16,7 +16,9 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use Auth;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Settings\TenantSettings;
+use BuscaAtivaEscolar\Transformers\TenantSettingsTransformer;
 use BuscaAtivaEscolar\User;
 
 class SettingsController extends BaseController {
@@ -31,7 +33,11 @@ class SettingsController extends BaseController {
 
 		$settings = $user->tenant->getSettings();  /* @var $settings TenantSettings */
 
-		return response()->json(['status' => 'ok', 'settings' => $settings]);
+		return fractal()
+			->item($settings)
+			->transformWith(new TenantSettingsTransformer())
+			->serializeWith(new SimpleArraySerializer())
+			->respond();
 
 	}
 

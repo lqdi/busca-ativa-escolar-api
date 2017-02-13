@@ -51,6 +51,8 @@ class TenantSettings extends SerializableObject {
 		'4a_observacao' => 60,
 	];
 
+	const BLOCKED_STEP_DEADLINES = ['gestao_do_caso'];
+
 	public function getAlertPriority($cause_id) {
 		if(!isset($this->alertPriorities[intval($cause_id)])) return null;
 		return $this->alertPriorities[intval($cause_id)];

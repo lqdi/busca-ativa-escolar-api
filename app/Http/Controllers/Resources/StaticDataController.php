@@ -36,6 +36,7 @@ class StaticDataController extends BaseController {
 				'SchoolingLevel' => \BuscaAtivaEscolar\Data\SchoolingLevel::getAllAsArray(),
 				'WorkActivity' => \BuscaAtivaEscolar\Data\WorkActivity::getAllAsArray(),
 				'UserType' => \BuscaAtivaEscolar\User::$ALLOWED_TYPES,
+				'CaseStepSlugs' => \BuscaAtivaEscolar\CaseSteps\CaseStep::SLUGS,
 				'UFs' => \BuscaAtivaEscolar\IBGE\UF::getAllAsArray(),
 				'Regions' => \BuscaAtivaEscolar\IBGE\Region::getAllAsArray(),
 				'APIEndpoints' => $this->buildAPIEndpointList(),
