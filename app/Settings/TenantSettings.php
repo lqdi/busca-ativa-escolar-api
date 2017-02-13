@@ -62,26 +62,32 @@ class TenantSettings extends SerializableObject {
 	}
 
 	public function update($data) {
-		if(!is_array($data['alertPriorities'])) throw new \InvalidArgumentException('invalid_format');
-		if(!is_array($data['stepDeadlines'])) throw new \InvalidArgumentException('invalid_format');
 
-		foreach($data['alertPriorities'] as $alertCauseID => $alertPriority) {
+		if(isset($data['alertPriorities'])) {
+			if(!is_array($data['alertPriorities'])) throw new \InvalidArgumentException('invalid_format');
 
-			$alertCauseID = intval($alertCauseID);
+			foreach($data['alertPriorities'] as $alertCauseID => $alertPriority) {
 
-			if(!AlertCause::getByID($alertCauseID)) throw new \InvalidArgumentException('invalid_alert_cause_id');
-			if(!in_array($alertPriority, ['low', 'medium', 'high'])) throw new \InvalidArgumentException('invalid_priority');
+				$alertCauseID = intval($alertCauseID);
 
-			$this->alertPriorities[$alertCauseID] = $alertPriority;
+				if(!AlertCause::getByID($alertCauseID)) throw new \InvalidArgumentException('invalid_alert_cause_id');
+				if(!in_array($alertPriority, ['low', 'medium', 'high'])) throw new \InvalidArgumentException('invalid_priority');
 
+				$this->alertPriorities[$alertCauseID] = $alertPriority;
+
+			}
 		}
 
-		foreach($data['stepDeadlines'] as $stepSlug => $stepDeadline) {
+		if(isset($data['stepDeadlines'])) {
+			if(!is_array($data['stepDeadlines'])) throw new \InvalidArgumentException('invalid_format');
 
-			if(!in_array($stepSlug, CaseStep::SLUGS)) throw new \InvalidArgumentException('invalid_step_slug');
+			foreach($data['stepDeadlines'] as $stepSlug => $stepDeadline) {
 
-			$this->stepDeadlines[$stepSlug] = intval($stepDeadline);
+				if(!in_array($stepSlug, CaseStep::SLUGS)) throw new \InvalidArgumentException('invalid_step_slug');
 
+				$this->stepDeadlines[$stepSlug] = intval($stepDeadline);
+
+			}
 		}
 
 	}

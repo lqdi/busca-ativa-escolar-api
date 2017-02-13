@@ -43,13 +43,15 @@ class GroupSettings extends SerializableObject {
 	}
 
 	public function update($data) {
-		if(!is_array($data['alerts'])) throw new \InvalidArgumentException('invalid_format');
+		if(isset($data['alerts'])) {
+			if(!is_array($data['alerts'])) throw new \InvalidArgumentException('invalid_format');
 
-		foreach($data['alerts'] as $alertCauseID => $handlesAlert) {
-			$alertCauseID = intval($alertCauseID);
-			if(!AlertCause::getByID($alertCauseID)) throw new \InvalidArgumentException('invalid_alert_cause_id');
-			$this->alerts[$alertCauseID] = boolval($handlesAlert);
+			foreach($data['alerts'] as $alertCauseID => $handlesAlert) {
+				$alertCauseID = intval($alertCauseID);
+				if(!AlertCause::getByID($alertCauseID)) throw new \InvalidArgumentException('invalid_alert_cause_id');
+				$this->alerts[$alertCauseID] = boolval($handlesAlert);
 
+			}
 		}
 
 	}
