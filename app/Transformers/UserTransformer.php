@@ -28,6 +28,10 @@ class UserTransformer extends TransformerAbstract {
 		'group'
 	];
 
+	public function __construct($mode = 'short') {
+		$this->mode = $mode;
+	}
+
 	public function transform(User $user) {
 
 		return [
@@ -41,21 +45,25 @@ class UserTransformer extends TransformerAbstract {
 			'group_id' => $user->group_id,
 			'city_id' => $user->city_id,
 
-			'cpf' => $user->cpf,
-			'dob' => $user->dob,
-			'work_phone' => $user->work_phone,
-			'work_mobile' => $user->work_mobile,
-			'personal_email' => $user->personal_email,
-			'personal_mobile' => $user->personal_mobile,
-			'skype_username' => $user->skype_username,
-			'work_address' => $user->work_address,
-			'work_cep' => $user->work_cep,
-			'work_neighborhood' => $user->work_neighborhood,
-			'work_city' => $user->work_city,
-			'work_uf' => $user->work_uf,
 			'institution' => $user->institution,
-			'position' => $user->position,
-		];
+			'position' => $user->position
+
+			] + (($this->mode == 'long') ? [
+
+				'cpf' => $user->cpf,
+				'dob' => $user->dob,
+				'work_phone' => $user->work_phone,
+				'work_mobile' => $user->work_mobile,
+				'personal_email' => $user->personal_email,
+				'personal_mobile' => $user->personal_mobile,
+				'skype_username' => $user->skype_username,
+				'work_address' => $user->work_address,
+				'work_cep' => $user->work_cep,
+				'work_neighborhood' => $user->work_neighborhood,
+				'work_city' => $user->work_city,
+				'work_uf' => $user->work_uf,
+
+			] : []);
 
 	}
 

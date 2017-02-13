@@ -134,12 +134,15 @@ class User extends Authenticatable {
 	 * @return \Illuminate\Contracts\Validation\Validator
 	 */
 	public function validate($data, $isCreating = false) {
+
+		$needsTenantID = $isCreating && isset($data['type']) && $data['type'] !== 'superuser' && $data['type'] != 'gestor_nacional';
+
 		return validator($data, [
 			'name' => 'required|string',
 			'email' => ($isCreating ? 'required' : 'nullable') . '|email|unique:users',
 			'password' => ($isCreating ? 'required' : 'nullable') . '|min:6',
 
-			'tenant_id' => 'nullable',
+			'tenant_id' => ($needsTenantID) ? 'required' : 'nullable',
 			'city_id' => 'nullable',
 			'group_id' => 'nullable',
 

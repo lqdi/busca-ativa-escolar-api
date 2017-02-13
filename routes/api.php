@@ -43,6 +43,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update');
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show');
 
+		Route::get('/tenants/all', 'Tenants\TenantsController@all');
+
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search');
 

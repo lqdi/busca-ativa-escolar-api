@@ -20,10 +20,14 @@ use League\Fractal\TransformerAbstract;
 class TenantTransformer extends TransformerAbstract {
 
 	protected $availableIncludes = [
-		'city'
+		'city',
+		'political_admin',
+		'operational_admin',
 	];
 
 	public function transform(Tenant $tenant) {
+
+		$daysSinceLastActive = $this->getDaysSinceLastActive($tenant->last_active_at);
 
 		return [
 			'id' => $tenant->id,
@@ -36,16 +40,44 @@ class TenantTransformer extends TransformerAbstract {
 			'is_registered' => $tenant->is_registered,
 			'is_active' => $tenant->is_active,
 
-			'last_active_at' => $tenant->last_active_at,
+			'last_active_at' => $tenant->last_active_at ? $tenant->last_active_at->toIso8601String() : null,
+			'days_since_last_active' => $daysSinceLastActive,
+			'activity_status' => $this->resolveActivityStatus($daysSinceLastActive),
 
-			'registered_at' => $tenant->registered_at,
-			'activated_at' => $tenant->activated_at,
+			'registered_at' => $tenant->registered_at ? $tenant->registered_at->toIso8601String() : null,
+			'activated_at' => $tenant->activated_at ? $tenant->activated_at->toIso8601String() : null,
 		];
 
 	}
 
+	protected function getDaysSinceLastActive($lastActiveAt) {
+		if(!$lastActiveAt) return null;
+		return abs($lastActiveAt->diffInDays());
+	}
+
+	protected function resolveActivityStatus($daysSinceLastActive) {
+		if($daysSinceLastActive === null) return 'inactive_never';
+
+		if($daysSinceLastActive >= 120) return 'inactive_120d';
+		if($daysSinceLastActive >= 90) return 'inactive_90d';
+		if($daysSinceLastActive >= 60) return 'inactive_60d';
+		if($daysSinceLastActive >= 30) return 'inactive_30d';
+
+		return 'active';
+	}
+
 	public function includeCity(Tenant $tenant) {
 		return $this->item($tenant->city, new CityTransformer(), false);
+	}
+
+	public function includePoliticalAdmin(Tenant $tenant) {
+		if(!$tenant->politicalAdmin) return null;
+		return $this->item($tenant->politicalAdmin, new UserTransformer(), false);
+	}
+
+	public function includeOperationalAdmin(Tenant $tenant) {
+		if(!$tenant->operationalAdmin) return null;
+		return $this->item($tenant->operationalAdmin, new UserTransformer(), false);
 	}
 
 }

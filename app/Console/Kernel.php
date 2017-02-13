@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
         Commands\ReindexAllCities::class,
         Commands\ReindexAllSchools::class,
         Commands\SnapshotDailyMetrics::class,
+        Commands\TestSchedulingSystem::class,
     ];
 
     /**
@@ -33,6 +34,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+    	//$schedule->command('debug:test_scheduling_system')->everyMinute();
         $schedule->command('snapshot:daily_metrics')->dailyAt('23:00');
     }
 

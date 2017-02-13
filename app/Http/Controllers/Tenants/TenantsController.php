@@ -28,6 +28,17 @@ class TenantsController extends BaseController  {
 			->collection($tenants)
 			->transformWith(new TenantTransformer())
 			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes('city') // Does not include user info
+			->respond();
+	}
+
+	public function all() {
+		$tenants = Tenant::all();
+
+		return fractal()
+			->collection($tenants)
+			->transformWith(new TenantTransformer())
+			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
 	}

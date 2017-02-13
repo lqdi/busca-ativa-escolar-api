@@ -43,7 +43,7 @@ class UsersController extends BaseController {
 
 		return fractal()
 			->collection($collection)
-			->transformWith(new UserTransformer())
+			->transformWith(new UserTransformer('short'))
 			->serializeWith(new SimpleArraySerializer())
 			->paginateWith(new IlluminatePaginatorAdapter($paginator))
 			->parseIncludes(request('with'))
@@ -54,7 +54,7 @@ class UsersController extends BaseController {
 
 		return fractal()
 			->item($user)
-			->transformWith(new UserTransformer())
+			->transformWith(new UserTransformer('long'))
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
