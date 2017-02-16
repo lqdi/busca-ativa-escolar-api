@@ -82,4 +82,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::resource('/cities', 'Resources\CitiesController');
 	Route::resource('/tenants', 'Tenants\TenantsController');
 
+	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@not_implemented');
+
 });
