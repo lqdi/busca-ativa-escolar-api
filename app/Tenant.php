@@ -92,6 +92,15 @@ class Tenant extends Model  {
 		return 'id';
 	}
 
+	/**
+	 * Gets the expected deadline for a step by its slug, as configured in the tenant
+	 * @param string $step_slug
+	 * @return int
+	 */
+	public function getDeadlineFor($step_slug) {
+		return $this->getSettings()->stepDeadlines[$step_slug] ?? 0;
+	}
+
 	// ------------------------------------------------------------------------
 
 	/**

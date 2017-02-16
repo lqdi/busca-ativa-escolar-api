@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Transformers;
 
 
+use BuscaAtivaEscolar\Child;
 use Carbon\Carbon;
 use League\Fractal\TransformerAbstract;
 
@@ -57,7 +58,11 @@ class ChildSearchResultsTransformer extends TransformerAbstract {
 
 			'current_case' => $document['_source']['current_case'] ?? null,
 
+			'is_late' => (($document['_source']['deadline_status'] ?? 'normal') === Child::DEADLINE_STATUS_LATE),
+
 			'child_status' => $document['_source']['child_status'] ?? null,
+			'deadline_status' => $document['_source']['deadline_status'] ?? null,
+			'alert_status' => $document['_source']['alert_status'] ?? null,
 
 			'created_at' => isset($document['_source']['created_at']) ? Carbon::createFromTimestamp(strtotime($document['_source']['created_at']))->toIso8601String() : null,
 			'updated_at' => isset($document['_source']['updated_at']) ? Carbon::createFromTimestamp(strtotime($document['_source']['updated_at']))->toIso8601String() : null,

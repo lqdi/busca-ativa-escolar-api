@@ -21,6 +21,7 @@ use BuscaAtivaEscolar\Events\CaseStepUpdated;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use BuscaAtivaEscolar\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -59,11 +60,16 @@ abstract class CaseStep extends Model {
 		'assigned_group_id',
 		'is_pending_assignment',
 		'completed_at',
+		'started_at',
 		'is_completed',
 	];
 
+	protected $dates = [
+		'completed_at',
+		'started_at',
+	];
+
 	protected $casts = [
-		'completed_at' => 'datetime',
 		'is_completed' => 'boolean',
 		'is_pending_assignment' => 'boolean',
 		'index' => 'integer',
@@ -167,6 +173,7 @@ abstract class CaseStep extends Model {
 	 */
 	public function start($prevStep) {
 		$this->is_completed = false;
+		$this->started_at = date('Y-m-d H:i:s');
 		$this->save();
 
 		$this->onStart($prevStep);
@@ -184,6 +191,7 @@ abstract class CaseStep extends Model {
 	public function complete() {
 
 		$this->is_completed = true;
+		$this->completed_at = date('Y-m-d H:i:s');
 		$this->save();
 
 		$shouldContinue = $this->onComplete();
@@ -265,6 +273,27 @@ abstract class CaseStep extends Model {
 	 */
 	public function getName() {
 		return trans('case_step.name.' . $this->step_type, ['report_index' => ($this->report_index ?? '')]);
+	}
+
+	/**
+	 * Gets the slug that identifies this step
+	 * @return string
+	 */
+	public function getSlug() {
+		return str_slug($this->getName(), '_');
+	}
+
+	/**
+	 * Checks if the step is late or not
+	 * @param Carbon $now
+	 * @param int $maxDays
+	 * @return boolean
+	 */
+	public function isLate($now = null, $maxDays = 0) {
+		if(!$now) $now = Carbon::now();
+		if(!$this->started_at) return true;
+
+		return ($now->diffInDays($this->started_at) >= $maxDays);
 	}
 
 	// ------------------------------------------------------------------------

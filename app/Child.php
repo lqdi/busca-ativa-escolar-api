@@ -385,4 +385,16 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		return $child;
 
 	}
+
+	/**
+	 * Gets all children with active cases
+	 * @return \Illuminate\Database\Eloquent\Collection|static[]
+	 */
+	public static function getAllActive() {
+		return self::query()
+			->with(['tenant', 'currentStep'])
+			->whereIn('child_status', [self::STATUS_OUT_OF_SCHOOL, self::STATUS_OBSERVATION])
+			->where('alert_status', self::ALERT_STATUS_ACCEPTED)
+			->get();
+	}
 }
