@@ -50,7 +50,7 @@ class ChildTransformer extends TransformerAbstract {
 			'current_step_type' => $child->current_step_type,
 			'current_step_id' => $child->current_step_id,
 
-			'is_late' => ($this->deadline_status === Child::DEADLINE_STATUS_LATE),
+			'is_late' => ($child->deadline_status === Child::DEADLINE_STATUS_LATE),
 
 			'alert_status' => $child->alert_status,
 			'deadline_status' => $child->deadline_status,
