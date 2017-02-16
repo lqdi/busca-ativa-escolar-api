@@ -118,6 +118,36 @@ class User extends Authenticatable {
 	}
 
 	/**
+	 * Gets the list of permissions for the user, based on their type
+	 * @return array
+	 */
+	public function getPermissions() {
+		if(!$this->type) return [];
+		return config('user_type_permissions.' . $this->type, []);
+	}
+
+	/**
+	 * Checks if a user has a certain permission
+	 * @param string $permission
+	 * @param array $arguments
+	 * @return bool
+	 */
+	public function can($permission, $arguments = []) {
+		if(!$this->type) return false;
+		return in_array($permission, config('user_type_permissions.' . $this->type, []));
+	}
+
+	/**
+	 * Checks if a user lacks a certain permission
+	 * @param string $permission
+	 * @param array $arguments
+	 * @return bool
+	 */
+	public function cannot($permission, $arguments = []) {
+		return !$this->can($permission);
+	}
+
+	/**
 	 * Checks if a user is global or restricted/assigned to a specific tenant.
 	 * @return bool True when tenant-based, false when global.
 	 */

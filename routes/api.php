@@ -4,8 +4,8 @@ Route::get('/versions', function() {
 });
 
 Route::group(['prefix' => 'auth'], function () {
-	Route::post('/token', 'Auth\TokenController@authenticate');
-	Route::get('/identity', 'Auth\TokenController@identity')->middleware('jwt.auth');
+	Route::post('/token', 'Auth\IdentityController@authenticate');
+	//Route::get('/identity', 'Auth\IdentityController@identity')->middleware('jwt.auth');
 });
 
 Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
@@ -14,48 +14,48 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Children
 		Route::resource('/children', 'Resources\ChildrenController');
-		Route::post('/children/search', 'Resources\ChildrenController@search');
-		Route::get('/children/{child}/comments', 'Resources\ChildrenController@comments');
-		Route::get('/children/{child}/attachments', 'Resources\ChildrenController@attachments');
-		Route::get('/children/{child}/activity', 'Resources\ChildrenController@activity_log');
-		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment');
-		Route::post('/children/{child}/attachments', 'Resources\ChildrenController@addAttachment');
+		Route::post('/children/search', 'Resources\ChildrenController@search')->middleware('can:cases.view');
+		Route::get('/children/{child}/comments', 'Resources\ChildrenController@comments')->middleware('can:cases.view');
+		Route::get('/children/{child}/attachments', 'Resources\ChildrenController@attachments')->middleware('can:cases.view');
+		Route::get('/children/{child}/activity', 'Resources\ChildrenController@activity_log')->middleware('can:cases.view');
+		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment')->middleware('can:cases.view');
+		Route::post('/children/{child}/attachments', 'Resources\ChildrenController@addAttachment')->middleware('can:cases.view');
 
 		// Pending alerts
-		Route::get('/alerts/pending', 'Resources\AlertsController@get_pending');
-		Route::post('/alerts/{child}/accept', 'Resources\AlertsController@accept');
-		Route::post('/alerts/{child}/reject', 'Resources\AlertsController@reject');
+		Route::get('/alerts/pending', 'Resources\AlertsController@get_pending')->middleware('can:alerts.pending');
+		Route::post('/alerts/{child}/accept', 'Resources\AlertsController@accept')->middleware('can:alerts.pending');
+		Route::post('/alerts/{child}/reject', 'Resources\AlertsController@reject')->middleware('can:alerts.pending');
 
 		// Child Cases
 		Route::resource('/cases', 'Resources\CasesController');
 
 		// Users
 		Route::resource('/users', 'Resources\UsersController');
-		Route::post('/users/search', 'Resources\UsersController@search');
+		Route::post('/users/search', 'Resources\UsersController@search')->middleware('can:users.view');
 
 		// User Groups
-		Route::put('/groups/{group}/settings', 'Resources\GroupsController@update_settings');
+		Route::put('/groups/{group}/settings', 'Resources\GroupsController@update_settings')->middleware('can:settings.manage');
 		Route::resource('/groups', 'Resources\GroupsController');
 
 		// Case Steps
-		Route::post('/steps/{step_type}/{step_id}/complete', 'Resources\StepsController@complete');
-		Route::get('/steps/{step_type}/{step_id}/assignable_users', 'Resources\StepsController@getAssignableUsers');
-		Route::post('/steps/{step_type}/{step_id}/assign_user', 'Resources\StepsController@assignUser');
-		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update');
-		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show');
+		Route::post('/steps/{step_type}/{step_id}/complete', 'Resources\StepsController@complete')->middleware('can:cases.manage');
+		Route::get('/steps/{step_type}/{step_id}/assignable_users', 'Resources\StepsController@getAssignableUsers')->middleware('can:cases.manage');
+		Route::post('/steps/{step_type}/{step_id}/assign_user', 'Resources\StepsController@assignUser')->middleware('can:cases.manage');
+		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update')->middleware('can:cases.manage');
+		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show')->middleware('can:cases.view');
 
 		// Tenants (authenticated)
-		Route::get('/tenants/all', 'Tenants\TenantsController@all');
+		Route::get('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.manage');
 
 		// Settings
-		Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings');
-		Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings');
+		Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings')->middleware('can:settings.manage');
+		Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings')->middleware('can:settings.manage');
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search');
 
 		// Reports
-		Route::post('/reports/children', 'Resources\ReportsController@query_children');
+		Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
 
 	});
 

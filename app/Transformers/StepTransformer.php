@@ -44,6 +44,7 @@ class StepTransformer extends TransformerAbstract {
 			'name' => $step->getName(),
 
 			'step_type' => $step->step_type,
+			'slug' => str_slug($step->getName(), '_'),
 
 			'is_completed' => $step->is_completed,
 			'is_pending_assignment' => $step->is_pending_assignment,

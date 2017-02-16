@@ -15,11 +15,13 @@ namespace BuscaAtivaEscolar\Http\Controllers\Auth;
 
 use Auth;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Transformers\UserTransformer;
 use Illuminate\Http\Request;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
-class TokenController extends BaseController  {
+class IdentityController extends BaseController  {
 
 	public function authenticate(Request $request) {
 
@@ -35,7 +37,11 @@ class TokenController extends BaseController  {
 
 			if (!$token) return response()->json(['error' => 'invalid_credentials'], 401);
 
-			$user = Auth::user();
+			$user = fractal()
+				->item(Auth::user())
+				->transformWith(new UserTransformer('long'))
+				->serializeWith(new SimpleArraySerializer())
+				->toArray();
 
 
 		} catch (JWTException $ex) {
@@ -66,9 +72,16 @@ class TokenController extends BaseController  {
 
 	public function identity() {
 
+		// @deprecated
+
 		$user = Auth::user();
 
-		return response()->json(compact('user'));
+		return fractal()
+			->item($user)
+			->transformWith(new UserTransformer('long'))
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->respond();
 
 	}
 

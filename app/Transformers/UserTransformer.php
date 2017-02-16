@@ -50,6 +50,8 @@ class UserTransformer extends TransformerAbstract {
 
 			] + (($this->mode == 'long') ? [
 
+				'permissions' => $user->getPermissions(),
+
 				'cpf' => $user->cpf,
 				'dob' => $user->dob,
 				'work_phone' => $user->work_phone,
