@@ -46,7 +46,10 @@ class UserTransformer extends TransformerAbstract {
 			'city_id' => $user->city_id,
 
 			'institution' => $user->institution,
-			'position' => $user->position
+			'position' => $user->position,
+
+			'created_at' => $user->created_at,
+			'deleted_at' => $user->deleted_at,
 
 			] + (($this->mode == 'long') ? [
 

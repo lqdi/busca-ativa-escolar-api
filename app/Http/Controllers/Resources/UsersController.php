@@ -34,6 +34,8 @@ class UsersController extends BaseController {
 		if(request()->has('type')) $query->where('type', request('type'));
 		if(request()->has('email')) $query->where('email', 'LIKE', request('email') . '%');
 
+		if(request('show_suspended', false)) $query->withTrashed();
+
 		$max = intval(request('max', 128));
 		if($max > 128) $max = 128;
 		if($max < 16) $max = 16;
@@ -106,6 +108,23 @@ class UsersController extends BaseController {
 
 			return response()->json(['status' => 'ok', 'id' => $user->id]);
 
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+	}
+
+	public function destroy(User $user) {
+		try {
+			$user->delete(); // Soft-deletes internally
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+	}
+
+	public function restore($user_id) {
+		try {
+			$user = User::withTrashed()->findOrFail($user_id);
+			$user->restore();
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
 		}

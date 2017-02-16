@@ -73,6 +73,9 @@ class User extends Authenticatable {
 
 		'institution',
 		'position',
+
+	    'is_suspended',
+	    'suspended_by',
     ];
 
     protected $hidden = [

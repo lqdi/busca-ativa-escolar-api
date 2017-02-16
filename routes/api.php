@@ -27,15 +27,29 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/alerts/{child}/reject', 'Resources\AlertsController@reject')->middleware('can:alerts.pending');
 
 		// Child Cases
-		Route::resource('/cases', 'Resources\CasesController');
+		Route::group(['middleware' => 'can:cases.view'], function() {
+			Route::resource('/cases', 'Resources\CasesController');
+		});
 
 		// Users
-		Route::resource('/users', 'Resources\UsersController');
 		Route::post('/users/search', 'Resources\UsersController@search')->middleware('can:users.view');
+		Route::group(['middleware' => 'can:users.manage'], function() {
+			Route::post('/users/{user_id}/restore', 'Resources\UsersController@restore');
+			Route::resource('/users', 'Resources\UsersController');
+		});
 
-		// User Groups
-		Route::put('/groups/{group}/settings', 'Resources\GroupsController@update_settings')->middleware('can:settings.manage');
-		Route::resource('/groups', 'Resources\GroupsController');
+		// Settings
+		Route::group(['middleware' => 'can:settings.manage'], function() {
+
+			// User Groups
+			Route::resource('/groups', 'Resources\GroupsController');
+			Route::put('/groups/{group}/settings', 'Resources\GroupsController@update_settings');
+
+			// Tenant Settings
+			Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings')->middleware('can:settings.manage');
+			Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings')->middleware('can:settings.manage');
+
+		});
 
 		// Case Steps
 		Route::post('/steps/{step_type}/{step_id}/complete', 'Resources\StepsController@complete')->middleware('can:cases.manage');
@@ -46,10 +60,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Tenants (authenticated)
 		Route::get('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.manage');
-
-		// Settings
-		Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings')->middleware('can:settings.manage');
-		Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings')->middleware('can:settings.manage');
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search');
