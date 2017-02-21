@@ -58,6 +58,11 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update')->middleware('can:cases.manage');
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show')->middleware('can:cases.view');
 
+		// Sign-ups
+		Route::get('/signups/pending', 'Tenants\SignUpController@get_pending');
+		Route::post('/signups/{id}/approve', 'Tenants\SignUpController@approve');
+		Route::post('/signups/{id}/reject', 'Tenants\SignUpController@reject');
+
 		// Tenants (authenticated)
 		Route::get('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.manage');
 
@@ -79,8 +84,13 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	// Open data for sign-up
 	Route::post('/cities/search', 'Resources\CitiesController@search');
+	Route::post('/cities/check_availability', 'Resources\CitiesController@check_availability');
 	Route::resource('/cities', 'Resources\CitiesController');
 	Route::resource('/tenants', 'Tenants\TenantsController');
+
+	// Sign-up
+	Route::post('/signups/register', 'Tenants\SignUpController@register');
+	Route::get('/signups/via_token/{signup}', 'Tenants\SignUpController@get_via_token');
 
 	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@not_implemented');
 
