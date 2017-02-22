@@ -14,9 +14,12 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\Mailables\SignupApproved;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Messages\MailMessage;
+use Mail;
 
 class SignUp extends Model {
 
@@ -55,11 +58,11 @@ class SignUp extends Model {
 	// -----------------------------------------------------------------------------------------------------------------
 
 	public function approve(User $judge) {
-		$this->is_approved = false;
+		$this->is_approved = true;
 		$this->judged_by = $judge->id;
 		$this->save();
 
-		// TODO: send e-mail notification with link to continue
+		$this->sendNotification();
 	}
 
 	public function reject(User $judge) {
@@ -72,8 +75,21 @@ class SignUp extends Model {
 		// TODO: send e-mail notification with link to continue
 	}
 
+	public function sendNotification() {
+		$target = $this->data['admin']['email'];
+		Mail::to([$target, 'dev@lqdi.net'])->send(new SignupApproved($this));
+	}
+
+	public function getURLToken() {
+		return self::generateURLToken($this);
+	}
+
 
 	// -----------------------------------------------------------------------------------------------------------------
+
+	public static function generateURLToken(SignUp $signup) {
+		return sha1(env('APP_KEY') . $signup->id . $signup->created_at);
+	}
 
 	/**
 	 * Creates a new tenant sign-up request

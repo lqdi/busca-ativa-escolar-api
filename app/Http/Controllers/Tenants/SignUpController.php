@@ -59,12 +59,14 @@ class SignUpController extends BaseController  {
 	}
 
 	public function get_pending() {
-		$pending = SignUp::with('city')->where('is_approved', 0)->orderBy('created_at', 'ASC')->get();
-		return response()->json($pending);
+		$pending = SignUp::with('city')->orderBy('created_at', 'ASC')->get();
+		return response()->json(['data' => $pending]);
 	}
 
 	public function approve(SignUp $signup) {
 		try {
+
+			if(!$signup) return $this->failure('invalid_signup_id');
 
 			$signup->approve(Auth::user());
 			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
@@ -77,7 +79,22 @@ class SignUpController extends BaseController  {
 	public function reject(SignUp $signup) {
 		try {
 
+			if(!$signup) return $this->failure('invalid_signup_id');
+
 			$signup->reject(Auth::user());
+			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
+
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+	}
+
+	public function resendNotification(SignUp $signup) {
+		try {
+
+			if(!$signup) return $this->failure('invalid_signup_id');
+
+			$signup->sendNotification();
 			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
 
 		} catch (\Exception $ex) {
