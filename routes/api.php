@@ -20,6 +20,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment')->middleware('can:cases.view');
 		Route::post('/children/{child}/attachments', 'Resources\ChildrenController@addAttachment')->middleware('can:cases.view');
 
+		// My alerts
+		Route::get('/alerts/mine', 'Resources\AlertsController@get_mine');
+
 		// Pending alerts
 		Route::get('/alerts/pending', 'Resources\AlertsController@get_pending')->middleware('can:alerts.pending');
 		Route::post('/alerts/{child}/accept', 'Resources\AlertsController@accept')->middleware('can:alerts.pending');

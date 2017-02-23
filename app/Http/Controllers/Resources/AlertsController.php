@@ -14,9 +14,11 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
+use Auth;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Transformers\AgentAlertTransformer;
 use BuscaAtivaEscolar\Transformers\PendingAlertTransformer;
 
 class AlertsController extends BaseController {
@@ -61,6 +63,20 @@ class AlertsController extends BaseController {
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
 		}
+	}
+
+	public function get_mine() {
+		$myAlerts = Child::with('alert')
+			->orderBy('created_at', 'DESC')
+			->where('alert_submitter_id', Auth::id())
+			->get();
+
+		return fractal()
+			->collection($myAlerts)
+			->transformWith(new AgentAlertTransformer())
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->respond();
 	}
 
 }
