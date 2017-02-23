@@ -14,9 +14,11 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Tenants;
 
 
+use BuscaAtivaEscolar\ActivityLog;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\TenantTransformer;
 
 class TenantsController extends BaseController  {
@@ -45,6 +47,18 @@ class TenantsController extends BaseController  {
 
 	public function show(Tenant $tenant) {
 		return response()->json($tenant);
+	}
+
+	public function get_recent_activity() {
+		$max = max(1, min(32, intval(request('max'))));
+		$recentActivity = ActivityLog::fetchRecentEntries(null, $max, true);
+
+		return fractal()
+			->collection($recentActivity)
+			->transformWith(new LogEntryTransformer())
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->respond();
 	}
 
 }

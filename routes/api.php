@@ -5,7 +5,6 @@ Route::get('/versions', function() {
 
 Route::group(['prefix' => 'auth'], function () {
 	Route::post('/token', 'Auth\IdentityController@authenticate');
-	//Route::get('/identity', 'Auth\IdentityController@identity')->middleware('jwt.auth');
 });
 
 Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
@@ -17,7 +16,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/children/search', 'Resources\ChildrenController@search')->middleware('can:cases.view');
 		Route::get('/children/{child}/comments', 'Resources\ChildrenController@comments')->middleware('can:cases.view');
 		Route::get('/children/{child}/attachments', 'Resources\ChildrenController@attachments')->middleware('can:cases.view');
-		Route::get('/children/{child}/activity', 'Resources\ChildrenController@activity_log')->middleware('can:cases.view');
+		Route::get('/children/{child}/activity', 'Resources\ChildrenController@activityLog')->middleware('can:cases.view');
 		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment')->middleware('can:cases.view');
 		Route::post('/children/{child}/attachments', 'Resources\ChildrenController@addAttachment')->middleware('can:cases.view');
 
@@ -33,6 +32,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Users
 		Route::post('/users/search', 'Resources\UsersController@search')->middleware('can:users.view');
+		Route::get('/users/myself', 'Auth\IdentityController@identity');
 		Route::group(['middleware' => 'can:users.manage'], function() {
 			Route::post('/users/{user_id}/restore', 'Resources\UsersController@restore');
 			Route::resource('/users', 'Resources\UsersController');
@@ -66,6 +66,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Tenants (authenticated)
 		Route::get('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.manage');
+		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search');

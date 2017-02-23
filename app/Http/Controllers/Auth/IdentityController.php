@@ -72,8 +72,6 @@ class IdentityController extends BaseController  {
 
 	public function identity() {
 
-		// @deprecated
-
 		$user = Auth::user();
 
 		return fractal()

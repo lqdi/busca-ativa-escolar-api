@@ -144,4 +144,31 @@ class ActivityLog extends Model {
 		return $entry;
 	}
 
+	/**
+	 * Fetches the latest activity on all children
+	 *
+	 * @param string $contentType The content type to search activity for
+	 * @param integer $max The maximum amount of activities to return
+	 * @param boolean $onlyVisibleEntries Only display 'visible' entries in the log
+	 *
+	 * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|static[]
+	 */
+	public static function fetchRecentEntries($contentType = null, $max = 10, $onlyVisibleEntries = true) {
+		$query = self::query();
+
+		if($contentType !== null) {
+			$query->where('content_type', $contentType);
+		}
+
+		if($onlyVisibleEntries) {
+			$query->whereIn('action', config('activity_log.visible_events.' . ($contentType ?? 'global'), []));
+		}
+
+		$query
+			->orderBy('created_at', 'DESC')
+			->take($max);
+
+		return $query->get();
+	}
+
 }

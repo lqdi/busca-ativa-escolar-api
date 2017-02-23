@@ -52,6 +52,7 @@ class ChildrenController extends BaseController  {
 			)
 			->filterByTerms('alert_status', false)
 			->filterByTerms('risk_level', $params['risk_level_null'] ?? false)
+			->filterByTerm('assigned_user_id', $params['assigned_user_id_null'] ?? false)
 			->filterByTerms('gender',$params['gender_null'] ?? false)
 			->filterByTerms('place_kind',$params['place_kind_null'] ?? false)
 			->filterByRange('age',$params['age_null'] ?? false);
@@ -111,7 +112,7 @@ class ChildrenController extends BaseController  {
 			->respond();
 	}
 
-	public function activity_log(Child $child) {
+	public function activityLog(Child $child) {
 		return fractal()
 			->collection(ActivityLog::fetchEntries($child, 64, true))
 			->transformWith(new LogEntryTransformer())
