@@ -96,6 +96,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	// Sign-up
 	Route::post('/signups/register', 'Tenants\SignUpController@register');
 	Route::get('/signups/via_token/{signup}', 'Tenants\SignUpController@get_via_token');
+	Route::post('/signups/{signup}/complete', 'Tenants\SignUpController@complete');
 
 	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@not_implemented');
 

@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\SignUp;
 use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\User;
 
 class SignUpController extends BaseController  {
 
@@ -63,6 +64,18 @@ class SignUpController extends BaseController  {
 		return response()->json(['data' => $pending]);
 	}
 
+	public function get_via_token(SignUp $signup) {
+		$token = request('token');
+		$validToken = $signup->getURLToken();
+
+		if(!$token) return $this->failure('invalid_token');
+		if($token !== $validToken) return $this->failure('token_mismatch');
+		if(!$signup->is_approved) return $this->failure('not_approved');
+		if($signup->is_provisioned) return $this->failure('already_provisioned');
+
+		return response()->json($signup);
+	}
+
 	public function approve(SignUp $signup) {
 		try {
 
@@ -97,6 +110,26 @@ class SignUpController extends BaseController  {
 			$signup->sendNotification();
 			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
 
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+	}
+
+	public function complete(SignUp $signup) {
+		$token = request('token');
+		$validToken = $signup->getURLToken();
+
+		if(!$token) return $this->failure('invalid_token');
+		if($token !== $validToken) return $this->failure('token_mismatch');
+		if(!$signup->is_approved) return $this->failure('not_approved');
+		if($signup->is_provisioned) return $this->failure('already_provisioned');
+
+		$politicalAdmin = request('political', []);
+		$operationalAdmin = request('operational', []);
+
+		try {
+			$tenant = Tenant::provision($signup, $politicalAdmin, $operationalAdmin);
+			return response()->json(['status' => 'ok', 'tenant_id' => $tenant->id]);
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
 		}

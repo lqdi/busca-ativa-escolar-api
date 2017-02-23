@@ -133,4 +133,70 @@ class Tenant extends Model  {
 		return strtoupper($city->uf) . ' / ' . ucwords($city->name);
 	}
 
+	/**
+	 * Provisions a tenant based on sign-up data
+	 *
+	 * @param SignUp $signup
+	 * @param array $politicalAdminData
+	 * @param array $operationalAdminData
+	 *
+	 * @throws \Exception on failure
+	 *
+	 * @returns Tenant
+	 */
+	public static function provision(SignUp $signup, array $politicalAdminData, array $operationalAdminData) {
+
+		$city = $signup->city;
+		if(!$city) throw new \Exception("Invalid signup city ID");
+
+		$politicalAdminData['type'] = User::TYPE_GESTOR_POLITICO;
+		$operationalAdminData['type'] = User::TYPE_GESTOR_OPERACIONAL;
+
+		$politicalAdmin = new User();
+		$politicalAdmin->fill($politicalAdminData);
+		$validator = $politicalAdmin->validate($politicalAdminData);
+
+		if($validator->fails()) throw new \Exception("Invalid political admin data: " . $validator->getMessageBag()->first());
+
+		$operationalAdmin = new User();
+		$operationalAdmin->fill($operationalAdminData);
+		$validator = $operationalAdmin->validate($operationalAdminData);
+
+		if($validator->fails()) throw new \Exception("Invalid operational admin data: " . $validator->getMessageBag()->first());
+
+		$politicalAdmin->password = password_hash($politicalAdminData['password'], PASSWORD_DEFAULT);
+		$politicalAdmin->save();
+
+		$operationalAdmin->password = password_hash($operationalAdminData['password'], PASSWORD_DEFAULT);
+		$operationalAdmin->save();
+
+		$now = date('Y-m-d H:i:s');
+
+		$tenant = Tenant::create([
+			'name' => Tenant::generateNameFromCity($city),
+			'city_id' => $city->id,
+			'operational_admin_id' => $operationalAdmin->id,
+			'political_admin_id' => $politicalAdmin->id,
+			'is_registered' => true,
+			'is_active' => true,
+			'last_active_at' => $now,
+			'registered_at' => $signup->created_at,
+			'activated_at' => $now,
+		]);
+
+		Group::createDefaultPrimaryGroup($tenant);
+
+		$politicalAdmin->update(['tenant_id' => $tenant->id]);
+		$operationalAdmin->update(['tenant_id' => $tenant->id]);
+
+		$signup->is_provisioned = true;
+		$signup->tenant_id = $tenant->id;
+		$signup->save();
+
+		// TODO: send notification emails
+
+		return $tenant;
+
+	}
+
 }

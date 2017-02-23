@@ -184,21 +184,21 @@ class User extends Authenticatable {
 			'dob' => 'required|date',
 			'cpf' => 'required|alpha_dash',
 
-			'work_phone' => 'required|alpha_dash',
+			'work_phone' => 'nullable|alpha_dash',
 			'work_mobile' => 'nullable|alpha_dash',
 
 			'personal_email' => 'nullable|email',
 			'personal_mobile' => 'nullable|email',
 			'skype_username' => 'nullable|alpha_dash',
 
-			'work_address' => 'required|string',
-			'work_cep' => 'required|string',
-			'work_neighborhood' => 'required|string',
-			'work_city' => 'required|string',
-			'work_uf' => 'required|string',
+			'work_address' => 'nullable|string',
+			'work_cep' => 'nullable|string',
+			'work_neighborhood' => 'nullable|string',
+			'work_city' => 'nullable|string',
+			'work_uf' => 'nullable|string',
 
-			'institution' => 'required|string',
-			'position' => 'required|string',
+			'institution' => 'nullable|string',
+			'position' => 'nullable|string',
 		]);
 	}
 
