@@ -1,0 +1,61 @@
+<?php
+/**
+ * busca-ativa-escolar-api
+ * AlertSpawnController.php
+ *
+ * Copyright (c) LQDI Digital
+ * www.lqdi.net - 2017
+ *
+ * @author Aryel Tupinambá <aryel.tupinamba@lqdi.net>
+ *
+ * Created at: 02/03/2017, 15:00
+ */
+
+namespace BuscaAtivaEscolar\Http\Controllers\Integration;
+
+
+use BuscaAtivaEscolar\CaseSteps\Alerta;
+use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\User;
+
+class AlertSpawnController extends BaseController {
+
+	public function spawn_alert() {
+
+		try {
+
+			$email = request('email', null);
+
+			if(!$email) return response()->json(['status' => 'error', 'reason' => 'missing_user_email']);
+
+			$user = User::where('email', $email)->first();
+
+			if(!$user) return response()->json(['status' => 'error', 'reason' => 'invalid_user']);
+
+			$tenant = $user->tenant;
+
+			if(!$tenant) return response()->json(['status' => 'error', 'reason' => 'user_has_no_tenant']);
+
+			$data = request()->toArray();
+			$validation = (new Alerta())->validate($data);
+
+			if($validation->fails()) {
+				return response()->json(['status' => 'error', 'reason' => 'validation_failed', 'fields' => $validation->failed()]);
+			}
+
+			$child = Child::spawnFromAlertData($tenant, $user->id, $data);
+
+			return response()->json([
+				'status' => 'ok',
+				'tenant_id' => $tenant->id,
+				'child_id' => $child->id,
+			]);
+
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+
+	}
+
+}
