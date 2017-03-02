@@ -44,7 +44,15 @@ class Alerta extends CaseStep  {
 		'place_city_name',
 		'place_uf',
 		'place_phone',
-		'place_mobile'
+		'place_mobile',
+		'place_lat',
+		'place_lng',
+		'place_map_region',
+		'place_map_geocoded_address',
+	];
+
+	protected $casts = [
+		'place_map_geocoded_address' => 'array',
 	];
 
 	protected function onComplete() : bool {
@@ -59,6 +67,15 @@ class Alerta extends CaseStep  {
 		if(!$this->dob) return true;
 
 		$this->child->calculateAgeThroughBirthday($this->dob);
+
+		$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
+
+		$this->update([
+			'place_lat' => ($address) ? $address->getLatitude() : null,
+			'place_lng' => ($address) ? $address->getLongitude() : null,
+			'place_map_region' => ($address) ? $address->getSubLocality() : null,
+			'place_map_geocoded_address' => ($address) ? $address->toArray() : null,
+		]);
 
 		return true;
 

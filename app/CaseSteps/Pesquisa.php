@@ -75,11 +75,16 @@ class Pesquisa extends CaseStep {
 		'place_uf',
 		'place_kind',
 		'place_is_quilombola',
+		'place_lat',
+		'place_lng',
+		'place_map_region',
+		'place_map_geocoded_address',
 
 	];
 
 	protected $casts = [
-		'case_cause_ids' => 'array'
+		'case_cause_ids' => 'array',
+		'place_map_geocoded_address' => 'array',
 	];
 
 	protected function onStart($prevStep = null) {
@@ -109,6 +114,18 @@ class Pesquisa extends CaseStep {
 
 		if($this->dob) {
 			$this->child->calculateAgeThroughBirthday($this->dob);
+		}
+
+		if($this->place_address && $this->place_city_name && $this->place_uf) {
+			$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
+
+			$this->update([
+				'place_lat' => ($address) ? $address->getLatitude() : null,
+				'place_lng' => ($address) ? $address->getLongitude() : null,
+				'place_map_region' => ($address) ? $address->getSubLocality() : null,
+				'place_map_geocoded_address' => ($address) ? $address->toArray() : null,
+			]);
+
 		}
 	}
 

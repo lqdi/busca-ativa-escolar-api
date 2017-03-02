@@ -16,6 +16,7 @@ namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
+use Geocoder\Geocoder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -39,6 +40,9 @@ class Tenant extends Model  {
 
 		'registered_at',
 		'activated_at',
+		
+		'map_lat',
+		'map_lng',
 	];
 
 	protected $casts = [
@@ -99,6 +103,24 @@ class Tenant extends Model  {
 	 */
 	public function getDeadlineFor($step_slug) {
 		return $this->getSettings()->stepDeadlines[$step_slug] ?? 0;
+	}
+
+	/**
+	 * Gets the Tenant's map center coordinates, or null if none found
+	 * @return array|null
+	 */
+	public function getMapCoordinates() {
+		if(!$this->map_lat || !$this->map_lng) {
+			$geocoder = app('geocoder'); /* @var $geocoder Geocoder */
+
+			$place = $geocoder->geocode("{$this->getName()} - Brasil")->first();
+
+			if(!$place) return null;
+
+			$this->update(['map_lat' => $place->getLatitude(), 'map_lng' => $place->getLongitude()]);
+		}
+
+		return ['lat' => $this->map_lat, 'lng' => $this->map_lng];
 	}
 
 	// ------------------------------------------------------------------------

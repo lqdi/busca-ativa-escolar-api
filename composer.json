@@ -23,7 +23,8 @@
         "spatie/laravel-fractal": "^3.1",
         "barryvdh/laravel-cors": "^0.8.2",
         "doctrine/dbal": "^2.5",
-        "elasticsearch/elasticsearch": "^5.1"
+        "elasticsearch/elasticsearch": "^5.1",
+        "toin0u/geocoder-laravel": "^1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

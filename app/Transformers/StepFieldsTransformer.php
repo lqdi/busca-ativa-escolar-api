@@ -37,6 +37,17 @@ class StepFieldsTransformer extends TransformerAbstract {
 			];
 		}
 
+		if(isset($data['place_lat']) && isset($data['place_lng'])) {
+			$data['place_coords'] = [
+				'latitude' => $data['place_lat'],
+				'longitude' => $data['place_lng'],
+			];
+		}
+
+		if(isset($data['lat']) || isset($data['lng'])) {
+			$data['map_center'] = $step->tenant ? $step->tenant->getCoordinates() : null;
+		}
+
 		if(isset($data['school_city_id'])) {
 			$data['school_city'] = [
 				'id' => $data['school_city_id'],

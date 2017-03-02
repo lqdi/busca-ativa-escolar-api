@@ -29,9 +29,12 @@ use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use Carbon\Carbon;
+use Geocoder\Geocoder;
+use Geocoder\Model\Address;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
+use Log;
 
 class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyMetrics {
 
@@ -77,6 +80,15 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 		'deadline_status',
 		'child_status',
+
+		'lat',
+		'lng',
+		'map_region',
+		'map_geocoded_address',
+	];
+
+	protected $casts = [
+		'map_geocoded_address' => 'array',
 	];
 
 	/**
@@ -217,6 +229,31 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$this->save();
 
 		event("child.age_updated", [$this]);
+	}
+
+	/**
+	 * Updates the child's latitude and longitude based on a raw address string
+	 * @param string $rawAddress The full address to geocode
+	 * @return \Geocoder\Model\Address|null The geocoded address, or null if failed
+	 */
+	public function updateCoordinatesThroughGeocoding($rawAddress) {
+		$geocoder = app('geocoder'); /* @var $geocoder Geocoder */
+		$address = null;
+
+		try {
+			$address = $geocoder->geocode($rawAddress)->get()->first(); /* @var $address Address */
+		} catch (\Exception $ex) {
+			Log::error("Failed to geocode child (id={$this->id}) coords with address '{$rawAddress}': " . $ex->getMessage());
+		}
+
+		$this->update([
+			'lat' => ($address) ? $address->getLatitude() : null,
+			'lng' => ($address) ? $address->getLongitude() : null,
+			'map_region' => ($address) ? $address->getSubLocality() : null,
+			'map_geocoded_address' => ($address) ? $address->toArray() : null,
+		]);
+
+		return $address;
 	}
 
 	// ------------------------------------------------------------------------

@@ -56,6 +56,14 @@ class ChildTransformer extends TransformerAbstract {
 			'deadline_status' => $child->deadline_status,
 			'child_status' => $child->child_status,
 
+			'coords' => ($child->lat && $child->lng) ? [
+				'latitude' => $child->lat,
+				'longitude' => $child->lng,
+			] : null,
+
+			'map_region' => $child->map_region,
+			'map_geocoded_address' => $child->map_geocoded_address,
+
 			'created_at' => $child->created_at ? $child->created_at->toIso8601String() : null,
 			'updated_at' => $child->updated_at ? $child->updated_at->toIso8601String() : null,
 		];

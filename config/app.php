@@ -175,6 +175,7 @@ return [
 	    Ixudra\Curl\CurlServiceProvider::class,
 	    Spatie\Fractal\FractalServiceProvider::class,
 	    Barryvdh\Cors\ServiceProvider::class,
+	    Geocoder\Laravel\Providers\GeocoderService::class,
 
 
 	    /*
@@ -241,7 +242,7 @@ return [
 	    'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
 	    'Curl' => Ixudra\Curl\Facades\Curl::class,
 	    'Fractal' => Spatie\Fractal\FractalFacade::class,
-
+	    'Geocoder' => Toin0u\Geocoder\GeocoderFacade::class,
 
     ],
 
