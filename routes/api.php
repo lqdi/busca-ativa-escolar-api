@@ -12,6 +12,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::group(['middleware' => 'jwt.auth'], function() { // Authenticated routes
 
 		// Children
+		Route::get('/children/map', 'Resources\ChildrenController@getMap')->middleware('can:cases.map');
 		Route::resource('/children', 'Resources\ChildrenController');
 		Route::post('/children/search', 'Resources\ChildrenController@search')->middleware('can:cases.view');
 		Route::get('/children/{child}/comments', 'Resources\ChildrenController@comments')->middleware('can:cases.view');
@@ -19,6 +20,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/children/{child}/activity', 'Resources\ChildrenController@activityLog')->middleware('can:cases.view');
 		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment')->middleware('can:cases.view');
 		Route::post('/children/{child}/attachments', 'Resources\ChildrenController@addAttachment')->middleware('can:cases.view');
+
 
 		// My alerts
 		Route::get('/alerts/mine', 'Resources\AlertsController@get_mine');

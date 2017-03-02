@@ -6,6 +6,7 @@ return [
 		'users.view',
 		'users.manage',
 		'cases.view',
+		'cases.map',
 		'alerts.spawn',
 		'tenants.manage',
 		'developer_tools',
@@ -13,6 +14,7 @@ return [
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
 		'reports.view',
+		'cases.map',
 		'users.view',
 		'users.manage',
 		'alerts.spawn',
@@ -21,6 +23,7 @@ return [
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO => [
 		'reports.view',
+		'cases.map',
 		'users.view',
 		'users.manage',
 		'alerts.spawn',
@@ -37,6 +40,7 @@ return [
 		'cases.cancel',
 		'cases.assign',
 		'cases.reopen',
+		'cases.map',
 		'cases.step.alerta',
 		'cases.step.pesquisa',
 		'cases.step.analise_tecnica',
@@ -59,6 +63,7 @@ return [
 		'cases.cancel',
 		'cases.assign',
 		'cases.reopen',
+		'cases.map',
 		'cases.step.alerta',
 		'cases.step.pesquisa',
 		'cases.step.analise_tecnica',
@@ -77,6 +82,7 @@ return [
 		'reports.view',
 		'cases.view',
 		'cases.manage',
+		'cases.map',
 		'cases.step.alerta',
 		'cases.step.pesquisa',
 		'cases.step.analise_tecnica',

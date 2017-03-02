@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use Geocoder\Geocoder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Log;
 
 class Tenant extends Model  {
 
@@ -113,14 +114,17 @@ class Tenant extends Model  {
 		if(!$this->map_lat || !$this->map_lng) {
 			$geocoder = app('geocoder'); /* @var $geocoder Geocoder */
 
-			$place = $geocoder->geocode("{$this->getName()} - Brasil")->first();
+			$place = $geocoder->geocode("{$this->name} - Brasil")->get()->first();
 
-			if(!$place) return null;
+			if(!$place) {
+				Log::error("Failed to geocode tenant map center: {$this->name}");
+				return null;
+			}
 
 			$this->update(['map_lat' => $place->getLatitude(), 'map_lng' => $place->getLongitude()]);
 		}
 
-		return ['lat' => $this->map_lat, 'lng' => $this->map_lng];
+		return ['lat' => $this->map_lat, 'lng' => $this->map_lng, 'zoom' => 10];
 	}
 
 	// ------------------------------------------------------------------------

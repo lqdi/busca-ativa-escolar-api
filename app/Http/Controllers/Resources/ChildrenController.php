@@ -175,4 +175,32 @@ class ChildrenController extends BaseController  {
 
 	}
 
+	public function getMap() {
+
+		$user = Auth::user();
+		$mapCenter = $user->tenant ?
+			$user->tenant->getMapCoordinates() : // Tenant coordinates
+			['lat' => '-13.5013846', 'lng' => '-69.7433562', 'zoom' => 4]; // Map of Brazil
+
+		// TODO: cache this (w/ tenant ID)
+
+		$coordinates = Child::query()
+			->whereIn('child_status', ['out_of_school', 'in_observation'])
+			->whereNotNull('lat')
+			->whereNotNull('lng')
+			->get(['id', 'lat', 'lng'])
+			->map(function ($child) {
+				return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
+			});
+
+		return response()->json([
+			'center' => [
+				'latitude' => $mapCenter['lat'],
+				'longitude' => $mapCenter['lng'],
+			],
+			'coordinates' => $coordinates
+		]);
+
+	}
+
 }
