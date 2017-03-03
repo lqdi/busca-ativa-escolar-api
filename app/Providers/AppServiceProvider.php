@@ -18,6 +18,8 @@ use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Observers\AttachmentActivityLogObserver;
 use BuscaAtivaEscolar\Observers\ChildActivityLogObserver;
 use BuscaAtivaEscolar\Observers\CommentActivityLogObserver;
+use BuscaAtivaEscolar\SMS\SmsProvider;
+use BuscaAtivaEscolar\SMS\Zenvia;
 use Illuminate\Support\ServiceProvider;
 use Validator;
 
@@ -37,6 +39,6 @@ class AppServiceProvider extends ServiceProvider {
     }
 
     public function register() {
-
+	    $this->app->bind(SmsProvider::class, Zenvia::class);
     }
 }

@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
         Commands\SnapshotDailyMetrics::class,
         Commands\TestSchedulingSystem::class,
         Commands\CheckCaseDeadlines::class,
+        Commands\SimulateReceivedSMS::class,
     ];
 
     /**

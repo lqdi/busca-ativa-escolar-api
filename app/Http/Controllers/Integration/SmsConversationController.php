@@ -26,13 +26,9 @@ class SmsConversationController extends BaseController {
 
 	public function on_message_received() {
 
-		$receivedData = request()->all();
+		Log::notice("SMS received: " . json_encode(request()->all()));
 
-		Log::notice("SMS received: " . json_encode($receivedData));
-
-		SmsConversation::create([
-			'received_messages' => [$receivedData],
-		]);
+		SmsConversation::handleRequest(request());
 
 		return response()->json(['status' => 'ok']);
 	}
