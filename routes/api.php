@@ -101,6 +101,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::post('/signups/{signup}/complete', 'Tenants\SignUpController@complete');
 
 	Route::post('/integration/lp/alert_spawn', 'Integration\AlertSpawnController@spawn_alert');
-	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@not_implemented');
+	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@on_message_received');
 
 });

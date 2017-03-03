@@ -15,11 +15,26 @@ namespace BuscaAtivaEscolar\Http\Controllers\Integration;
 
 
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\SmsConversation;
+use Log;
 
 class SmsConversationController extends BaseController {
 
 	public function not_implemented() {
 		return response(['status' => 'ok']);
+	}
+
+	public function on_message_received() {
+
+		$receivedData = request()->all();
+
+		Log::notice("SMS received: " . json_encode($receivedData));
+
+		SmsConversation::create([
+			'received_messages' => [$receivedData],
+		]);
+
+		return response()->json(['status' => 'ok']);
 	}
 
 }
