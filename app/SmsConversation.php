@@ -60,9 +60,8 @@ class SmsConversation extends Model {
 		'fields' => 'array'
 	];
 
-	public function __construct() {
-		parent::__construct();
-		$this->sms = app(SmsProvider::class);
+	protected function getSmsProvider() {
+		return app(SmsProvider::class);
 	}
 
 	public function user() {
@@ -85,7 +84,7 @@ class SmsConversation extends Model {
 	}
 
 	public function reply($message) {
-		return $this->sms->send($this->phone_number, $message);
+		return $this->getSmsProvider()->send($this->phone_number, $message);
 	}
 
 	public function onStepEnter($step) {
