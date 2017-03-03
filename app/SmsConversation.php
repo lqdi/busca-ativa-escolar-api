@@ -51,13 +51,13 @@ class SmsConversation extends Model {
 
 		'received_messages',
 		'metadata',
-		'fields',
+		'alert_fields',
 	];
 
 	protected $casts = [
 		'received_messages' => 'collection',
 		'metadata' => 'array',
-		'fields' => 'array'
+		'alert_fields' => 'collection'
 	];
 
 	protected function getSmsProvider() {
@@ -132,7 +132,15 @@ class SmsConversation extends Model {
 				$this->reply("O seu alerta foi recebido com sucesso! Obrigado!");
 				break;
 
+			case self::STEP_CANCELLED:
+				$this->reply("O envio do alerta foi cancelado. Para reiniciar o processo, envie novamente um SMS com a palavra ESCOLA");
+				break;
+
 		}
+	}
+
+	public function cancel() {
+		$this->setStep(self::STEP_CANCELLED);
 	}
 
 	public function handleMessage($message) {
@@ -151,7 +159,7 @@ class SmsConversation extends Model {
 
 			case self::STEP_IDENTIFY:
 
-				$email = strtolower(Str::ascii(str_replace(' ', '', $message)));
+				$email = strtolower(str_replace(' ', '', $message));
 				$user = User::whereEmail($email)->first();
 
 				if(!$user) {
@@ -168,7 +176,7 @@ class SmsConversation extends Model {
 
 				$this->user_id = $user->id;
 				$this->tenant_id = $user->tenant_id;
-				$this->fields = [
+				$this->alert_fields = [
 					'place_city_id' => $user->tenant->city_id,
 					'place_city_name' => $user->tenant->city->name,
 					'place_uf' => $user->tenant->city->uf,
@@ -181,22 +189,22 @@ class SmsConversation extends Model {
 				break;
 
 			case self::STEP_ASK_NAME:
-				$this->validateAndUpdateField('name', $message);
+				if(!$this->validateAndUpdateField('name', $message)) $this->setStep(self::STEP_ASK_NAME);
 				$this->setStep(self::STEP_ASK_MOTHER_NAME);
 				break;
 
 			case self::STEP_ASK_MOTHER_NAME:
-				$this->validateAndUpdateField('name', $message);
+				if(!$this->validateAndUpdateField('mother_name', $message)) $this->setStep(self::STEP_ASK_MOTHER_NAME);
 				$this->setStep(self::STEP_ASK_ADDRESS);
 				break;
 
 			case self::STEP_ASK_ADDRESS:
-				$this->validateAndUpdateField('place_address', $message);
+				if(!$this->validateAndUpdateField('place_address', $message)) $this->setStep(self::STEP_ASK_ADDRESS);
 				$this->setStep(self::STEP_ASK_NEIGHBORHOOD);
 				break;
 
 			case self::STEP_ASK_NEIGHBORHOOD:
-				$this->validateAndUpdateField('place_neighborhood', $message);
+				if(!$this->validateAndUpdateField('place_neighborhood', $message)) $this->setStep(self::STEP_ASK_NEIGHBORHOOD);
 				$this->setStep(self::STEP_ASK_CAUSE);
 				break;
 
@@ -212,18 +220,25 @@ class SmsConversation extends Model {
 
 				$cause = AlertCause::getBySMSIndex($causeIndex);
 
-				if(!$cause) {
+				if(!$cause || !$cause->id) {
 					$this->reply('Voce deve indicar um numero de 1 a 16, de acordo com a tabela de causas.');
 					$this->setStep(self::STEP_ASK_CAUSE);
 					return;
 				}
 
-				$this->fields['alert_cause_id'] = $cause->id;
-				$this->save();
+				$this->setField('alert_cause_id', $cause->id);
+
+				$validator = (new Alerta())->validate($this->alert_fields->toArray(), true);
+
+				if($validator->fails()) {
+					$this->reply("Ocorreu um erro ao validar os dados do alerta. Por favor, tente novamente.");
+					$this->setStep(self::STEP_ASK_CAUSE);
+					return;
+				}
 
 				$this->setStep(self::STEP_COMPLETED);
 
-				$child = Child::spawnFromAlertData($this->tenant, $this->user, $this->fields);
+				$child = Child::spawnFromAlertData($this->tenant, $this->user->id, $this->alert_fields->toArray());
 
 				if(!$child) {
 					$this->reply("Ocorreu um erro ao gerar o caso relacionado ao alerta!");
@@ -241,14 +256,33 @@ class SmsConversation extends Model {
 	}
 
 	protected function validateAndUpdateField($field, $message) {
-		$value = strtolower(Str::ascii($message));
+		$value = Str::ascii($message);
 
-		if(strlen($value) < 1) return false;
+		if(strlen($value) < 1) {
+			$this->reply("Dados invalidos. Por favor, digite corretamente o campo.");
+			return false;
+		}
 
-		$this->fields[$field] = $message;
-		$this->save();
+		$this->setField($field, $value);
 
 		return true;
+	}
+
+	protected function setField($field, $value) {
+		$fields = $this->alert_fields; // Indeference necessary so save() actually replaces the existing data
+		$fields[$field] = $value;
+		$this->alert_fields = $fields;
+		$this->save();
+	}
+
+	public function registerRequest($request) {
+		if(!is_object($this->received_messages)) {
+			$this->received_messages = collect([]);
+		}
+
+		$this->received_messages = (clone $this->received_messages)->push($request);
+
+		$this->save();
 	}
 
 	// -------------------------------------------------
@@ -260,19 +294,21 @@ class SmsConversation extends Model {
 		$conversation = self::findExisting($sms->number); /* @var $conversation self */
 
 		if(!$conversation) {
-			return self::begin($sms->number);
+			$conversation = self::begin($sms->number);
+		} else {
+			$conversation->handleMessage($sms->message);
 		}
 
-		$conversation->handleMessage($sms->message);
+		$conversation->registerRequest($request);
 
 		return $conversation;
 
 	}
 
 	public static function findExisting($phoneNumber) {
-		self::query()
+		return self::query()
 			->where('phone_number', $phoneNumber)
-			->where('conversation_step', '!=', self::STEP_COMPLETED)
+			->whereNotIn('conversation_step', [self::STEP_COMPLETED, self::STEP_CANCELLED])
 			->first();
 	}
 
@@ -285,7 +321,7 @@ class SmsConversation extends Model {
 			'conversation_step' => 'begin',
 			'received_messages' => [],
 			'metadata' => null,
-			'fields' => []
+			'alert_fields' => []
 		]);
 
 		$conversation->setStep(self::STEP_CONFIRM);

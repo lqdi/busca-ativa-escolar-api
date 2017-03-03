@@ -14,6 +14,6 @@
 namespace BuscaAtivaEscolar\SMS;
 
 interface SmsProvider {
-	public function send($number, $message) : string;
+	public function send($number, $message);
 	public function handle(\Illuminate\Http\Request $request) : SmsMessage;
 }

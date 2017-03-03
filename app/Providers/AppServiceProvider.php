@@ -18,8 +18,8 @@ use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Observers\AttachmentActivityLogObserver;
 use BuscaAtivaEscolar\Observers\ChildActivityLogObserver;
 use BuscaAtivaEscolar\Observers\CommentActivityLogObserver;
+use BuscaAtivaEscolar\SMS\Handlers\Zenvia;
 use BuscaAtivaEscolar\SMS\SmsProvider;
-use BuscaAtivaEscolar\SMS\Zenvia;
 use Illuminate\Support\ServiceProvider;
 use Validator;
 

@@ -14,32 +14,41 @@
 namespace BuscaAtivaEscolar\Console\Commands;
 
 
+use Curl;
 use Request;
 use Route;
 
 class SimulateReceivedSMS extends Command {
 
-	protected $signature = 'debug:simulate_received_sms {msisdn} {message}';
+	protected $signature = 'debug:simulate_received_sms {number} {message}';
 	protected $description = 'Simulates a received SMS';
 
 	public function handle() {
 
-		$msisdn = $this->argument('msisdn');
+		$number = $this->argument('number');
 		$message = $this->argument('message');
 
-		$request = Request::create('api/v1/integration/sms/on_receive', 'POST', [
-			'callbackMoRequest' => [
-				'id' => time(),
-				'body' => $message,
-				'mobile' => $msisdn,
-				'account' => env('ZENVIA_USER'),
-				'received' => date("T-m-d\TH:i:s"),
-				'shortCode' => env('ZENVIA_SHORTCODE'),
-				'mobileOperatorName' => 'Claro'
-			]
-		]);
+		try {
+			$response = Curl::to(url('api/v1/integration/sms/on_receive'))
+				->asJsonRequest()
+				->withData([
+					'callbackMoRequest' => [
+						'id' => strval(time()),
+						'body' => $message,
+						'mobile' => $number,
+						'account' => env('ZENVIA_USER'),
+						'received' => date("T-m-d\TH:i:s"),
+						'shortCode' => env('ZENVIA_SHORTCODE'),
+						'mobileOperatorName' => 'Claro'
+					]
+				])
+				->post();
 
-		Route::dispatch($request);
+			dd($response);
+		} catch (\Exception $ex) {
+			dd($ex);
+		}
+
 
 	}
 

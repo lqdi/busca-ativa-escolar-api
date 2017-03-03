@@ -11,9 +11,11 @@
  * Created at: 03/03/2017, 16:00
  */
 
-namespace BuscaAtivaEscolar\SMS;
+namespace BuscaAtivaEscolar\SMS\Handlers;
 
 
+use BuscaAtivaEscolar\SMS\SmsMessage;
+use BuscaAtivaEscolar\SMS\SmsProvider;
 use Curl;
 use Webpatser\Uuid\Uuid;
 
@@ -23,7 +25,7 @@ class Zenvia implements SmsProvider {
 		return base64_encode(env('ZENVIA_USER') . ':' . env('ZENVIA_KEY'));
 	}
 
-	public function send($number, $message): string {
+	public function send($number, $message) {
 		Curl::to('https://api-rest.zenvia360.com.br/services/send-sms')
 			->withHeaders([
 				'Content-Type' => 'application/json',
@@ -41,6 +43,8 @@ class Zenvia implements SmsProvider {
 				]
 			])
 			->post();
+
+		return true;
 
 	}
 

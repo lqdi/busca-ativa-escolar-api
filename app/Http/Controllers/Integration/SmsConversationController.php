@@ -28,9 +28,9 @@ class SmsConversationController extends BaseController {
 
 		Log::notice("SMS received: " . json_encode(request()->all()));
 
-		SmsConversation::handleRequest(request());
+		$conversation = SmsConversation::handleRequest(request());
 
-		return response()->json(['status' => 'ok']);
+		return response()->json(['status' => 'ok', 'conversation_id' => $conversation->id, 'step' => $conversation->conversation_step]);
 	}
 
 }
