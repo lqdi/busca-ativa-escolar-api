@@ -45,10 +45,12 @@ class LogEntryTransformer extends TransformerAbstract {
 	}
 
 	public function includeUser(ActivityLog $entry) {
+		if(!$entry->user) return null;
 		return $this->item($entry->user, new UserTransformer(), false);
 	}
 
 	public function includeContent(ActivityLog $entry) {
+		if(!$entry->content) return null;
 		switch($entry->content_type) {
 			case "BuscaAtivaEscolar\\Child": return $this->item($entry->content, new ChildTransformer(), false);
 			case "BuscaAtivaEscolar\\ActivityLog": return $this->item($entry->content, new LogEntryTransformer(), false);
@@ -58,6 +60,7 @@ class LogEntryTransformer extends TransformerAbstract {
 	}
 
 	public function includeTenant(ActivityLog $entry) {
+		if(!$entry->tenant) return null;
 		return $this->item($entry->tenant, new TenantTransformer(), false);
 	}
 
