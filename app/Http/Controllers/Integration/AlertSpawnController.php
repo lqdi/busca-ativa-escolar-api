@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Integration;
 
 
+use Auth;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
@@ -32,6 +33,8 @@ class AlertSpawnController extends BaseController {
 			$user = User::where('email', $email)->first();
 
 			if(!$user) return response()->json(['status' => 'error', 'reason' => 'invalid_user']);
+
+			Auth::setUser($user); // Necessary so the observers fire correctly
 
 			$tenant = $user->tenant;
 

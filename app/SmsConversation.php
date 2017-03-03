@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar;
 
 
+use Auth;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\SMS\SMS;
@@ -261,6 +262,7 @@ class SmsConversation extends Model {
 
 				$this->setStep(self::STEP_COMPLETED);
 
+				Auth::setUser($this->user); // Necessary so the observers fire correctly
 				$child = Child::spawnFromAlertData($this->tenant, $this->user->id, $this->alert_fields->toArray());
 
 				if(!$child) {
