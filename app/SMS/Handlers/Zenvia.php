@@ -26,22 +26,27 @@ class Zenvia implements SmsProvider {
 	}
 
 	public function send($number, $message) {
+
+		$headers = [
+			'Content-Type: application/json',
+			'Accept: application/json',
+			'Authorization: ' . $this->getAuthHeader()
+		];
+
+		$data = [
+			'sendSmsRequest' => [
+				'to' => $number,
+				'msg' => $message,
+				'callbackOption' => 'NONE',
+				'id' => Uuid::generate()->string,
+				'aggregateId' => env('ZENVIA_AGGREGATE_ID')
+			]
+		];
+
 		Curl::to('https://api-rest.zenvia360.com.br/services/send-sms')
-			->withHeaders([
-				'Content-Type' => 'application/json',
-				'Accept' => 'application/json',
-				'Authorization' => $this->getAuthHeader()
-			])
 			->asJsonRequest()
-			->withData([
-				'sendSmsRequest' => [
-					'to' => $number,
-					'msg' => $message,
-					'callbackOption' => 'NONE',
-					'id' => Uuid::generate(),
-					'aggregateId' => env('ZENVIA_AGGREGATE_ID')
-				]
-			])
+			->withHeaders($headers)
+			->withData($data)
 			->post();
 
 		return true;
@@ -54,6 +59,13 @@ class Zenvia implements SmsProvider {
 		$message = $request['callbackMoRequest']['body'] ?? null;
 		$shortCode = $request['callbackMoRequest']['shortCode'] ?? null;
 		$carrier = $request['callbackMoRequest']['mobileOperatorName'] ?? null;
+
+		$keyword = env('ZENVIA_KEYWORD');
+
+		// Strips the keyword from the message
+		if(substr(trim($message), 0, strlen($keyword)) == $keyword) {
+			$message = trim(substr(trim($message), strlen($keyword)));
+		}
 
 		return new SmsMessage($id, $number, $message, $shortCode, $carrier);
 	}

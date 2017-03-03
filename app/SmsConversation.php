@@ -60,6 +60,8 @@ class SmsConversation extends Model {
 		'alert_fields' => 'collection'
 	];
 
+	protected $queuedResponses = [];
+
 	protected function getSmsProvider() {
 		return app(SmsProvider::class);
 	}
@@ -83,38 +85,59 @@ class SmsConversation extends Model {
 		$this->onStepEnter($step);
 	}
 
+	public function queueReply($message) {
+		array_push($this->queuedResponses, $message);
+	}
+
 	public function reply($message) {
-		return $this->getSmsProvider()->send($this->phone_number, $message);
+		$this->getSmsProvider()->send($this->phone_number, $message);
+	}
+
+	public function sendQueuedReplies() {
+
+		$responses = $this->queuedResponses;
+
+		foreach($responses as $current => $message) {
+			$this->reply($message);
+
+			if($current < sizeof($this->queuedResponses)) {
+				sleep(2);
+			}
+		}
+
+		$this->queuedResponses = [];
+
+		return $responses;
 	}
 
 	public function onStepEnter($step) {
 		switch($step) {
 			case self::STEP_CONFIRM:
-				$this->reply("Voce gostaria de enviar um alerta ao Busca Ativa Escolar (S/N)");
+				$this->queueReply("Voce gostaria de enviar um alerta ao Busca Ativa Escolar (S/N)");
 				break;
 
 			case self::STEP_IDENTIFY:
-				$this->reply("Qual o seu e-mail de cadastro?");
+				$this->queueReply("Qual o seu e-mail de cadastro?");
 				break;
 
 			case self::STEP_ASK_NAME:
-				$this->reply("Qual o nome completo da crianca? (nao coloque acentos ou caracteres especiais)");
+				$this->queueReply("Qual o nome completo da crianca? (nao coloque acentos ou caracteres especiais)");
 				break;
 
 			case self::STEP_ASK_MOTHER_NAME:
-				$this->reply("Qual o nome completo da mae ou responsavel? (nao coloque acentos ou caracteres especiais)");
+				$this->queueReply("Qual o nome completo da mae ou responsavel? (nao coloque acentos ou caracteres especiais)");
 				break;
 
 			case self::STEP_ASK_ADDRESS:
-				$this->reply("Qual o logradouro do endereco? (nao coloque acentos ou caracteres especiais)");
+				$this->queueReply("Qual o logradouro do endereco? (nao coloque acentos ou caracteres especiais)");
 				break;
 
 			case self::STEP_ASK_NEIGHBORHOOD:
-				$this->reply("Qual o bairro? (nao coloque acentos ou caracteres especiais)");
+				$this->queueReply("Qual o bairro? (nao coloque acentos ou caracteres especiais)");
 				break;
 
 			case self::STEP_ASK_CAUSE:
-				$this->reply("Qual a possivel causa da crianca estar fora da escola? Responda conforme a tabela de causas de 1 a 16");
+				$this->queueReply("Qual a possivel causa da crianca estar fora da escola? Responda conforme a tabela de causas de 1 a 16.");
 
 				$i = 1;
 
@@ -124,16 +147,16 @@ class SmsConversation extends Model {
 					})
 					->implode("\n");
 
-				$this->reply($causeList);
+				$this->queueReply($causeList);
 
 				break;
 
 			case self::STEP_COMPLETED:
-				$this->reply("O seu alerta foi recebido com sucesso! Obrigado!");
+				$this->queueReply("O seu alerta foi recebido com sucesso! Obrigado!");
 				break;
 
 			case self::STEP_CANCELLED:
-				$this->reply("O envio do alerta foi cancelado. Para reiniciar o processo, envie novamente um SMS com a palavra ESCOLA");
+				$this->queueReply("O envio do alerta foi cancelado. Para reiniciar o processo, envie novamente um SMS com a palavra ESCOLA");
 				break;
 
 		}
@@ -163,13 +186,13 @@ class SmsConversation extends Model {
 				$user = User::whereEmail($email)->first();
 
 				if(!$user) {
-					$this->reply("O email informado nao esta cadastrado. Verifique se digitou corretamente e tente novamente.");
+					$this->queueReply("O email informado nao esta cadastrado. Verifique se digitou corretamente e tente novamente.");
 					$this->setStep(self::STEP_IDENTIFY);
 					return;
 				}
 
 				if(!$user->tenant) {
-					$this->reply("Gestores nacionais e superusuarios nao podem cadastrar alertas.");
+					$this->queueReply("Gestores nacionais e superusuarios nao podem cadastrar alertas.");
 					$this->setStep(self::STEP_IDENTIFY);
 					return;
 				}
@@ -213,7 +236,7 @@ class SmsConversation extends Model {
 				$causeIndex = intval($message);
 
 				if($causeIndex < 1 || $causeIndex > 16) {
-					$this->reply('Voce deve indicar um numero de 1 a 16, de acordo com a tabela de causas.');
+					$this->queueReply('Voce deve indicar um numero de 1 a 16, de acordo com a tabela de causas.');
 					$this->setStep(self::STEP_ASK_CAUSE);
 					return;
 				}
@@ -221,7 +244,7 @@ class SmsConversation extends Model {
 				$cause = AlertCause::getBySMSIndex($causeIndex);
 
 				if(!$cause || !$cause->id) {
-					$this->reply('Voce deve indicar um numero de 1 a 16, de acordo com a tabela de causas.');
+					$this->queueReply('Causa invalida! Voce deve indicar um numero de 1 a 16, de acordo com a tabela de causas.');
 					$this->setStep(self::STEP_ASK_CAUSE);
 					return;
 				}
@@ -231,7 +254,7 @@ class SmsConversation extends Model {
 				$validator = (new Alerta())->validate($this->alert_fields->toArray(), true);
 
 				if($validator->fails()) {
-					$this->reply("Ocorreu um erro ao validar os dados do alerta. Por favor, tente novamente.");
+					$this->queueReply("Ocorreu um erro ao validar os dados do alerta. Por favor, tente novamente.");
 					$this->setStep(self::STEP_ASK_CAUSE);
 					return;
 				}
@@ -241,14 +264,14 @@ class SmsConversation extends Model {
 				$child = Child::spawnFromAlertData($this->tenant, $this->user->id, $this->alert_fields->toArray());
 
 				if(!$child) {
-					$this->reply("Ocorreu um erro ao gerar o caso relacionado ao alerta!");
+					$this->queueReply("Ocorreu um erro ao gerar o caso relacionado ao alerta!");
 					return;
 				}
 
 				$this->spawned_child_id = $child->id;
 				$this->save();
 
-				$this->reply("Codigo do alerta gerado: {$child->id}");
+				$this->queueReply("Codigo do alerta gerado: {$child->id}");
 
 				break;
 
@@ -259,7 +282,7 @@ class SmsConversation extends Model {
 		$value = Str::ascii($message);
 
 		if(strlen($value) < 1) {
-			$this->reply("Dados invalidos. Por favor, digite corretamente o campo.");
+			$this->queueReply("Dados invalidos. Por favor, digite corretamente o campo.");
 			return false;
 		}
 
