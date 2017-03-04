@@ -197,6 +197,7 @@ class ChildrenController extends BaseController  {
 			'center' => [
 				'latitude' => $mapCenter['lat'],
 				'longitude' => $mapCenter['lng'],
+				'zoom' => $mapCenter['zoom'],
 			],
 			'coordinates' => $coordinates
 		]);
