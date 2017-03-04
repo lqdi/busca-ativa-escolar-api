@@ -180,7 +180,7 @@ class ChildrenController extends BaseController  {
 		$user = Auth::user();
 		$mapCenter = $user->tenant ?
 			$user->tenant->getMapCoordinates() : // Tenant coordinates
-			['lat' => '-13.5013846', 'lng' => '-69.7433562', 'zoom' => 4]; // Map of Brazil
+			['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4]; // Map of Brazil
 
 		// TODO: cache this (w/ tenant ID)
 
