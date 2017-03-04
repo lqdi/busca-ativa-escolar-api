@@ -19,7 +19,6 @@ use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\SignUp;
 use BuscaAtivaEscolar\Tenant;
-use BuscaAtivaEscolar\User;
 
 class SignUpController extends BaseController  {
 
@@ -129,6 +128,7 @@ class SignUpController extends BaseController  {
 
 		try {
 			$tenant = Tenant::provision($signup, $politicalAdmin, $operationalAdmin);
+
 			return response()->json(['status' => 'ok', 'tenant_id' => $tenant->id]);
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);

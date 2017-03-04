@@ -14,12 +14,14 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\Mailables\UserCredentialsForNewTenant;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use Geocoder\Geocoder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Log;
+use Mail;
 
 class Tenant extends Model  {
 
@@ -219,7 +221,8 @@ class Tenant extends Model  {
 		$signup->tenant_id = $tenant->id;
 		$signup->save();
 
-		// TODO: send notification emails
+		Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
+		Mail::to($operationalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $operationalAdmin, $operationalAdminData['password']));
 
 		return $tenant;
 

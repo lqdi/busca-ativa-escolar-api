@@ -96,7 +96,7 @@ $style = [
 									<!-- Intro -->
 									@foreach ($introLines as $line)
 										<p style="{{ $style['paragraph'] }}">
-											{{ $line }}
+											{!! \BuscaAtivaEscolar\Utils::renderHighlightableText(e($line)) !!}
 										</p>
 									@endforeach
 
@@ -132,7 +132,7 @@ $style = [
 								<!-- Outro -->
 									@foreach ($outroLines as $line)
 										<p style="{{ $style['paragraph'] }}">
-											{{ $line }}
+											{!! \BuscaAtivaEscolar\Utils::renderHighlightableText(e($line)) !!}
 										</p>
 									@endforeach
 

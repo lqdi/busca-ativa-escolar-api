@@ -18,7 +18,7 @@ use BuscaAtivaEscolar\SignUp;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class SignupApproved extends Mailable {
+class SignupRejected extends Mailable {
 
 	public $signup;
 
@@ -29,18 +29,18 @@ class SignupApproved extends Mailable {
 	public function build() {
 
 		$setupToken = $this->signup->getURLToken();
-		$setupURL = env('APP_PANEL_URL') . "/admin_setup/" . $this->signup->id . '?token=' . $setupToken;
+		$setupURL = env('APP_PANEL_URL') . "/" . $this->signup->id . '?token=' . $setupToken;
 
 		$message = (new MailMessage())
-			->subject("Sua adesão foi aprovada!")
+			->subject("Sua adesão foi reprovada!")
 			->greeting('Olá!')
-			->line('Sua adesão ao programa Busca Ativa Escolar foi aprovada!')
-			->line('Clique no botão abaixo para iniciar a configuração da plataforma de seu município')
-			->success()
-			->action('Configurar', $setupURL);
+			->line('Sua adesão ao programa Busca Ativa Escolar foi reprovada!')
+			->line('Se desejar, entre em contato conosco através do e-mail abaixo:')
+			->error()
+			->action('contato@buscaativaescolar.org.br', $setupURL);
 
 		$this->from(env('MAIL_USERNAME'), 'Busca Ativa Escolar');
-		$this->subject("[Busca Ativa Escolar] Sua adesão foi aprovada!");
+		$this->subject("[Busca Ativa Escolar] Sua adesão foi reprovada!");
 
 		return $this->view('vendor.notifications.email', $message->toArray());
 

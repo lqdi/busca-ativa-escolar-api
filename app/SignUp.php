@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar;
 
 
 use BuscaAtivaEscolar\Mailables\SignupApproved;
+use BuscaAtivaEscolar\Mailables\SignupRejected;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -72,12 +73,17 @@ class SignUp extends Model {
 
 		$this->delete();
 
-		// TODO: send e-mail notification with link to continue
+		$this->sendRejectionNotification();
 	}
 
 	public function sendNotification() {
 		$target = $this->data['admin']['email'];
-		Mail::to([$target, 'dev@lqdi.net'])->send(new SignupApproved($this));
+		Mail::to($target)->send(new SignupApproved($this));
+	}
+
+	public function sendRejectionNotification() {
+		$target = $this->data['admin']['email'];
+		Mail::to($target)->send(new SignupRejected($this));
 	}
 
 	public function getURLToken() {
