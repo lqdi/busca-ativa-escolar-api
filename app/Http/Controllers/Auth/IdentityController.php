@@ -41,6 +41,7 @@ class IdentityController extends BaseController  {
 				->item(Auth::user())
 				->transformWith(new UserTransformer('long'))
 				->serializeWith(new SimpleArraySerializer())
+				->parseIncludes(['tenant'])
 				->toArray();
 
 
@@ -78,7 +79,7 @@ class IdentityController extends BaseController  {
 			->item($user)
 			->transformWith(new UserTransformer('long'))
 			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
+			->parseIncludes(request('with', 'tenant'))
 			->respond();
 
 	}

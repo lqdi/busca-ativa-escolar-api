@@ -135,4 +135,17 @@ class SignUpController extends BaseController  {
 		}
 	}
 
+	public function completeSetup() {
+
+		$tenant = Auth::user()->tenant;
+
+		if(!$tenant) return response()->json(['status' => 'error', 'reason' => 'user_has_no_tenant']);
+
+		$tenant->is_setup = true;
+		$tenant->save();
+
+		return response()->json(['status' => 'ok']);
+
+	}
+
 }

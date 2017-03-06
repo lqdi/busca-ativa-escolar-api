@@ -38,6 +38,7 @@ class Tenant extends Model  {
 
 		'is_registered',
 		'is_active',
+		'is_setup',
 
 		'last_active_at',
 

@@ -40,6 +40,7 @@ class TenantTransformer extends TransformerAbstract {
 
 			'is_registered' => $tenant->is_registered,
 			'is_active' => $tenant->is_active,
+			'is_setup' => $tenant->is_setup,
 
 			'last_active_at' => $tenant->last_active_at ? $tenant->last_active_at->toIso8601String() : null,
 			'days_since_last_active' => $daysSinceLastActive,

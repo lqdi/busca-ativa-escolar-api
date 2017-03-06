@@ -53,6 +53,7 @@ return [
 		'alerts.pending',
 		'alerts.spawn',
 		'settings.manage',
+		'tenant.complete_setup',
 		'preferences',
 	],
 
