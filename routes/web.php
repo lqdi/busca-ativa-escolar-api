@@ -16,5 +16,5 @@ Route::get('/', function () {
 });
 
 Route::group(['prefix' => 'maintenance'], function() {
-
+	Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 });

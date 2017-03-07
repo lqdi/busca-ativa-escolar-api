@@ -176,6 +176,8 @@ return [
 	    Spatie\Fractal\FractalServiceProvider::class,
 	    Barryvdh\Cors\ServiceProvider::class,
 	    Geocoder\Laravel\Providers\GeocoderService::class,
+	    Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
+
 
 
 	    /*
