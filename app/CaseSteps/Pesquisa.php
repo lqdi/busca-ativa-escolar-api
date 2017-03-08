@@ -93,6 +93,15 @@ class Pesquisa extends CaseStep {
 	}
 
 	protected function onStart($prevStep = null) {
+		if($prevStep instanceof CaseStep) {
+			$this->fill(
+				collect($prevStep->toArray())
+					->except($this->baseFillable)
+					->toArray()
+			);
+			$this->save();
+		}
+
 		$this->flagAsPendingAssignment();
 	}
 
