@@ -94,7 +94,13 @@ class Reports {
 		$report = [];
 
 		foreach($response['aggregations']['daily']['buckets'] as $bucket) {
-			$report[$bucket['key_as_string']] = array_pluck($bucket['num_entities']['buckets'] ?? [], 'doc_count', 'key');
+
+			if(!$bucket['num_entities']['buckets'] || sizeof($bucket['num_entities']['buckets']) <= 0) {
+				$report[$bucket['key_as_string']] = null;
+				continue;
+			}
+
+			$report[$bucket['key_as_string']] = array_pluck($bucket['num_entities']['buckets'], 'doc_count', 'key');
 		}
 
 		return [
