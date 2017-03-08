@@ -2,5 +2,11 @@
 return [
 	'high' => 'Alto',
 	'medium' => 'Médio',
-	'low' => 'Baixo'
+	'low' => 'Baixo',
+
+	'btn_class' => [
+		'high' => 'btn-danger',
+		'medium' => 'btn-warning',
+		'low' => 'btn-default',
+	]
 ];
