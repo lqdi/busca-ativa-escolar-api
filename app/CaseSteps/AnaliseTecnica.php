@@ -13,6 +13,8 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use Illuminate\Database\Eloquent\Builder;
+
 class AnaliseTecnica extends CaseStep {
 
 	protected $table = "case_steps_analise_tecnica";
@@ -30,6 +32,10 @@ class AnaliseTecnica extends CaseStep {
 		return validator($data, [
 			'analysis_details' => 'required|string',
 		]);
+	}
+
+	public function applyAssignableUsersFilter(Builder $query) {
+		return $query->whereIn('type', ['tecnico_verificador', 'supervisor_operacional', 'coordenador_operacional']);
 	}
 
 }

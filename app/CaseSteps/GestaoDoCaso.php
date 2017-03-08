@@ -13,6 +13,8 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use Illuminate\Database\Eloquent\Builder;
+
 class GestaoDoCaso extends CaseStep {
 
 	protected $table = "case_steps_gestao_do_caso";
@@ -23,6 +25,10 @@ class GestaoDoCaso extends CaseStep {
 
 	protected function onStart($prevStep = null) {
 		$this->flagAsPendingAssignment();
+	}
+
+	public function applyAssignableUsersFilter(Builder $query) {
+		return $query->whereIn('type', ['supervisor_operacional', 'coordenador_operacional']);
 	}
 
 	public function validate($data, $isCompletingStep = false) {

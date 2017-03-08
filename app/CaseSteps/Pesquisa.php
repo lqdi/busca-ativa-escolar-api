@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\CaseSteps;
 
 use BuscaAtivaEscolar\Child;
+use Illuminate\Database\Eloquent\Builder;
 
 class Pesquisa extends CaseStep {
 
@@ -86,6 +87,10 @@ class Pesquisa extends CaseStep {
 		'case_cause_ids' => 'array',
 		'place_map_geocoded_address' => 'array',
 	];
+
+	public function applyAssignableUsersFilter(Builder $query) {
+		return $query->whereIn('type', ['tecnico_verificador', 'supervisor_operacional', 'coordenador_operacional']);
+	}
 
 	protected function onStart($prevStep = null) {
 		$this->flagAsPendingAssignment();

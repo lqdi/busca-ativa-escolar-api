@@ -22,6 +22,7 @@ use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -318,10 +319,11 @@ abstract class CaseStep extends Model {
 	/**
 	 * Gets a list of "column => value" filters for the list of assignable users.
 	 * Defaults to any user (within tenant scope)
-	 * @return array
+	 * @param $query Builder A query builder that will be used to filter out the users.
+	 * @return Builder The query builder after applying the relevant fields.
 	 */
-	public function getAssignableUsersFilter() {
-		return [];
+	public function applyAssignableUsersFilter(Builder $query) {
+		return $query;
 	}
 
 	/**

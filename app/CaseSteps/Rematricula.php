@@ -13,6 +13,8 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use Illuminate\Database\Eloquent\Builder;
+
 class Rematricula extends CaseStep {
 
 	protected $table = 'case_steps_rematricula';
@@ -48,6 +50,10 @@ class Rematricula extends CaseStep {
 		$this->childCase->save();
 
 		return true;
+	}
+
+	public function applyAssignableUsersFilter(Builder $query) {
+		return $query->whereIn('type', ['supervisor_operacional', 'coordenador_operacional']);
 	}
 
 	public function validate($data, $isCompletingStep = false) {

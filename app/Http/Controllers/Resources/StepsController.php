@@ -100,7 +100,11 @@ class StepsController extends BaseController {
 	public function getAssignableUsers($step_type, $step_id) {
 		try {
 			$step = CaseStep::fetch($step_type, $step_id);
-			$users = User::query()->where($step->getAssignableUsersFilter())->get();
+
+			$query = User::query()->orderBy('type', 'ASC');
+			$query = $step->applyAssignableUsersFilter($query);
+
+			$users = $query->get();
 
 			return fractal()
 				->collection($users, new UserTransformer(), 'users')
