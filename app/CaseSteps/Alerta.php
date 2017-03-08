@@ -98,7 +98,7 @@ class Alerta extends CaseStep  {
 			'mother_phone' => 'alpha_dash',
 
 			'father_name' => 'string',
-			'father_rg' => 'alpha',
+			'father_rg' => 'alpha_num',
 			'father_phone' => 'alpha_dash',
 
 			'place_address' => 'required|string',
