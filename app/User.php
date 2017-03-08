@@ -68,7 +68,8 @@ class User extends Authenticatable {
 		'work_address',
 		'work_cep',
 		'work_neighborhood',
-		'work_city',
+		'work_city_id',
+		'work_city_name',
 		'work_uf',
 
 		'institution',
@@ -194,7 +195,8 @@ class User extends Authenticatable {
 			'work_address' => 'nullable|string',
 			'work_cep' => 'nullable|string',
 			'work_neighborhood' => 'nullable|string',
-			'work_city' => 'nullable|string',
+			'work_city_id' => 'nullable|string',
+			'work_city_name' => 'nullable|string',
 			'work_uf' => 'nullable|string',
 
 			'institution' => 'nullable|string',

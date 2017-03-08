@@ -65,7 +65,11 @@ class UserTransformer extends TransformerAbstract {
 				'work_address' => $user->work_address,
 				'work_cep' => $user->work_cep,
 				'work_neighborhood' => $user->work_neighborhood,
-				'work_city' => $user->work_city,
+				'work_city' => ($user->work_city_id) ? [
+					'id' => $user->work_city_id,
+					'name' => $user->work_city_name,
+					'uf' => $user->work_uf,
+				] : null,
 				'work_uf' => $user->work_uf,
 
 			] : []);
