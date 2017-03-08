@@ -401,7 +401,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 		$data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
 		$data['alert_status'] = self::ALERT_STATUS_PENDING;
-		$data['risk_level'] = ChildCase::RISK_LEVEL_HIGH; // TODO: fetch risk level from tenant settings
+		$data['risk_level'] = $tenant->getSettings()->getAlertPriority($data['alert_cause_id']) ?? ChildCase::RISK_LEVEL_MEDIUM;
 
 		$child = self::create($data);
 
