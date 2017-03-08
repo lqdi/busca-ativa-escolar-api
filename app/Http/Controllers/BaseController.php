@@ -41,4 +41,10 @@ class BaseController extends Controller {
 		    'exception' => $exceptionInfo
 	    ], 500);
     }
+
+	protected function api_failure($reason, $fields = null) {
+		$data = ['status' => 'error', 'reason' => $reason];
+		if($fields) $data['fields'] = $fields;
+		return response()->json($data);
+	}
 }

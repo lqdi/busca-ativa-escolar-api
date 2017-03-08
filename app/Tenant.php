@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\Exceptions\ValidationException;
 use BuscaAtivaEscolar\Mailables\UserCredentialsForNewTenant;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
@@ -176,7 +177,9 @@ class Tenant extends Model  {
 	public static function provision(SignUp $signup, array $politicalAdminData, array $operationalAdminData) {
 
 		$city = $signup->city;
-		if(!$city) throw new \Exception("Invalid signup city ID");
+		if(!$city) {
+			throw new ValidationException('invalid_signup_city');
+		}
 
 		$politicalAdminData['type'] = User::TYPE_GESTOR_POLITICO;
 		$operationalAdminData['type'] = User::TYPE_GESTOR_OPERACIONAL;
@@ -185,13 +188,25 @@ class Tenant extends Model  {
 		$politicalAdmin->fill($politicalAdminData);
 		$validator = $politicalAdmin->validate($politicalAdminData);
 
-		if($validator->fails()) throw new \Exception("Invalid political admin data: " . $validator->getMessageBag()->first());
+		if(User::checkIfExists($politicalAdmin->email)) {
+			throw new ValidationException('political_admin_email_in_use');
+		}
+
+		if($validator->fails()) {
+			throw new ValidationException('invalid_political_admin_data', $validator->failed());
+		}
 
 		$operationalAdmin = new User();
 		$operationalAdmin->fill($operationalAdminData);
 		$validator = $operationalAdmin->validate($operationalAdminData);
 
-		if($validator->fails()) throw new \Exception("Invalid operational admin data: " . $validator->getMessageBag()->first());
+		if(User::checkIfExists($operationalAdmin->email)) {
+			throw new ValidationException('operational_admin_email_in_use');
+		}
+
+		if($validator->fails()) {
+			throw new ValidationException('invalid_operational_admin_data', $validator->failed());
+		}
 
 		$politicalAdmin->password = password_hash($politicalAdminData['password'], PASSWORD_DEFAULT);
 		$politicalAdmin->save();

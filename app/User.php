@@ -221,4 +221,13 @@ class User extends Authenticatable {
 
 		return self::create($data);
 	}
+
+	/**
+	 * Checks if a user with a specific e-mail already exists in the database
+	 * @param string $email The e-mail to check against
+	 * @return bool
+	 */
+	public static function checkIfExists($email) {
+		return (self::query()->where('email', '=', $email)->count() > 0);
+	}
 }
