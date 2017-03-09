@@ -14,14 +14,16 @@
 namespace BuscaAtivaEscolar\Exceptions;
 
 
+use Illuminate\Contracts\Validation\Validator;
+
 class ValidationException extends \Exception {
 
 	protected $reason = null;
-	protected $fields = [];
+	protected $validator = [];
 
-	public function __construct($reason, $fields = []) {
+	public function __construct($reason, Validator $validator = null) {
 		$this->reason = $reason;
-		$this->fields = $fields;
+		$this->validator = $validator;
 		parent::__construct($reason, 100, null);
 	}
 
@@ -29,8 +31,8 @@ class ValidationException extends \Exception {
 		return $this->reason;
 	}
 
-	public function getFields() {
-		return $this->fields;
+	public function getValidator() {
+		return $this->validator;
 	}
 
 }

@@ -17,12 +17,15 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Contracts\Validation\Validator;
 use Log;
 
 class BaseController extends Controller {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    protected function api_exception(\Exception $exception) {
+    protected function api_exception(\Exception $exception, $data = []) {
+
+    	if(!$data) $data = [];
 
     	Log::warning('[api_exception] ' . $exception->getMessage());
 
@@ -35,16 +38,39 @@ class BaseController extends Controller {
 		    ];
 	    }
 
-    	return response()->json([
-    		'status' => 'error',
-		    'reason' => 'exception',
-		    'exception' => $exceptionInfo
-	    ], 500);
+	    $data['status'] = 'error';
+	    $data['reason'] = 'exception';
+	    $data['exception'] = $exceptionInfo;
+
+    	return response()->json($data, 500);
     }
 
-	protected function api_failure($reason, $fields = null) {
-		$data = ['status' => 'error', 'reason' => $reason];
+    protected function api_validation_failed($reason, Validator $validator, $data = []) {
+	    if(!$data) $data = [];
+
+	    $data['status'] = 'error';
+	    $data['reason'] = $reason;
+	    $data['messages'] = $validator->getMessageBag()->all();
+
+	    return response()->json($data);
+    }
+
+	protected function api_failure($reason, $fields = null, $data = []) {
+    	if(!$data) $data = [];
+
+    	$data['status'] = 'error';
+		$data['reason'] = $reason;
+
 		if($fields) $data['fields'] = $fields;
+
 		return response()->json($data);
+	}
+
+	protected function api_success($data = []) {
+    	if(!$data) $data = [];
+
+    	$data['status'] = 'ok';
+
+    	return response()->json($data);
 	}
 }

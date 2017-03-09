@@ -193,7 +193,7 @@ class Tenant extends Model  {
 		}
 
 		if($validator->fails()) {
-			throw new ValidationException('invalid_political_admin_data', $validator->failed());
+			throw new ValidationException('invalid_political_admin_data', $validator);
 		}
 
 		$operationalAdmin = new User();
@@ -205,7 +205,7 @@ class Tenant extends Model  {
 		}
 
 		if($validator->fails()) {
-			throw new ValidationException('invalid_operational_admin_data', $validator->failed());
+			throw new ValidationException('invalid_operational_admin_data', $validator);
 		}
 
 		$politicalAdmin->password = password_hash($politicalAdminData['password'], PASSWORD_DEFAULT);

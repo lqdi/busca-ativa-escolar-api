@@ -48,9 +48,7 @@ class StepsController extends BaseController {
 			$step = CaseStep::fetch($step_type, $step_id);
 			$validation = $step->validate($data);
 
-			if($validation->fails()) {
-				return response()->json(['status' => 'error', 'reason' => 'validation_failed', 'fields' => $validation->failed()]);
-			}
+			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
 
 			$input = $step->setFields($data);
 
@@ -72,9 +70,7 @@ class StepsController extends BaseController {
 
 			$validation = $step->validate($step->toArray(), true);
 
-			if($validation->fails()) {
-				return response()->json(['status' => 'error', 'reason' => 'validation_failed', 'fields' => $validation->failed()]);
-			}
+			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
 
 			$next = $step->complete();
 

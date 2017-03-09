@@ -131,7 +131,8 @@ class SignUpController extends BaseController  {
 
 			return response()->json(['status' => 'ok', 'tenant_id' => $tenant->id]);
 		} catch (ValidationException $ex) {
-			return $this->api_failure($ex->getReason(), $ex->getFields());
+			if($ex->getValidator()) return $this->api_validation_failed($ex->getReason(), $ex->getValidator());
+			return $this->api_failure($ex->getReason());
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
 		}

@@ -43,9 +43,7 @@ class AlertSpawnController extends BaseController {
 			$data = request()->toArray();
 			$validation = (new Alerta())->validate($data);
 
-			if($validation->fails()) {
-				return response()->json(['status' => 'error', 'reason' => 'validation_failed', 'fields' => $validation->failed()]);
-			}
+			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
 
 			$child = Child::spawnFromAlertData($tenant, $user->id, $data);
 

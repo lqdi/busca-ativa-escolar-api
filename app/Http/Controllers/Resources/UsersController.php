@@ -68,9 +68,7 @@ class UsersController extends BaseController {
 
 			$validation = $user->validate($input, false);
 
-			if($validation->fails()) {
-				return response()->json(['status' => 'error', 'reason' => 'validation_failed', 'fields' => $validation->failed()]);
-			}
+			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
 
 			if(isset($input['password'])) {
 				$input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
@@ -97,9 +95,7 @@ class UsersController extends BaseController {
 
 			$validation = $user->validate($input, true);
 
-			if($validation->fails()) {
-				return response()->json(['status' => 'error', 'reason' => 'validation_failed', 'fields' => $validation->failed()]);
-			}
+			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
 
 			$input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
 
