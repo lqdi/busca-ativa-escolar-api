@@ -61,7 +61,6 @@ class User extends Authenticatable {
 		'work_phone',
 		'work_mobile',
 
-		'personal_email',
 		'personal_mobile',
 		'skype_username',
 
@@ -188,7 +187,6 @@ class User extends Authenticatable {
 			'work_phone' => 'nullable|alpha_dash',
 			'work_mobile' => 'nullable|alpha_dash',
 
-			'personal_email' => 'nullable|email',
 			'personal_mobile' => 'nullable|email',
 			'skype_username' => 'nullable|alpha_dash',
 

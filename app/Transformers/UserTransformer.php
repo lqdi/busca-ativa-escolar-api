@@ -59,7 +59,6 @@ class UserTransformer extends TransformerAbstract {
 				'dob' => $user->dob,
 				'work_phone' => $user->work_phone,
 				'work_mobile' => $user->work_mobile,
-				'personal_email' => $user->personal_email,
 				'personal_mobile' => $user->personal_mobile,
 				'skype_username' => $user->skype_username,
 				'work_address' => $user->work_address,
