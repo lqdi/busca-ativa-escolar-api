@@ -63,34 +63,37 @@ class TenantSettings extends SerializableObject {
 		return $this->stepDeadlines[$step_slug];
 	}
 
+	protected function updateAlertPriorities($priorities) {
+		if(!is_array($priorities)) throw new \InvalidArgumentException('invalid_format');
+
+		foreach($priorities as $alertCauseID => $alertPriority) {
+
+			$alertCauseID = intval($alertCauseID);
+
+			if(!AlertCause::getByID($alertCauseID)) throw new \InvalidArgumentException('invalid_alert_cause_id');
+			if(!in_array($alertPriority, ['low', 'medium', 'high'])) throw new \InvalidArgumentException('invalid_priority');
+
+			$this->alertPriorities[$alertCauseID] = $alertPriority;
+
+		}
+	}
+
+	protected function updateStepDeadlines($deadlines) {
+		if(!is_array($deadlines)) throw new \InvalidArgumentException('invalid_format');
+
+		foreach($deadlines as $stepSlug => $stepDeadline) {
+
+			if(!in_array($stepSlug, CaseStep::SLUGS)) throw new \InvalidArgumentException('invalid_step_slug');
+
+			$this->stepDeadlines[$stepSlug] = intval($stepDeadline);
+
+		}
+	}
+
 	public function update($data) {
 
-		if(isset($data['alertPriorities'])) {
-			if(!is_array($data['alertPriorities'])) throw new \InvalidArgumentException('invalid_format');
-
-			foreach($data['alertPriorities'] as $alertCauseID => $alertPriority) {
-
-				$alertCauseID = intval($alertCauseID);
-
-				if(!AlertCause::getByID($alertCauseID)) throw new \InvalidArgumentException('invalid_alert_cause_id');
-				if(!in_array($alertPriority, ['low', 'medium', 'high'])) throw new \InvalidArgumentException('invalid_priority');
-
-				$this->alertPriorities[$alertCauseID] = $alertPriority;
-
-			}
-		}
-
-		if(isset($data['stepDeadlines'])) {
-			if(!is_array($data['stepDeadlines'])) throw new \InvalidArgumentException('invalid_format');
-
-			foreach($data['stepDeadlines'] as $stepSlug => $stepDeadline) {
-
-				if(!in_array($stepSlug, CaseStep::SLUGS)) throw new \InvalidArgumentException('invalid_step_slug');
-
-				$this->stepDeadlines[$stepSlug] = intval($stepDeadline);
-
-			}
-		}
+		if(isset($data['alertPriorities'])) $this->updateAlertPriorities($data['alertPriorities']);
+		if(isset($data['stepDeadlines'])) $this->updateStepDeadlines($data['stepDeadlines']);
 
 	}
 

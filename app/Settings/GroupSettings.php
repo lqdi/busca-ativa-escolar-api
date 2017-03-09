@@ -38,20 +38,52 @@ class GroupSettings extends SerializableObject {
 		160 =>  true, // Violência na escola
 	];
 
+	/**
+	 * Checks if this group handles a certain alert cause
+	 * @param integer $cause_id The alert cause ID to test for
+	 * @return bool
+	 */
 	public function handlesAlertCause($cause_id) {
 		return boolval($this->alerts[intval($cause_id)]);
 	}
 
+	/**
+	 * Gets list of alert cause IDs that are handled by this group
+	 * @return array
+	 */
+	public function getHandledAlertCauses() {
+		return collect($this->alerts)
+			->filter()
+			->keys()
+			->toArray();
+	}
+
+	/**
+	 * Gets list of alert cause IDs that are not handled by this group
+	 * @return array
+	 */
+	public function getUnhandledAlertCauses() {
+		return collect($this->alerts)
+			->filter(function ($item){
+				return !boolval($item);
+			})
+			->keys()
+			->toArray();
+	}
+
+	/**
+	 * Updates the settings with form data
+	 * @param array $data
+	 */
 	public function update($data) {
-		if(isset($data['alerts'])) {
-			if(!is_array($data['alerts'])) throw new \InvalidArgumentException('invalid_format');
+		if(!isset($data['alerts'])) return;
+		if(!is_array($data['alerts'])) throw new \InvalidArgumentException('invalid_format');
 
-			foreach($data['alerts'] as $alertCauseID => $handlesAlert) {
-				$alertCauseID = intval($alertCauseID);
-				if(!AlertCause::getByID($alertCauseID)) throw new \InvalidArgumentException('invalid_alert_cause_id');
-				$this->alerts[$alertCauseID] = boolval($handlesAlert);
+		foreach($data['alerts'] as $alertCauseID => $handlesAlert) {
+			$alertCauseID = intval($alertCauseID);
+			if(!AlertCause::getByID($alertCauseID)) throw new \InvalidArgumentException('invalid_alert_cause_id');
+			$this->alerts[$alertCauseID] = boolval($handlesAlert);
 
-			}
 		}
 
 	}

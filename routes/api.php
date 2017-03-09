@@ -77,6 +77,13 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search');
 
+		// Notifications
+		Route::get('/notifications/unread', 'Resources\NotificationsController@getUnread');
+		Route::post('/notifications/{id}/mark_as_read', 'Resources\NotificationsController@markAsRead');
+
+		Route::get('/user_preferences', 'Resources\PreferencesController@getSettings');
+		Route::post('/user_preferences', 'Resources\PreferencesController@updateSettings');
+
 		// Reports
 		Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
 		Route::get('/reports/country_stats', 'Resources\ReportsController@country_stats');

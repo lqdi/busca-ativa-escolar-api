@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Providers;
 use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
+use BuscaAtivaEscolar\Listeners\ChildActivityNotificationGenerator;
 use BuscaAtivaEscolar\Observers\AttachmentActivityLogObserver;
 use BuscaAtivaEscolar\Observers\ChildActivityLogObserver;
 use BuscaAtivaEscolar\Observers\CommentActivityLogObserver;

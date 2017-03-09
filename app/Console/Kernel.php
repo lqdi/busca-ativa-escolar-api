@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
         Commands\TestSchedulingSystem::class,
         Commands\CheckCaseDeadlines::class,
         Commands\SimulateReceivedSMS::class,
+        Commands\RebuildGroupCausesMap::class,
     ];
 
     /**

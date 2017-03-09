@@ -12,6 +12,7 @@ class EventServiceProvider extends ServiceProvider {
     ];
 
     protected $subscribe = [
+    	\BuscaAtivaEscolar\Listeners\ChildActivityNotificationGenerator::class,
     	\BuscaAtivaEscolar\Listeners\ChildActivityLogger::class
     ];
 

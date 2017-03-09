@@ -17,8 +17,11 @@ namespace BuscaAtivaEscolar;
 use BuscaAtivaEscolar\Settings\GroupSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
+use DB;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 
 class Group extends Model {
 
@@ -65,6 +68,8 @@ class Group extends Model {
 	public function setSettings(GroupSettings $settings) {
 		$this->settings = $settings->serialize();
 		$this->save();
+
+		self::updateCausesMap($this);
 	}
 
 	/**
@@ -75,6 +80,8 @@ class Group extends Model {
 		if(!$this->settings) return new GroupSettings();
 		return GroupSettings::unserialize($this->settings);
 	}
+
+	// -----------------------------------------------------------------------------------------------------------------
 
 	/**
 	 * Creates the default primary group for a tenant (Secretaria da Educação)
@@ -87,6 +94,36 @@ class Group extends Model {
 			'name' => 'Secretaria da Educação',
 			'is_primary' => true
 		]);
+	}
+
+	/**
+	 * Updates the map of alert causes handled per group for a specific group
+	 * @param Group $group
+	 */
+	public static function updateCausesMap(Group $group) {
+		$map = DB::table("group_causes");
+		$causes = $group->getSettings()->getHandledAlertCauses();
+
+		$map->where('group_id', $group->id)->delete();
+
+		$map->insert(array_map(function($cause_id) use ($group) {
+			return ['tenant_id' => $group->tenant_id, 'group_id' => $group->id, 'alert_cause_id' => $cause_id];
+		}, $causes));
+	}
+
+	/**
+	 * Gets a list of groups that are assigned to a certain alert cause
+	 * @param Tenant $tenant The tenant to scope the query with
+	 * @param integer $alert_cause_id The ID of the alert cause (@see AlertCause)
+	 * @return int[]
+	 */
+	public static function getGroupIDsByAlertCause(Tenant $tenant, $alert_cause_id) {
+		return DB::table("group_causes")
+			->select('group_id')
+			->where('tenant_id', $tenant->id)
+			->where('alert_cause_id', $alert_cause_id)
+			->pluck('group_id')
+			->toArray();
 	}
 
 }

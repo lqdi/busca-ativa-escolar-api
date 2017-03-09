@@ -25,6 +25,7 @@ use BuscaAtivaEscolar\Events\CaseStepUpdated;
 use BuscaAtivaEscolar\Events\ChildCaseCancelled;
 use BuscaAtivaEscolar\Events\ChildCaseCompleted;
 use BuscaAtivaEscolar\Events\ChildCaseInterrupted;
+use Log;
 
 class ChildActivityLogger {
 

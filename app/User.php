@@ -13,11 +13,14 @@
 
 namespace BuscaAtivaEscolar;
 
+use BuscaAtivaEscolar\Settings\UserSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Log;
 
 class User extends Authenticatable {
 
@@ -118,6 +121,49 @@ class User extends Authenticatable {
 	 */
 	public function getRouteKeyName() {
 		return 'id';
+	}
+
+	/**
+	 * Resolves which e-mail to send notifications to
+	 * @return string
+	 */
+	public function routeNotificationForMail() {
+		return $this->email;
+	}
+
+	/**
+	 * Resolves which phone number to send SMS to
+	 * @return string
+	 */
+	public function routeNotificationForNexmo() {
+		return $this->personal_mobile;
+	}
+
+	/**
+	 * Gets the user's list of preferred channels for receiving notifications
+	 * @param string $relationship The type of relationship (default, assigned_to_me, assigned_to_group or all_cases)
+	 * @return array
+	 */
+	public function getNotificationChannels($relationship = 'default') {
+		return $this->getSettings()->getNotificationChannels($relationship);
+	}
+
+	/**
+	 * Updates the user settings object
+	 * @param UserSettings $settings
+	 */
+	public function setSettings(UserSettings $settings) {
+		$this->settings = $settings->serialize();
+		$this->save();
+	}
+
+	/**
+	 * Gets the user settings object
+	 * @return UserSettings
+	 */
+	public function getSettings() {
+		if(!$this->settings) return new UserSettings();
+		return UserSettings::unserialize($this->settings);
 	}
 
 	/**
@@ -228,5 +274,14 @@ class User extends Authenticatable {
 	 */
 	public static function checkIfExists($email) {
 		return (self::query()->where('email', '=', $email)->count() > 0);
+	}
+
+	/**
+	 * Gets the list of users belonging to the specified groups
+	 * @param int[] $groupIDs A list of group IDs to search for
+	 * @return User[]|Collection The resulting list of users
+	 */
+	public static function findByGroupIDs($groupIDs) {
+		return self::query()->whereIn('group_id', $groupIDs)->get();
 	}
 }

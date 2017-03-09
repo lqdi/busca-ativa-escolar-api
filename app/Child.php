@@ -25,6 +25,7 @@ use BuscaAtivaEscolar\Events\ChildStatusChanged;
 use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
 use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Reports\Traits\AggregatedBySearchDocument;
+use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
@@ -175,6 +176,31 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	}
 
 	// ------------------------------------------------------------------------
+
+	/**
+	 * Gets the URL for viewing a child
+	 * @return string
+	 */
+	public function getViewURL() {
+		return str_finish(env('APP_PANEL_URL'), '/') . "children/view/{$this->id}";
+	}
+
+	/**
+	 * Gets a shorthand identifier for the child (name, gender and age).
+	 * Used for notifications, etc.
+	 * @return string
+	 */
+	public function getShorthandIdentifier() {
+		return ucwords($this->name)
+			. " / " . (
+				$this->gender ? trans('child.gender.' . $this->gender) : 'gênero desconhecido'
+			)
+			. " / " . (
+				$this->age ?
+					($this->age != 1 ? "{$this->age} anos" : "1 ano")
+					: 'idade desconhecida'
+			);
+	}
 
 	/**
 	 * Sets the child's current status
