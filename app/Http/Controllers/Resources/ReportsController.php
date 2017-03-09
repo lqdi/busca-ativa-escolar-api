@@ -15,7 +15,10 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use Auth;
+use BuscaAtivaEscolar\CaseSteps\Alerta;
+use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
@@ -27,6 +30,8 @@ use BuscaAtivaEscolar\Reports\Reports;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Tenant;
+use Cache;
 use Illuminate\Support\Str;
 
 class ReportsController extends BaseController {
@@ -86,6 +91,27 @@ class ReportsController extends BaseController {
 			'response' => $response,
 			'labels' => $labels
 		]);
+	}
+
+	public function country_stats() {
+
+		try {
+
+			$stats = Cache::remember('stats_country', config('cache.timeouts.stats_platform'), function() {
+				return [
+					'num_tenants' => Tenant::query()->count(),
+					'num_alerts' => Alerta::query()->count(),
+					'num_cases_in_progress' => ChildCase::query()->where('case_status', ChildCase::STATUS_IN_PROGRESS)->count(),
+					'num_children_reinserted' => Child::query()->where('child_status', Child::STATUS_IN_SCHOOL)->count(),
+				];
+			});
+
+			return response()->json(['status' => 'ok', 'stats' => $stats]);
+
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+
 	}
 
 	protected function fetchDimensionLabels($dimension, $ids) {

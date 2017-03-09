@@ -79,6 +79,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Reports
 		Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
+		Route::get('/reports/country_stats', 'Resources\ReportsController@country_stats');
 
 	});
 
