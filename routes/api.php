@@ -32,6 +32,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Child Cases
 		Route::group(['middleware' => 'can:cases.view'], function() {
+			Route::post('/cases/{case}/cancel', 'Resources\CasesController@cancel');
 			Route::resource('/cases', 'Resources\CasesController');
 		});
 

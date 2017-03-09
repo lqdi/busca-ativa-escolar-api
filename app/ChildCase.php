@@ -40,6 +40,15 @@ class ChildCase extends Model  {
 	const RISK_LEVEL_MEDIUM = "medium";
 	const RISK_LEVEL_LOW = "low";
 
+	// Case cancel reasons
+	const CANCEL_REASON_DUPLICATE = "duplicate";
+	const CANCEL_REASON_DEATH = "death";
+	const CANCEL_REASON_NOT_FOUND = "not_found";
+	const CANCEL_REASON_WRONGFUL_INSERTION = "wrongful_insertion";
+	const CANCEL_REASON_REJECTED_ALERT = "rejected_alert";
+
+	const CANCEL_REASONS = [self::CANCEL_REASON_DUPLICATE, self::CANCEL_REASON_DEATH, self::CANCEL_REASON_NOT_FOUND, self::CANCEL_REASON_WRONGFUL_INSERTION, self::CANCEL_REASON_REJECTED_ALERT];
+
 	/**
 	 * The list and order of the default steps a case has.
 	 *

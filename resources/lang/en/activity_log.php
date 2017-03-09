@@ -10,7 +10,7 @@ return [
 		'step_started' => "iniciou a etapa :Step_name para :CHILD_NAME",
 		'step_completed' => "concluiu a etapa :Step_name de :CHILD_NAME",
 		'added_comment' => "fez uma anotação na ficha de :CHILD_NAME",
-		'status_cancelled' => "cancelou o caso de :CHILD_NAME",
+		'status_cancelled' => "cancelou o caso de :CHILD_NAME, com o motivo :REASON_DESCRIPTION",
 		'status_interrupted' => "reiniciou o caso de :CHILD_NAME, devido a nova evasão escolar",
 		'status_completed' => "encerrou o caso de :CHILD_NAME, com sucesso na (re)matrícula escolar",
 	],

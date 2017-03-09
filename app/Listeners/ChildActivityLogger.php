@@ -174,6 +174,7 @@ class ChildActivityLogger {
 			'child_name' => $event->child->name,
 			'child_id' => $event->child->id,
 			'reason' => $event->reason,
+			'reason_description' => trans('child_case.cancel_reason.' . $event->reason),
 		], [
 			'source' => get_class(),
 			'child' => $event->child,
