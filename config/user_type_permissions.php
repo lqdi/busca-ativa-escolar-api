@@ -7,7 +7,6 @@ return [
 		'users.manage',
 		'cases.view',
 		'cases.map',
-		'alerts.spawn',
 		'tenants.manage',
 		'developer_tools',
 	],
@@ -17,7 +16,6 @@ return [
 		'cases.map',
 		'users.view',
 		'users.manage',
-		'alerts.spawn',
 		'tenants.manage',
 	],
 
