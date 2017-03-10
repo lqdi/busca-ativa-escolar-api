@@ -57,6 +57,8 @@ return [
 
 	BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL => [
 		'reports.view',
+		'users.view',
+		'users.manage',
 		'cases.view',
 		'cases.manage',
 		'cases.cancel',
@@ -92,5 +94,45 @@ return [
 	BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO => [
 		'alerts.spawn',
 	],
+
+	'can_manage_types' => [ // Which users can set/change/create which user types
+		BuscaAtivaEscolar\User::TYPE_SUPERUSER => [
+			BuscaAtivaEscolar\User::TYPE_SUPERUSER,
+			BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL,
+			BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,
+			BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
+			BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
+			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+		],
+		BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
+			BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL,
+			BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,
+			BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
+			BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
+			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+		],
+		BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL => [
+			BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,
+			BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
+			BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
+			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+		],
+		BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO => [
+			BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,
+			BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
+			BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
+			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+		],
+		BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL => [
+			BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
+			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+		],
+		BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR => [],
+		BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO => [],
+	]
 
 ];

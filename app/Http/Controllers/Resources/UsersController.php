@@ -64,17 +64,32 @@ class UsersController extends BaseController {
 
 	public function update(User $user) {
 		try {
+
+			// Here we check if we have enough permission to edit the target user
+			if(!Auth::user()->canManageUser($user)) {
+				return $this->api_failure('not_enough_permissions');
+			}
+
 			$input = request()->except(['email']);
 
 			$validation = $user->validate($input, false);
 
-			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
+			if($validation->fails()) {
+				return $this->api_validation_failed('validation_failed', $validation);
+			}
 
 			if(isset($input['password'])) {
 				$input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
 			}
 
-			$user->update($input);
+			$user->fill($input);
+
+			// Here we check if we have enough permission to set the target user to this new state
+			if(!Auth::user()->canManageUser($user)) {
+				return $this->api_failure('not_enough_permissions');
+			}
+
+			$user->save();
 
 			return response()->json(['status' => 'ok', 'updated' => $input]);
 
@@ -95,11 +110,19 @@ class UsersController extends BaseController {
 
 			$validation = $user->validate($input, true);
 
-			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
+			if($validation->fails()) {
+				return $this->api_validation_failed('validation_failed', $validation);
+			}
 
 			$input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
 
 			$user->fill($input);
+
+			// Check if the resulting user can be created by the current user
+			if(!Auth::user()->canManageUser($user)) {
+				return $this->api_failure('not_enough_permissions');
+			}
+
 			$user->save();
 
 			return response()->json(['status' => 'ok', 'id' => $user->id]);
@@ -110,6 +133,11 @@ class UsersController extends BaseController {
 	}
 
 	public function destroy(User $user) {
+
+		if(!Auth::user()->canManageUser($user)) {
+			return $this->api_failure('not_enough_permissions');
+		}
+
 		try {
 			$user->delete(); // Soft-deletes internally
 		} catch (\Exception $ex) {
@@ -120,6 +148,11 @@ class UsersController extends BaseController {
 	public function restore($user_id) {
 		try {
 			$user = User::withTrashed()->findOrFail($user_id);
+
+			if(!Auth::user()->canManageUser($user)) {
+				return $this->api_failure('not_enough_permissions');
+			}
+
 			$user->restore();
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);

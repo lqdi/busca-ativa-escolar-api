@@ -41,6 +41,7 @@ class StaticDataController extends BaseController {
 				'Regions' => \BuscaAtivaEscolar\IBGE\Region::getAllAsArray(),
 				'APIEndpoints' => $this->buildAPIEndpointList(),
 				'CaseCancelReasons' => \BuscaAtivaEscolar\ChildCase::CANCEL_REASONS,
+				'Permissions' => config('user_type_permissions', []),
 				'Config' => [
 					'uploads' => [
 						'allowed_mime_types' => config('uploads.allowed_mime_types'),

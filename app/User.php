@@ -197,6 +197,16 @@ class User extends Authenticatable {
 	}
 
 	/**
+	 * Checks if the user can manage/edit a specific user
+	 * @param User $user The user being edited
+	 * @return bool
+	 */
+	public function canManageUser(User $user) {
+		$canManageTypes = config('user_type_permissions.can_manage_types.' . $this->type, []);
+		return in_array($user->type, $canManageTypes);
+	}
+
+	/**
 	 * Checks if a user is global or restricted/assigned to a specific tenant.
 	 * @return bool True when tenant-based, false when global.
 	 */
