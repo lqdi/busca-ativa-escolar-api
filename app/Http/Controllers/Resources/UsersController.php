@@ -36,6 +36,10 @@ class UsersController extends BaseController {
 
 		if(request('show_suspended', false)) $query->withTrashed();
 
+		if(request()->has('sort')) {
+			User::applySorting($query, request('sort'));
+		}
+
 		$max = intval(request('max', 128));
 		if($max > 128) $max = 128;
 		if($max < 16) $max = 16;

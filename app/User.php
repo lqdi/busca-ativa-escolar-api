@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\Settings\UserSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
+use BuscaAtivaEscolar\Traits\Data\Sortable;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,6 +29,7 @@ class User extends Authenticatable {
 	use Notifiable;
 	use SoftDeletes;
 	use TenantScopedModel;
+	use Sortable;
 
 	// Types of user
 	const TYPE_SUPERUSER = "superuser";
