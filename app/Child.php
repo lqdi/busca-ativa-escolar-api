@@ -27,6 +27,7 @@ use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Reports\Traits\AggregatedBySearchDocument;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
+use BuscaAtivaEscolar\Traits\Data\Sortable;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use Carbon\Carbon;
@@ -42,6 +43,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	use SoftDeletes;
 	use IndexedByUUID;
 	use TenantScopedModel;
+	use Sortable;
 
 	use AggregatedBySearchDocument;
 

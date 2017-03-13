@@ -24,10 +24,14 @@ use BuscaAtivaEscolar\Transformers\PendingAlertTransformer;
 class AlertsController extends BaseController {
 
 	public function get_pending() {
-		$pending = Child::with('alert')->where('alert_status', 'pending')->get();
+		$query = Child::with('alert')->where('alert_status', 'pending');
+
+		if(request()->has('sort')) {
+			Child::applySorting($query, json_decode(request('sort'), true));
+		}
 
 		return fractal()
-			->collection($pending)
+			->collection($query->get())
 			->transformWith(new PendingAlertTransformer())
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
