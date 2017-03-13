@@ -41,8 +41,8 @@ class TenantSettings extends SerializableObject {
 
 	public $stepDeadlines = [
 		'alerta' => 15,
-		'pesquisa' => 30,
-		'analise_tecnica' => 30,
+		'pesquisa' => 15,
+		'analise_tecnica' => 5,
 		'gestao_do_caso' => 0,
 		'rematricula' => 30,
 		'1a_observacao' => 60,
