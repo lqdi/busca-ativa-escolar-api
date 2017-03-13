@@ -70,7 +70,7 @@ class UsersController extends BaseController {
 				return $this->api_failure('not_enough_permissions');
 			}
 
-			$input = request()->except(['email']);
+			$input = request()->all();
 
 			$validation = $user->validate($input, false);
 
