@@ -78,7 +78,7 @@ class ReportsController extends BaseController {
 				$reports->timeline($index, $type, $params['dimension'], $query) :
 				$reports->linear($index, $type, $params['dimension'], $query);
 
-			$ids = array_keys($response['report'] ?? []);
+			$ids = $this->extractDimensionIDs($response['report'], $params['view']);
 			$labels = $this->fetchDimensionLabels($params['dimension'], $ids);
 
 		} catch (\Exception $ex) {
@@ -112,6 +112,18 @@ class ReportsController extends BaseController {
 			return $this->api_exception($ex);
 		}
 
+	}
+
+	protected function extractDimensionIDs($report, $view) {
+		if($view !== 'time_series') return array_keys($report ?? []);
+
+		$results = collect($report)->map(function ($results) {
+				return array_keys($results ?? []);
+		})->toArray();
+
+		return array_reduce($results, function ($carry, $item) {
+				return array_merge($carry ?? [], $item);
+		});
 	}
 
 	protected function fetchDimensionLabels($dimension, $ids) {
