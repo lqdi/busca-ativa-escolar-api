@@ -143,7 +143,7 @@ class SmsConversation extends Model {
 				$i = 1;
 
 				$causeList = collect(AlertCause::getAll())
-					->map(function ($item) use ($i) {
+					->map(function ($item) use (&$i) {
 						return $i++ . ' - ' . Str::ascii($item->label);
 					})
 					->implode("\n");
