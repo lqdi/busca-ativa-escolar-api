@@ -260,20 +260,19 @@ class SmsConversation extends Model {
 					return;
 				}
 
-				$this->setStep(self::STEP_COMPLETED);
-
 				Auth::setUser($this->user); // Necessary so the observers fire correctly
 				$child = Child::spawnFromAlertData($this->tenant, $this->user->id, $this->alert_fields->toArray());
 
 				if(!$child) {
 					$this->queueReply("Ocorreu um erro ao gerar o caso relacionado ao alerta!");
+					$this->setStep(self::STEP_ASK_CAUSE);
 					return;
 				}
 
 				$this->spawned_child_id = $child->id;
 				$this->save();
 
-				$this->queueReply("Codigo do alerta gerado: {$child->id}");
+				$this->setStep(self::STEP_COMPLETED);
 
 				break;
 
