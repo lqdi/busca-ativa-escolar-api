@@ -47,7 +47,7 @@ class CitiesController extends BaseController  {
 
 		$parameters = request()->only(['uf', 'name']);
 		$parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
-		$parameters['name_ascii'] = Str::ascii($parameters['name']);
+		$parameters['name_ascii'] = strtolower(Str::ascii($parameters['name']));
 
 		$query = ElasticSearchQuery::withParameters($parameters)
 			->addTextField('name_ascii')
