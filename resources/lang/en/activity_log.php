@@ -3,8 +3,8 @@ return [
 
 	'child' => [
 		'alert_spawned' => "registrou um novo alerta para :CHILD_NAME, :age_label, :gender_label",
-		'alert_accepted' => "julgou como PROCEDENTE o alerta de :CHILD_NAME",
-		'alert_rejected' => "julgou como IMPROCEDENTE o alerta de :CHILD_NAME",
+		'alert_accepted' => "ACEITOU o alerta de :CHILD_NAME",
+		'alert_rejected' => "REJEITOU o alerta de :CHILD_NAME",
 		'step_updated' => "atualizou informações na ficha de :CHILD_NAME",
 		'step_assigned' => "atribuiu :ASSIGNED_USER_NAME à etapa :Step_name da ficha de :CHILD_NAME",
 		'step_started' => "iniciou a etapa :Step_name para :CHILD_NAME",
