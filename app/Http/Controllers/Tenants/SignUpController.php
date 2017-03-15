@@ -27,6 +27,8 @@ class SignUpController extends BaseController  {
 	public function register() {
 		$data = request()->all();
 
+		if(!isset($data['city_id'])) return $this->api_failure('missing_city_id');
+
 		$city = City::find($data['city_id']);
 
 		if(!$city) return $this->api_failure('invalid_city');
