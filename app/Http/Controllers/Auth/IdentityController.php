@@ -64,11 +64,13 @@ class IdentityController extends BaseController  {
 
 		try {
 			$token = JWTAuth::refresh($token);
+			$user = JWTAuth::toUser($token);
 		} catch (JWTException $ex) {
 			return response()->json(['error' => 'token_refresh_fail', 'reason' => $ex->getMessage()], 500);
 		}
 
-		return response()->json(compact('token'));
+
+		return response()->json(compact('token', 'user'));
 	}
 
 	public function identity() {
