@@ -44,20 +44,20 @@ class SearchResultsTransformer extends TransformerAbstract {
 			return [
 				'status' => 'failed',
 				'response' => $result,
-				'query' => $this->query,
+				//'query' => $this->query,
 			];
 		}
 
 		return [
 			'status' => 'ok',
-			'raw' => config('app.debug', false) ? $result : null,
+			//'raw' => config('app.debug', false) ? $result : null,
 			'stats' => [
 				'total_results' => $result['hits']['total'] ?? 0,
 				'max_score' => $result['hits']['max_score'] ?? 0,
 				'query_time' => $result['took'] ?? 0,
 				'shards' => $result['_shards'] ?? [],
 			],
-			'query' => $this->query,
+			//'query' => $this->query,
 			'attempted' => $this->attempted,
 		];
 	}

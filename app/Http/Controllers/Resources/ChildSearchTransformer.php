@@ -37,15 +37,15 @@ class ChildSearchTransformer extends TransformerAbstract {
 		if(!isset($result['hits'])) {
 			return [
 				'status' => 'failed',
-				'query' => $this->query,
+				//'query' => $this->query,
 				'response' => $result
 			];
 		}
 
 		return [
 			'status' => 'ok',
-			'query' => $this->query,
-			'raw' => config('app.debug', false) ? $result : null,
+			//'query' => $this->query,
+			//'raw' => config('app.debug', false) ? $result : null,
 			'stats' => [
 				'total_results' => $result['hits']['total'] ?? 0,
 				'max_score' => $result['hits']['max_score'] ?? 0,

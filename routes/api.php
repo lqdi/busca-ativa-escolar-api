@@ -13,6 +13,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Children
 		Route::get('/children/map', 'Resources\ChildrenController@getMap')->middleware('can:cases.map');
+		Route::get('/children/{child}/alert', 'Resources\ChildrenController@getAlert')->middleware('can:cases.view');
 		Route::resource('/children', 'Resources\ChildrenController');
 		Route::post('/children/search', 'Resources\ChildrenController@search')->middleware('can:cases.view');
 		Route::get('/children/{child}/comments', 'Resources\ChildrenController@comments')->middleware('can:cases.view');

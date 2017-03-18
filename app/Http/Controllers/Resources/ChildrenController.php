@@ -32,6 +32,7 @@ use BuscaAtivaEscolar\Transformers\ChildTransformer;
 use BuscaAtivaEscolar\Transformers\CommentTransformer;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
+use BuscaAtivaEscolar\Transformers\StepTransformer;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class ChildrenController extends BaseController  {
@@ -91,6 +92,17 @@ class ChildrenController extends BaseController  {
 			->transformWith(new ChildTransformer)
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
+			->respond();
+	}
+
+	public function getAlert(Child $child) {
+		$alert = $child->alert;
+
+		return fractal()
+			->item($alert)
+			->transformWith(new StepTransformer())
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(['fields'])
 			->respond();
 	}
 
