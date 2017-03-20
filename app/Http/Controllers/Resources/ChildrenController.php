@@ -33,13 +33,14 @@ use BuscaAtivaEscolar\Transformers\CommentTransformer;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\StepTransformer;
+use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class ChildrenController extends BaseController  {
 
 	public function search(Search $search) {
 
-		$params = request()->all();
+		$params = $this->filterAsciiFields(request()->all(), ['assigned_user_name', 'location_full']);
 
 		// Scope the query within the tenant
 		if(Auth::user()->isRestrictedToTenant()) $params['tenant_id'] = Auth::user()->tenant_id;
@@ -71,6 +72,17 @@ class ChildrenController extends BaseController  {
 			->parseIncludes(request('with'))
 			->respond();
 
+	}
+
+	protected function filterAsciiFields($input, $fields) {
+		$output = [];
+
+		foreach($input as $key => $value) {
+			if(in_array($key, $fields)) $value = Str::ascii($value);
+			$output[$key] = $value;
+		}
+
+		return $output;
 	}
 
 	protected function list() {
