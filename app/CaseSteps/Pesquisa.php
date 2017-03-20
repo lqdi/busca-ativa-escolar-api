@@ -127,7 +127,7 @@ class Pesquisa extends CaseStep {
 		}
 
 		if($this->dob) {
-			$this->child->calculateAgeThroughBirthday($this->dob);
+			$this->child->recalculateAgeThroughBirthday($this->dob);
 		}
 
 		if($this->place_address && $this->place_city_name && $this->place_uf) {

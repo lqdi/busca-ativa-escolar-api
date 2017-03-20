@@ -250,10 +250,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	 *
 	 * @param string $birthday The birthday in ISO format (YYYY-MM-DD)
 	 */
-	public function calculateAgeThroughBirthday(string $birthday) {
-		$dob = Carbon::createFromFormat('Y-m-d', $birthday);
-
-		$this->age = $dob->diffInYears();
+	public function recalculateAgeThroughBirthday(string $birthday) {
+		$this->dob = self::calculateAgeThroughBirthday($birthday);
 		$this->save();
 
 		event("child.age_updated", [$this]);
@@ -411,6 +409,21 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	// ------------------------------------------------------------------------
 
 	/**
+	 * Calculates a children's age by their birthday.
+	 * @param string $birthday The birthday in ISO format (YYYY-MM-DD)
+	 * @return int|null The age, in years. Will return null if no/invalid date is given.
+	 */
+	public static function calculateAgeThroughBirthday(string $birthday) {
+		if(!$birthday) return null;
+
+		$dob = Carbon::createFromFormat('Y-m-d', $birthday);
+
+		if(!$dob) return null;
+
+		return $dob->diffInYears();
+	}
+
+	/**
 	 * Creates a new Child case chain by data received by an alert.
 	 * This will create a new child, with a new ChildCase and the default CaseStep structure.
 	 *
@@ -439,6 +452,11 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$child->current_case_id = $case->id;
 		$child->current_step_type = $alertStep->step_type;
 		$child->current_step_id = $alertStep->id;
+
+		if(isset($data['dob'])) {
+			$child->age = self::calculateAgeThroughBirthday($data['dob']);
+		}
+
 		$child->save();
 
 		$alertStep->fill($data);

@@ -66,7 +66,7 @@ class Alerta extends CaseStep  {
 
 		if(!$this->dob) return true;
 
-		$this->child->calculateAgeThroughBirthday($this->dob);
+		$this->child->recalculateAgeThroughBirthday($this->dob);
 
 		$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
 
