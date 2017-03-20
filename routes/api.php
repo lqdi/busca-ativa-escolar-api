@@ -106,6 +106,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::resource('/cities', 'Resources\CitiesController');
 	Route::resource('/tenants', 'Tenants\TenantsController');
 
+	// Password reset
+	Route::post('/password_reset/begin', 'Auth\IdentityController@begin_password_reset');
+	Route::post('/password_reset/complete', 'Auth\IdentityController@complete_password_reset');
+
 	// Sign-up
 	Route::post('/signups/register', 'Tenants\SignUpController@register');
 	Route::get('/signups/via_token/{signup}', 'Tenants\SignUpController@get_via_token');

@@ -17,6 +17,7 @@ use Auth;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
+use BuscaAtivaEscolar\User;
 use Illuminate\Http\Request;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -84,6 +85,51 @@ class IdentityController extends BaseController  {
 			->parseIncludes(request('with', 'tenant'))
 			->respond();
 
+	}
+
+	public function begin_password_reset() {
+
+		$email = request('email');
+
+		try {
+
+			// TODO: rate limiting
+
+			$user = User::whereEmail($email)->first(); /* @var $user User */
+
+			if(!$user) {
+				return $this->api_failure('invalid_email');
+			}
+
+			$user->sendPasswordResetNotification();
+
+		} catch (\Exception $ex) {
+			$this->api_failure('reset_send_failed');
+		}
+
+		return $this->api_success();
+	}
+
+	public function complete_password_reset() {
+		$email = request('email');
+		$token = request('token');
+		$newPassword = request('new_password');
+
+		try {
+
+			$user = User::whereEmail($email)->first(); /* @var $user User */
+
+			if(!$user) {
+				return $this->api_failure('invalid_email');
+			}
+
+			$user->resetPassword($token, $newPassword);
+
+		} catch (\Exception $ex) {
+			return $this->api_failure($ex->getMessage());
+		}
+
+		return $this->api_success();
 	}
 
 }

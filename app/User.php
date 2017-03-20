@@ -13,18 +13,26 @@
 
 namespace BuscaAtivaEscolar;
 
+use BuscaAtivaEscolar\Notifications\ChildAssigned;
+use BuscaAtivaEscolar\Notifications\PasswordReset;
 use BuscaAtivaEscolar\Settings\UserSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
+use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Log;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Notification;
 
-class User extends Authenticatable {
+class User extends Model implements AuthenticatableContract, AuthorizableContract {
 
+	use Authenticatable;
+	use Authorizable;
 	use IndexedByUUID;
 	use Notifiable;
 	use SoftDeletes;
@@ -214,6 +222,48 @@ class User extends Authenticatable {
 	 */
 	public function isRestrictedToTenant() {
 		return !($this->type == self::TYPE_SUPERUSER || $this->type == self::TYPE_GESTOR_NACIONAL);
+	}
+
+	/**
+	 * Gets the front-end URL for completing a password reset.
+	 * @return string
+	 */
+	public function getPasswordResetURL() {
+		return str_finish(env('APP_PANEL_URL'), '/') . "password_reset?email={$this->email}&token={$this->remember_token}";
+	}
+
+	/**
+	 * Generates a token and sends an e-mail to the user requesting the password reset.
+	 */
+	public function sendPasswordResetNotification() {
+		$this->generatePasswordResetToken();
+		$this->notify(new PasswordReset());
+	}
+
+	/**
+	 * Generates and persists a token for the password reset.
+	 */
+	public function generatePasswordResetToken() {
+		$this->remember_token = str_random(40);
+		$this->save();
+	}
+
+	/**
+	 * Completes a password reset request, effectively changing the user password
+	 * @param string $token The reset token provided
+	 * @param string $newPassword The new password
+	 * @throws \Exception One of these failure reasons:
+	 *     reset_not_requested, missing_token, token_mismatch, token_mismatch, password_too_short
+	 */
+	public function resetPassword(string $token, string $newPassword) {
+		if(!$this->remember_token) throw new \Exception("reset_not_requested");
+		if(!$token) throw new \Exception("missing_token");
+		if($token !== $this->remember_token) throw new \Exception("token_mismatch");
+		if(strlen($newPassword) < 6) throw new \Exception("password_too_short");
+
+		$this->remember_token = null;
+		$this->password = password_hash($newPassword, PASSWORD_DEFAULT);
+		$this->save();
 	}
 
 	/**
