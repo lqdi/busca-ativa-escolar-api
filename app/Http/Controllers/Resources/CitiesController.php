@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\SignUp;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\CitySearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
@@ -66,12 +67,17 @@ class CitiesController extends BaseController  {
 	}
 
 	public function check_availability() {
-		// TODO: also check if sign-up is defined
 
 		$tenant = Tenant::where('city_id', request('id'))->first();
 
 		if($tenant) {
-			return response()->json(['is_available' => false]);
+			return response()->json(['is_available' => false, 'stage' => 'tenant']);
+		}
+
+		$ongoingSignup = SignUp::where('city_id',  request('id'))->first();
+
+		if($ongoingSignup) {
+			return response()->json(['is_available' => false, 'stage' => 'sign_up']);
 		}
 
 		return response()->json(['is_available' => true]);
