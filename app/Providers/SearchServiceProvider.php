@@ -36,7 +36,7 @@ class SearchServiceProvider extends ServiceProvider {
     public function register() {
 
     	$esClient = ClientBuilder::create()
-		    ->setHosts([env('ELASTICSEARCH_ADDR')])
+		    ->setHosts([env('ELASTICSEARCH_ADDR', '127.0.0.1:9200')])
 		    ->setLogger(ClientBuilder::defaultLogger(storage_path('logs/elastic.log')))
 		    ->build();
 
