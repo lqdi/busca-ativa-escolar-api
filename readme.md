@@ -3,6 +3,7 @@
 ## Repositórios do projeto
 - [lqdi/busca-ativa-escolar-api](https://github.com/lqdi/busca-ativa-escolar-api) - Back-end / API (este repositório)
 - [lqdi/busca-ativa-escolar-web](https://github.com/lqdi/busca-ativa-escolar-web) - Front-end / Cliente Web
+- [lqdi/busca-ativa-escolar-mobile](https://github.com/lqdi/busca-ativa-escolar-mobile) - Aplicativo móvel (Android/iOS) para o Técnico Verificador
 
 Garantir que cada criança e adolescente dos 4 aos 17 anos esteja na escola – e aprendendo – é, hoje, um dos principais desafios do Brasil. Também é parte da Agenda 2030 das Nações Unidas, um conjunto de programas, ações e diretrizes que devem ser implantados por todos os países nos próximos 15 anos para alcançar o desenvolvimento sustentável.
 
