@@ -251,7 +251,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	 * @param string $birthday The birthday in ISO format (YYYY-MM-DD)
 	 */
 	public function recalculateAgeThroughBirthday(string $birthday) {
-		$this->dob = self::calculateAgeThroughBirthday($birthday);
+		$this->age = self::calculateAgeThroughBirthday($birthday);
 		$this->save();
 
 		event("child.age_updated", [$this]);
