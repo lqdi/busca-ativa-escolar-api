@@ -33,6 +33,7 @@ use BuscaAtivaEscolar\Transformers\CommentTransformer;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\StepTransformer;
+use BuscaAtivaEscolar\User;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
@@ -44,6 +45,9 @@ class ChildrenController extends BaseController  {
 
 		// Scope the query within the tenant
 		if(Auth::user()->isRestrictedToTenant()) $params['tenant_id'] = Auth::user()->tenant_id;
+
+		// Scope query within user, when relevant
+		if(Auth::user()->type === User::TYPE_TECNICO_VERIFICADOR) $params['assigned_user_id'] = Auth::user()->id;
 
 		$query = ElasticSearchQuery::withParameters($params)
 			->filterByTerm('tenant_id', false)
