@@ -20,15 +20,13 @@ use BuscaAtivaEscolar\User;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class UserCredentialsForNewTenant extends Mailable {
+class UserRegistered extends Mailable {
 
-	public $signup;
 	public $tenant;
 	public $user;
 	public $initialPassword;
 
-	public function __construct(SignUp $signup, Tenant $tenant, User $user, $initialPassword) {
-		$this->signup = $signup;
+	public function __construct(Tenant $tenant, User $user, $initialPassword) {
 		$this->tenant = $tenant;
 		$this->user = $user;
 		$this->initialPassword = $initialPassword;
@@ -39,20 +37,20 @@ class UserCredentialsForNewTenant extends Mailable {
 		$loginURL = env('APP_PANEL_URL') . "/login";
 
 		$message = (new MailMessage())
-			->subject("A plataforma de {$this->tenant->name} está pronta para acesso!")
+			->subject("Novo usuário em {$this->tenant->name}")
 			->greeting('Olá!')
-			->line("A adesão de {$this->tenant->name} ao programa Busca Ativa Escolar foi aprovada, e a plataforma está pronta para uso!")
+			->line("Foi criado um novo usuário para você na plataforma Busca Ativa Escolar em seu município.")
 			->line("Seus dados de acesso são:")
 			->line("**Usuário:** --{$this->user->email}--")
 			->line("**Senha temporária:** --{$this->initialPassword}--")
 			->line("**Seu perfil de acesso:** --" . trans('user.type.' . $this->user->type) . '--')
-			->line("Os dados de acesso podem ser alterados no menu 'Configurações'.")
+			->line("Os dados de acesso podem ser alterados no menu 'Preferências'.")
 			->line('Clique no botão abaixo para acessar a plataforma:')
 			->success()
-			->action('Configurar', $loginURL);
+			->action('Acessar', $loginURL);
 
 		$this->from(env('MAIL_USERNAME'), 'Busca Ativa Escolar');
-		$this->subject("[Busca Ativa Escolar] A plataforma de {$this->tenant->name} está pronta para acesso!");
+		$this->subject("[Busca Ativa Escolar] Novo usuário em {$this->tenant->name}");
 
 		return $this->view('vendor.notifications.email', $message->toArray());
 

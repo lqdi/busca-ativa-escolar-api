@@ -16,10 +16,12 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use Auth;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Mailables\UserRegistered;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
 use BuscaAtivaEscolar\User;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use Mail;
 
 class UsersController extends BaseController {
 
@@ -116,6 +118,8 @@ class UsersController extends BaseController {
 				$input['tenant_id'] = Auth::user()->tenant_id;
 			}
 
+			$initialPassword = $input['password'];
+
 			$validation = $user->validate($input, true);
 
 			if($validation->fails()) {
@@ -132,6 +136,10 @@ class UsersController extends BaseController {
 			}
 
 			$user->save();
+
+			if($user->tenant) {
+				Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
+			}
 
 			return response()->json(['status' => 'ok', 'id' => $user->id]);
 
