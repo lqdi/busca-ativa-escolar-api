@@ -8,12 +8,14 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 class EventServiceProvider extends ServiceProvider {
 
     protected $listen = [
-
+	    'BuscaAtivaEscolar\Events\SearchableNeedsReindexing' => [
+		    'BuscaAtivaEscolar\Listeners\SearchIndexer',
+	    ],
     ];
 
     protected $subscribe = [
     	\BuscaAtivaEscolar\Listeners\ChildActivityNotificationGenerator::class,
-    	\BuscaAtivaEscolar\Listeners\ChildActivityLogger::class
+    	\BuscaAtivaEscolar\Listeners\ChildActivityLogger::class,
     ];
 
     public function boot() {

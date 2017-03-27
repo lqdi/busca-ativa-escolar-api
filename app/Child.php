@@ -22,9 +22,11 @@ use BuscaAtivaEscolar\Events\AlertRejected;
 use BuscaAtivaEscolar\Events\AlertSpawned;
 use BuscaAtivaEscolar\Events\AlertStatusChanged;
 use BuscaAtivaEscolar\Events\ChildStatusChanged;
+use BuscaAtivaEscolar\Events\SearchableNeedsReindexing;
 use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
 use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Reports\Traits\AggregatedBySearchDocument;
+use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
@@ -287,6 +289,13 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	public function getSearchIndex() : string { return 'children'; }
 	public function getSearchType() : string { return 'child'; }
 	public function getSearchID() { return $this->id; }
+
+	/**
+	 * Triggers a document reindex for the child.
+	 */
+	public function reindex() {
+		event(new SearchableNeedsReindexing($this));
+	}
 
 	/**
 	 * Builds the searchable document for the child.

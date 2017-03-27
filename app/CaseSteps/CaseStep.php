@@ -231,6 +231,8 @@ abstract class CaseStep extends Model {
 		$this->assigned_user_id = $user->id;
 		$this->save();
 
+		$this->child->reindex();
+
 		$this->onAssign($user);
 
 		event(new CaseStepAssigned($this, $user));
