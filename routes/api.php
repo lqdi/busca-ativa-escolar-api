@@ -46,11 +46,15 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		});
 
 		// Settings
+		Route::get('/groups', 'Resources\GroupsController@index');
 		Route::group(['middleware' => 'can:settings.manage'], function() {
 
 			// User Groups
-			Route::resource('/groups', 'Resources\GroupsController');
+			Route::post('/groups', 'Resources\GroupsController@store');
+			Route::get('/groups/{group}', 'Resources\GroupsController@show');
 			Route::put('/groups/{group}/settings', 'Resources\GroupsController@update_settings');
+			Route::put('/groups/{group}', 'Resources\GroupsController@update');
+			Route::delete('/groups/{group}', 'Resources\GroupsController@destroy');
 
 			// Tenant Settings
 			Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings')->middleware('can:settings.manage');
