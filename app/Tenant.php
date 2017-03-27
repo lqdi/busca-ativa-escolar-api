@@ -18,6 +18,7 @@ use BuscaAtivaEscolar\Exceptions\ValidationException;
 use BuscaAtivaEscolar\Mailables\UserCredentialsForNewTenant;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
+use BuscaAtivaEscolar\Traits\Data\Sortable;
 use Geocoder\Geocoder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,6 +29,7 @@ class Tenant extends Model  {
 
 	use IndexedByUUID;
 	use SoftDeletes;
+	use Sortable;
 
 	protected $table = "tenants";
 

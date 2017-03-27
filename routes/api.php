@@ -70,14 +70,14 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show')->middleware('can:cases.view');
 
 		// Sign-ups
-		Route::get('/signups/pending', 'Tenants\SignUpController@get_pending');
+		Route::any('/signups/pending', 'Tenants\SignUpController@get_pending');
 		Route::post('/signups/complete_setup', 'Tenants\SignUpController@completeSetup')->middleware('can:tenant.complete_setup');
 		Route::post('/signups/{signup}/approve', 'Tenants\SignUpController@approve');
 		Route::post('/signups/{signup}/reject', 'Tenants\SignUpController@reject');
 		Route::post('/signups/{signup}/resend_notification', 'Tenants\SignUpController@resendNotification');
 
 		// Tenants (authenticated)
-		Route::get('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.manage');
+		Route::any('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.manage');
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
 
 		// INEP Schools

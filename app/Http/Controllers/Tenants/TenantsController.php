@@ -23,19 +23,11 @@ use BuscaAtivaEscolar\Transformers\TenantTransformer;
 
 class TenantsController extends BaseController  {
 
-	public function index() {
-		$tenants = Tenant::all();
-
-		return fractal()
-			->collection($tenants)
-			->transformWith(new TenantTransformer())
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes('city') // Does not include user info
-			->respond();
-	}
-
 	public function all() {
-		$tenants = Tenant::all();
+		$tenants = Tenant::query();
+		Tenant::applySorting($tenants, request('sort', []));
+
+		$tenants = $tenants->get();
 
 		return fractal()
 			->collection($tenants)

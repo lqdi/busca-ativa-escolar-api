@@ -17,6 +17,7 @@ namespace BuscaAtivaEscolar;
 use BuscaAtivaEscolar\Mailables\SignupApproved;
 use BuscaAtivaEscolar\Mailables\SignupRejected;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
+use BuscaAtivaEscolar\Traits\Data\Sortable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -26,6 +27,7 @@ class SignUp extends Model {
 
 	use IndexedByUUID;
 	use SoftDeletes;
+	use Sortable;
 
 	protected $table = "signups";
 	protected $fillable = [
