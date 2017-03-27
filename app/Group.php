@@ -91,7 +91,7 @@ class Group extends Model {
 	public static function createDefaultPrimaryGroup(Tenant $tenant) {
 		return self::create([
 			'tenant_id' => $tenant->id,
-			'name' => 'Secretaria da Educação',
+			'name' => 'Secretaria Municipal de Educação',
 			'is_primary' => true
 		]);
 	}
