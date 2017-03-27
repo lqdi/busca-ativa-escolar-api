@@ -76,6 +76,10 @@ class UsersController extends BaseController {
 
 			$input = request()->all();
 
+			if($input['email'] === $user->email) {
+				unset($input['email']);
+			}
+
 			$validation = $user->validate($input, false);
 
 			if($validation->fails()) {
