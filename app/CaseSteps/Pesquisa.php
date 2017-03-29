@@ -176,7 +176,7 @@ class Pesquisa extends CaseStep {
 			'parents_has_brother' => 'nullable|boolean',
 
 			'parents_who_is_guardian' => 'required_for_completion|in:mother,father,brother',
-			'parents_income' => 'nullable|numeric',
+			'parents_income' => 'nullable|string',
 			'mother_name' => 'required_for_completion|string',
 
 			'guardian_name' => 'required_for_completion|string',
