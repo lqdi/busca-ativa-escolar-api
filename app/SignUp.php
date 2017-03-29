@@ -40,7 +40,7 @@ class SignUp extends Model {
 		'data',
 
 		// Sort-only fields
-		'city.name',
+		'cities.name',
 	];
 
 	protected $casts = [

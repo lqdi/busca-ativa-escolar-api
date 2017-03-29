@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Traits\Data;
 
 
+use DB;
 use Illuminate\Database\Eloquent\Builder;
 
 trait Sortable {
@@ -22,21 +23,26 @@ trait Sortable {
 		$instance = new self();
 
 		foreach($sortArray as $field => $mode) {
-			if(!in_array($field, $instance->fillable)) continue;
 
 			$dotPosition = strpos($field, '.');
 
 			// Dot-notation means sort by relationship
-			/*if($dotPosition !== false) {
+			if($dotPosition !== false) {
 				$relation = substr($field, 0, $dotPosition);
-				$field = substr($field, $dotPosition + 1);
+				$fields = substr($field, $dotPosition + 1);
 
-				$query->whereHas($relation, function($sub) use ($field, $mode) {
-					return $sub->orderBy($field, $mode);
-				});
+				$sortField = substr($fields, 0, strpos($fields, ':'));
+				$keyField = substr($fields, strpos($fields, ':') + 1) ?? 'id';
+
+				if(!in_array("{$relation}.{$sortField}", $instance->fillable)) continue;
+
+				$query->join($relation, "{$relation}.id", '=', "{$instance->table}.{$keyField}");
+				$query->orderBy("{$relation}.{$sortField}", $mode);
 
 				continue;
-			}*/
+			}
+
+			if(!in_array($field, $instance->fillable)) continue;
 
 			// TODO: fix dot-notation sorting (need a way to resolve table/pk from relationship name to apply join())
 

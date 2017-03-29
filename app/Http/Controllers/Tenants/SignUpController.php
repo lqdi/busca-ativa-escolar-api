@@ -21,6 +21,8 @@ use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\SignUp;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
+use DB;
+use Event;
 
 class SignUpController extends BaseController  {
 
@@ -65,9 +67,9 @@ class SignUpController extends BaseController  {
 			->where('is_provisioned', false);
 
 		SignUp::applySorting($pending, request('sort', []));
-
+		
 		$pending = $pending->get();
-
+		
 		return response()->json(['data' => $pending]);
 	}
 
