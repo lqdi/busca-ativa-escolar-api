@@ -38,6 +38,9 @@ class SignUp extends Model {
 		'ip_addr',
 		'user_agent',
 		'data',
+
+		// Sort-only fields
+		'city.name',
 	];
 
 	protected $casts = [
