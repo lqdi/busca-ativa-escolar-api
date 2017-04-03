@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\CaseSteps;
 
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class Pesquisa extends CaseStep {
@@ -89,7 +90,7 @@ class Pesquisa extends CaseStep {
 	];
 
 	public function applyAssignableUsersFilter(Builder $query) {
-		return $query->whereIn('type', ['tecnico_verificador', 'supervisor_operacional', 'coordenador_operacional']);
+		return $query->whereIn('type', [User::TYPE_TECNICO_VERIFICADOR, User::TYPE_SUPERVISOR_INSTITUCIONAL, User::TYPE_GESTOR_OPERACIONAL]);
 	}
 
 	protected function onStart($prevStep = null) {

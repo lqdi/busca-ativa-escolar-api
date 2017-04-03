@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
 
 class Rematricula extends CaseStep {
@@ -53,7 +54,7 @@ class Rematricula extends CaseStep {
 	}
 
 	public function applyAssignableUsersFilter(Builder $query) {
-		return $query->whereIn('type', ['supervisor_operacional', 'coordenador_operacional']);
+		return $query->whereIn('type', [User::TYPE_SUPERVISOR_INSTITUCIONAL, User::TYPE_GESTOR_OPERACIONAL]);
 	}
 
 	public function validate($data, $isCompletingStep = false) {
