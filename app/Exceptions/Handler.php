@@ -5,6 +5,7 @@ namespace BuscaAtivaEscolar\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Log;
 
 class Handler extends ExceptionHandler
 {
@@ -42,8 +43,30 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
-    {
+    public function render($request, Exception $exception) {
+
+    	if($request->ajax() || $request->wantsJson()) {
+
+		    Log::warning('[unhandled_exception] ' . $exception->getMessage());
+
+		    $exceptionInfo = $exception->getMessage();
+
+		    if(env('APP_DEBUG', false)) {
+			    $exceptionInfo = [
+				    'message' => $exception->getMessage(),
+				    'stack' => $exception->getTrace()
+			    ];
+		    }
+
+		    $data = [
+		    	'status' => 'error',
+		        'reason' => 'exception',
+		        'exception' => $exceptionInfo,
+		    ];
+
+		    return response()->json($data, 500);
+	    }
+
         return parent::render($request, $exception);
     }
 
