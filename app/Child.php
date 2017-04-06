@@ -196,13 +196,11 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	 */
 	public function getShorthandIdentifier() {
 		return ucwords($this->name)
-			. " / " . (
-				$this->gender ? trans('child.gender.' . $this->gender) : 'gênero desconhecido'
+			. ($this->gender ?
+				(" / " . trans('child.gender.' . $this->gender)) : ''
 			)
-			. " / " . (
-				$this->age ?
-					($this->age != 1 ? "{$this->age} anos" : "1 ano")
-					: 'idade desconhecida'
+			. ($this->age ?
+				(" / " . ($this->age != 1 ? "{$this->age} anos" : "1 ano")) : ''
 			);
 	}
 
