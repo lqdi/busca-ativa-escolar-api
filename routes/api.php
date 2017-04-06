@@ -89,7 +89,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
 
 		// INEP Schools
-		Route::post('/schools/search', 'Resources\SchoolsController@search');
+		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');
 
 		// Notifications
 		Route::get('/notifications/unread', 'Resources\NotificationsController@getUnread');
@@ -113,7 +113,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::get('/static/static_data', 'Resources\StaticDataController@render');
 
 	// Open data for sign-up
-	Route::post('/cities/search', 'Resources\CitiesController@search');
+	Route::post('/cities/search', 'Resources\CitiesController@search')->name('api.cities.search');
 	Route::post('/cities/check_availability', 'Resources\CitiesController@check_availability');
 	Route::resource('/cities', 'Resources\CitiesController');
 	Route::resource('/tenants', 'Tenants\TenantsController');
@@ -129,5 +129,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	Route::post('/integration/lp/alert_spawn', 'Integration\AlertSpawnController@spawn_alert');
 	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@on_message_received');
+	Route::get('/integration/forms/pesquisa', 'Integration\FormBuilderController@render_pesquisa_form');
 
 });

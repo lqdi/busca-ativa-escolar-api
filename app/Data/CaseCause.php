@@ -102,4 +102,17 @@ class CaseCause extends StaticObject  {
 		return self::getByIndex('slug', $slug);
 	}
 
+	/**
+	 * Gets all case cause IDs that indicate handicapped children
+	 * @return array
+	 */
+	public static function getAllHandicappedIDs() {
+		return collect(self::$data)
+			->filter(function ($item) {
+				return isset($item['is_handicapped']) && boolval($item['is_handicapped']) === true;
+			})
+			->pluck('id')
+			->toArray();
+	}
+
 }

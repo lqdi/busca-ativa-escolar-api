@@ -13,11 +13,24 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
-use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\Data\CaseCause;
+use BuscaAtivaEscolar\Data\Gender;
+use BuscaAtivaEscolar\Data\GuardianType;
+use BuscaAtivaEscolar\Data\HandicappedRejectReason;
+use BuscaAtivaEscolar\Data\IncomeRange;
+use BuscaAtivaEscolar\Data\PlaceKind;
+use BuscaAtivaEscolar\Data\Race;
+use BuscaAtivaEscolar\Data\SchoolGrade;
+use BuscaAtivaEscolar\Data\SchoolingLevel;
+use BuscaAtivaEscolar\Data\SchoolLastStatus;
+use BuscaAtivaEscolar\Data\WorkActivity;
+use BuscaAtivaEscolar\FormBuilder\CanGenerateForms;
+use BuscaAtivaEscolar\FormBuilder\FormBuilder;
+use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
 
-class Pesquisa extends CaseStep {
+class Pesquisa extends CaseStep implements CanGenerateForms {
 
 	protected $table = "case_steps_pesquisa";
 
@@ -206,4 +219,78 @@ class Pesquisa extends CaseStep {
 		]);
 	}
 
+	public static function getFormFields(): FormBuilder {
+		return (new FormBuilder())
+			->group('personal', trans('form_builder.pesquisa.group.personal'), function (FormBuilder $group) {
+				return $group
+				->field('name', 'string', trans('form_builder.pesquisa.field.name'))
+				->field('gender', 'select', trans('form_builder.pesquisa.field.gender'), ['options' => Gender::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('race', 'select', trans('form_builder.pesquisa.field.race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('dob', 'date', trans('form_builder.pesquisa.field.dob'))
+				->field('rg', 'alphanum', trans('form_builder.pesquisa.field.rg'))
+				->field('cpf', 'alphanum', trans('form_builder.pesquisa.field.cpf'));
+			})
+
+			->group('school', trans('form_builder.pesquisa.group.school'), function (FormBuilder $group) {
+				return $group
+				->field('has_been_in_school', 'boolean', trans('form_builder.pesquisa.field.has_been_in_school'))
+				->field('reason_not_enrolled', 'multiline', trans('form_builder.pesquisa.field.reason_not_enrolled'), ['show_if_false' => 'has_been_in_school'])
+				->field('school_last_grade', 'select', trans('form_builder.pesquisa.field.school_last_grade'), ['show_if_true' => 'has_been_in_school', 'options' => SchoolGrade::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('school_last_year', 'number', trans('form_builder.pesquisa.field.school_last_year'), ['show_if_true' => 'has_been_in_school'])
+				->field('school_last_id', 'model', trans('form_builder.pesquisa.field.school_last_id'), ['show_if_true' => 'has_been_in_school', 'key_as' => 'school_last', 'search_by' => 'name', 'source' => route('api.school.search'), 'key' => 'id', 'label' => 'name'])
+				->field('school_last_name', 'model_field', trans('form_builder.pesquisa.field.school_last_name'), ['show_if_true' => 'has_been_in_school', 'key' => 'school_last', 'field' => 'name'])
+				->field('school_last_status', 'select', trans('form_builder.pesquisa.field.school_last_status'), ['show_if_true' => 'has_been_in_school'], ['options' => SchoolLastStatus::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('school_last_age', 'number', trans('form_builder.pesquisa.field.school_last_age'), ['show_if_true' => 'has_been_in_school'])
+				->field('school_last_address', 'string', trans('form_builder.pesquisa.field.school_last_address'), ['show_if_true' => 'has_been_in_school']);
+			})
+
+			->group('work', trans('form_builder.pesquisa.group.work'), function(FormBuilder $group) {
+				return $group
+				->field('is_working', 'boolean', trans('form_builder.pesquisa.field.is_working'))
+				->field('work_activity', 'select', trans('form_builder.pesquisa.field.work_activity'), ['show_if_true' => 'is_working', 'options' => WorkActivity::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('work_activity_other', 'string', trans('form_builder.pesquisa.field.work_activity_other'), ['show_if_equal' => ['work_activity', 'other']])
+				->field('work_is_paid', 'boolean', trans('form_builder.pesquisa.field.work_is_paid'), ['show_if_true' => 'is_working'])
+				->field('work_weekly_hours', 'number', trans('form_builder.pesquisa.field.work_weekly_hours'), ['show_if_true' => 'is_working']);
+			})
+
+			->group('guardians', trans('form_builder.pesquisa.group.guardians'), function (FormBuilder $group) {
+				return $group
+				->field('parents_has_mother', 'boolean', trans('form_builder.pesquisa.field.parents_has_mother'))
+				->field('parents_has_father', 'boolean', trans('form_builder.pesquisa.field.parents_has_father'))
+				->field('parents_has_brother', 'boolean', trans('form_builder.pesquisa.field.parents_has_brother'))
+
+				->field('parents_who_is_guardian', 'select', trans('form_builder.pesquisa.field.parents_who_is_guardian'), ['options' => GuardianType::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('parents_income', 'select', trans('form_builder.pesquisa.field.parents_income'), ['options' => IncomeRange::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('mother_name', 'string', trans('form_builder.pesquisa.field.mother_name'))
+
+				->field('guardian_name', 'string', trans('form_builder.pesquisa.field.guardian_name'))
+				->field('guardian_rg', 'string', trans('form_builder.pesquisa.field.guardian_rg'))
+				->field('guardian_cpf', 'string', trans('form_builder.pesquisa.field.guardian_cpf'))
+				->field('guardian_dob', 'date', trans('form_builder.pesquisa.field.guardian_dob'))
+				->field('guardian_phone', 'string', trans('form_builder.pesquisa.field.guardian_phone'))
+				->field('guardian_race', 'select', trans('form_builder.pesquisa.field.guardian_race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('guardian_schooling', 'string', trans('form_builder.pesquisa.field.guardian_schooling'), ['options' => SchoolingLevel::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('guardian_job', 'string', trans('form_builder.pesquisa.field.guardian_job'));
+			})
+
+			->group('cause', trans('form_builder.pesquisa.group.cause'), function (FormBuilder $group) {
+				return $group
+				->field('case_cause_ids', 'multiple', trans('form_builder.pesquisa.field.case_cause_ids'), ['options' => CaseCause::getAllAsArray(), 'key' => 'id', 'label' => 'label'])
+				->field('handicapped_at_sus', 'boolean', trans('form_builder.pesquisa.field.handicapped_at_sus'), ['show_if_in' => ['case_cause_ids', CaseCause::getAllHandicappedIDs()]])
+				->field('handicapped_reason_not_enrolled', 'select', trans('form_builder.pesquisa.field.handicapped_reason_not_enrolled'), ['show_if_true' => 'handicapped_at_sus', 'options' => HandicappedRejectReason::getAllAsArray(), 'key' => 'slug', 'label' => 'label']);
+			})
+
+			->group('place', trans('form_builder.pesquisa.group.place'), function (FormBuilder $group) {
+				return $group
+				->field('place_address', 'string', trans('form_builder.pesquisa.field.place_address'))
+				->field('place_cep', 'string', trans('form_builder.pesquisa.field.place_cep'))
+				->field('place_reference', 'string', trans('form_builder.pesquisa.field.place_reference'))
+				->field('place_neighborhood', 'string', trans('form_builder.pesquisa.field.place_neighborhood'))
+				->field('place_uf', 'select', trans('form_builder.pesquisa.field.place_uf'), ['options' => UF::getAllAsArray(), 'key' => 'code', 'label' => 'name'])
+				->field('place_city_id', 'model', trans('form_builder.pesquisa.field.place_city_id'), ['key_as' => 'place_city', 'search_by' => 'name', 'source' => route('api.cities.search')])
+				->field('place_city_name', 'model_field', trans('form_builder.pesquisa.field.place_city_name'), ['key' => 'place_city', 'field' => 'name'])
+				->field('place_kind', 'select', trans('form_builder.pesquisa.field.place_kind'), ['options' => PlaceKind::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('place_is_quilombola', 'boolean', trans('form_builder.pesquisa.field.place_is_quilombola'));
+			});
+	}
 }
