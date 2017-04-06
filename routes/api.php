@@ -62,6 +62,14 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		});
 
+		// Maintenance
+		Route::group(['middleware' => 'can:maintenance'], function() {
+			Route::get('/maintenance/import_jobs', 'Maintenance\ImportController@index');
+			Route::post('/maintenance/import_jobs/new', 'Maintenance\ImportController@upload_file');
+			Route::post('/maintenance/import_jobs/{job}/process', 'Maintenance\ImportController@process_job');
+			Route::get('/maintenance/import_jobs/{job}', 'Maintenance\ImportController@get_job');
+		});
+
 		// Case Steps
 		Route::post('/steps/{step_type}/{step_id}/complete', 'Resources\StepsController@complete')->middleware('can:cases.manage');
 		Route::get('/steps/{step_type}/{step_id}/assignable_users', 'Resources\StepsController@getAssignableUsers')->middleware('can:cases.manage');

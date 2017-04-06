@@ -57,7 +57,7 @@ class SearchResultsTransformer extends TransformerAbstract {
 				'query_time' => $result['took'] ?? 0,
 				'shards' => $result['_shards'] ?? [],
 			],
-			//'query' => $this->query,
+			'query' => $this->query,
 			'attempted' => $this->attempted,
 		];
 	}

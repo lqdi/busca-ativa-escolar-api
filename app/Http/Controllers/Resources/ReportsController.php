@@ -126,7 +126,7 @@ class ReportsController extends BaseController {
 		});
 	}
 
-	protected function fetchDimensionLabels($dimension, $ids) {
+	protected function fetchDimensionLabels($dimension, $ids = []) {
 
 		switch($dimension) {
 			case 'child_status': return trans('child.status');

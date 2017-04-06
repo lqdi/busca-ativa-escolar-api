@@ -9,6 +9,7 @@ return [
 		'cases.map',
 		'tenants.manage',
 		'developer_tools',
+		'maintenance',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
