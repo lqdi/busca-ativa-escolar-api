@@ -177,6 +177,7 @@ return [
 	    Barryvdh\Cors\ServiceProvider::class,
 	    Geocoder\Laravel\Providers\GeocoderService::class,
 	    Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
+	    Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
 
 
 
@@ -245,6 +246,7 @@ return [
 	    'Curl' => Ixudra\Curl\Facades\Curl::class,
 	    'Fractal' => Spatie\Fractal\FractalFacade::class,
 	    'Geocoder' => Toin0u\Geocoder\GeocoderFacade::class,
+	    'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
 
     ],
 
