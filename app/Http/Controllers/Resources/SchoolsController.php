@@ -27,12 +27,12 @@ class SchoolsController extends BaseController {
 
 	public function search(Search $search) {
 
-		$parameters = request()->only(['uf', 'city_id', 'name']);
+		$parameters = request()->only(['id', 'uf', 'city_id', 'name']);
 		$parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
 		$parameters['name'] = Str::ascii($parameters['name']);
 
 		$query = ElasticSearchQuery::withParameters($parameters)
-			->addTextField('name')
+			->searchTextInColumns('name', ['name^3', 'id'])
 			->filterByTerm('city_id', false)
 			->filterByTerm('uf', false)
 			->getQuery();
