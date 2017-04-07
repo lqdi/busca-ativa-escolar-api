@@ -153,7 +153,7 @@ class ChildrenController extends BaseController  {
 	public function addComment(Child $child) {
 		try {
 
-			$message = request('message');
+			$message = request('message', '');
 			$comment = Comment::post($child, Auth::user(), $message);
 
 			return response()->json(['status' => 'ok', 'comment_id' => $comment->id]);
@@ -167,6 +167,11 @@ class ChildrenController extends BaseController  {
 		try {
 
 			$file = request()->file('file');
+
+			if(!$file || !$file->isValid()) {
+				return $this->api_failure('file_not_uploaded', ['file' => $file]);
+			}
+
 			$description = request('description', '');
 			$attachment = Attachment::createFromUpload($file, $child, Auth::user(), $description);
 
