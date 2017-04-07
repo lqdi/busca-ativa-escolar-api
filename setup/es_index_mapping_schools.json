@@ -9,7 +9,7 @@
 		"name": {
 			"store": true,
 			"type": "string",
-			"analyzer": "token_autocomplete",
+			"analyzer": "folded_autocomplete",
 			"search_analyzer": "standard"
 		},
 
@@ -22,7 +22,7 @@
 		"city_name": {
 			"store": true,
 			"type": "string",
-			"analyzer": "token_autocomplete",
+			"analyzer": "folded_autocomplete",
 			"search_analyzer": "standard"
 		},
 

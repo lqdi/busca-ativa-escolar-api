@@ -32,12 +32,12 @@ class SchoolsController extends BaseController {
 		$parameters['name'] = Str::ascii($parameters['name']);
 
 		$query = ElasticSearchQuery::withParameters($parameters)
-			->searchTextInColumns('name', ['name^3', 'id'])
+			->searchTextInColumns('name', ['name', 'id'])
 			->filterByTerm('city_id', false)
 			->filterByTerm('uf', false)
 			->getQuery();
 
-		$results = $search->search(new School(), $query, 15);
+		$results = $search->search(new School(), $query, 12);
 
 		return fractal()
 			->item($results)

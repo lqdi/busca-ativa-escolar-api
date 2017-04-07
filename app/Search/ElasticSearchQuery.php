@@ -51,16 +51,17 @@ class ElasticSearchQuery {
 	 * Adds a 'term' search.
 	 *
 	 * @param string $name The name of the field in both search parameters and document.
+	 * @param string $mode The search mode ('term' for full term, or 'match' for loose query)
 	 * @param string $priority The 'priority' to use (must/should/filter). See ElasticSearch docs for more info.
 	 * @return self Same query instance, for fluid composition.
 	 */
-	public function addTextField(string $name, string $priority = 'must') : self {
+	public function addTextField(string $name, string $mode = 'term', string $priority = 'must') : self {
 		array_push($this->attemptedQuery, ['addTextField', $name, $priority, $this->params[$name] ?? null]);
 
 		if(!isset($this->params[$name])) return $this;
 		if(strlen($this->params[$name]) <= 0) return $this;
 
-		array_push($this->query['bool'][$priority], ['term' => [$name => $this->params[$name]]]);
+		array_push($this->query['bool'][$priority], [$mode => [$name => $this->params[$name]]]);
 
 		return $this;
 	}
@@ -71,14 +72,15 @@ class ElasticSearchQuery {
 	 * Adds a 'term' search.
 	 *
 	 * @param array $names List of names of the fields in both search parameters and document.
+	 * @param string $mode The search mode ('term' for full term, or 'match' for loose query)
 	 * @param string $priority The 'priority' to use (must/should/filter). See ElasticSearch docs for more info.
 	 * @return self Same query instance, for fluid composition.
 	 */
-	public function addTextFields(array $names, string $priority = 'must') : self {
+	public function addTextFields(array $names, string $mode = 'term', string $priority = 'must') : self {
 		array_push($this->attemptedQuery, ['addTextFields+', $names, $priority, sizeof($names)]);
 
 		if(sizeof($names) <= 0) return $this;
-		foreach($names as $name) $this->addTextField($name, $priority);
+		foreach($names as $name) $this->addTextField($name, $mode, $priority);
 		return $this;
 	}
 
