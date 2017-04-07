@@ -38,7 +38,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
     	//$schedule->command('debug:test_scheduling_system')->everyMinute();
-        $schedule->command('worflow:check_case_deadlines')->dailyAt('23:00');
+        $schedule->command('workflow:check_case_deadlines')->dailyAt('23:00');
         $schedule->command('snapshot:daily_metrics')->dailyAt('23:30');
     }
 
