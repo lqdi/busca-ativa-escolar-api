@@ -36,6 +36,7 @@ class CitySearchResultsTransformer extends TransformerAbstract {
 			'id' => $document['_id'],
 
 			'name' => $document['_source']['name'] ?? null,
+			'full_name' => ($document['_source']['name'] ?? null) . ' - ' . ($document['_source']['uf'] ?? null),
 			'uf' => $document['_source']['uf'] ?? null,
 			'region' => $document['_source']['region'] ?? null,
 

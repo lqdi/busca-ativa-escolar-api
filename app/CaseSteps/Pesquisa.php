@@ -237,7 +237,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 				->field('reason_not_enrolled', 'multiline', trans('form_builder.pesquisa.field.reason_not_enrolled'), ['show_if_false' => 'has_been_in_school'])
 				->field('school_last_grade', 'select', trans('form_builder.pesquisa.field.school_last_grade'), ['show_if_true' => 'has_been_in_school', 'options' => SchoolGrade::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('school_last_year', 'number', trans('form_builder.pesquisa.field.school_last_year'), ['show_if_true' => 'has_been_in_school'])
-				->field('school_last_id', 'model', trans('form_builder.pesquisa.field.school_last_id'), ['show_if_true' => 'has_been_in_school', 'key_as' => 'school_last', 'search_by' => 'name', 'source' => route('api.school.search'), 'key' => 'id', 'label' => 'name'])
+				->field('school_last_id', 'model', trans('form_builder.pesquisa.field.school_last_id'), ['show_if_true' => 'has_been_in_school', 'key_as' => 'school_last', 'search_by' => 'name', 'source' => route('api.school.search'), 'key' => 'id', 'label' => 'name', 'list_key' => 'results'])
 				->field('school_last_name', 'model_field', trans('form_builder.pesquisa.field.school_last_name'), ['show_if_true' => 'has_been_in_school', 'key' => 'school_last', 'field' => 'name'])
 				->field('school_last_status', 'select', trans('form_builder.pesquisa.field.school_last_status'), ['show_if_true' => 'has_been_in_school'], ['options' => SchoolLastStatus::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('school_last_age', 'number', trans('form_builder.pesquisa.field.school_last_age'), ['show_if_true' => 'has_been_in_school'])
@@ -287,7 +287,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 				->field('place_reference', 'string', trans('form_builder.pesquisa.field.place_reference'))
 				->field('place_neighborhood', 'string', trans('form_builder.pesquisa.field.place_neighborhood'))
 				->field('place_uf', 'select', trans('form_builder.pesquisa.field.place_uf'), ['options' => UF::getAllAsArray(), 'key' => 'code', 'label' => 'name'])
-				->field('place_city_id', 'model', trans('form_builder.pesquisa.field.place_city_id'), ['key_as' => 'place_city', 'search_by' => 'name', 'source' => route('api.cities.search')])
+				->field('place_city_id', 'model', trans('form_builder.pesquisa.field.place_city_id'), ['key_as' => 'place_city', 'search_by' => 'name', 'source' => route('api.cities.search'), 'list_key' => 'results', 'key' => 'id', 'label' => 'full_name'])
 				->field('place_city_name', 'model_field', trans('form_builder.pesquisa.field.place_city_name'), ['key' => 'place_city', 'field' => 'name'])
 				->field('place_kind', 'select', trans('form_builder.pesquisa.field.place_kind'), ['options' => PlaceKind::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('place_is_quilombola', 'boolean', trans('form_builder.pesquisa.field.place_is_quilombola'));
