@@ -38,16 +38,15 @@ class UserRegistered extends Mailable {
 
 		$message = (new MailMessage())
 			->subject("Novo usuário em {$this->tenant->name}")
-			->greeting('Olá!')
-			->line("Foi criado um novo usuário para você na plataforma Busca Ativa Escolar em seu município.")
+			->greeting("Olá, --{$this->user->name}--")
+			->line("Seu perfil de acesso à plataforma Busca Ativa Escolar foi criado.")
 			->line("Seus dados de acesso são:")
 			->line("**Usuário:** --{$this->user->email}--")
 			->line("**Senha temporária:** --{$this->initialPassword}--")
-			->line("**Seu perfil de acesso:** --" . trans('user.type.' . $this->user->type) . '--')
-			->line("Os dados de acesso podem ser alterados no menu 'Preferências'.")
-			->line('Clique no botão abaixo para acessar a plataforma:')
+			->line("**Perfil:** --" . trans('user.type.' . $this->user->type) . '--')
+			->line("Caso queira alterar sua senha e personalizar seu perfil, clique na seta ao lado do seu nome, no menu, e depois vá em 'Preferências'.")
 			->success()
-			->action('Acessar', $loginURL);
+			->action('Acessar agora', $loginURL);
 
 		$this->from(env('MAIL_USERNAME'), 'Busca Ativa Escolar');
 		$this->subject("[Busca Ativa Escolar] Novo usuário em {$this->tenant->name}");
