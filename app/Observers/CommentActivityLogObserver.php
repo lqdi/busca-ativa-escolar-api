@@ -27,6 +27,7 @@ class CommentActivityLogObserver {
 		], ['source' => get_class()]);
 
 		ActivityLog::writeEntry($comment->content, 'added_comment', [
+			'target_name' => (method_exists($comment->content, 'toString') ? $comment->content->toString() : null),
 			'message' => $comment->message,
 			'metadata' => $comment->metadata,
 		], ['source' => get_class()]);

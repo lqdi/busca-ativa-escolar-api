@@ -39,9 +39,15 @@ class LogEntryTransformer extends TransformerAbstract {
 			'parameters' => $entry->parameters,
 			'user' => $entry->metadata->user ?? null,
 			'message_template' => trans('activity_log.child.' . $entry->action),
-			'message' => trans('activity_log.child.' . $entry->action, (array) $entry->parameters),
+			'message' => trans('activity_log.child.' . $entry->action, $this->getDisplayParameters($entry)),
 			'created_at' => $entry->created_at ? $entry->created_at->toIso8601String() : null,
 		];
+	}
+
+	private function getDisplayParameters(ActivityLog $entry) {
+		return array_filter((array) $entry->parameters, function ($value) {
+			return !is_array($value) && !is_object($value); // Arrays and objects break when used as trans() params
+		});
 	}
 
 	public function includeUser(ActivityLog $entry) {

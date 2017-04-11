@@ -27,6 +27,7 @@ class AttachmentActivityLogObserver {
 		], ['source' => get_class()]);
 
 		ActivityLog::writeEntry($attachment->content, 'added_attachment', [
+			'target_name' => (method_exists($attachment->content, 'toString') ? $attachment->content->toString() : null),
 			'mime_type' => $attachment->mime_type,
 			'uri' => $attachment->uri,
 			'file_name' => $attachment->file_name,

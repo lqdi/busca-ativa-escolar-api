@@ -204,6 +204,10 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 			);
 	}
 
+	public function toString() {
+		return $this->getShorthandIdentifier();
+	}
+
 	/**
 	 * Sets the child's current status
 	 * @param string $status The child status. See Child::STATUS_*
