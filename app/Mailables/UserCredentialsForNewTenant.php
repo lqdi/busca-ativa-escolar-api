@@ -40,16 +40,16 @@ class UserCredentialsForNewTenant extends Mailable {
 
 		$message = (new MailMessage())
 			->subject("A plataforma de {$this->tenant->name} está pronta para acesso!")
-			->greeting('Olá!')
-			->line("A adesão de {$this->tenant->name} ao programa Busca Ativa Escolar foi aprovada, e a plataforma está pronta para uso!")
+			->greeting("Olá, --{$this->user->name}--")
+			->line("Seu cadastro na Busca Ativa Escolar foi concluído com sucesso e a plataforma está pronta para uso.")
 			->line("Seus dados de acesso são:")
 			->line("**Usuário:** --{$this->user->email}--")
 			->line("**Senha temporária:** --{$this->initialPassword}--")
-			->line("**Seu perfil de acesso:** --" . trans('user.type.' . $this->user->type) . '--')
-			->line("Os dados de acesso podem ser alterados no menu 'Configurações'.")
+			->line("**Perfil:** --" . trans('user.type.' . $this->user->type) . '--')
+			->line("Caso queira alterar sua senha e personalizar seu perfil na plataforma, clique na seta ao lado do seu nome, no menu, e depois vá em 'Preferências'.")
 			->line('Clique no botão abaixo para acessar a plataforma:')
 			->success()
-			->action('Configurar', $loginURL);
+			->action('Acessar', $loginURL);
 
 		$this->from(env('MAIL_USERNAME'), 'Busca Ativa Escolar');
 		$this->subject("[Busca Ativa Escolar] A plataforma de {$this->tenant->name} está pronta para acesso!");

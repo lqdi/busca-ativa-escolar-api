@@ -11,9 +11,9 @@ return [
     'array'                => 'O campo \':attribute\' deve ser uma lista.',
     'before'               => 'O campo \':attribute\' deve ser uma data após :date.',
     'between'              => [
-        'numeric' => 'O campo \':attribute\' deve ser entre :min e :max.',
-        'file'    => 'O campo \':attribute\' deve ser entre :min e :max kilobytes.',
-        'string'  => 'O campo \':attribute\' deve ser entre :min e :max caracteres.',
+        'numeric' => 'O campo \':attribute\' deve ter entre :min e :max.',
+        'file'    => 'O campo \':attribute\' deve ter entre :min e :max kilobytes.',
+        'string'  => 'O campo \':attribute\' deve ter entre :min e :max caracteres.',
         'array'   => 'O campo \':attribute\' deve ter entre :min e :max ítens.',
     ],
     'boolean'              => 'O campo \':attribute\' deve ser verdadeiro ou falso.',
