@@ -13,7 +13,7 @@
 
 namespace BuscaAtivaEscolar\Mailables;
 
-
+use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\SignUp;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -21,9 +21,11 @@ use Illuminate\Notifications\Messages\MailMessage;
 class SignupApproved extends Mailable {
 
 	public $signup;
+	public $tenant;
 
-	public function __construct(SignUp $signup) {
+	public function __construct(SignUp $signup, Tenant $tenant) {
 		$this->signup = $signup;
+		$this->tenant = $tenant;
 	}
 
 	public function build() {
@@ -34,8 +36,8 @@ class SignupApproved extends Mailable {
 		$message = (new MailMessage())
 			->subject("Sua adesão foi aprovada!")
 			->greeting('Olá!')
-			->line('Sua adesão ao programa Busca Ativa Escolar foi aprovada!')
-			->line('Clique no botão abaixo para iniciar a configuração da plataforma de seu município')
+			->line("A adesão de {$this->tenant->name} à Busca Ativa Escolar foi aprovada.")
+			->line('Clique no botão abaixo para configurar a plataforma de seu município.')
 			->success()
 			->action('Configurar', $setupURL);
 
