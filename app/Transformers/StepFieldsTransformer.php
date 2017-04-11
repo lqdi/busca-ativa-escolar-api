@@ -34,6 +34,7 @@ class StepFieldsTransformer extends TransformerAbstract {
 				'id' => $data['place_city_id'],
 				'uf' => $data['place_uf'],
 				'name' => $data['place_city_name'],
+				'full_name' => ($data['place_city_name'] . ' - ' . $data['place_uf']),
 			];
 		}
 
