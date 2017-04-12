@@ -21,11 +21,9 @@ use Illuminate\Notifications\Messages\MailMessage;
 class SignupApproved extends Mailable {
 
 	public $signup;
-	public $tenant;
 
-	public function __construct(SignUp $signup, Tenant $tenant) {
+	public function __construct(SignUp $signup) {
 		$this->signup = $signup;
-		$this->tenant = $tenant;
 	}
 
 	public function build() {
@@ -36,7 +34,7 @@ class SignupApproved extends Mailable {
 		$message = (new MailMessage())
 			->subject("Sua adesão foi aprovada!")
 			->greeting('Olá!')
-			->line("A adesão de {$this->tenant->name} à Busca Ativa Escolar foi aprovada.")
+			->line("A adesão de {$this->signup->city->name} à Busca Ativa Escolar foi aprovada.")
 			->line('Clique no botão abaixo para configurar a plataforma de seu município.')
 			->success()
 			->action('Configurar', $setupURL);
