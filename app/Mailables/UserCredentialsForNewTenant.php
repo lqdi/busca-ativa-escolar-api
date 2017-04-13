@@ -40,14 +40,14 @@ class UserCredentialsForNewTenant extends Mailable {
 
 		$message = (new MailMessage())
 			->subject("A plataforma de {$this->tenant->name} está pronta para acesso!")
-			->greeting("Olá, --{$this->user->name}--")
+			->greeting("Olá, {$this->user->name}")
 			->line("Seu cadastro na Busca Ativa Escolar foi concluído com sucesso e a plataforma está pronta para uso.")
-			->line("Seus dados de acesso são:")
+			->line("Seus dados para acesso são:")
 			->line("**Usuário:** --{$this->user->email}--")
 			->line("**Senha temporária:** --{$this->initialPassword}--")
 			->line("**Perfil:** --" . trans('user.type.' . $this->user->type) . '--')
 			->line("Caso queira alterar sua senha e personalizar seu perfil na plataforma, clique na seta ao lado do seu nome, no menu, e depois vá em 'Preferências'.")
-			->line('Clique no botão abaixo para acessar a plataforma:')
+			->line('Clique no botão abaixo para entrar na plataforma.')
 			->success()
 			->action('Acessar', $loginURL);
 
