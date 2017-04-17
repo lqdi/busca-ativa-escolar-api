@@ -57,6 +57,7 @@ class ChildrenController extends BaseController  {
 				['place_address^3', 'place_cep^2', 'place_city^2', 'place_uf', 'place_neighborhood', 'place_reference']
 			)
 			->filterByTerms('alert_status', false)
+			->filterByTerms('case_status', false)
 			->filterByTerms('risk_level', $params['risk_level_null'] ?? false)
 			->filterByTerm('assigned_user_id', $params['assigned_user_id_null'] ?? false)
 			->filterByTerm('current_step_type', false)

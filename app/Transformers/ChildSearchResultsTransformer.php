@@ -61,6 +61,7 @@ class ChildSearchResultsTransformer extends TransformerAbstract {
 			'is_late' => (($document['_source']['deadline_status'] ?? 'normal') === Child::DEADLINE_STATUS_LATE),
 
 			'child_status' => $document['_source']['child_status'] ?? null,
+			'case_status' => $document['_source']['case_status'] ?? null,
 			'deadline_status' => $document['_source']['deadline_status'] ?? null,
 			'alert_status' => $document['_source']['alert_status'] ?? null,
 
