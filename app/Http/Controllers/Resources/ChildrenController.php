@@ -20,6 +20,7 @@ use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
+use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
@@ -47,7 +48,9 @@ class ChildrenController extends BaseController  {
 		if(Auth::user()->isRestrictedToTenant()) $params['tenant_id'] = Auth::user()->tenant_id;
 
 		// Scope query within user, when relevant
-		if(Auth::user()->type === User::TYPE_TECNICO_VERIFICADOR) $params['assigned_user_id'] = Auth::user()->id;
+		if(Auth::user()->type === User::TYPE_TECNICO_VERIFICADOR) {
+			$params['assigned_user_id'] = Auth::user()->id;
+		}
 
 		$query = ElasticSearchQuery::withParameters($params)
 			->filterByTerm('tenant_id', false)
@@ -59,12 +62,23 @@ class ChildrenController extends BaseController  {
 			->filterByTerms('alert_status', false)
 			->filterByTerms('case_status', false)
 			->filterByTerms('risk_level', $params['risk_level_null'] ?? false)
-			->filterByTerm('assigned_user_id', $params['assigned_user_id_null'] ?? false)
+			//->filterByTerms('case_cause_ids', false)
+			//->filterByTerm('assigned_user_id', $params['assigned_user_id_null'] ?? false)
 			->filterByTerm('current_step_type', false)
 			->filterByTerms('gender',$params['gender_null'] ?? false)
 			->filterByTerms('place_kind',$params['place_kind_null'] ?? false)
 			->filterByRange('age',$params['age_null'] ?? false);
 
+
+		// Scope query within group responsabilities (via parameterized case cause ids)
+		if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
+			$group = Auth::user()->group; /* @var $group Group */
+
+			$query->filterByOneOf([
+				'assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id],
+				'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
+			]);
+		}
 
 		$attempted = $query->getAttemptedQuery();
 		$query = $query->getQuery();

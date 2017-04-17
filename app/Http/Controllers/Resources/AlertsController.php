@@ -16,10 +16,12 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use Auth;
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\AgentAlertTransformer;
 use BuscaAtivaEscolar\Transformers\PendingAlertTransformer;
+use BuscaAtivaEscolar\User;
 
 class AlertsController extends BaseController {
 
@@ -28,6 +30,11 @@ class AlertsController extends BaseController {
 
 		if(request()->has('sort')) {
 			Child::applySorting($query, json_decode(request('sort'), true));
+		}
+
+		if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
+			$group = Auth::user()->group; /* @var $group Group */
+			$query->whereIn('alert_cause_id', $group->getSettings()->getHandledAlertCauses());
 		}
 
 		return fractal()

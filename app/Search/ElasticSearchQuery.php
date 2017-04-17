@@ -189,6 +189,21 @@ class ElasticSearchQuery {
 		return $this;
 	}
 
+	public function filterByOneOf(array $conditions, $includeNullFields = false, $priority = 'filter') : self {
+		array_push($this->attemptedQuery, ['filterByOneOf', $conditions]);
+
+		$filter = ['bool' => ['should' => []]];
+
+		foreach($conditions as $field => $params) {
+			array_push($filter['bool']['should'], [$params['type'] => [$field => $params['search']]]);
+			if($includeNullFields) array_push($filter['bool']['should'], ['missing' => ['field' => $field]]);
+		}
+
+		array_push($this->query['bool'][$priority], $filter);
+
+		return $this;
+	}
+
 	/**
 	 * Filters the document by a numeric range in the given field. Allows you to include documents missing the given field.
 	 * Will search for the $params[$name] value in the $name field in the documents.

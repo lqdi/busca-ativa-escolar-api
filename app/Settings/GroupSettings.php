@@ -59,6 +59,21 @@ class GroupSettings extends SerializableObject {
 	}
 
 	/**
+	 * Gets the list of case cause IDs that are handled by this group, inferred by their corresponding alert causes
+	 * @return array
+	 */
+	public function getHandledCaseCauses() {
+		return collect($this->alerts)
+			->filter()
+			->keys()
+			->map(function ($alert_cause_id) {
+				return AlertCause::getByID($alert_cause_id)->case_cause_ids;
+			})
+			->flatten()
+			->toArray();
+	}
+
+	/**
 	 * Gets list of alert cause IDs that are not handled by this group
 	 * @return array
 	 */
