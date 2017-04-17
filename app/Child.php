@@ -217,9 +217,9 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$this->child_status = $status;
 		$this->save();
 
-		event(new ChildStatusChanged($this, $prevStatus, $status));
-
 		$this->reindex();
+
+		event(new ChildStatusChanged($this, $prevStatus, $status));
 	}
 
 	/**
@@ -235,8 +235,6 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 		event(new AlertStatusChanged($this, $prevStatus, 'accepted'));
 		event(new AlertAccepted($this));
-
-		$this->reindex();
 	}
 
 	/**
@@ -249,8 +247,6 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 		event(new AlertStatusChanged($this, $prevStatus, 'rejected'));
 		event(new AlertRejected($this));
-
-		$this->reindex();
 	}
 
 	/**
@@ -302,7 +298,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	 * Triggers a document reindex for the child.
 	 */
 	public function reindex() {
-		event(new SearchableNeedsReindexing($this));
+		event(new SearchableNeedsReindexing($this->fresh()));
 	}
 
 	/**

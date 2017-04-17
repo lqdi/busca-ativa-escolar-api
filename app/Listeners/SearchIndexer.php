@@ -16,6 +16,7 @@ namespace BuscaAtivaEscolar\Listeners;
 
 use BuscaAtivaEscolar\Events\SearchableNeedsReindexing;
 use BuscaAtivaEscolar\Search\Search;
+use Log;
 
 class SearchIndexer {
 

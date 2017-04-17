@@ -180,7 +180,7 @@ abstract class CaseStep extends Model {
 		$this->onStart($prevStep);
 
 		// Update search index
-		$this->child->save();
+		$this->child->reindex();
 
 		event(new CaseStepStarted($this, $prevStep));
 	}
@@ -201,9 +201,8 @@ abstract class CaseStep extends Model {
 			$nextStep = $this->childCase->advanceToNextStep($this);
 		}
 
-
 		// Update search index
-		$this->child->save();
+		$this->child->reindex();
 
 		event(new CaseStepCompleted($this, $nextStep ?? null));
 
@@ -231,9 +230,9 @@ abstract class CaseStep extends Model {
 		$this->assigned_user_id = $user->id;
 		$this->save();
 
-		$this->child->reindex();
-
 		$this->onAssign($user);
+
+		$this->child->reindex();
 
 		event(new CaseStepAssigned($this, $user));
 	}
@@ -253,7 +252,7 @@ abstract class CaseStep extends Model {
 		$this->onUpdated();
 
 		// Update search index
-		$this->child->save();
+		$this->child->reindex();
 
 		event(new CaseStepUpdated($this, $data));
 
