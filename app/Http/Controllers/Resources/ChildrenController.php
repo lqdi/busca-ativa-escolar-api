@@ -119,7 +119,7 @@ class ChildrenController extends BaseController  {
 			->item($alert)
 			->transformWith(new StepTransformer())
 			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(['fields'])
+			->parseIncludes(['fields', 'case'])
 			->respond();
 	}
 

@@ -14,14 +14,24 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Integration;
 
 
+use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 
 class FormBuilderController extends BaseController {
 
-	public function render_pesquisa_form() {
-		$form = Pesquisa::getFormFields(); // TODO: cache this
-		return response()->json(['form' => $form->buildTree()]);
+	public function render_form($formName) {
+
+		// TODO: add caching
+
+		switch($formName) {
+			case "pesquisa": $form = Pesquisa::getFormFields(); break;
+			case "alerta": $form = Alerta::getFormFields(); break;
+			default: return response()->json(['status' => 'error', 'reason' => 'invalid_form_name']);
+		}
+
+		return response()->json(['status' => 'ok', 'form' => $form->buildTree()]);
+
 	}
 
 }

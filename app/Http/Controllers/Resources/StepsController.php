@@ -74,6 +74,9 @@ class StepsController extends BaseController {
 
 			$next = $step->complete();
 
+			$step->child->reindex();
+
+			// TODO: new current_step_type isn't being reindexed?
 			// TODO: $step->canBeCompletedBy(Auth::user());
 
 			if(!$next) return response()->json(['status' => 'ok', 'hasNext' => false]);

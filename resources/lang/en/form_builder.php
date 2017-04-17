@@ -58,7 +58,47 @@ return [
 			'place_uf' => 'UF',
 			'place_city_id' => 'Município',
 			'place_city_name' => 'Município',
+		],
+	],
+
+	'alerta' => [
+		'group' => [
+			'personal' => 'Dados da criança ou adolescente',
+			'cause' => 'Sobre a causa de exclusão escolar',
+			'parents' => 'Sobre os pais ou responsáveis',
+			'place' => 'Dados de localização',
+		],
+
+		'field' => [
+			'name' => "Nome da criança ou adolescente",
+			'gender' => "Sexo",
+			'race' => "Raça / Etnia",
+			'dob' => "Data de nascimento",
+			'rg' => "RG",
+			'cpf' => "CPF",
+			'nis' => "NIS (Número de Identificação Social)",
+
+			'mother_name' => "Nome completo da mãe",
+			'mother_rg' => "RG da mãe",
+			'mother_phone' => "Telefone da mãe",
+
+			'father_name' => "Nome completo da mãe",
+			'father_rg' => "RG da mãe",
+			'father_phone' => "Telefone da mãe",
+
+			'alert_cause_id' => 'Por que a criança ou adolescente está fora da escola?',
+
+			'place_address' => "Endereço",
+			'place_cep' => "CEP",
+			'place_reference' => "Referência geográfica",
+			'place_neighborhood' => "Bairro",
+			'place_uf' => 'UF',
+			'place_city_id' => 'Município',
+			'place_city_name' => 'Município',
+
+			'place_phone' => 'Telefone',
+			'place_mobile' => 'Celular',
 		]
-	]
+	],
 
 ];
