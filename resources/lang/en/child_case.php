@@ -16,8 +16,8 @@ return [
 	'cancel_reason' => [
 		"duplicate" => 'Caso duplicado',
 		"death" => 'Óbito',
-		"not_found" => 'Família não foi encontrada',
+		"not_found" => 'Criança não foi encontrada',
 		"wrongful_insertion" => 'Caso inserido por engano',
-		"rejected_alert" => 'Alerta não procedente',
+		//"rejected_alert" => 'Alerta não procedente',
 	]
 ];
