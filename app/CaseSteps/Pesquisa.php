@@ -228,7 +228,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 				->field('race', 'select', trans('form_builder.pesquisa.field.race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('dob', 'date', trans('form_builder.pesquisa.field.dob'))
 				->field('rg', 'alphanum', trans('form_builder.pesquisa.field.rg'))
-				->field('cpf', 'alphanum', trans('form_builder.pesquisa.field.cpf'));
+				->field('cpf', 'alphanum', trans('form_builder.pesquisa.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation']);
 			})
 
 			->group('school', trans('form_builder.pesquisa.group.school'), function (FormBuilder $group) {
@@ -264,10 +264,10 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 				->field('mother_name', 'string', trans('form_builder.pesquisa.field.mother_name'))
 
 				->field('guardian_name', 'string', trans('form_builder.pesquisa.field.guardian_name'))
-				->field('guardian_rg', 'string', trans('form_builder.pesquisa.field.guardian_rg'))
-				->field('guardian_cpf', 'string', trans('form_builder.pesquisa.field.guardian_cpf'))
+				->field('guardian_rg', 'alphanum', trans('form_builder.pesquisa.field.guardian_rg'))
+				->field('guardian_cpf', 'alphanum', trans('form_builder.pesquisa.field.guardian_cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation'])
 				->field('guardian_dob', 'date', trans('form_builder.pesquisa.field.guardian_dob'))
-				->field('guardian_phone', 'string', trans('form_builder.pesquisa.field.guardian_phone'))
+				->field('guardian_phone', 'alphanum', trans('form_builder.pesquisa.field.guardian_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation'])
 				->field('guardian_race', 'select', trans('form_builder.pesquisa.field.guardian_race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('guardian_schooling', 'string', trans('form_builder.pesquisa.field.guardian_schooling'), ['options' => SchoolingLevel::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('guardian_job', 'string', trans('form_builder.pesquisa.field.guardian_job'));
@@ -276,19 +276,20 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 			->group('cause', trans('form_builder.pesquisa.group.cause'), function (FormBuilder $group) {
 				return $group
 				->field('case_cause_ids', 'multiple', trans('form_builder.pesquisa.field.case_cause_ids'), ['options' => CaseCause::getAllAsArray(), 'key' => 'id', 'label' => 'label'])
-				->field('handicapped_at_sus', 'boolean', trans('form_builder.pesquisa.field.handicapped_at_sus'), ['show_if_in' => ['case_cause_ids', CaseCause::getAllHandicappedIDs()]])
+				->field('handicapped_at_sus', 'boolean', trans('form_builder.pesquisa.field.handicapped_at_sus'), ['show_if_multiple_in' => ['case_cause_ids', CaseCause::getAllHandicappedIDs()]])
 				->field('handicapped_reason_not_enrolled', 'select', trans('form_builder.pesquisa.field.handicapped_reason_not_enrolled'), ['show_if_true' => 'handicapped_at_sus', 'options' => HandicappedRejectReason::getAllAsArray(), 'key' => 'slug', 'label' => 'label']);
 			})
 
 			->group('place', trans('form_builder.pesquisa.group.place'), function (FormBuilder $group) {
 				return $group
 				->field('place_address', 'string', trans('form_builder.pesquisa.field.place_address'))
-				->field('place_cep', 'string', trans('form_builder.pesquisa.field.place_cep'))
+				->field('place_cep', 'alphanum', trans('form_builder.pesquisa.field.place_cep'), ['mask' => 'cep', 'transform' => 'strip_punctuation'])
 				->field('place_reference', 'string', trans('form_builder.pesquisa.field.place_reference'))
 				->field('place_neighborhood', 'string', trans('form_builder.pesquisa.field.place_neighborhood'))
-				->field('place_uf', 'select', trans('form_builder.pesquisa.field.place_uf'), ['options' => UF::getAllAsArray(), 'key' => 'code', 'label' => 'name'])
+				//->field('place_uf', 'select', trans('form_builder.pesquisa.field.place_uf'), ['options' => UF::getAllAsArray(), 'key' => 'code', 'label' => 'name'])
 				->field('place_city_id', 'model', trans('form_builder.pesquisa.field.place_city_id'), ['key_as' => 'place_city', 'search_by' => 'name', 'source' => route('api.cities.search'), 'list_key' => 'results', 'key' => 'id', 'label' => 'full_name'])
 				->field('place_city_name', 'model_field', trans('form_builder.pesquisa.field.place_city_name'), ['key' => 'place_city', 'field' => 'name'])
+				->field('place_uf', 'model_field', trans('form_builder.pesquisa.field.place_uf'), ['key' => 'place_city', 'field' => 'uf'])
 				->field('place_kind', 'select', trans('form_builder.pesquisa.field.place_kind'), ['options' => PlaceKind::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('place_is_quilombola', 'boolean', trans('form_builder.pesquisa.field.place_is_quilombola'));
 			});
