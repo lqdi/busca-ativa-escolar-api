@@ -34,7 +34,9 @@ class AlertsController extends BaseController {
 
 		if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
 			$group = Auth::user()->group; /* @var $group Group */
-			$query->whereIn('alert_cause_id', $group->getSettings()->getHandledAlertCauses());
+			$query->whereHas('alert', function ($sq) use ($group) {
+				$sq->whereIn('alert_cause_id', $group->getSettings()->getHandledAlertCauses());
+			});
 		}
 
 		return fractal()
