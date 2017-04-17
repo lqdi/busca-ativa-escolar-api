@@ -218,6 +218,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$this->save();
 
 		event(new ChildStatusChanged($this, $prevStatus, $status));
+
+		$this->reindex();
 	}
 
 	/**
@@ -233,6 +235,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 		event(new AlertStatusChanged($this, $prevStatus, 'accepted'));
 		event(new AlertAccepted($this));
+
+		$this->reindex();
 	}
 
 	/**
@@ -245,6 +249,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 		event(new AlertStatusChanged($this, $prevStatus, 'rejected'));
 		event(new AlertRejected($this));
+
+		$this->reindex();
 	}
 
 	/**
