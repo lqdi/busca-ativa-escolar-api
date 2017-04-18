@@ -38,9 +38,9 @@ class UserRegistered extends Mailable {
 
 		$message = (new MailMessage())
 			->subject("Novo usuário em {$this->tenant->name}")
-			->greeting("Olá, --{$this->user->name}--")
+			->greeting("Olá, {$this->user->name}")
 			->line("Seu perfil de acesso à plataforma Busca Ativa Escolar foi criado.")
-			->line("Seus dados de acesso são:")
+			->line("Dados de acesso:")
 			->line("**Usuário:** --{$this->user->email}--")
 			->line("**Senha temporária:** --{$this->initialPassword}--")
 			->line("**Perfil:** --" . trans('user.type.' . $this->user->type) . '--')
