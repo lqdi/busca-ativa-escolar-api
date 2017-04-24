@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Data\Gender;
 use BuscaAtivaEscolar\Data\GuardianType;
@@ -108,11 +109,23 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 
 	protected function onStart($prevStep = null) {
 		if($prevStep instanceof CaseStep) {
+			$alerta = $prevStep->toArray();
+
 			$this->fill(
-				collect($prevStep->toArray())
+				collect($alerta)
 					->except($this->baseFillable)
 					->toArray()
 			);
+
+			if(isset($alerta['alert_cause_id'])) {
+
+				$caseCauseIDs = AlertCause::getByID(intval($alerta['alert_cause_id']))->case_cause_ids;
+
+				$this->case_cause_ids = $caseCauseIDs;
+				$this->childCase->update(['case_cause_ids' => $caseCauseIDs]);
+
+			}
+
 			$this->save();
 		}
 

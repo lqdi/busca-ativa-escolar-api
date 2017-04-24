@@ -47,11 +47,6 @@ class ChildrenController extends BaseController  {
 		// Scope the query within the tenant
 		if(Auth::user()->isRestrictedToTenant()) $params['tenant_id'] = Auth::user()->tenant_id;
 
-		// Scope query within user, when relevant
-		if(Auth::user()->type === User::TYPE_TECNICO_VERIFICADOR) {
-			$params['assigned_user_id'] = Auth::user()->id;
-		}
-
 		$query = ElasticSearchQuery::withParameters($params)
 			->filterByTerm('tenant_id', false)
 			->addTextFields(['name', 'cause_name', 'step_name', 'assigned_user_name'])
@@ -70,6 +65,11 @@ class ChildrenController extends BaseController  {
 			->filterByRange('age',$params['age_null'] ?? false);
 
 
+		// Scope query within user, when relevant
+		if(Auth::user()->type === User::TYPE_TECNICO_VERIFICADOR) {
+			$query->filterByOneOf(['assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id]]);
+		}
+
 		// Scope query within group responsabilities (via parameterized case cause ids)
 		if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
 			$group = Auth::user()->group; /* @var $group Group */
@@ -77,6 +77,7 @@ class ChildrenController extends BaseController  {
 			$query->filterByOneOf([
 				'assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id],
 				'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
+				//'alert_cause_id' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledAlertCauses()],
 			]);
 		}
 
