@@ -20,7 +20,7 @@ use BuscaAtivaEscolar\SmsConversation;
 class SmsStatusController extends BaseController {
 	
 	public function get_conversations() {
-		$conversations = SmsConversation::query()->take(6)->get();
+		$conversations = SmsConversation::query()->take(32)->get();
 		return response()->json(['status' => 'ok', 'data' => $conversations]);
 	}
 
