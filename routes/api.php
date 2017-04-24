@@ -69,6 +69,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 			Route::post('/maintenance/import_jobs/new', 'Maintenance\ImportController@upload_file');
 			Route::post('/maintenance/import_jobs/{job}/process', 'Maintenance\ImportController@process_job');
 			Route::get('/maintenance/import_jobs/{job}', 'Maintenance\ImportController@get_job');
+
+			Route::get('/maintenance/sms_conversations', 'Maintenance\SmsStatusController@get_conversations');
 		});
 
 		// Case Steps
