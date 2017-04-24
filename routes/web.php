@@ -15,6 +15,10 @@ Route::get('/', function () {
     return redirect()->away(env('APP_PANEL_URL'));
 });
 
+Route::get('/proxy.html', function () {
+	return view('cors_proxy');
+});
+
 Route::group(['prefix' => 'maintenance'], function() {
 	Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
 });
