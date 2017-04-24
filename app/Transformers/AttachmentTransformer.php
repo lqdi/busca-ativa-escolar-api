@@ -31,6 +31,8 @@ class AttachmentTransformer extends TransformerAbstract {
 
 	public function transform(Attachment $attachment) {
 		return [
+			'id' => $attachment->id,
+
 			'tenant_id' => $attachment->tenant_id,
 			'content_type' => $attachment->content_type,
 			'content_id' => $attachment->content_id,

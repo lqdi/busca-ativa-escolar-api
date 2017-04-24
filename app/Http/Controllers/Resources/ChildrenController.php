@@ -179,6 +179,21 @@ class ChildrenController extends BaseController  {
 		}
 	}
 
+	public function removeAttachment(Child $child, Attachment $attachment) {
+		try {
+
+			if($attachment->content_id !== $child->id) {
+				return $this->api_failure('not_allowed');
+			}
+
+			$attachment->delete();
+
+			return $this->api_success();
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+	}
+
 	public function addAttachment(Child $child) {
 		try {
 

@@ -21,6 +21,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/children/{child}/activity', 'Resources\ChildrenController@activityLog')->middleware('can:cases.view');
 		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment')->middleware('can:cases.view');
 		Route::post('/children/{child}/attachments', 'Resources\ChildrenController@addAttachment')->middleware('can:cases.view');
+		Route::delete('/children/{child}/attachments/{attachment}', 'Resources\ChildrenController@removeAttachment')->middleware('can:cases.manage');
 
 
 		// My alerts
