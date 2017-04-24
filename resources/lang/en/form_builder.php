@@ -78,13 +78,13 @@ return [
 			'cpf' => "CPF",
 			'nis' => "NIS (Número de Identificação Social)",
 
-			'mother_name' => "Nome completo da mãe*",
-			'mother_rg' => "RG da mãe",
-			'mother_phone' => "Telefone da mãe",
+			'mother_name' => "Nome completo da mãe ou responsável*",
+			'mother_rg' => "RG da mãe ou responsável",
+			'mother_phone' => "Telefone da mãe ou responsável",
 
-			'father_name' => "Nome completo do pai",
-			'father_rg' => "RG do pai",
-			'father_phone' => "Telefone do pai",
+			'father_name' => "Nome completo do pai ou responsável",
+			'father_rg' => "RG do pai ou responsável",
+			'father_phone' => "Telefone do pai ou responsável",
 
 			'alert_cause_id' => 'Por que a criança ou adolescente está fora da escola?*',
 
@@ -96,8 +96,8 @@ return [
 			'place_city_id' => 'Município*',
 			'place_city_name' => 'Município*',
 
-			'place_phone' => 'Telefone',
-			'place_mobile' => 'Celular',
+			//'place_phone' => 'Telefone',
+			//'place_mobile' => 'Celular',
 		]
 	],
 

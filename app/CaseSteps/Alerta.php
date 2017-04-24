@@ -129,7 +129,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 					->field('race', 'select', trans('form_builder.alerta.field.race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 					->field('dob', 'date', trans('form_builder.alerta.field.dob'))
 					->field('rg', 'alphanum', trans('form_builder.alerta.field.rg'))
-					->field('cpf', 'alphanum', trans('form_builder.alerta.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation'])
+					->field('cpf', 'alphanum', trans('form_builder.alerta.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation', 'placeholder' => '000.000.000-00'])
 					->field('nis', 'alphanum', trans('form_builder.alerta.field.nis'));
 			})
 
@@ -141,26 +141,26 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 				return $group
 					->field('mother_name', 'string', trans('form_builder.alerta.field.mother_name'))
 					->field('mother_rg', 'alphanum', trans('form_builder.alerta.field.mother_rg'))
-					->field('mother_phone', 'alphanum', trans('form_builder.alerta.field.mother_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation'])
+					->field('mother_phone', 'alphanum', trans('form_builder.alerta.field.mother_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation', 'placeholder' => '(00) 00000-0000'])
 
 					->field('father_name', 'string', trans('form_builder.alerta.field.father_name'))
 					->field('father_rg', 'alphanum', trans('form_builder.alerta.field.father_rg'))
-					->field('father_phone', 'alphanum', trans('form_builder.alerta.field.father_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation']);
+					->field('father_phone', 'alphanum', trans('form_builder.alerta.field.father_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation', 'placeholder' => '(00) 00000-0000']);
 			})
 
 
 			->group('place', trans('form_builder.alerta.group.place'), function (FormBuilder $group) {
 				return $group
 					->field('place_address', 'string', trans('form_builder.alerta.field.place_address'))
-					->field('place_cep', 'alphanum', trans('form_builder.alerta.field.place_cep'), ['mask' => 'cep', 'transform' => 'strip_punctuation'])
+					->field('place_cep', 'alphanum', trans('form_builder.alerta.field.place_cep'), ['mask' => 'cep', 'transform' => 'strip_punctuation', 'placeholder' => '00000-000'])
 					->field('place_reference', 'string', trans('form_builder.alerta.field.place_reference'))
 					->field('place_neighborhood', 'string', trans('form_builder.alerta.field.place_neighborhood'))
 					//->field('place_uf', 'select', trans('form_builder.alerta.field.place_uf'), ['options' => UF::getAllAsArray(), 'key' => 'code', 'label' => 'name'])
 					->field('place_city_id', 'model', trans('form_builder.alerta.field.place_city_id'), ['key_as' => 'place_city', 'search_by' => 'name', 'source' => route('api.cities.search'), 'list_key' => 'results', 'key' => 'id', 'label' => 'full_name'])
 					->field('place_city_name', 'model_field', trans('form_builder.alerta.field.place_city_name'), ['key' => 'place_city', 'field' => 'name'])
-					->field('place_uf', 'model_field', trans('form_builder.alerta.field.place_uf'), ['key' => 'place_city', 'field' => 'uf'])
-					->field('place_phone', 'alphanum', trans('form_builder.alerta.field.place_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation'])
-					->field('place_mobile', 'alphanum', trans('form_builder.alerta.field.place_mobile'), ['mask' => 'phone', 'transform' => 'strip_punctuation']);
+					->field('place_uf', 'model_field', trans('form_builder.alerta.field.place_uf'), ['key' => 'place_city', 'field' => 'uf']);
+					//->field('place_phone', 'alphanum', trans('form_builder.alerta.field.place_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation'])
+					//->field('place_mobile', 'alphanum', trans('form_builder.alerta.field.place_mobile'), ['mask' => 'phone', 'transform' => 'strip_punctuation']);
 
 			});
 	}

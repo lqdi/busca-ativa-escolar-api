@@ -228,7 +228,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 				->field('race', 'select', trans('form_builder.pesquisa.field.race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('dob', 'date', trans('form_builder.pesquisa.field.dob'))
 				->field('rg', 'alphanum', trans('form_builder.pesquisa.field.rg'))
-				->field('cpf', 'alphanum', trans('form_builder.pesquisa.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation']);
+				->field('cpf', 'alphanum', trans('form_builder.pesquisa.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation', 'placeholder' => '000.000.000-00']);
 			})
 
 			->group('school', trans('form_builder.pesquisa.group.school'), function (FormBuilder $group) {
@@ -265,9 +265,9 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 
 				->field('guardian_name', 'string', trans('form_builder.pesquisa.field.guardian_name'))
 				->field('guardian_rg', 'alphanum', trans('form_builder.pesquisa.field.guardian_rg'))
-				->field('guardian_cpf', 'alphanum', trans('form_builder.pesquisa.field.guardian_cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation'])
+				->field('guardian_cpf', 'alphanum', trans('form_builder.pesquisa.field.guardian_cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation', 'placeholder' => '000.000.000-00'])
 				->field('guardian_dob', 'date', trans('form_builder.pesquisa.field.guardian_dob'))
-				->field('guardian_phone', 'alphanum', trans('form_builder.pesquisa.field.guardian_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation'])
+				->field('guardian_phone', 'alphanum', trans('form_builder.pesquisa.field.guardian_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation', 'placeholder' => '(00) 00000-0000'])
 				->field('guardian_race', 'select', trans('form_builder.pesquisa.field.guardian_race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('guardian_schooling', 'string', trans('form_builder.pesquisa.field.guardian_schooling'), ['options' => SchoolingLevel::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('guardian_job', 'string', trans('form_builder.pesquisa.field.guardian_job'));
@@ -283,7 +283,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 			->group('place', trans('form_builder.pesquisa.group.place'), function (FormBuilder $group) {
 				return $group
 				->field('place_address', 'string', trans('form_builder.pesquisa.field.place_address'))
-				->field('place_cep', 'alphanum', trans('form_builder.pesquisa.field.place_cep'), ['mask' => 'cep', 'transform' => 'strip_punctuation'])
+				->field('place_cep', 'alphanum', trans('form_builder.pesquisa.field.place_cep'), ['mask' => 'cep', 'transform' => 'strip_punctuation', 'placeholder' => '00000-000'])
 				->field('place_reference', 'string', trans('form_builder.pesquisa.field.place_reference'))
 				->field('place_neighborhood', 'string', trans('form_builder.pesquisa.field.place_neighborhood'))
 				//->field('place_uf', 'select', trans('form_builder.pesquisa.field.place_uf'), ['options' => UF::getAllAsArray(), 'key' => 'code', 'label' => 'name'])
