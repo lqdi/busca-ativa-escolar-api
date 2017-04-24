@@ -2,7 +2,7 @@
 return [
 
 	'child' => [
-		'alert_spawned' => "registrou um novo alerta para :CHILD_NAME, :age_label, :gender_label",
+		'alert_spawned' => "registrou um novo alerta para :CHILD_NAME",
 		'alert_accepted' => "ACEITOU o alerta de :CHILD_NAME",
 		'alert_rejected' => "REJEITOU o alerta de :CHILD_NAME",
 		'step_updated' => "atualizou informações na ficha de :CHILD_NAME",
