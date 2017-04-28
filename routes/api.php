@@ -71,6 +71,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 			Route::get('/maintenance/import_jobs/{job}', 'Maintenance\ImportController@get_job');
 
 			Route::get('/maintenance/sms_conversations', 'Maintenance\SmsStatusController@get_conversations');
+			Route::get('/maintenance/system_health', 'Maintenance\SystemHealthController@get_health');
 		});
 
 		// Case Steps
