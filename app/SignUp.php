@@ -81,6 +81,18 @@ class SignUp extends Model {
 		$this->sendRejectionNotification();
 	}
 
+	public function updateRegistrationEmail($type, $email) {
+		if(!in_array($type, ['admin', 'mayor'])) {
+			throw new \InvalidArgumentException("Invalid e-mail type: {$type}; valid types are: admin | mayor");
+		}
+
+		$email = filter_var($email, FILTER_SANITIZE_EMAIL);
+		$data = $this->data;
+		$data[$type]['email'] = $email;
+		$this->data = $data;
+		$this->save();
+	}
+
 	public function sendNotification() {
 		$target = $this->data['admin']['email'];
 		Mail::to($target)->send(new SignupApproved($this));

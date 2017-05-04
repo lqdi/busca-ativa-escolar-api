@@ -115,8 +115,24 @@ class SignUpController extends BaseController  {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
+			if($signup->is_provisioned) return $this->api_failure('tenant_already_provisioned');
 
 			$signup->sendNotification();
+			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
+
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+	}
+
+	public function updateRegistrationEmail(SignUp $signup) {
+		try {
+
+			if(!$signup) return $this->api_failure('invalid_signup_id');
+			if(!in_array(request('type'), ['admin', 'mayor'])) return $this->api_failure('invalid_email_type');
+
+			$signup->updateRegistrationEmail(request('type'), request('email'));
+
 			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
 
 		} catch (\Exception $ex) {

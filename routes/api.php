@@ -84,8 +84,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		// Sign-ups
 		Route::any('/signups/pending', 'Tenants\SignUpController@get_pending');
 		Route::post('/signups/complete_setup', 'Tenants\SignUpController@completeSetup')->middleware('can:tenant.complete_setup');
-		Route::post('/signups/{signup}/approve', 'Tenants\SignUpController@approve');
-		Route::post('/signups/{signup}/reject', 'Tenants\SignUpController@reject');
+		Route::post('/signups/{signup}/approve', 'Tenants\SignUpController@approve')->middleware('can:tenants.manage');
+		Route::post('/signups/{signup}/reject', 'Tenants\SignUpController@reject')->middleware('can:tenants.manage');
+		Route::post('/signups/{signup}/update_registration_email', 'Tenants\SignUpController@updateRegistrationEmail')->middleware('can:tenants.manage');
 		Route::post('/signups/{signup}/resend_notification', 'Tenants\SignUpController@resendNotification');
 
 		// Tenants (authenticated)
