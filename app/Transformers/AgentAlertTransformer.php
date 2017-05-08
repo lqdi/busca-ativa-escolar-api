@@ -26,7 +26,7 @@ class AgentAlertTransformer extends TransformerAbstract {
 
 			'tenant_id' => $child->tenant_id,
 
-			'current_step' => $child->currentStep->getName(),
+			'current_step' => $child->currentStep ? $child->currentStep->getName() : '---',
 
 			'deadline_status' => $child->deadline_status,
 			'alert_status' => $child->alert_status,
