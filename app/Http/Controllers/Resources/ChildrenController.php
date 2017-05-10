@@ -74,6 +74,9 @@ class ChildrenController extends BaseController  {
 		if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
 			$group = Auth::user()->group; /* @var $group Group */
 
+			if(!$group) $group = Auth::user()->tenant->primaryGroup;
+			if(!$group) $group = new Group();
+
 			$query->filterByOneOf([
 				'assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id],
 				'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
