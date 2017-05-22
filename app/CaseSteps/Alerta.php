@@ -125,27 +125,24 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 			->group('personal', trans('form_builder.alerta.group.personal'), function (FormBuilder $group) {
 				return $group
 					->field('name', 'string', trans('form_builder.alerta.field.name'))
-					->field('gender', 'select', trans('form_builder.alerta.field.gender'), ['options' => Gender::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
-					->field('race', 'select', trans('form_builder.alerta.field.race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
-					->field('dob', 'date', trans('form_builder.alerta.field.dob'))
-					->field('rg', 'alphanum', trans('form_builder.alerta.field.rg'))
-					->field('cpf', 'alphanum', trans('form_builder.alerta.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation', 'placeholder' => '000.000.000-00'])
-					->field('nis', 'alphanum', trans('form_builder.alerta.field.nis'));
+					//->field('gender', 'select', trans('form_builder.alerta.field.gender'), ['options' => Gender::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+					//->field('race', 'select', trans('form_builder.alerta.field.race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+					->field('dob', 'date', trans('form_builder.alerta.field.dob'));
+					//->field('rg', 'alphanum', trans('form_builder.alerta.field.rg'))
+					//->field('cpf', 'alphanum', trans('form_builder.alerta.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation', 'placeholder' => '000.000.000-00'])
+					//->field('nis', 'alphanum', trans('form_builder.alerta.field.nis'));
 			})
-
-			->group('cause', trans('form_builder.alerta.group.cause'), function (FormBuilder $group) {
-				return $group->field('alert_cause_id', 'select', trans('form_builder.alerta.field.alert_cause_id'), ['options' => AlertCause::getAllAsArray(), 'key' => 'id', 'label' => 'label']);
-			})
+			
 
 			->group('parents', trans('form_builder.alerta.group.parents'), function (FormBuilder $group) {
 				return $group
-					->field('mother_name', 'string', trans('form_builder.alerta.field.mother_name'))
-					->field('mother_rg', 'alphanum', trans('form_builder.alerta.field.mother_rg'))
-					->field('mother_phone', 'alphanum', trans('form_builder.alerta.field.mother_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation', 'placeholder' => '(00) 00000-0000'])
+					->field('mother_name', 'string', trans('form_builder.alerta.field.mother_name'));
+					//->field('mother_rg', 'alphanum', trans('form_builder.alerta.field.mother_rg'))
+					//->field('mother_phone', 'alphanum', trans('form_builder.alerta.field.mother_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation', 'placeholder' => '(00) 00000-0000'])
 
-					->field('father_name', 'string', trans('form_builder.alerta.field.father_name'))
-					->field('father_rg', 'alphanum', trans('form_builder.alerta.field.father_rg'))
-					->field('father_phone', 'alphanum', trans('form_builder.alerta.field.father_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation', 'placeholder' => '(00) 00000-0000']);
+					//->field('father_name', 'string', trans('form_builder.alerta.field.father_name'))
+					//->field('father_rg', 'alphanum', trans('form_builder.alerta.field.father_rg'))
+					//->field('father_phone', 'alphanum', trans('form_builder.alerta.field.father_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation', 'placeholder' => '(00) 00000-0000']);
 			})
 
 
@@ -162,6 +159,10 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 					//->field('place_phone', 'alphanum', trans('form_builder.alerta.field.place_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation'])
 					//->field('place_mobile', 'alphanum', trans('form_builder.alerta.field.place_mobile'), ['mask' => 'phone', 'transform' => 'strip_punctuation']);
 
+			})
+
+			->group('cause', trans('form_builder.alerta.group.cause'), function (FormBuilder $group) {
+				return $group->field('alert_cause_id', 'select', trans('form_builder.alerta.field.alert_cause_id'), ['options' => AlertCause::getAllAsArray(), 'key' => 'id', 'label' => 'label']);
 			});
 	}
 
