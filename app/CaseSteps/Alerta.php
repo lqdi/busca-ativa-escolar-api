@@ -149,7 +149,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 			->group('place', trans('form_builder.alerta.group.place'), function (FormBuilder $group) {
 				return $group
 					->field('place_address', 'string', trans('form_builder.alerta.field.place_address'))
-					->field('place_cep', 'alphanum', trans('form_builder.alerta.field.place_cep'), ['mask' => 'cep', 'transform' => 'strip_punctuation', 'placeholder' => '00000-000'])
+					//->field('place_cep', 'alphanum', trans('form_builder.alerta.field.place_cep'), ['mask' => 'cep', 'transform' => 'strip_punctuation', 'placeholder' => '00000-000'])
 					->field('place_reference', 'string', trans('form_builder.alerta.field.place_reference'))
 					->field('place_neighborhood', 'string', trans('form_builder.alerta.field.place_neighborhood'))
 					//->field('place_uf', 'select', trans('form_builder.alerta.field.place_uf'), ['options' => UF::getAllAsArray(), 'key' => 'code', 'label' => 'name'])
