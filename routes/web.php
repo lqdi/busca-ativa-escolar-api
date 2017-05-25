@@ -21,4 +21,5 @@ Route::get('/proxy.html', function () {
 
 Route::group(['prefix' => 'maintenance'], function() {
 	Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index');
+	Route::get('zenvia_curl', 'Integration\SmsConversationController@debug_zenvia');
 });
