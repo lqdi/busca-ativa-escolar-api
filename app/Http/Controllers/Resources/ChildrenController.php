@@ -73,15 +73,24 @@ class ChildrenController extends BaseController  {
 		// Scope query within group responsabilities (via parameterized case cause ids)
 		if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
 			$group = Auth::user()->group; /* @var $group Group */
+			$tenant = Auth::user()->tenant;
 
-			if(!$group) $group = Auth::user()->tenant->primaryGroup;
+			if(!$group) $group = $tenant->primaryGroup;
 			if(!$group) $group = new Group();
 
-			$query->filterByOneOf([
+			$filters = [
 				'assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id],
 				'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
 				//'alert_cause_id' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledAlertCauses()],
-			]);
+			];
+
+
+			if($group->id === $tenant->primaryGroup->id) {
+				$filters['current_step_type'] = ['type' => 'term', 'search' => 'BuscaAtivaEscolar\\CaseSteps\\Rematricula'];
+			}
+
+			$query->filterByOneOf($filters);
+
 		}
 
 		$attempted = $query->getAttemptedQuery();
