@@ -70,7 +70,7 @@ class SignUpController extends BaseController  {
 
 		SignUp::applySorting($pending, request('sort'));
 
-		$columns = (isset($sort['name'])) ? ['signups.*', 'cities.name'] : ['*'];
+		$columns = (isset($sort['cities.name:city_id'])) ? ['signups.*', 'cities.name'] : ['*'];
 
 		$pending = $pending->get($columns);
 		
