@@ -41,6 +41,7 @@ class SignUp extends Model {
 
 		// Sort-only fields
 		'cities.name',
+		'created_at',
 	];
 
 	protected $casts = [
