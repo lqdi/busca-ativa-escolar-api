@@ -202,7 +202,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 			'parents_has_father' => 'nullable|boolean',
 			'parents_has_brother' => 'nullable|boolean',
 
-			'parents_who_is_guardian' => 'required_for_completion|in:mother,father,brother',
+			'parents_who_is_guardian' => 'required_for_completion|in:mother,father,siblings,other',
 			'parents_income' => 'nullable|string',
 			'mother_name' => 'required_for_completion|string',
 

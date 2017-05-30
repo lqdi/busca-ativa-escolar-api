@@ -66,9 +66,13 @@ class SignUpController extends BaseController  {
 		$pending = SignUp::with('city')
 			->where('is_provisioned', false);
 
-		SignUp::applySorting($pending, request('sort', []));
+		$sort = request('sort', []);
 
-		$pending = $pending->get(['signups.*', 'cities.name']);
+		SignUp::applySorting($pending, request('sort'));
+
+		$columns = (isset($sort['cities.name:city_id'])) ? ['signups.*', 'cities.name'] : ['*'];
+
+		$pending = $pending->get($columns);
 		
 		return response()->json(['data' => $pending]);
 	}

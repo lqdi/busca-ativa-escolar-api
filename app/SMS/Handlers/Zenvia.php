@@ -17,6 +17,7 @@ namespace BuscaAtivaEscolar\SMS\Handlers;
 use BuscaAtivaEscolar\SMS\SmsMessage;
 use BuscaAtivaEscolar\SMS\SmsProvider;
 use Curl;
+use Log;
 use Webpatser\Uuid\Uuid;
 
 class Zenvia implements SmsProvider {
@@ -43,11 +44,16 @@ class Zenvia implements SmsProvider {
 			]
 		];
 
-		Curl::to('https://api-rest.zenvia360.com.br/services/send-sms')
+		Log::debug("[sms_handler.zenvia] Sending - data=" . json_encode($data) . ", headers=" . json_encode($headers));
+
+		$response = Curl::to('https://api-rest.zenvia360.com.br/services/send-sms')
 			->asJsonRequest()
 			->withHeaders($headers)
 			->withData($data)
+			->enableDebug(storage_path('logs/curl_zenvia.log'))
 			->post();
+
+		Log::debug("[sms_handler.zenvia] Received response: " . json_encode($response));
 
 		return true;
 
@@ -63,7 +69,7 @@ class Zenvia implements SmsProvider {
 		$keyword = env('ZENVIA_KEYWORD');
 
 		// Strips the keyword from the message
-		if(substr(trim($message), 0, strlen($keyword)) == $keyword) {
+		if(strtolower(substr(trim($message), 0, strlen($keyword))) == strtolower($keyword)) {
 			$message = trim(substr(trim($message), strlen($keyword)));
 		}
 

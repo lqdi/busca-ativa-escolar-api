@@ -24,6 +24,11 @@ class SmsConversationController extends BaseController {
 		return response(['status' => 'ok']);
 	}
 
+	public function debug_zenvia() {
+		echo "<pre>";
+		echo file_get_contents(storage_path('logs/curl_zenvia.log'));
+	}
+
 	public function on_message_received() {
 
 		Log::notice("SMS received: " . json_encode(request()->all()));
