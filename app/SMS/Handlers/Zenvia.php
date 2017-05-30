@@ -69,7 +69,7 @@ class Zenvia implements SmsProvider {
 		$keyword = env('ZENVIA_KEYWORD');
 
 		// Strips the keyword from the message
-		if(substr(trim($message), 0, strlen($keyword)) == $keyword) {
+		if(strtolower(substr(trim($message), 0, strlen($keyword))) == strtolower($keyword)) {
 			$message = trim(substr(trim($message), strlen($keyword)));
 		}
 
