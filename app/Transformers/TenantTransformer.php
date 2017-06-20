@@ -19,6 +19,10 @@ use League\Fractal\TransformerAbstract;
 
 class TenantTransformer extends TransformerAbstract {
 
+	protected $defaultIncludes = [
+		'city'
+	];
+
 	protected $availableIncludes = [
 		'city',
 		'settings',
