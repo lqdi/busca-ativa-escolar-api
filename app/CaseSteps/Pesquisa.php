@@ -31,6 +31,7 @@ use BuscaAtivaEscolar\FormBuilder\FormBuilder;
 use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
+use Log;
 
 class Pesquisa extends CaseStep implements CanGenerateForms {
 
@@ -169,14 +170,18 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		$this->child->save();
 
 		if($this->place_address && $this->place_city_name && $this->place_uf) {
-			$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
+			try {
+				$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
 
-			$this->update([
-				'place_lat' => ($address) ? $address->getLatitude() : null,
-				'place_lng' => ($address) ? $address->getLongitude() : null,
-				'place_map_region' => ($address) ? $address->getSubLocality() : null,
-				'place_map_geocoded_address' => ($address) ? $address->toArray() : null,
-			]);
+				$this->update([
+					'place_lat' => ($address) ? $address->getLatitude() : null,
+					'place_lng' => ($address) ? $address->getLongitude() : null,
+					'place_map_region' => ($address) ? $address->getSubLocality() : null,
+					'place_map_geocoded_address' => ($address) ? $address->toArray() : null,
+				]);
+			} catch (\Exception $ex) {
+				Log::error("[pesquisa.on_update.geocode_addr] ({$this->id}) Failed to geocode address: {$ex->getMessage()}");
+			}
 
 		}
 	}
