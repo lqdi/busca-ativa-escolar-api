@@ -157,12 +157,12 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		}
 
 		if($this->place_city_id) {
-			$this->place_city = City::find($this->place_city_id);
+			$city = City::find($this->place_city_id);
 
 			$this->update([
-				'place_city_id' => $this->place_city->id,
-				'place_city_name' => $this->place_city->name,
-				'place_uf' => $this->place_city->uf,
+				'place_city_id' => $city->id,
+				'place_city_name' => $city->name,
+				'place_uf' => $city->uf,
 			]);
 		}
 
