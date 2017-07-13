@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Data\Gender;
@@ -146,8 +147,6 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		if($this->mother_name) $this->child->mother_name = $this->mother_name;
 		if($this->father_name) $this->child->father_name = $this->father_name;
 
-		$this->child->save();
-
 		if($this->case_cause_ids) {
 			$this->childCase->case_cause_ids = $this->case_cause_ids;
 			$this->childCase->save();
@@ -156,6 +155,18 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		if($this->dob) {
 			$this->child->recalculateAgeThroughBirthday($this->dob);
 		}
+
+		if($this->place_city_id) {
+			$this->place_city = City::find($this->place_city_id);
+
+			$this->update([
+				'place_city_id' => $this->place_city->id,
+				'place_city_name' => $this->place_city->name,
+				'place_uf' => $this->place_city->uf,
+			]);
+		}
+
+		$this->child->save();
 
 		if($this->place_address && $this->place_city_name && $this->place_uf) {
 			$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");

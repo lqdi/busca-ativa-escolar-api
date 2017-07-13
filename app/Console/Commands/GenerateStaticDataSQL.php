@@ -35,13 +35,13 @@ class GenerateStaticDataSQL extends Command {
 				id VARCHAR(255),
 				search_string VARCHAR(255),
 				display_name VARCHAR(255),
-				uf VARCHAR(2),
+				name VARCHAR(255),
 			);\n\n";
 
 		$schoolsCreate = "
 			CREATE VIRTUAL TABLE schools_idx USING fts4 (
+				id VARCHAR(255),
 				name VARCHAR(255),
-				uf VARCHAR(2)
 			);\n\n";
 
 		$cities = City::all();
@@ -58,7 +58,7 @@ class GenerateStaticDataSQL extends Command {
 		fwrite($sql, $citiesCreate);
 		fwrite($sql, $schoolsCreate);
 
-		fwrite($sql, "\nINSERT INTO cities_idx (docid, search_string, display_name, uf) VALUES \n");
+		fwrite($sql, "\nINSERT INTO cities_idx (id, search_string, display_name, name) VALUES \n");
 
 		foreach($cities as $i => $city) {
 			$searchString = str_replace('\\\'', '\'\'', addslashes($city->name . " " . Str::ascii($city->name)));
@@ -68,7 +68,7 @@ class GenerateStaticDataSQL extends Command {
 
 			$this->comment("City #{$city->id} - {$city->name}");
 
-			fwrite($sql, "('{$city->id}', '{$searchString}', '{$city->name} / {$city->uf}', '{$city->uf}'){$comma}");
+			fwrite($sql, "('{$city->id}', '{$searchString}', '{$city->name} / {$city->uf}', '{$city->name}'){$comma}");
 		}
 
 		unset($cities);
@@ -76,7 +76,7 @@ class GenerateStaticDataSQL extends Command {
 		$schools = School::all();
 		$numSchools = sizeof($schools);
 
-		fwrite($sql, "\n\nINSERT INTO schools_idx (docid, name, uf) VALUES \n");
+		fwrite($sql, "\n\nINSERT INTO schools_idx (id, name) VALUES \n");
 
 		foreach($schools as $i => $school) {
 
@@ -86,7 +86,7 @@ class GenerateStaticDataSQL extends Command {
 
 			$this->comment("School #{$school->id} - {$school->name}");
 
-			fwrite($sql, "('{$school->id}', '{$school->name}', '{$school->uf}'){$comma}");
+			fwrite($sql, "('{$school->id}', '{$school->name}'){$comma}");
 
 		}
 
