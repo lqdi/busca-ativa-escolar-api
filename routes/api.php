@@ -127,6 +127,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::post('/password_reset/begin', 'Auth\IdentityController@begin_password_reset');
 	Route::post('/password_reset/complete', 'Auth\IdentityController@complete_password_reset');
 
+	// Support tickets
+	Route::post('/support/tickets/submit', 'Support\TicketsController@submit_ticket');
+
 	// Sign-up
 	Route::post('/signups/register', 'Tenants\SignUpController@register');
 	Route::get('/signups/via_token/{signup}', 'Tenants\SignUpController@get_via_token');
