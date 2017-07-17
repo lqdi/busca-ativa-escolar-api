@@ -102,7 +102,7 @@ class ReportsController extends BaseController {
 				return [
 					'num_tenants' => Tenant::query()->count(),
 					'num_signups' => SignUp::query()->count(),
-					'num_pending_setup' => Tenant::query()->where('is_setup', 0)->count(),
+					'num_pending_setup' => SignUp::query()->where('is_approved', 1)->where('is_provisioned', 0)->count(),
 					'num_alerts' => Alerta::query()->count(),
 					'num_cases_in_progress' => ChildCase::query()->where('case_status', ChildCase::STATUS_IN_PROGRESS)->count(),
 					'num_children_reinserted' => Child::query()->where('child_status', Child::STATUS_IN_SCHOOL)->count(),
