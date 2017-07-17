@@ -91,7 +91,7 @@ class SignUpController extends BaseController  {
 			$numDays = intval($filter['created_at']);
 			$cutoffDate = Carbon::now()->addDays(-$numDays);
 
-			$pending->where('created_at', '<=', $cutoffDate->format('Y-m-d H:i:s'));
+			$pending->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
 		}
 
 		$columns = (isset($sort['cities.name:city_id'])) ? ['signups.*', 'cities.name'] : ['*'];
