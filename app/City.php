@@ -31,6 +31,7 @@ class City extends Model implements Searchable {
 		'region',
 
 		'name',
+		'name_ascii',
 
 		'ibge_city_id',
 		'ibge_uf_id',

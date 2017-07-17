@@ -21,8 +21,10 @@ use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\SignUp;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
+use Carbon\Carbon;
 use DB;
 use Event;
+use Illuminate\Support\Str;
 
 class SignUpController extends BaseController  {
 
@@ -67,8 +69,30 @@ class SignUpController extends BaseController  {
 			->where('is_provisioned', false);
 
 		$sort = request('sort', []);
+		$filter = request('filter', []);
 
 		SignUp::applySorting($pending, request('sort'));
+
+		if(isset($filter['city_name']) && strlen($filter['city_name']) > 0) {
+			$pending->whereHas('city', function ($sq) use ($filter) {
+				return $sq->where('name_ascii', 'REGEXP', Str::ascii($filter['city_name']));
+			});
+		}
+
+		switch($filter['status']) {
+			case "all": $pending->withTrashed(); break;
+			case "rejected": $pending->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 0); break;
+			case "pending_approval": $pending->where('is_approved', 0); break;
+			case "pending_setup": $pending->where( 'is_approved', 1)->where('is_provisioned', 0 ); break;
+			case "pending": default: break;
+		}
+
+		if(isset($filter['created_at']) && strlen($filter['created_at']) > 0) {
+			$numDays = intval($filter['created_at']);
+			$cutoffDate = Carbon::now()->addDays(-$numDays);
+
+			$pending->where('created_at', '<=', $cutoffDate->format('Y-m-d H:i:s'));
+		}
 
 		$columns = (isset($sort['cities.name:city_id'])) ? ['signups.*', 'cities.name'] : ['*'];
 
