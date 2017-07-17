@@ -17,9 +17,11 @@ namespace BuscaAtivaEscolar\Http\Controllers\Tenants;
 use BuscaAtivaEscolar\ActivityLog;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\SignUp;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\TenantTransformer;
+use BuscaAtivaEscolar\User;
 
 class TenantsController extends BaseController  {
 
@@ -62,6 +64,22 @@ class TenantsController extends BaseController  {
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
+	}
+
+	public function cancel(Tenant $tenant) {
+		
+		if(!$tenant) return $this->api_failure('invalid_tenant');
+		if(!$tenant->id) return $this->api_failure('no_tenant_id');
+
+		$users = User::query()->where('tenant_id', $tenant->id);
+		$signup = SignUp::query()->where('tenant_id', $tenant->id);
+
+		$users->delete();
+		$signup->delete();
+		$tenant->delete();
+
+		return $this->api_success();
+
 	}
 
 }

@@ -91,6 +91,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Tenants (authenticated)
 		Route::any('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.manage');
+		Route::post('/tenants/{tenant}/cancel', 'Tenants\TenantsController@cancel')->middleware('can:tenants.manage');
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
 
 		// INEP Schools
