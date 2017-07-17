@@ -37,6 +37,7 @@ class NewSupportTicket extends Mailable {
 			->line("Navegador: {$this->ticket->user_agent}");
 
 		if($this->ticket->user) {
+			$message->line("Tipo Usuário: " . trans('user.type.' . $this->ticket->user->type));
 			$message->line("ID Usuário: {$this->ticket->user_id}");
 		}
 
