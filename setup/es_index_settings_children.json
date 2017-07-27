@@ -11,14 +11,50 @@
 			"autocomplete": {
 				"type":      "custom",
 				"tokenizer": "standard",
-				"filter": [
-					"lowercase",
-					"autocomplete_filter"
-				]
+				"char_filter": ["strip_symbols"],
+				"filter": ["lowercase", "autocomplete_filter"]
 			},
 			"folding": {
 				"tokenizer": "standard",
+				"char_filter": ["strip_symbols"],
 				"filter":  [ "autocomplete_filter", "lowercase", "asciifolding" ]
+			}
+		},
+		"char_filter": {
+			"strip_symbols": {
+				"type": "mapping",
+				"mappings": [
+					") => ",
+					"( => ",
+					". => ",
+					", => ",
+					": => ",
+					"; => ",
+					"' => ",
+					"\" => ",
+					"[ => ",
+					"] => ",
+					"| => ",
+					"@ => ",
+					"! => ",
+					"$ => ",
+					"% => ",
+					"^ => ",
+					"& => ",
+					"* => ",
+					"- => ",
+					"+ => ",
+					"{ => ",
+					"} => ",
+					"/ => ",
+					"> => ",
+					"< => ",
+					"= => ",
+					"~ => ",
+					"` => ",
+					"_ => ",
+					"# => "
+				]
 			}
 		}
 	}

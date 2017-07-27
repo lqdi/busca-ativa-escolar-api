@@ -42,7 +42,7 @@ class ChildrenController extends BaseController  {
 
 	public function search(Search $search) {
 
-		$params = $this->filterAsciiFields(request()->all(), ['assigned_user_name', 'location_full']);
+		$params = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
 
 		// Scope the query within the tenant
 		if(Auth::user()->isRestrictedToTenant()) $params['tenant_id'] = Auth::user()->tenant_id;

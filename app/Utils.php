@@ -14,6 +14,8 @@
 namespace BuscaAtivaEscolar;
 
 
+use Illuminate\Support\Str;
+
 class Utils {
 
 	public static function addURLParameter($in, $params) {
@@ -43,6 +45,11 @@ class Utils {
 		$out = str_replace(["\r","\n","\t"], " ", $out);
 		$out = str_replace("\"", "\\\"", $out);
 		return $out;
+	}
+
+	public static function clearSearchableField($in) {
+		$out = preg_replace('/[^A-Za-z0-9\-]/', '', $in);
+		return Str::ascii($out);
 	}
 
 	public static function renderHighlightableText($text) {
