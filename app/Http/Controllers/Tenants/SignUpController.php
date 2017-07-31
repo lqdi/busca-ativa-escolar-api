@@ -97,6 +97,12 @@ class SignUpController extends BaseController  {
 		$columns = (isset($sort['cities.name:city_id'])) ? ['signups.*', 'cities.name'] : ['*'];
 
 		$pending = $pending->get($columns);
+
+		$pending->each(function (&$item) { /* @var $item SignUp */
+			if($item->is_approved && !$item->is_provisioned) {
+				$item->provision_url = env('APP_PANEL_URL') . "/admin_setup/" . $item->id . '?token=' . $item->getURLToken();
+			}
+		});
 		
 		return response()->json(['data' => $pending]);
 	}
