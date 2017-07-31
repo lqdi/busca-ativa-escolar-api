@@ -230,6 +230,9 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$this->alert_status = 'accepted';
 		$this->save();
 
+		$this->case->case_status = ChildCase::STATUS_IN_PROGRESS;
+		$this->case->save();
+
 		$alertStep = $this->currentStep; /* @var $alertStep Alerta */
 		$alertStep->complete();
 
@@ -242,7 +245,12 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	 */
 	public function rejectAlert() {
 		$prevStatus = $this->alert_status;
+
+		$this->case->case_status = ChildCase::STATUS_CANCELLED;
+		$this->case->save();
+
 		$this->alert_status = 'rejected';
+		$this->child_status = self::STATUS_CANCELLED;
 		$this->save();
 
 		event(new AlertStatusChanged($this, $prevStatus, 'rejected'));
