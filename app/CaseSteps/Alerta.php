@@ -59,11 +59,11 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 	];
 
 	protected $casts = [
-		'place_map_geocoded_address' => 'array',
+		'place_map_geocode“d_address' => 'array',
 	];
 
 	public function scopeAccepted($query) {
-		return $query->whereIn('alert_status', 'accepted');
+		return $query->where('alert_status', 'accepted');
 	}
 
 	protected function onComplete() : bool {
