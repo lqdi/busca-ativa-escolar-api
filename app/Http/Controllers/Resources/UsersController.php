@@ -16,6 +16,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use Auth;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Mailables\StateUserRegistered;
 use BuscaAtivaEscolar\Mailables\UserRegistered;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
@@ -30,6 +31,11 @@ class UsersController extends BaseController {
 
 		if(!Auth::user()->isRestrictedToTenant() && request()->has('tenant_id')) {
 			$query->where('tenant_id', request('tenant_id'));
+		}
+
+		if(Auth::user()->isRestrictedToUF()) {
+			$query->where('uf', request('uf'));
+			$query->whereIn('type', [User::TYPE_GESTOR_ESTADUAL, User::TYPE_SUPERVISOR_ESTADUAL]);
 		}
 
 		if(request()->has('group_id')) $query->where('group_id', request('group_id'));
@@ -139,6 +145,8 @@ class UsersController extends BaseController {
 
 			if($user->tenant) {
 				Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
+			} else if($user->uf) {
+				Mail::to($user->email)->send(new StateUserRegistered($user->uf, $user, $initialPassword));
 			}
 
 			return response()->json(['status' => 'ok', 'id' => $user->id]);

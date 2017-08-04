@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Transformers;
 
 
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
+use BuscaAtivaEscolar\Scopes\TenantScope;
 use League\Fractal\TransformerAbstract;
 
 class StepTransformer extends TransformerAbstract {
@@ -74,8 +75,9 @@ class StepTransformer extends TransformerAbstract {
 	}
 
 	public function includeAssignedUser(CaseStep $step) {
-		if(!$step->assignedUser) return null;
-		return $this->item($step->assignedUser, new UserTransformer, false);
+		$assignedUser = $step->assignedUser()->withoutGlobalScope(TenantScope::class)->first();
+		if(!$assignedUser) return null;
+		return $this->item($assignedUser, new UserTransformer, false);
 	}
 
 }

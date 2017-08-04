@@ -29,6 +29,44 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Notification;
 
+/**
+ * @property int $id
+ *
+ * @property string name
+ * @property string $email
+ * @property string $password
+ * @property string $tenant_id
+ * @property string $city_id
+ * @property string $group_id
+ * @property string $uf
+ * @property string $type
+ * @property string $dob
+ * @property string $cpf
+ * @property string $work_phone
+ * @property string $work_mobile
+ * @property string $personal_mobile
+ * @property string $skype_username
+ * @property string $work_address
+ * @property string $work_cep
+ * @property string $work_neighborhood
+ * @property string $work_city_id
+ * @property string $work_city_name
+ * @property string $work_uf
+ * @property string $institution
+ * @property string $position
+ * @property string $is_suspended
+ * @property string $suspended_by
+ *
+ * @property Tenant|null $tenant
+ * @property City|null $city
+ * @property Group|null $group
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ *
+ * @property string $remember_token
+ */
 class User extends Model implements AuthenticatableContract, AuthorizableContract {
 
 	use Authenticatable;
@@ -43,8 +81,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	const TYPE_SUPERUSER = "superuser";
 	const TYPE_GESTOR_NACIONAL = "gestor_nacional";
 	const TYPE_GESTOR_POLITICO = "gestor_politico";
+	const TYPE_GESTOR_ESTADUAL = "gestor_estadual";
 	const TYPE_GESTOR_OPERACIONAL = "coordenador_operacional";
 	const TYPE_SUPERVISOR_INSTITUCIONAL = "supervisor_institucional";
+	const TYPE_SUPERVISOR_ESTADUAL = "supervisor_estadual";
 	const TYPE_TECNICO_VERIFICADOR = "tecnico_verificador";
 	const TYPE_AGENTE_COMUNITARIO = "agente_comunitario";
 
@@ -55,20 +95,23 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		self::TYPE_SUPERVISOR_INSTITUCIONAL,
 		self::TYPE_TECNICO_VERIFICADOR,
 		self::TYPE_AGENTE_COMUNITARIO,
+		self::TYPE_GESTOR_ESTADUAL,
+		self::TYPE_SUPERVISOR_ESTADUAL,
 	];
 
     protected $fillable = [
-        'name',
-	    'email',
-	    'password',
+    	'name',
+		'email',
+		'password',
 
-	    'tenant_id',
-	    'city_id',
-	    'group_id',
+		'tenant_id',
+		'city_id',
+		'group_id',
+		'uf',
 
-	    'type',
+		'type',
 
-	    'dob',
+		'dob',
 		'cpf',
 
 		'work_phone',
@@ -87,14 +130,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		'institution',
 		'position',
 
-	    'is_suspended',
-	    'suspended_by',
-    ];
+		'is_suspended',
+		'suspended_by',
+	];
 
-    protected $hidden = [
-        'password',
-	    'remember_token',
-    ];
+	protected $hidden = [
+		'password',
+		'remember_token',
+	];
 
 	// ------------------------------------------------------------------------
 
@@ -225,6 +268,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	}
 
 	/**
+	 * Checks if a user is global or restricted/assigned to tenants in a specific state.
+	 * @return bool True when state-based, false when global.
+	 */
+	public function isRestrictedToUF() {
+		return ($this->type === self::TYPE_GESTOR_ESTADUAL || $this->type == self::TYPE_SUPERVISOR_ESTADUAL);
+	}
+
+	/**
 	 * Gets the front-end URL for completing a password reset.
 	 * @return string
 	 */
@@ -276,7 +327,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 */
 	public function validate($data, $isCreating = false) {
 
-		$needsTenantID = $isCreating && isset($data['type']) && $data['type'] !== 'superuser' && $data['type'] != 'gestor_nacional';
+		$needsTenantID = $isCreating && isset($data['type'])
+			&& !in_array($data['type'], [self::TYPE_SUPERVISOR_ESTADUAL, self::TYPE_GESTOR_ESTADUAL, self::TYPE_SUPERUSER, self::TYPE_GESTOR_NACIONAL]);
+		$needsUF = $isCreating && isset($data['type'])
+			&& in_array($data['type'], [self::TYPE_SUPERVISOR_ESTADUAL, self::TYPE_GESTOR_ESTADUAL]);
 
 		return validator($data, [
 			'name' => 'required|string',
@@ -286,6 +340,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 			'tenant_id' => ($needsTenantID) ? 'required' : 'nullable',
 			'city_id' => 'nullable',
 			'group_id' => 'nullable',
+
+			'uf' => ($needsUF) ? 'required' : 'nullable',
 
 			'type' => 'required:in:' . join(",", self::$ALLOWED_TYPES),
 

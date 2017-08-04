@@ -39,6 +39,7 @@ class TenantTransformer extends TransformerAbstract {
 			'name' => $tenant->name,
 
 			'city_id' => $tenant->city_id,
+			'uf' => $tenant->uf,
 			'operational_admin_id' => $tenant->operational_admin_id,
 			'political_admin_id' => $tenant->political_admin_id,
 

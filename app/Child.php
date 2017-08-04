@@ -336,6 +336,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		if($this->currentStep) {
 			$data['assigned_user_id'] = $this->currentStep->assignedUser->id ?? null;
 			$data['assigned_user_name'] = $this->currentStep->assignedUser->name ?? null;
+			$data['assigned_uf'] = $this->currentStep->assignedUser->uf ?? null;
 			$data['step_name'] = $this->currentStep->getName() ?? null;
 			$data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
 		}
@@ -422,6 +423,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             "assigned_user_id",
             "alert_submitter_id",
             "uf",
+            "assigned_uf",
             "country_region",
 		]);
 

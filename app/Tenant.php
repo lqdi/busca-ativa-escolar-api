@@ -36,6 +36,8 @@ class Tenant extends Model  {
 	protected $fillable = [
 		'name',
 		'city_id',
+		'uf',
+
 		'operational_admin_id',
 		'political_admin_id',
 
