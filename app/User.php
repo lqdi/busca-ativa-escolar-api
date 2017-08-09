@@ -48,13 +48,20 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	const TYPE_TECNICO_VERIFICADOR = "tecnico_verificador";
 	const TYPE_AGENTE_COMUNITARIO = "agente_comunitario";
 
-	// Which user types are allowed to be assigned
-	static $ALLOWED_TYPES = [
+	public static $TENANT_SCOPED_TYPES = [
 		self::TYPE_GESTOR_POLITICO,
 		self::TYPE_GESTOR_OPERACIONAL,
 		self::TYPE_SUPERVISOR_INSTITUCIONAL,
 		self::TYPE_TECNICO_VERIFICADOR,
 		self::TYPE_AGENTE_COMUNITARIO,
+	];
+
+	// Which user types are allowed to be assigned
+	public static $ALLOWED_TYPES = [
+		self::TYPE_GESTOR_POLITICO,
+		self::TYPE_GESTOR_OPERACIONAL,
+		self::TYPE_SUPERVISOR_INSTITUCIONAL,
+		self::TYPE_TECNICO_VERIFICADOR,
 	];
 
     protected $fillable = [
@@ -276,7 +283,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 */
 	public function validate($data, $isCreating = false) {
 
-		$needsTenantID = $isCreating && isset($data['type']) && $data['type'] !== 'superuser' && $data['type'] !== 'gestor_nacional';
+		$needsTenantID = in_array($data['type'] ?? '', self::$TENANT_SCOPED_TYPES);
 
 		return validator($data, [
 			'name' => 'required|string',

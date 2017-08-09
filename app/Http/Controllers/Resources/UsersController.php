@@ -20,6 +20,7 @@ use BuscaAtivaEscolar\Mailables\UserRegistered;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
 use BuscaAtivaEscolar\User;
+use Exception;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Mail;
 
@@ -98,6 +99,10 @@ class UsersController extends BaseController {
 
 			$user->fill($input);
 
+			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
+				throw new Exception("tenant_id_inconsistency");
+			}
+
 			// Here we check if we have enough permission to set the target user to this new state
 			if(!Auth::user()->canManageUser($user)) {
 				return $this->api_failure('not_enough_permissions');
@@ -134,6 +139,10 @@ class UsersController extends BaseController {
 
 			$user->fill($input);
 
+			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
+				throw new Exception("tenant_id_inconsistency");
+			}
+			
 			// Check if the resulting user can be created by the current user
 			if(!Auth::user()->canManageUser($user)) {
 				return $this->api_failure('not_enough_permissions');
