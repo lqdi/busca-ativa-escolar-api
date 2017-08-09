@@ -181,6 +181,14 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	// ------------------------------------------------------------------------
 
+	public function scopeAccepted($query) {
+		return $query->where('alert_status', 'accepted');
+	}
+
+	public function scopeRejected($query) {
+		return $query->where('alert_status', 'rejected');
+	}
+
 	/**
 	 * Gets the URL for viewing a child
 	 * @return string
@@ -234,6 +242,9 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$this->currentCase->save();
 
 		$alertStep = $this->currentStep; /* @var $alertStep Alerta */
+		$alertStep->alert_status = 'accepted';
+		$alertStep->save();
+
 		$alertStep->complete();
 
 		event(new AlertStatusChanged($this, $prevStatus, 'accepted'));

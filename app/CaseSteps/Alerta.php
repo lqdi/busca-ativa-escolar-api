@@ -33,7 +33,9 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 		'cpf',
 		'nis',
+
 		'alert_cause_id',
+		'alert_status',
 
 		'mother_name',
 		'mother_rg',
