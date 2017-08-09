@@ -258,6 +258,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$prevStatus = $this->alert_status;
 
 		$this->currentCase->case_status = ChildCase::STATUS_CANCELLED;
+		$this->currentCase->cancel_reason = ChildCase::CANCEL_REASON_REJECTED_ALERT;
 		$this->currentCase->save();
 
 		$this->alert_status = 'rejected';
