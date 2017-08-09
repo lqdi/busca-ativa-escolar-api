@@ -82,6 +82,10 @@ class UsersController extends BaseController {
 				unset($input['email']);
 			}
 
+			if(Auth::user()->isRestrictedToTenant()) {
+				$input['tenant_id'] = Auth::user()->tenant_id;
+			}
+
 			$validation = $user->validate($input, false);
 
 			if($validation->fails()) {

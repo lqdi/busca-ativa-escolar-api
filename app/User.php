@@ -276,7 +276,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 */
 	public function validate($data, $isCreating = false) {
 
-		$needsTenantID = $isCreating && isset($data['type']) && $data['type'] !== 'superuser' && $data['type'] != 'gestor_nacional';
+		$needsTenantID = $isCreating && isset($data['type']) && $data['type'] !== 'superuser' && $data['type'] !== 'gestor_nacional';
 
 		return validator($data, [
 			'name' => 'required|string',
