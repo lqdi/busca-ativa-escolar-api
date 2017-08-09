@@ -68,6 +68,14 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 		return $query->where('alert_status', 'accepted');
 	}
 
+	public function scopeRejected($query) {
+		return $query->where('alert_status', 'rejected');
+	}
+
+	public function scopeNotRejected($query) {
+		return $query->whereIn('alert_status', ['accepted', 'pending']);
+	}
+
 	protected function onComplete() : bool {
 
 		if($this->gender) $this->child->gender = $this->gender;
