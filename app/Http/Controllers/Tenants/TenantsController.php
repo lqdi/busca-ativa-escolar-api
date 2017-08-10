@@ -26,7 +26,9 @@ use BuscaAtivaEscolar\User;
 class TenantsController extends BaseController  {
 
 	public function index() {
-		$tenants = Tenant::all();
+		$tenants = Tenant::query()
+			->orderBy('name', 'ASC')
+			->get();
 
 		return fractal()
 			->collection($tenants)
