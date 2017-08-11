@@ -278,12 +278,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 *
 	 * @param array $data The given data
 	 * @param bool $isCreating Are we creating or updating a user?
+	 * @param bool $needsTenantID Does this user require a tenant ID?
 	 *
 	 * @return \Illuminate\Contracts\Validation\Validator
 	 */
-	public function validate($data, $isCreating = false) {
-
-		$needsTenantID = in_array($data['type'] ?? '', self::$TENANT_SCOPED_TYPES);
+	public function validate($data, $isCreating = false, $needsTenantID = true) {
 
 		return validator($data, [
 			'name' => 'required|string',
