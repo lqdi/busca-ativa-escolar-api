@@ -94,8 +94,9 @@ class UsersController extends BaseController {
 			}
 
 			$needsTenantID = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+			$needsUF = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
 
-			$validation = $user->validate($input, false, $needsTenantID);
+			$validation = $user->validate($input, false, $needsTenantID, $needsUF);
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
@@ -138,8 +139,9 @@ class UsersController extends BaseController {
 			$initialPassword = $input['password'];
 
 			$needsTenantID = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+			$needsUF = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
-			$validation = $user->validate($input, true, $needsTenantID);
+			$validation = $user->validate($input, true, $needsTenantID, $needsUF);
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);

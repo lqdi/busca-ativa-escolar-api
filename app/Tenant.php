@@ -190,7 +190,7 @@ class Tenant extends Model  {
 
 		$politicalAdmin = new User();
 		$politicalAdmin->fill($politicalAdminData);
-		$validator = $politicalAdmin->validate($politicalAdminData, true, false);
+		$validator = $politicalAdmin->validate($politicalAdminData, true, false, false);
 
 		if(User::checkIfExists($politicalAdmin->email)) {
 			throw new ValidationException('political_admin_email_in_use');
@@ -202,7 +202,7 @@ class Tenant extends Model  {
 
 		$operationalAdmin = new User();
 		$operationalAdmin->fill($operationalAdminData);
-		$validator = $operationalAdmin->validate($operationalAdminData, true, false);
+		$validator = $operationalAdmin->validate($operationalAdminData, true, false, false);
 
 		if(User::checkIfExists($operationalAdmin->email)) {
 			throw new ValidationException('operational_admin_email_in_use');

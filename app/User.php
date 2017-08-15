@@ -107,6 +107,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		self::TYPE_AGENTE_COMUNITARIO,
 	];
 
+	public static $UF_SCOPED_TYPES = [
+		self::TYPE_GESTOR_ESTADUAL,
+		self::TYPE_SUPERVISOR_ESTADUAL,
+	];
+
     protected $fillable = [
     	'name',
 		'email',
@@ -331,13 +336,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 * @param array $data The given data
 	 * @param bool $isCreating Are we creating or updating a user?
 	 * @param bool $needsTenantID Does this user require a tenant ID?
+	 * @param bool $needsUF Does this user require a UF?
 	 *
 	 * @return \Illuminate\Contracts\Validation\Validator
 	 */
-	public function validate($data, $isCreating = false, $needsTenantID = true) {
-
-		$needsUF = $isCreating && isset($data['type'])
-			&& in_array($data['type'], [self::TYPE_SUPERVISOR_ESTADUAL, self::TYPE_GESTOR_ESTADUAL]);
+	public function validate($data, $isCreating = false, $needsTenantID = true, $needsUF = false) {
 
 		return validator($data, [
 			'name' => 'required|string',
