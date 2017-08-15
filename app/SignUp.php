@@ -23,6 +23,28 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Messages\MailMessage;
 use Mail;
 
+/**
+ * @property int $id
+ * @property string $city_id
+ * @property string $tenant_id
+ * @property string $judged_by
+ *
+ * @property bool $is_approved
+ * @property bool $is_provisioned
+ *
+ * @property string $ip_addr
+ * @property string $user_agent
+ *
+ * @property array $data
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ *
+ * @property City|null $city
+ * @property Tenant|null $tenant
+ * @property User|null $judge
+ */
 class SignUp extends Model {
 
 	use IndexedByUUID;

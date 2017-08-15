@@ -181,61 +181,71 @@ class Tenant extends Model  {
 	public static function provision(SignUp $signup, array $politicalAdminData, array $operationalAdminData) {
 
 		$city = $signup->city;
+
 		if(!$city) {
 			throw new ValidationException('invalid_signup_city');
 		}
 
-		$politicalAdminData['type'] = User::TYPE_GESTOR_POLITICO;
-		$operationalAdminData['type'] = User::TYPE_GESTOR_OPERACIONAL;
-
-		$politicalAdmin = new User();
-		$politicalAdmin->fill($politicalAdminData);
-		$validator = $politicalAdmin->validate($politicalAdminData, true, false, false);
-
-		if(User::checkIfExists($politicalAdmin->email)) {
+		if(User::checkIfExists($politicalAdminData['email'])) {
 			throw new ValidationException('political_admin_email_in_use');
 		}
 
-		if($validator->fails()) {
-			throw new ValidationException('invalid_political_admin_data', $validator);
-		}
-
-		$operationalAdmin = new User();
-		$operationalAdmin->fill($operationalAdminData);
-		$validator = $operationalAdmin->validate($operationalAdminData, true, false, false);
-
-		if(User::checkIfExists($operationalAdmin->email)) {
+		if(User::checkIfExists($operationalAdminData['email'])) {
 			throw new ValidationException('operational_admin_email_in_use');
 		}
-
-		if($validator->fails()) {
-			throw new ValidationException('invalid_operational_admin_data', $validator);
-		}
-
-		$politicalAdmin->password = password_hash($politicalAdminData['password'], PASSWORD_DEFAULT);
-		$politicalAdmin->save();
-
-		$operationalAdmin->password = password_hash($operationalAdminData['password'], PASSWORD_DEFAULT);
-		$operationalAdmin->save();
 
 		$now = date('Y-m-d H:i:s');
 
 		$tenant = Tenant::create([
 			'name' => Tenant::generateNameFromCity($city),
 			'city_id' => $city->id,
-			'operational_admin_id' => $operationalAdmin->id,
-			'political_admin_id' => $politicalAdmin->id,
-			'is_registered' => true,
-			'is_active' => true,
+			'operational_admin_id' => null,
+			'political_admin_id' => null,
+			'is_registered' => false,
+			'is_active' => false,
 			'last_active_at' => $now,
 			'registered_at' => $signup->created_at,
 			'activated_at' => $now,
 		]);
 
+		$politicalAdminData['type'] = User::TYPE_GESTOR_POLITICO;
+		$politicalAdminData['tenant_id'] = $tenant->id;
+		$operationalAdminData['type'] = User::TYPE_GESTOR_OPERACIONAL;
+		$operationalAdminData['tenant_id'] = $tenant->id;
+
+		$politicalAdmin = new User();
+		$politicalAdmin->fill($politicalAdminData);
+		$politicalAdmin->password = password_hash($politicalAdminData['password'], PASSWORD_DEFAULT);
+
+		$validator = $politicalAdmin->validate($politicalAdminData, true, true, false);
+
+		if($validator->fails()) {
+			$tenant->delete();
+			throw new ValidationException('invalid_political_admin_data', $validator);
+		}
+
+		$operationalAdmin = new User();
+		$operationalAdmin->fill($operationalAdminData);
+		$operationalAdmin->password = password_hash($operationalAdminData['password'], PASSWORD_DEFAULT);
+
+		$validator = $operationalAdmin->validate($operationalAdminData, true, true, false);
+
+		if($validator->fails()) {
+			$tenant->delete();
+			throw new ValidationException('invalid_operational_admin_data', $validator);
+		}
+
+
+		$politicalAdmin->save();
+		$operationalAdmin->save();
+
 		Group::createDefaultPrimaryGroup($tenant);
 
-		$politicalAdmin->update(['tenant_id' => $tenant->id]);
-		$operationalAdmin->update(['tenant_id' => $tenant->id]);
+		$tenant->political_admin_id = $politicalAdmin->id;
+		$tenant->operational_admin_id = $operationalAdmin->id;
+		$tenant->is_registered = true;
+		$tenant->is_active = true;
+		$tenant->save();
 
 		$signup->is_provisioned = true;
 		$signup->tenant_id = $tenant->id;
