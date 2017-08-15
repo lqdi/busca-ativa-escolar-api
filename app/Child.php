@@ -181,6 +181,14 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	// ------------------------------------------------------------------------
 
+	public function scopeAccepted($query) {
+		return $query->where('alert_status', 'accepted');
+	}
+
+	public function scopeRejected($query) {
+		return $query->where('alert_status', 'rejected');
+	}
+
 	/**
 	 * Gets the URL for viewing a child
 	 * @return string
@@ -230,10 +238,13 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$this->alert_status = 'accepted';
 		$this->save();
 
-		$this->case->case_status = ChildCase::STATUS_IN_PROGRESS;
-		$this->case->save();
+		$this->currentCase->case_status = ChildCase::STATUS_IN_PROGRESS;
+		$this->currentCase->save();
 
 		$alertStep = $this->currentStep; /* @var $alertStep Alerta */
+		$alertStep->alert_status = 'accepted';
+		$alertStep->save();
+
 		$alertStep->complete();
 
 		event(new AlertStatusChanged($this, $prevStatus, 'accepted'));
@@ -246,8 +257,9 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	public function rejectAlert() {
 		$prevStatus = $this->alert_status;
 
-		$this->case->case_status = ChildCase::STATUS_CANCELLED;
-		$this->case->save();
+		$this->currentCase->case_status = ChildCase::STATUS_CANCELLED;
+		$this->currentCase->cancel_reason = ChildCase::CANCEL_REASON_REJECTED_ALERT;
+		$this->currentCase->save();
 
 		$this->alert_status = 'rejected';
 		$this->child_status = self::STATUS_CANCELLED;

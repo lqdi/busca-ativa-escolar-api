@@ -21,6 +21,7 @@ use BuscaAtivaEscolar\Mailables\UserRegistered;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
 use BuscaAtivaEscolar\User;
+use Exception;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Mail;
 
@@ -88,7 +89,13 @@ class UsersController extends BaseController {
 				unset($input['email']);
 			}
 
-			$validation = $user->validate($input, false);
+			if(Auth::user()->isRestrictedToTenant()) {
+				$input['tenant_id'] = Auth::user()->tenant_id;
+			}
+
+			$needsTenantID = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+
+			$validation = $user->validate($input, false, $needsTenantID);
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
@@ -99,6 +106,10 @@ class UsersController extends BaseController {
 			}
 
 			$user->fill($input);
+
+			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
+				throw new Exception("tenant_id_inconsistency");
+			}
 
 			// Here we check if we have enough permission to set the target user to this new state
 			if(!Auth::user()->canManageUser($user)) {
@@ -126,7 +137,9 @@ class UsersController extends BaseController {
 
 			$initialPassword = $input['password'];
 
-			$validation = $user->validate($input, true);
+			$needsTenantID = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+
+			$validation = $user->validate($input, true, $needsTenantID);
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
@@ -136,6 +149,10 @@ class UsersController extends BaseController {
 
 			$user->fill($input);
 
+			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
+				throw new Exception("tenant_id_inconsistency");
+			}
+			
 			// Check if the resulting user can be created by the current user
 			if(!Auth::user()->canManageUser($user)) {
 				return $this->api_failure('not_enough_permissions');

@@ -27,7 +27,7 @@ class BaseController extends Controller {
 
     	if(!$data) $data = [];
 
-    	Log::warning('[api_exception] ' . $exception->getMessage());
+    	Log::error('[api_exception] ' . $exception->getMessage() . "\n\n {$exception->getTraceAsString()}");
 
 	    $exceptionInfo = $exception->getMessage();
 

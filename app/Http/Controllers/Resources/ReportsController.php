@@ -116,7 +116,7 @@ class ReportsController extends BaseController {
 						->count(),
 
 					'num_alerts' => Alerta::query()
-						->accepted()
+						->notRejected()
 						->count(),
 
 					'num_cases_in_progress' => ChildCase::query()
