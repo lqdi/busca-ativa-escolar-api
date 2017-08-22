@@ -14,7 +14,7 @@
 namespace BuscaAtivaEscolar\Mailables;
 
 
-use BuscaAtivaEscolar\SignUp;
+use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
 use Illuminate\Mail\Mailable;
@@ -27,7 +27,7 @@ class UserCredentialsForNewTenant extends Mailable {
 	public $user;
 	public $initialPassword;
 
-	public function __construct(SignUp $signup, Tenant $tenant, User $user, $initialPassword) {
+	public function __construct(TenantSignup $signup, Tenant $tenant, User $user, $initialPassword) {
 		$this->signup = $signup;
 		$this->tenant = $tenant;
 		$this->user = $user;

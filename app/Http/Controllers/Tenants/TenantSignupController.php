@@ -1,7 +1,7 @@
 <?php
 /**
  * busca-ativa-escolar-api
- * TenantSignUpController.php
+ * TenantSignupController.php
  *
  * Copyright (c) LQDI Digital
  * www.lqdi.net - 2016
@@ -18,7 +18,7 @@ use Auth;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Exceptions\ValidationException;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
-use BuscaAtivaEscolar\SignUp;
+use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
@@ -26,7 +26,7 @@ use DB;
 use Event;
 use Illuminate\Support\Str;
 
-class SignUpController extends BaseController  {
+class TenantSignupController extends BaseController  {
 
 	public function register() {
 		$data = request()->all();
@@ -38,14 +38,14 @@ class SignUpController extends BaseController  {
 		if(!$city) return $this->api_failure('invalid_city');
 
 		$existingTenant = Tenant::where('city_id', $city->id)->first();
-		$existingSignUp = SignUp::where('city_id', $city->id)->first();
+		$existingSignUp = TenantSignup::where('city_id', $city->id)->first();
 
 		if($existingTenant) return $this->api_failure('tenant_already_registered');
 		if($existingSignUp) return $this->api_failure('signup_in_progress');
 
 		try {
 
-			$validator = SignUp::validate($data);
+			$validator = TenantSignup::validate($data);
 
 			if($validator->fails()) {
 				return $this->api_failure('invalid_input', $validator->failed());
@@ -55,7 +55,7 @@ class SignUpController extends BaseController  {
 				return $this->api_failure('political_admin_email_in_use');
 			}
 
-			$signup = SignUp::createFromForm($data);
+			$signup = TenantSignup::createFromForm($data);
 
 			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
 		} catch (\Exception $ex) {
@@ -65,13 +65,13 @@ class SignUpController extends BaseController  {
 	}
 
 	public function get_pending() {
-		$pending = SignUp::with('city')
+		$pending = TenantSignup::with('city')
 			->where('is_provisioned', false);
 
 		$sort = request('sort', []);
 		$filter = request('filter', []);
 
-		SignUp::applySorting($pending, request('sort'));
+		TenantSignup::applySorting($pending, request('sort'));
 
 		if(isset($filter['city_name']) && strlen($filter['city_name']) > 0) {
 			$pending->whereHas('city', function ($sq) use ($filter) {
@@ -98,7 +98,7 @@ class SignUpController extends BaseController  {
 
 		$pending = $pending->get($columns);
 
-		$pending->each(function (&$item) { /* @var $item SignUp */
+		$pending->each(function (&$item) { /* @var $item TenantSignup */
 			if($item->is_approved && !$item->is_provisioned) {
 				$item->provision_url = env('APP_PANEL_URL') . "/admin_setup/" . $item->id . '?token=' . $item->getURLToken();
 			}
@@ -107,7 +107,7 @@ class SignUpController extends BaseController  {
 		return response()->json(['data' => $pending]);
 	}
 
-	public function get_via_token(SignUp $signup) {
+	public function get_via_token(TenantSignup $signup) {
 		$token = request('token');
 		$validToken = $signup->getURLToken();
 
@@ -119,7 +119,7 @@ class SignUpController extends BaseController  {
 		return response()->json($signup);
 	}
 
-	public function approve(SignUp $signup) {
+	public function approve(TenantSignup $signup) {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
@@ -132,7 +132,7 @@ class SignUpController extends BaseController  {
 		}
 	}
 
-	public function reject(SignUp $signup) {
+	public function reject(TenantSignup $signup) {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
@@ -145,7 +145,7 @@ class SignUpController extends BaseController  {
 		}
 	}
 
-	public function resendNotification(SignUp $signup) {
+	public function resendNotification(TenantSignup $signup) {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
@@ -159,7 +159,7 @@ class SignUpController extends BaseController  {
 		}
 	}
 
-	public function updateRegistrationEmail(SignUp $signup) {
+	public function updateRegistrationEmail(TenantSignup $signup) {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
@@ -174,7 +174,7 @@ class SignUpController extends BaseController  {
 		}
 	}
 
-	public function complete(SignUp $signup) {
+	public function complete(TenantSignup $signup) {
 		$token = request('token');
 		$validToken = $signup->getURLToken();
 

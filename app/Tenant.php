@@ -170,7 +170,7 @@ class Tenant extends Model  {
 	/**
 	 * Provisions a tenant based on sign-up data
 	 *
-	 * @param SignUp $signup
+	 * @param TenantSignup $signup
 	 * @param array $politicalAdminData
 	 * @param array $operationalAdminData
 	 *
@@ -178,7 +178,7 @@ class Tenant extends Model  {
 	 *
 	 * @returns Tenant
 	 */
-	public static function provision(SignUp $signup, array $politicalAdminData, array $operationalAdminData) {
+	public static function provision(TenantSignup $signup, array $politicalAdminData, array $operationalAdminData) {
 
 		$city = $signup->city;
 

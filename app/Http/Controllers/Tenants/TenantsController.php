@@ -17,7 +17,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Tenants;
 use BuscaAtivaEscolar\ActivityLog;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
-use BuscaAtivaEscolar\SignUp;
+use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\TenantTransformer;
@@ -74,7 +74,7 @@ class TenantsController extends BaseController  {
 		if(!$tenant->id) return $this->api_failure('no_tenant_id');
 
 		$users = User::query()->where('tenant_id', $tenant->id);
-		$signup = SignUp::query()->where('tenant_id', $tenant->id);
+		$signup = TenantSignup::query()->where('tenant_id', $tenant->id);
 
 		$users->delete();
 		$signup->delete();

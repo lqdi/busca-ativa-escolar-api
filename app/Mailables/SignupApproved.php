@@ -14,7 +14,7 @@
 namespace BuscaAtivaEscolar\Mailables;
 
 use BuscaAtivaEscolar\Tenant;
-use BuscaAtivaEscolar\SignUp;
+use BuscaAtivaEscolar\TenantSignup;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
 
@@ -22,7 +22,7 @@ class SignupApproved extends Mailable {
 
 	public $signup;
 
-	public function __construct(SignUp $signup) {
+	public function __construct(TenantSignup $signup) {
 		$this->signup = $signup;
 	}
 

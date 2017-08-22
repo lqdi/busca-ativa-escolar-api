@@ -1,7 +1,7 @@
 <?php
 /**
  * busca-ativa-escolar-api
- * SignUp.php
+ * TenantSignup.php
  *
  * Copyright (c) LQDI Digital
  * www.lqdi.net - 2017
@@ -45,7 +45,7 @@ use Mail;
  * @property Tenant|null $tenant
  * @property User|null $judge
  */
-class SignUp extends Model {
+class TenantSignup extends Model {
 
 	use IndexedByUUID;
 	use SoftDeletes;
@@ -133,7 +133,7 @@ class SignUp extends Model {
 
 	// -----------------------------------------------------------------------------------------------------------------
 
-	public static function generateURLToken(SignUp $signup) {
+	public static function generateURLToken(TenantSignup $signup) {
 		return sha1(env('APP_KEY') . $signup->id . $signup->created_at);
 	}
 
@@ -143,7 +143,7 @@ class SignUp extends Model {
 	 * @return string The ID of the sign-up request
 	 */
 	public static function createFromForm($data) {
-		$signup = new SignUp();
+		$signup = new TenantSignup();
 
 		$signup->is_approved = false;
 		$signup->is_provisioned = false;

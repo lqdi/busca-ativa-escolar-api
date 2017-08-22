@@ -30,7 +30,7 @@ use BuscaAtivaEscolar\Reports\Reports;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
-use BuscaAtivaEscolar\SignUp;
+use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use Cache;
 use DB;
@@ -107,10 +107,10 @@ class ReportsController extends BaseController {
 					'num_tenants' => Tenant::query()
 						->count(),
 
-					'num_signups' => SignUp::query()
+					'num_signups' => TenantSignup::query()
 						->count(),
 
-					'num_pending_setup' => SignUp::query()
+					'num_pending_setup' => TenantSignup::query()
 						->where('is_approved', 1)
 						->where('is_provisioned', 0)
 						->count(),
@@ -127,7 +127,7 @@ class ReportsController extends BaseController {
 						->where('child_status', Child::STATUS_IN_SCHOOL)
 						->count(),
 
-					'num_pending_signups' => SignUp::query()
+					'num_pending_signups' => TenantSignup::query()
 						->whereNull('judged_by')
 						->count(),
 				];
@@ -164,11 +164,11 @@ class ReportsController extends BaseController {
 						->where('uf', $uf)
 						->count(),
 
-					'num_signups' => SignUp::query()
+					'num_signups' => TenantSignup::query()
 						->whereIn('city_id', $cityIDs)
 						->count(),
 
-					'num_pending_setup' => SignUp::query()
+					'num_pending_setup' => TenantSignup::query()
 						->whereIn('city_id', $cityIDs)
 						->where('is_approved', 1)
 						->where('is_provisioned', 0)
@@ -189,7 +189,7 @@ class ReportsController extends BaseController {
 						->where('child_status', Child::STATUS_IN_SCHOOL)
 						->count(),
 
-					'num_pending_signups' => SignUp::query()
+					'num_pending_signups' => TenantSignup::query()
 						->whereIn('city_id', $cityIDs)
 						->whereNull('judged_by')
 						->count(),
