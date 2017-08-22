@@ -176,7 +176,7 @@ class ReportsController extends BaseController {
 
 					'num_alerts' => Alerta::query()
 						->whereIn('tenant_id', $tenantIDs)
-						->accepted()
+						->notRejected()
 						->count(),
 
 					'num_cases_in_progress' => ChildCase::query()
@@ -196,7 +196,7 @@ class ReportsController extends BaseController {
 				];
 			});
 
-			return response()->json(['status' => 'ok', 'stats' => $stats, 'uf' => $uf]);
+			return response()->json(['status' => 'ok', 'stats' => $stats, 'uf' => $uf, 'tenant_ids' => $tenantIDs, 'city_ids' => $cityIDs]);
 
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);

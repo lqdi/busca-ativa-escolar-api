@@ -28,7 +28,7 @@ class TenantScope implements Scope  {
 		$currentUser = Auth::user();
 
 		// Curries regular users to their own tenants
-		if($currentUser->isRestrictedToTenant()) {
+		if($currentUser->isRestrictedToTenant() && !$currentUser->isRestrictedToUF()) {
 			$builder->where('tenant_id', $currentUser->tenant_id);
 			return;
 		}
