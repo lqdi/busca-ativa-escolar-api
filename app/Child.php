@@ -26,6 +26,7 @@ use BuscaAtivaEscolar\Events\SearchableNeedsReindexing;
 use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
 use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Reports\Traits\AggregatedBySearchDocument;
+use BuscaAtivaEscolar\Scopes\TenantScope;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
@@ -346,9 +347,14 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 
 		if($this->currentStep) {
-			$data['assigned_user_id'] = $this->currentStep->assignedUser->id ?? null;
-			$data['assigned_user_name'] = $this->currentStep->assignedUser->name ?? null;
-			$data['assigned_uf'] = $this->currentStep->assignedUser->uf ?? null;
+			$data['assigned_user_id'] = $this->currentStep->assigned_user_id ?? null;
+
+			$assignedUser = $this->currentStep->assigned_user_id ? // TODO: refactor the way we deal with non-scoped models
+				User::withoutGlobalScope(TenantScope::class)->find($data['assigned_user_id']) : null;
+
+			$data['assigned_user_name'] = $assignedUser->name ?? null;
+			$data['assigned_uf'] = $assignedUser->uf ?? null;
+
 			$data['step_name'] = $this->currentStep->getName() ?? null;
 			$data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
 		}
