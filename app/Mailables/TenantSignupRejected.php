@@ -1,7 +1,7 @@
 <?php
 /**
  * busca-ativa-escolar-api
- * SignupApproved.php
+ * TenantSignupRejected.php
  *
  * Copyright (c) LQDI Digital
  * www.lqdi.net - 2017
@@ -18,7 +18,7 @@ use BuscaAtivaEscolar\TenantSignup;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class SignupRejected extends Mailable {
+class TenantSignupRejected extends Mailable {
 
 	public $signup;
 
@@ -28,16 +28,13 @@ class SignupRejected extends Mailable {
 
 	public function build() {
 
-		$setupToken = $this->signup->getURLToken();
-		$setupURL = env('APP_PANEL_URL') . "/" . $this->signup->id . '?token=' . $setupToken;
-
 		$message = (new MailMessage())
 			->subject("Sua adesão foi reprovada!")
 			->greeting('Olá!')
 			->line('Sua adesão ao programa Busca Ativa Escolar foi reprovada!')
 			->line('Se desejar, entre em contato conosco através do e-mail abaixo:')
 			->error()
-			->action('contato@buscaativaescolar.org.br', $setupURL);
+			->action('contato@buscaativaescolar.org.br', 'mailto:contato@buscaativaescolar.org.br');
 
 		$this->from(env('MAIL_USERNAME'), 'Busca Ativa Escolar');
 		$this->subject("[Busca Ativa Escolar] Sua adesão foi reprovada!");

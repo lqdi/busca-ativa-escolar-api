@@ -1,51 +1,43 @@
 <?php
 /**
  * busca-ativa-escolar-api
- * TenantSignup.php
+ * StateSignup.php
  *
  * Copyright (c) LQDI Digital
  * www.lqdi.net - 2017
  *
  * @author Aryel Tupinambá <aryel.tupinamba@lqdi.net>
  *
- * Created at: 21/02/2017, 19:06
+ * Created at: 22/08/2017, 19:31
  */
 
 namespace BuscaAtivaEscolar;
 
 
-use BuscaAtivaEscolar\Mailables\TenantSignupApproved;
-use BuscaAtivaEscolar\Mailables\TenantSignupRejected;
+use BuscaAtivaEscolar\Mailables\StateSignupApproved;
+use BuscaAtivaEscolar\Mailables\StateSignupRejected;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Messages\MailMessage;
 use Mail;
 
 /**
  * @property int $id
- * @property string $city_id
- * @property string $tenant_id
- * @property string $judged_by
- *
+ * @property string $uf
+ * @property string $user_id
  * @property bool $is_approved
- * @property bool $is_provisioned
- *
  * @property string $ip_addr
  * @property string $user_agent
- *
  * @property array $data
- *
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
- * @property City|null $city
- * @property Tenant|null $tenant
- * @property User|null $judge
+ * @property User|null $user
+ * @property User|null $judged_by
  */
-class TenantSignup extends Model {
+class StateSignup extends Model {
 
 	use IndexedByUUID;
 	use SoftDeletes;
@@ -53,31 +45,27 @@ class TenantSignup extends Model {
 
 	protected $table = "signups";
 	protected $fillable = [
-		'city_id',
-		'tenant_id',
+		'uf',
+		'user_id',
+		'judger_by',
+
 		'is_approved',
-		'is_provisioned',
+
 		'ip_addr',
 		'user_agent',
 		'data',
 
 		// Sort-only fields
-		'cities.name',
 		'created_at',
 	];
 
 	protected $casts = [
 		'is_approved' => 'boolean',
-		'is_provisioned' => 'boolean',
 		'data' => 'array',
 	];
 
-	public function city() {
-		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
-	}
-
-	public function tenant() {
-		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
+	public function user() {
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'user_id');
 	}
 
 	public function judge() {
@@ -90,6 +78,34 @@ class TenantSignup extends Model {
 		$this->is_approved = true;
 		$this->judged_by = $judge->id;
 		$this->save();
+
+		$userFields = [
+			'dob',
+			'cpf',
+			'email',
+			'name',
+			'phone',
+			'mobile',
+			'institution',
+			'position',
+		];
+
+		$adminData = collect($this->data['admin'])->only($userFields)->toArray();
+		$adminData['uf'] = $this->uf;
+		$adminData['tenant_id'] = null;
+		$adminData['type'] = User::TYPE_GESTOR_ESTADUAL;
+		$adminData['password'] = password_hash($this->data['admin']['password'], PASSWORD_DEFAULT);
+
+		$supervisorData = collect($this->data['supervisor'])->only($userFields)->toArray();
+		$supervisorData['uf'] = $this->uf;
+		$supervisorData['tenant_id'] = null;
+		$supervisorData['type'] = User::TYPE_GESTOR_ESTADUAL;
+		$supervisorData['password'] = password_hash($this->data['supervisor']['password'], PASSWORD_DEFAULT);
+
+		// TODO: validate user data again
+
+		User::create($adminData);
+		User::create($supervisorData);
 
 		$this->sendNotification();
 	}
@@ -105,8 +121,8 @@ class TenantSignup extends Model {
 	}
 
 	public function updateRegistrationEmail($type, $email) {
-		if(!in_array($type, ['admin', 'mayor'])) {
-			throw new \InvalidArgumentException("Invalid e-mail type: {$type}; valid types are: admin | mayor");
+		if(!in_array($type, ['admin', 'supervisor'])) {
+			throw new \InvalidArgumentException("Invalid e-mail type: {$type}; valid types are: admin | supervisor");
 		}
 
 		$email = filter_var($email, FILTER_SANITIZE_EMAIL);
@@ -118,41 +134,32 @@ class TenantSignup extends Model {
 
 	public function sendNotification() {
 		$target = $this->data['admin']['email'];
-		Mail::to($target)->send(new TenantSignupApproved($this));
+		Mail::to($target)->send(new StateSignupApproved($this));
 	}
 
 	public function sendRejectionNotification() {
 		$target = $this->data['admin']['email'];
-		Mail::to($target)->send(new TenantSignupRejected($this));
-	}
-
-	public function getURLToken() {
-		return self::generateURLToken($this);
+		Mail::to($target)->send(new StateSignupRejected($this));
 	}
 
 
 	// -----------------------------------------------------------------------------------------------------------------
 
-	public static function generateURLToken(TenantSignup $signup) {
-		return sha1(env('APP_KEY') . $signup->id . $signup->created_at);
-	}
 
 	/**
-	 * Creates a new tenant sign-up request
+	 * Creates a new state sign-up request
 	 * @param array $data The data received from the form
 	 * @return string The ID of the sign-up request
 	 */
 	public static function createFromForm($data) {
-		$signup = new TenantSignup();
+		$signup = new StateSignup();
 
 		$signup->is_approved = false;
-		$signup->is_provisioned = false;
 		$signup->ip_addr = $_SERVER['REMOTE_ADDR'];
 		$signup->user_agent = $_SERVER['HTTP_USER_AGENT'];
 
-		$signup->city_id = $data['city_id'];
-		$signup->tenant_id = null;
-		$signup->data = collect($data)->only(['city_id', 'mayor', 'admin'])->toArray();
+		$signup->uf = $data['uf'];
+		$signup->data = collect($data)->only(['uf', 'admin', 'supervisor'])->toArray();
 
 		$signup->save();
 
@@ -166,20 +173,27 @@ class TenantSignup extends Model {
 	 */
 	public static function validate($data) {
 		return validator($data, [
-			'city_id' => 'required',
+			'uf' => 'required|string',
 			'admin.dob' => 'required|date',
+			'admin.cpf' => 'required|alpha_dash',
 			'admin.email' => 'required|email',
 			'admin.name' => 'required|string',
 			'admin.phone' => 'required|alpha_dash',
 			'admin.mobile' => 'nullable|alpha_dash',
 			'admin.institution' => 'required|string',
 			'admin.position' => 'required|string',
-			'mayor.name' => 'required|string',
-			'mayor.dob' => 'required|date',
-			'mayor.email' => 'required|email',
-			'mayor.phone' => 'required|alpha_dash',
-			'mayor.mobile' => 'nullable|alpha_dash',
+			'admin.password' => 'required|string',
+			'supervisor.dob' => 'required|date',
+			'supervisor.cpf' => 'required|alpha_dash',
+			'supervisor.email' => 'required|email',
+			'supervisor.name' => 'required|string',
+			'supervisor.phone' => 'required|alpha_dash',
+			'supervisor.mobile' => 'nullable|alpha_dash',
+			'supervisor.institution' => 'required|string',
+			'supervisor.position' => 'required|string',
+			'supervisor.password' => 'required|string',
 		]);
 	}
+
 
 }
