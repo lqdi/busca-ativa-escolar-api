@@ -266,7 +266,7 @@ class ChildrenController extends BaseController  {
 
 		$mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
 
-		if($this->currentUser()->isRestrictedToTenant()) {
+		if($this->currentUser()->isRestrictedToTenant() && !$this->currentUser()->isRestrictedToUF()) {
 			$mapCenter =  $this->currentUser()->tenant->getMapCoordinates();
 		}
 
