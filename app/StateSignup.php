@@ -77,6 +77,7 @@ class StateSignup extends Model {
 	public function approve(User $judge) {
 		$this->is_approved = true;
 		$this->judged_by = $judge->id;
+		$this->deleted_at = null;
 		$this->save();
 
 		$userFields = [

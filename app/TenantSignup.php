@@ -87,6 +87,7 @@ class TenantSignup extends Model {
 	// -----------------------------------------------------------------------------------------------------------------
 
 	public function approve(User $judge) {
+		$this->deleted_at = null;
 		$this->is_approved = true;
 		$this->judged_by = $judge->id;
 		$this->save();
