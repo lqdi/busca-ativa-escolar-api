@@ -137,13 +137,16 @@ class StateSignup extends Model {
 	}
 
 	public function sendNotification() {
-		$target = $this->data['admin']['email'];
-		Mail::to($target)->send(new StateSignupApproved($this));
+		$adminEmail = $this->data['admin']['email'];
+		$supervisorEmail = $this->data['supervisor']['email'];
+
+		Mail::to([$adminEmail, $supervisorEmail])->send(new StateSignupApproved($this));
 	}
 
 	public function sendRejectionNotification() {
-		$target = $this->data['admin']['email'];
-		Mail::to($target)->send(new StateSignupRejected($this));
+		$adminEmail = $this->data['admin']['email'];
+		$supervisorEmail = $this->data['supervisor']['email'];
+		Mail::to([$adminEmail, $supervisorEmail])->send(new StateSignupRejected($this));
 	}
 
 

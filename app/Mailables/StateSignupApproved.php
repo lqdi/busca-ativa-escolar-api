@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Mailables;
 
 
+use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\StateSignup;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -28,10 +29,12 @@ class StateSignupApproved extends Mailable {
 
 	public function build() {
 
+		$uf = UF::getByCode($this->signup->uf);
+
 		$message = (new MailMessage())
 			->subject("Sua adesão foi aprovada!")
 			->greeting('Olá!')
-			->line("A adesão como gestor estadual de {$this->signup->uf} à Busca Ativa Escolar foi aprovada.")
+			->line("A adesão como gestor estadual de {$uf->name} à Busca Ativa Escolar foi aprovada.")
 			->line('Clique no botão abaixo para acessar.')
 			->success()
 			->action('Acessar', url('/'));
