@@ -22,6 +22,7 @@ use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
@@ -263,10 +264,16 @@ class ChildrenController extends BaseController  {
 
 	public function getMap() {
 
-		$user = Auth::user();
-		$mapCenter = $user->tenant ?
-			$user->tenant->getMapCoordinates() : // Tenant coordinates
-			['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4]; // Map of Brazil
+		$mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
+
+		if($this->currentUser()->isRestrictedToTenant()) {
+			$mapCenter =  $this->currentUser()->tenant->getMapCoordinates();
+		}
+
+		if($this->currentUser()->isRestrictedToUF()) {
+			$mapCenter = UF::getByCode($this->currentUser()->uf)->getCoordinates();
+			$mapCenter['zoom'] = 6;
+		}
 
 		// TODO: cache this (w/ tenant ID)
 
