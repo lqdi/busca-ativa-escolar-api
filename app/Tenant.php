@@ -19,6 +19,8 @@ use BuscaAtivaEscolar\Mailables\UserCredentialsForNewTenant;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
+use Cache;
+use DB;
 use Geocoder\Geocoder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -256,6 +258,21 @@ class Tenant extends Model  {
 
 		return $tenant;
 
+	}
+
+	/**
+	 * Gets a list of all tenant IDs within a specific state
+	 * @param string $uf
+	 * @return array
+	 */
+	public static function getIDsWithinUF($uf) {
+		return Cache::remember('uf_tenants_' . $uf, config('cache.timeouts.uf_tenants'), function () use ($uf) {
+			return DB::table('tenants')
+				->where('uf', $uf)
+				->get(['id'])
+				->pluck('id')
+				->toArray();
+		});
 	}
 
 }

@@ -42,6 +42,10 @@ class TenantsController extends BaseController  {
 		$tenants = Tenant::query();
 		Tenant::applySorting($tenants, request('sort', []));
 
+		if($this->currentUser()->isRestrictedToUF()) {
+			$tenants->where('uf', $this->currentUser()->uf);
+		}
+
 		$tenants = $tenants->get();
 
 		return fractal()

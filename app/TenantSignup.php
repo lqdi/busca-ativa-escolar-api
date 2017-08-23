@@ -51,7 +51,7 @@ class TenantSignup extends Model {
 	use SoftDeletes;
 	use Sortable;
 
-	protected $table = "signups";
+	protected $table = "tenant_signups";
 	protected $fillable = [
 		'city_id',
 		'tenant_id',

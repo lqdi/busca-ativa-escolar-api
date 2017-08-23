@@ -68,9 +68,8 @@ class StateSignupController extends BaseController {
 		switch($filter['status']) {
 			case "all": $pending->withTrashed(); break;
 			case "rejected": $pending->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 0); break;
-			case "pending_approval": $pending->where('is_approved', 0); break;
 			case "approved": $pending->where( 'is_approved', 1); break;
-			case "pending": default: break;
+			case "pending": default: $pending->where('is_approved', 0); break;
 		}
 
 		if(isset($filter['created_at']) && strlen($filter['created_at']) > 0) {
@@ -142,6 +141,14 @@ class StateSignupController extends BaseController {
 		}
 	}
 
-	// TODO: create check availability endpoint
+	public function checkIfAvailable() {
+		$uf = request('uf');
+
+		$signup = StateSignup::where('uf', $uf)->first();
+
+		if($signup) return $this->api_success(['is_available' => false, 'signup_id' => $signup->id]);
+
+		return $this->api_success(['is_available' => true]);
+	}
 
 }

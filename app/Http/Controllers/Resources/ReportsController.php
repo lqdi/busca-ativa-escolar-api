@@ -143,18 +143,14 @@ class ReportsController extends BaseController {
 
 	public function state_stats() {
 
-		$uf = request('uf', auth()->user()->uf);
+		$uf = request('uf', $this->currentUser()->uf);
 
 		if(!$uf) {
 			return $this->api_failure('invalid_uf');
 		}
 
-		$tenants = DB::table('tenants')
-			->where('uf', $uf)
-			->get(['id', 'city_id', 'uf']);
-
-		$tenantIDs = $tenants->pluck('id')->toArray();
-		$cityIDs = $tenants->pluck('city_id')->toArray();
+		$tenantIDs = Tenant::getIDsWithinUF($uf);
+		$cityIDs = City::getIDsWithinUF($uf);
 
 		try {
 

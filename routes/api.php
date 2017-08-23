@@ -91,13 +91,13 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// State Sign-ups
 		Route::any('/signups/state/pending', 'Tenants\StateSignupController@get_pending');
-		Route::post('/signups/state/{signup}/approve', 'Tenants\StateSignupController@approve')->middleware('can:state.manage');
-		Route::post('/signups/state/{signup}/reject', 'Tenants\StateSignupController@reject')->middleware('can:state.manage');
-		Route::post('/signups/state/{signup}/update_registration_email', 'Tenants\StateSignupController@updateRegistrationEmail')->middleware('can:state.manage');
+		Route::post('/signups/state/{signup}/approve', 'Tenants\StateSignupController@approve')->middleware('can:tenants.manage');
+		Route::post('/signups/state/{signup}/reject', 'Tenants\StateSignupController@reject')->middleware('can:tenants.manage');
+		Route::post('/signups/state/{signup}/update_registration_email', 'Tenants\StateSignupController@updateRegistrationEmail')->middleware('can:tenants.manage');
 		Route::post('/signups/state/{signup}/resend_notification', 'Tenants\StateSignupController@resendNotification');
 
 		// Tenants (authenticated)
-		Route::any('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.manage');
+		Route::any('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.view');
 		Route::post('/tenants/{tenant}/cancel', 'Tenants\TenantsController@cancel')->middleware('can:tenants.manage');
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
 
@@ -146,6 +146,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	// State Sign-up
 	Route::post('/signups/state/register', 'Tenants\StateSignupController@register');
+	Route::post('/signups/state/check_if_available', 'Tenants\StateSignupController@checkIfAvailable');
 
 	Route::post('/integration/lp/alert_spawn', 'Integration\AlertSpawnController@spawn_alert');
 	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@on_message_received');

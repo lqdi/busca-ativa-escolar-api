@@ -30,12 +30,14 @@ class UsersController extends BaseController {
 	public function search() {
 		$query = User::with('group');
 
-		if(!Auth::user()->isRestrictedToTenant() && request()->has('tenant_id')) {
+		// If user is global user, they can filter by tenant_id
+		if(!$this->currentUser()->isRestrictedToTenant() && request()->has('tenant_id')) {
 			$query->where('tenant_id', request('tenant_id'));
 		}
 
-		if(Auth::user()->isRestrictedToUF()) {
-			$query->where('uf', request('uf'));
+		// If user is UF-bound, they can only see other UF-bound users in their UF
+		if($this->currentUser()->isRestrictedToUF()) {
+			$query->where('uf', $this->currentUser()->uf);
 			$query->whereIn('type', [User::TYPE_GESTOR_ESTADUAL, User::TYPE_SUPERVISOR_ESTADUAL]);
 		}
 

@@ -43,11 +43,11 @@ class StateSignup extends Model {
 	use SoftDeletes;
 	use Sortable;
 
-	protected $table = "signups";
+	protected $table = "state_signups";
 	protected $fillable = [
 		'uf',
 		'user_id',
-		'judger_by',
+		'judged_by',
 
 		'is_approved',
 
@@ -99,13 +99,16 @@ class StateSignup extends Model {
 		$supervisorData = collect($this->data['supervisor'])->only($userFields)->toArray();
 		$supervisorData['uf'] = $this->uf;
 		$supervisorData['tenant_id'] = null;
-		$supervisorData['type'] = User::TYPE_GESTOR_ESTADUAL;
+		$supervisorData['type'] = User::TYPE_SUPERVISOR_ESTADUAL;
 		$supervisorData['password'] = password_hash($this->data['supervisor']['password'], PASSWORD_DEFAULT);
 
 		// TODO: validate user data again
 
-		User::create($adminData);
-		User::create($supervisorData);
+		$admin = User::create($adminData);
+		$supervisor = User::create($supervisorData);
+
+		$this->user_id = $admin->id;
+		$this->save();
 
 		$this->sendNotification();
 	}

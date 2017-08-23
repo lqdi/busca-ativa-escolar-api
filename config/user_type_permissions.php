@@ -8,6 +8,7 @@ return [
 		//'cases.view',
 		//'cases.map',
 		'tenants.manage',
+		'tenants.view',
 		'developer_tools',
 		'maintenance',
 	],
@@ -18,6 +19,7 @@ return [
 		'users.view',
 		'users.manage',
 		'tenants.manage',
+		'tenants.view',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO => [
@@ -35,6 +37,7 @@ return [
 		'cases.map',
 		'users.view',
 		'users.manage',
+		'tenants.view',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL => [
@@ -106,6 +109,7 @@ return [
 		'cases.step.2a_observacao',
 		'cases.step.3a_observacao',
 		'cases.step.4a_observacao',
+		'tenants.view',
 		//'alerts.pending',
 		//'alerts.spawn',
 		//'preferences',

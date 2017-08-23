@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers;
 
+use BuscaAtivaEscolar\User;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -22,6 +23,15 @@ use Log;
 
 class BaseController extends Controller {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+	/**
+	 * Gets the currently authenticated user
+	 * @return User|null
+	 */
+    protected function currentUser() {
+    	if(auth()->guest()) return null;
+    	return auth()->user();
+    }
 
     protected function api_exception(\Exception $exception, $data = []) {
 
