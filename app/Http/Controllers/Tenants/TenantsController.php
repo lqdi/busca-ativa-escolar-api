@@ -22,6 +22,8 @@ use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\TenantTransformer;
 use BuscaAtivaEscolar\User;
+use Carbon\Carbon;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class TenantsController extends BaseController  {
 
@@ -39,21 +41,62 @@ class TenantsController extends BaseController  {
 	}
 
 	public function all() {
+
+		$max = intval(request('max', null));
+
+		$filter = request('filter', []);
+		$sort = request('sort', []);
+
 		$tenants = Tenant::query();
-		Tenant::applySorting($tenants, request('sort', []));
+		Tenant::applySorting($tenants, $sort);
+
+		if(isset($filter['name']) && strlen($filter['name']) > 0) {
+			$tenants->where('name', 'REGEXP', $filter['name']);
+		}
+
+		if(isset($filter['political_admin']) && strlen($filter['political_admin']) > 0) {
+			$tenants->whereHas('politicalAdmin', function ($sq) use ($filter) {
+				return $sq->where('name', 'REGEXP', $filter['political_admin']);
+			});
+		}
+
+		if(isset($filter['operational_admin']) && strlen($filter['operational_admin']) > 0) {
+			$tenants->whereHas('operationalAdmin', function ($sq) use ($filter) {
+				return $sq->where('name', 'REGEXP', $filter['operational_admin']);
+			});
+		}
+
+		if(isset($filter['last_active_at']) && strlen($filter['last_active_at']) > 0) {
+			$numDays = intval($filter['last_active_at']);
+			$cutoffDate = Carbon::now()->addDays(-$numDays);
+
+			$tenants->where('last_active_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
+		}
+
+		if(isset($filter['created_at']) && strlen($filter['created_at']) > 0) {
+			$numDays = intval($filter['created_at']);
+			$cutoffDate = Carbon::now()->addDays(-$numDays);
+
+			$tenants->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
+		}
 
 		if($this->currentUser()->isRestrictedToUF()) {
 			$tenants->where('uf', $this->currentUser()->uf);
 		}
 
-		$tenants = $tenants->get();
+		$tenants = ($max) ? $tenants->paginate($max) : $tenants->get();
 
-		return fractal()
+		$results = fractal()
 			->collection($tenants)
 			->transformWith(new TenantTransformer())
 			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond();
+			->parseIncludes(request('with'));
+
+		if($max) {
+			$results->paginateWith(new IlluminatePaginatorAdapter($tenants));
+		}
+
+		return $results->respond();
 	}
 
 	public function show(Tenant $tenant) {

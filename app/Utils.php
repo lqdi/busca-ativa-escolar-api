@@ -13,7 +13,7 @@
 
 namespace BuscaAtivaEscolar;
 
-
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
 class Utils {
@@ -57,6 +57,16 @@ class Utils {
 		$text = preg_replace('#\-{2}(.*?)\-{2}#', '<em>$1</em>', $text);
 
 		return $text;
+	}
+
+	public static function buildPaginatorMeta(LengthAwarePaginator $paginator) {
+		return ['pagination' => [
+			'current_page' => $paginator->currentPage(),
+			'total_pages' => $paginator->lastPage(),
+			'total' => $paginator->total(),
+			'count' => $paginator->count(),
+			'per_page' => $paginator->perPage(),
+		]];
 	}
 
 }

@@ -21,6 +21,7 @@ use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
+use BuscaAtivaEscolar\Utils;
 use Carbon\Carbon;
 use DB;
 use Event;
@@ -70,6 +71,7 @@ class TenantSignupController extends BaseController  {
 
 		$sort = request('sort', []);
 		$filter = request('filter', []);
+		$max = request('max', null);
 
 		TenantSignup::applySorting($pending, request('sort'));
 
@@ -96,7 +98,8 @@ class TenantSignupController extends BaseController  {
 
 		$columns = (isset($sort['cities.name:city_id'])) ? ['signups.*', 'cities.name'] : ['*'];
 
-		$pending = $pending->get($columns);
+		$pending = $max ? $pending->paginate($max, $columns) : $pending->get($columns);
+		$meta = $max ? Utils::buildPaginatorMeta($pending) : null;
 
 		$pending->each(function (&$item) { /* @var $item TenantSignup */
 			if($item->is_approved && !$item->is_provisioned) {
@@ -104,7 +107,7 @@ class TenantSignupController extends BaseController  {
 			}
 		});
 		
-		return response()->json(['data' => $pending]);
+		return response()->json(['data' => $max ? $pending->items() : $pending, 'meta' => $meta]);
 	}
 
 	public function get_via_token(TenantSignup $signup) {

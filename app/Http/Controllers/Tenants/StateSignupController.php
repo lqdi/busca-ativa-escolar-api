@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\StateSignup;
 use BuscaAtivaEscolar\User;
+use BuscaAtivaEscolar\Utils;
 
 class StateSignupController extends BaseController {
 
@@ -58,10 +59,11 @@ class StateSignupController extends BaseController {
 	}
 
 	public function get_pending() {
-		$pending = StateSignup::with('user');
+		$pending = StateSignup::query()->with('user');
 
 		$sort = request('sort', []);
 		$filter = request('filter', []);
+		$max = request('max', null);
 
 		StateSignup::applySorting($pending, $sort);
 
@@ -79,9 +81,10 @@ class StateSignupController extends BaseController {
 			$pending->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
 		}
 
-		$pending = $pending->get();
+		$pending = $max ? $pending->paginate($max) : $pending->get();
+		$meta = $max ? Utils::buildPaginatorMeta($pending) : null;
 
-		return response()->json(['data' => $pending]);
+		return response()->json(['data' => $max ? $pending->items() : $pending, 'meta' => $meta]);
 	}
 
 	public function approve(StateSignup $signup) {

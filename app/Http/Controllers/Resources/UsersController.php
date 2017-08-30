@@ -51,7 +51,7 @@ class UsersController extends BaseController {
 			User::applySorting($query, request('sort', []));
 		}
 
-		$max = intval(request('max', 128));
+		$max = request('max', 128);
 		if($max > 128) $max = 128;
 		if($max < 16) $max = 16;
 
