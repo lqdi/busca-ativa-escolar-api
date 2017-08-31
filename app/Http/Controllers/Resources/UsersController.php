@@ -96,7 +96,7 @@ class UsersController extends BaseController {
 			}
 
 			$needsTenantID = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
-			$needsUF = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+			$needsUF = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
 			$validation = $user->validate($input, false, $needsTenantID, $needsUF);
 
