@@ -311,7 +311,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	// ------------------------------------------------------------------------
 
-	public function getSearchIndex() : string { return 'children'; }
+	public function getSearchIndex() : string { return config('search.index_prefix') . 'children'; }
 	public function getSearchType() : string { return 'child'; }
 	public function getSearchID() { return $this->id; }
 
@@ -386,7 +386,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	// ------------------------------------------------------------------------
 
-	public function getTimeSeriesIndex() : string { return 'children_daily'; }
+	public function getTimeSeriesIndex() : string { return config('search.index_prefix') . 'children_daily'; }
 	public function getTimeSeriesType(): string { return 'child'; }
 
 	/**

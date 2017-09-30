@@ -23,19 +23,13 @@ class Search {
 	 */
 	protected $client;
 
-	/**
-	 * @var string
-	 */
-	protected $prefix;
-
 	public function __construct(Client $client) {
 		$this->client = $client;
-		$this->prefix = env('ELASTICSEARCH_INDEX_PREFIX', '');
 	}
 
 	public function search(Searchable $searchable, array $query, $maxResults = null) {
 		return $this->rawSearch([
-			'index' => $this->prefix . $searchable->getSearchIndex(),
+			'index' => $searchable->getSearchIndex(),
 			'type' => $searchable->getSearchType(),
 			'size' => $maxResults,
 			'body' => ['query' => $query],
@@ -44,7 +38,7 @@ class Search {
 
 	public function index(Searchable $searchable) {
 		return $this->rawIndex([
-			'index' => $this->prefix . $searchable->getSearchIndex(),
+			'index' => $searchable->getSearchIndex(),
 			'type' => $searchable->getSearchType(),
 			'id' => $searchable->getSearchID(),
 			'body' => $searchable->buildSearchDocument(),
@@ -53,7 +47,7 @@ class Search {
 
 	public function delete(Searchable $searchable) {
 		return $this->rawDelete([
-			'index' => $this->prefix . $searchable->getSearchIndex(),
+			'index' => $searchable->getSearchIndex(),
 			'type' => $searchable->getSearchType(),
 			'id' => $searchable->getSearchID(),
 		]);
@@ -61,7 +55,7 @@ class Search {
 
 	public function deleteByID(string $index, string $type, $id) {
 		return $this->rawDelete([
-			'index' => $this->prefix . $index,
+			'index' => $index,
 			'type' => $type,
 			'id' => $id,
 		]);

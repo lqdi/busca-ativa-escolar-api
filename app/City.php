@@ -113,7 +113,7 @@ class City extends Model implements Searchable {
 		});
 	}
 
-	public function getSearchIndex(): string { return 'cities'; }
+	public function getSearchIndex(): string { return config('search.index_prefix') . 'cities'; }
 	public function getSearchType(): string { return 'city'; }
 	public function getSearchID() { return $this->id; }
 
