@@ -81,16 +81,23 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update')->middleware('can:cases.manage');
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show')->middleware('can:cases.view');
 
-		// Sign-ups
-		Route::any('/signups/pending', 'Tenants\SignUpController@get_pending');
-		Route::post('/signups/complete_setup', 'Tenants\SignUpController@completeSetup')->middleware('can:tenant.complete_setup');
-		Route::post('/signups/{signup}/approve', 'Tenants\SignUpController@approve')->middleware('can:tenants.manage');
-		Route::post('/signups/{signup}/reject', 'Tenants\SignUpController@reject')->middleware('can:tenants.manage');
-		Route::post('/signups/{signup}/update_registration_email', 'Tenants\SignUpController@updateRegistrationEmail')->middleware('can:tenants.manage');
-		Route::post('/signups/{signup}/resend_notification', 'Tenants\SignUpController@resendNotification');
+		// Tenant Sign-ups
+		Route::any('/signups/tenants/pending', 'Tenants\TenantSignupController@get_pending');
+		Route::post('/signups/tenants/complete_setup', 'Tenants\TenantSignupController@completeSetup')->middleware('can:tenant.complete_setup');
+		Route::post('/signups/tenants/{signup}/approve', 'Tenants\TenantSignupController@approve')->middleware('can:tenants.manage');
+		Route::post('/signups/tenants/{signup}/reject', 'Tenants\TenantSignupController@reject')->middleware('can:tenants.manage');
+		Route::post('/signups/tenants/{signup}/update_registration_email', 'Tenants\TenantSignupController@updateRegistrationEmail')->middleware('can:tenants.manage');
+		Route::post('/signups/tenants/{signup}/resend_notification', 'Tenants\TenantSignupController@resendNotification');
+
+		// State Sign-ups
+		Route::any('/signups/state/pending', 'Tenants\StateSignupController@get_pending');
+		Route::post('/signups/state/{signup}/approve', 'Tenants\StateSignupController@approve')->middleware('can:tenants.manage');
+		Route::post('/signups/state/{signup}/reject', 'Tenants\StateSignupController@reject')->middleware('can:tenants.manage');
+		Route::post('/signups/state/{signup}/update_registration_email', 'Tenants\StateSignupController@updateRegistrationEmail')->middleware('can:tenants.manage');
+		Route::post('/signups/state/{signup}/resend_notification', 'Tenants\StateSignupController@resendNotification');
 
 		// Tenants (authenticated)
-		Route::any('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.manage');
+		Route::any('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.view');
 		Route::post('/tenants/{tenant}/cancel', 'Tenants\TenantsController@cancel')->middleware('can:tenants.manage');
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
 
@@ -107,6 +114,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		// Reports
 		Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
 		Route::get('/reports/country_stats', 'Resources\ReportsController@country_stats');
+		Route::get('/reports/state_stats', 'Resources\ReportsController@state_stats');
 
 	});
 
@@ -131,10 +139,14 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	// Support tickets
 	Route::post('/support/tickets/submit', 'Support\TicketsController@submit_ticket');
 
-	// Sign-up
-	Route::post('/signups/register', 'Tenants\SignUpController@register');
-	Route::get('/signups/via_token/{signup}', 'Tenants\SignUpController@get_via_token');
-	Route::post('/signups/{signup}/complete', 'Tenants\SignUpController@complete');
+	// Tenant Sign-up
+	Route::post('/signups/tenants/register', 'Tenants\TenantSignupController@register');
+	Route::get('/signups/tenants/via_token/{signup}', 'Tenants\TenantSignupController@get_via_token');
+	Route::post('/signups/tenants/{signup}/complete', 'Tenants\TenantSignupController@complete');
+
+	// State Sign-up
+	Route::post('/signups/state/register', 'Tenants\StateSignupController@register');
+	Route::post('/signups/state/check_if_available', 'Tenants\StateSignupController@checkIfAvailable');
 
 	Route::post('/integration/lp/alert_spawn', 'Integration\AlertSpawnController@spawn_alert');
 	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@on_message_received');

@@ -30,9 +30,10 @@ use BuscaAtivaEscolar\Reports\Reports;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
-use BuscaAtivaEscolar\SignUp;
+use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use Cache;
+use DB;
 use Illuminate\Support\Str;
 
 class ReportsController extends BaseController {
@@ -44,12 +45,15 @@ class ReportsController extends BaseController {
 
 		// Scope the query within the tenant
 		if(Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
+		if(Auth::user()->isRestrictedToUF()) $filters['uf'] = Auth::user()->uf;
 
-		//if(isset($filters['place_uf'])) $filters['place_uf'] = Str::lower($filters['place_uf']);
+		if(isset($filters['place_uf'])) $filters['place_uf'] = Str::lower($filters['place_uf']);
+		if(isset($filters['uf'])) $filters['uf'] = Str::lower($filters['uf']);
 
 		$entity = new Child();
 		$query = ElasticSearchQuery::withParameters($filters)
 			->filterByTerm('tenant_id', false)
+			->filterByTerm('uf', false)
 			//->filterByTerms('deadline_status', false)
 			->filterByTerms('case_status', false)
 			->filterByTerms('alert_status', false)
@@ -100,17 +104,95 @@ class ReportsController extends BaseController {
 
 			$stats = Cache::remember('stats_country', config('cache.timeouts.stats_platform'), function() {
 				return [
-					'num_tenants' => Tenant::query()->count(),
-					'num_signups' => SignUp::query()->count(),
-					'num_pending_setup' => SignUp::query()->where('is_approved', 1)->where('is_provisioned', 0)->count(),
-					'num_alerts' => Alerta::query()->accepted()->count(),
-					'num_cases_in_progress' => ChildCase::query()->where('case_status', ChildCase::STATUS_IN_PROGRESS)->count(),
-					'num_children_reinserted' => Child::query()->where('child_status', Child::STATUS_IN_SCHOOL)->count(),
-					'num_pending_signups' => SignUp::query()->whereNull('judged_by')->count(),
+					'num_tenants' => Tenant::query()
+						->count(),
+
+					'num_signups' => TenantSignup::query()
+						->count(),
+
+					'num_pending_setup' => TenantSignup::query()
+						->where('is_approved', 1)
+						->where('is_provisioned', 0)
+						->count(),
+
+					'num_alerts' => Alerta::query()
+						->notRejected()
+						->count(),
+
+					'num_cases_in_progress' => ChildCase::query()
+						->where('case_status', ChildCase::STATUS_IN_PROGRESS)
+						->count(),
+
+					'num_children_reinserted' => Child::query()
+						->where('child_status', Child::STATUS_IN_SCHOOL)
+						->count(),
+
+					'num_pending_signups' => TenantSignup::query()
+						->whereNull('judged_by')
+						->count(),
 				];
 			});
 
 			return response()->json(['status' => 'ok', 'stats' => $stats]);
+
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+
+	}
+
+	public function state_stats() {
+
+		$uf = request('uf', $this->currentUser()->uf);
+
+		if(!$uf) {
+			return $this->api_failure('invalid_uf');
+		}
+
+		$tenantIDs = Tenant::getIDsWithinUF($uf);
+		$cityIDs = City::getIDsWithinUF($uf);
+
+		try {
+
+			$stats = Cache::remember('stats_state_' . $uf, config('cache.timeouts.stats_platform'), function() use ($uf, $cityIDs, $tenantIDs) {
+				return [
+					'num_tenants' => Tenant::query()
+						->where('uf', $uf)
+						->count(),
+
+					'num_signups' => TenantSignup::query()
+						->whereIn('city_id', $cityIDs)
+						->count(),
+
+					'num_pending_setup' => TenantSignup::query()
+						->whereIn('city_id', $cityIDs)
+						->where('is_approved', 1)
+						->where('is_provisioned', 0)
+						->count(),
+
+					'num_alerts' => Alerta::query()
+						->whereIn('tenant_id', $tenantIDs)
+						->notRejected()
+						->count(),
+
+					'num_cases_in_progress' => ChildCase::query()
+						->whereIn('tenant_id', $tenantIDs)
+						->where('case_status', ChildCase::STATUS_IN_PROGRESS)
+						->count(),
+
+					'num_children_reinserted' => Child::query()
+						->whereIn('tenant_id', $tenantIDs)
+						->where('child_status', Child::STATUS_IN_SCHOOL)
+						->count(),
+
+					'num_pending_signups' => TenantSignup::query()
+						->whereIn('city_id', $cityIDs)
+						->whereNull('judged_by')
+						->count(),
+				];
+			});
+
+			return response()->json(['status' => 'ok', 'stats' => $stats, 'uf' => $uf, 'tenant_ids' => $tenantIDs, 'city_ids' => $cityIDs]);
 
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);

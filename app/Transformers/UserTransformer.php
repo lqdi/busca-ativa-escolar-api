@@ -44,6 +44,7 @@ class UserTransformer extends TransformerAbstract {
 			'tenant_id' => $user->tenant_id,
 			'group_id' => $user->group_id,
 			'city_id' => $user->city_id,
+			'uf' => $user->uf,
 
 			'institution' => $user->institution,
 			'position' => $user->position,

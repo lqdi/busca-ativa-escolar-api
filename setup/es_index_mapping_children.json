@@ -274,6 +274,10 @@
 			"store": true,
 			"type": "string"
 		},
+		"assigned_uf": {
+			"store": true,
+			"type": "string"
+		},
 		"case_cause_ids": {
 			"type": "string"
 		},

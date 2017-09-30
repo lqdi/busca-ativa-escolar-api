@@ -8,6 +8,7 @@ return [
 		//'cases.view',
 		//'cases.map',
 		'tenants.manage',
+		'tenants.view',
 		'developer_tools',
 		'maintenance',
 	],
@@ -18,6 +19,7 @@ return [
 		'users.view',
 		'users.manage',
 		'tenants.manage',
+		'tenants.view',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO => [
@@ -28,6 +30,14 @@ return [
 		'alerts.spawn',
 		'settings.manage',
 		'preferences',
+	],
+
+	BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
+		'reports.view',
+		'cases.map',
+		'users.view',
+		'users.manage',
+		'tenants.view',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL => [
@@ -80,6 +90,31 @@ return [
 		'preferences',
 	],
 
+	BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL => [
+		'reports.view',
+		'users.view',
+		'users.manage',
+		'cases.view',
+		'cases.manage',
+		'cases.cancel',
+		'cases.assign',
+		'cases.reopen',
+		'cases.map',
+		'cases.step.alerta',
+		'cases.step.pesquisa',
+		'cases.step.analise_tecnica',
+		'cases.step.gestao_do_caso',
+		'cases.step.rematricula',
+		'cases.step.1a_observacao',
+		'cases.step.2a_observacao',
+		'cases.step.3a_observacao',
+		'cases.step.4a_observacao',
+		'tenants.view',
+		//'alerts.pending',
+		//'alerts.spawn',
+		//'preferences',
+	],
+
 	BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR => [
 		'reports.view',
 		'cases.view',
@@ -105,6 +140,8 @@ return [
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
 			BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
 			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
 		],
 		BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
 			BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL,
@@ -113,6 +150,15 @@ return [
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
 			BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
 			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+		],
+		BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
+			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+		],
+		BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL => [
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
 		],
 		BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL => [
 			BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,

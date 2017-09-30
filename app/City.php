@@ -16,6 +16,8 @@ namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
+use Cache;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
@@ -94,6 +96,21 @@ class City extends Model implements Searchable {
 		}
 
 		return $query;
+	}
+
+	/**
+	 * Gets a list of all city IDs within a specific state
+	 * @param string $uf
+	 * @return array
+	 */
+	public static function getIDsWithinUF($uf) {
+		return Cache::remember('uf_cities_' . $uf, config('cache.timeouts.uf_cities'), function () use ($uf) {
+			return DB::table('cities')
+				->where('uf', $uf)
+				->get(['id'])
+				->pluck('id')
+				->toArray();
+		});
 	}
 
 	public function getSearchIndex(): string { return 'cities'; }

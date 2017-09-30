@@ -33,7 +33,9 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 		'cpf',
 		'nis',
+
 		'alert_cause_id',
+		'alert_status',
 
 		'mother_name',
 		'mother_rg',
@@ -64,6 +66,14 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 	public function scopeAccepted($query) {
 		return $query->where('alert_status', 'accepted');
+	}
+
+	public function scopeRejected($query) {
+		return $query->where('alert_status', 'rejected');
+	}
+
+	public function scopeNotRejected($query) {
+		return $query->whereIn('alert_status', ['accepted', 'pending']);
 	}
 
 	protected function onComplete() : bool {

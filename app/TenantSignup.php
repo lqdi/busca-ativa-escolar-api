@@ -1,7 +1,7 @@
 <?php
 /**
  * busca-ativa-escolar-api
- * SignUp.php
+ * TenantSignup.php
  *
  * Copyright (c) LQDI Digital
  * www.lqdi.net - 2017
@@ -14,8 +14,8 @@
 namespace BuscaAtivaEscolar;
 
 
-use BuscaAtivaEscolar\Mailables\SignupApproved;
-use BuscaAtivaEscolar\Mailables\SignupRejected;
+use BuscaAtivaEscolar\Mailables\TenantSignupApproved;
+use BuscaAtivaEscolar\Mailables\TenantSignupRejected;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
 use Illuminate\Database\Eloquent\Model;
@@ -23,13 +23,35 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Messages\MailMessage;
 use Mail;
 
-class SignUp extends Model {
+/**
+ * @property int $id
+ * @property string $city_id
+ * @property string $tenant_id
+ * @property string $judged_by
+ *
+ * @property bool $is_approved
+ * @property bool $is_provisioned
+ *
+ * @property string $ip_addr
+ * @property string $user_agent
+ *
+ * @property array $data
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ *
+ * @property City|null $city
+ * @property Tenant|null $tenant
+ * @property User|null $judge
+ */
+class TenantSignup extends Model {
 
 	use IndexedByUUID;
 	use SoftDeletes;
 	use Sortable;
 
-	protected $table = "signups";
+	protected $table = "tenant_signups";
 	protected $fillable = [
 		'city_id',
 		'tenant_id',
@@ -65,6 +87,7 @@ class SignUp extends Model {
 	// -----------------------------------------------------------------------------------------------------------------
 
 	public function approve(User $judge) {
+		$this->deleted_at = null;
 		$this->is_approved = true;
 		$this->judged_by = $judge->id;
 		$this->save();
@@ -96,12 +119,12 @@ class SignUp extends Model {
 
 	public function sendNotification() {
 		$target = $this->data['admin']['email'];
-		Mail::to($target)->send(new SignupApproved($this));
+		Mail::to($target)->send(new TenantSignupApproved($this));
 	}
 
 	public function sendRejectionNotification() {
 		$target = $this->data['admin']['email'];
-		Mail::to($target)->send(new SignupRejected($this));
+		Mail::to($target)->send(new TenantSignupRejected($this));
 	}
 
 	public function getURLToken() {
@@ -111,7 +134,7 @@ class SignUp extends Model {
 
 	// -----------------------------------------------------------------------------------------------------------------
 
-	public static function generateURLToken(SignUp $signup) {
+	public static function generateURLToken(TenantSignup $signup) {
 		return sha1(env('APP_KEY') . $signup->id . $signup->created_at);
 	}
 
@@ -121,7 +144,7 @@ class SignUp extends Model {
 	 * @return string The ID of the sign-up request
 	 */
 	public static function createFromForm($data) {
-		$signup = new SignUp();
+		$signup = new TenantSignup();
 
 		$signup->is_approved = false;
 		$signup->is_provisioned = false;

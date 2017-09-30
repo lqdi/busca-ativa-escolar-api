@@ -26,6 +26,7 @@ use BuscaAtivaEscolar\Events\SearchableNeedsReindexing;
 use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
 use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Reports\Traits\AggregatedBySearchDocument;
+use BuscaAtivaEscolar\Scopes\TenantScope;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
@@ -181,6 +182,14 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	// ------------------------------------------------------------------------
 
+	public function scopeAccepted($query) {
+		return $query->where('alert_status', 'accepted');
+	}
+
+	public function scopeRejected($query) {
+		return $query->where('alert_status', 'rejected');
+	}
+
 	/**
 	 * Gets the URL for viewing a child
 	 * @return string
@@ -234,6 +243,9 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$this->currentCase->save();
 
 		$alertStep = $this->currentStep; /* @var $alertStep Alerta */
+		$alertStep->alert_status = 'accepted';
+		$alertStep->save();
+
 		$alertStep->complete();
 
 		event(new AlertStatusChanged($this, $prevStatus, 'accepted'));
@@ -247,6 +259,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$prevStatus = $this->alert_status;
 
 		$this->currentCase->case_status = ChildCase::STATUS_CANCELLED;
+		$this->currentCase->cancel_reason = ChildCase::CANCEL_REASON_REJECTED_ALERT;
 		$this->currentCase->save();
 
 		$this->alert_status = 'rejected';
@@ -334,8 +347,14 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 
 		if($this->currentStep) {
-			$data['assigned_user_id'] = $this->currentStep->assignedUser->id ?? null;
-			$data['assigned_user_name'] = $this->currentStep->assignedUser->name ?? null;
+			$data['assigned_user_id'] = $this->currentStep->assigned_user_id ?? null;
+
+			$assignedUser = $this->currentStep->assigned_user_id ? // TODO: refactor the way we deal with non-scoped models
+				User::withoutGlobalScope(TenantScope::class)->find($data['assigned_user_id']) : null;
+
+			$data['assigned_user_name'] = $assignedUser->name ?? null;
+			$data['assigned_uf'] = $assignedUser->uf ?? null;
+
 			$data['step_name'] = $this->currentStep->getName() ?? null;
 			$data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
 		}
@@ -422,6 +441,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             "assigned_user_id",
             "alert_submitter_id",
             "uf",
+            "assigned_uf",
             "country_region",
 		]);
 

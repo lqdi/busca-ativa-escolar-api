@@ -22,13 +22,13 @@ use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\AttachmentTransformer;
 use BuscaAtivaEscolar\Transformers\ChildSearchResultsTransformer;
-use BuscaAtivaEscolar\Transformers\ChildSearchTransformer;
 use BuscaAtivaEscolar\Transformers\ChildTransformer;
 use BuscaAtivaEscolar\Transformers\CommentTransformer;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
@@ -45,10 +45,22 @@ class ChildrenController extends BaseController  {
 		$params = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
 
 		// Scope the query within the tenant
-		if(Auth::user()->isRestrictedToTenant()) $params['tenant_id'] = Auth::user()->tenant_id;
+		if(Auth::user()->isRestrictedToTenant()) {
+			$params['tenant_id'] = Auth::user()->tenant_id;
+		}
+
+		// Scope the query to state agents
+		if(Auth::user()->isRestrictedToUF()) {
+			$params['assigned_uf'] = Auth::user()->uf;
+		}
+
+		if(isset($params['uf'])) $params['uf'] = Str::lower($params['uf']);
+		if(isset($params['assigned_uf'])) $params['assigned_uf'] = Str::lower($params['assigned_uf']);
 
 		$query = ElasticSearchQuery::withParameters($params)
 			->filterByTerm('tenant_id', false)
+			->filterByTerm('uf', false)
+			->filterByTerm('assigned_uf', false)
 			->addTextFields(['name', 'cause_name', 'step_name', 'assigned_user_name'], 'match')
 			->searchTextInColumns(
 				'location_full',
@@ -252,10 +264,16 @@ class ChildrenController extends BaseController  {
 
 	public function getMap() {
 
-		$user = Auth::user();
-		$mapCenter = $user->tenant ?
-			$user->tenant->getMapCoordinates() : // Tenant coordinates
-			['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4]; // Map of Brazil
+		$mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
+
+		if($this->currentUser()->isRestrictedToTenant() && !$this->currentUser()->isRestrictedToUF()) {
+			$mapCenter =  $this->currentUser()->tenant->getMapCoordinates();
+		}
+
+		if($this->currentUser()->isRestrictedToUF()) {
+			$mapCenter = UF::getByCode($this->currentUser()->uf)->getCoordinates();
+			$mapCenter['zoom'] = 6;
+		}
 
 		// TODO: cache this (w/ tenant ID)
 
