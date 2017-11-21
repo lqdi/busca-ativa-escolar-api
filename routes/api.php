@@ -40,6 +40,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Users
 		Route::post('/users/search', 'Resources\UsersController@search')->middleware('can:users.view');
+		Route::get('/users/export', 'Resources\UsersController@export')->middleware('can:users.export');
 		Route::get('/users/myself', 'Auth\IdentityController@identity');
 		Route::group(['middleware' => 'can:users.manage'], function() {
 			Route::post('/users/{user_id}/restore', 'Resources\UsersController@restore');

@@ -21,6 +21,7 @@ use BuscaAtivaEscolar\Mailables\UserRegistered;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
 use BuscaAtivaEscolar\User;
+use Excel;
 use Exception;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Mail;
@@ -65,6 +66,29 @@ class UsersController extends BaseController {
 			->paginateWith(new IlluminatePaginatorAdapter($paginator))
 			->parseIncludes(request('with'))
 			->respond();
+	}
+
+	public function export() {
+		$users = User::query()
+			->with(['group', 'tenant'])
+			->withTrashed()
+			->orderBy('name', 'ASC')
+			->get()
+			->map(function ($user) { /* @var $user User */
+				return $user->toExportArray();
+			})
+			->toArray();
+
+		Excel::create('buscaativaescolar_users', function($excel) use ($users) {
+
+			$excel->sheet('users', function($sheet) use ($users) {
+
+				$sheet->setOrientation('landscape');
+				$sheet->fromArray($users);
+
+			});
+
+		})->export('xls');
 	}
 
 	public function show(User $user) {

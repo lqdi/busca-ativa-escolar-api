@@ -375,6 +375,26 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		]);
 	}
 
+	public function toExportArray() {
+		return [
+			'UF' => $this->tenant->uf ?? '',
+			'Município' => $this->tenant->name ?? '',
+			'Data de adesão' => $this->tenant ? $this->tenant->created_at->toDateTimeString() : '',
+			'Data de cadastro' => $this->created_at ? $this->created_at->toDateTimeString() : '',
+			'Nome do usuário' => $this->name,
+			'E-mail' => $this->email,
+			'Telefone Institucional' => $this->work_phone,
+			'Celular Institucional' => $this->work_mobile,
+			'Celular Pessoal' => $this->personal_mobile,
+			'Data de nascimento' => $this->dob,
+			'Tipo' => trans('user.type.' . $this->type),
+			'Grupo' => $this->group->name ?? '',
+			'Instituição' => $this->institution,
+			'Posição' => $this->position,
+			'Status' => $this->deleted_at ? 'Inativo' : 'Ativo',
+		];
+	}
+
 	// ------------------------------------------------------------------------
 
 	/**
