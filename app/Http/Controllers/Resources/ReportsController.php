@@ -30,6 +30,7 @@ use BuscaAtivaEscolar\Reports\Reports;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\StateSignup;
 use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use Cache;
@@ -128,6 +129,10 @@ class ReportsController extends BaseController {
 						->count(),
 
 					'num_pending_signups' => TenantSignup::query()
+						->whereNull('judged_by')
+						->count(),
+
+					'num_pending_state_signups' => StateSignup::query()
 						->whereNull('judged_by')
 						->count(),
 				];
