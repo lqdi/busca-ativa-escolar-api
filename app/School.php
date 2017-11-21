@@ -47,7 +47,7 @@ class School extends Model implements Searchable {
 
 	// ------------------------------------------------------------------------
 
-	public function getSearchIndex(): string { return 'schools'; }
+	public function getSearchIndex(): string { return config('search.index_prefix') . 'schools'; }
 	public function getSearchType(): string { return 'school'; }
 	public function getSearchID() { return $this->id; }
 
