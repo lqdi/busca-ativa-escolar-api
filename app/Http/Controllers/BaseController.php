@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use BuscaAtivaEscolar\User;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller;
@@ -38,6 +39,7 @@ class BaseController extends Controller {
     	if(!$data) $data = [];
 
     	Log::error('[api_exception] ' . $exception->getMessage() . "\n\n {$exception->getTraceAsString()}");
+    	Bugsnag::notifyException($exception);
 
 	    $exceptionInfo = $exception->getMessage();
 
@@ -67,6 +69,8 @@ class BaseController extends Controller {
 
 	protected function api_failure($reason, $fields = null, $data = []) {
     	if(!$data) $data = [];
+
+    	Log::debug("[api_failure] Returned API failure: {$reason}; fields=" . json_encode($fields) . ", data=" .json_encode($data));
 
     	$data['status'] = 'error';
 		$data['reason'] = $reason;
