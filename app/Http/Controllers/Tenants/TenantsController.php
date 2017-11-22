@@ -47,7 +47,7 @@ class TenantsController extends BaseController  {
 		$filter = request('filter', []);
 		$sort = request('sort', []);
 
-		$tenants = Tenant::query();
+		$tenants = Tenant::query()->with(['operationalAdmin', 'politicalAdmin']);
 		Tenant::applySorting($tenants, $sort);
 
 		if(isset($filter['name']) && strlen($filter['name']) > 0) {

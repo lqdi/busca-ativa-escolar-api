@@ -72,7 +72,7 @@ class Tenant extends Model  {
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
 	public function operationalAdmin() {
-		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'operational_admin_id');
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'operational_admin_id')->withTrashed();
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Tenant extends Model  {
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
 	public function politicalAdmin() {
-		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'political_admin_id');
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'political_admin_id')->withTrashed();
 	}
 
 	/**
