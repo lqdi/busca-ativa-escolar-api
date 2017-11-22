@@ -119,6 +119,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	});
 
+	Route::get('/maintenance/test_error_reporting', 'Maintenance\SystemHealthController@test_error_reporting');
+
 	// Attachment download
 	// TODO: IMPORTANT: authenticate this with special timed download token
 	Route::get('/attachments/download/{attachment}', 'Resources\AttachmentsController@download')->name('api.attachments.download');
