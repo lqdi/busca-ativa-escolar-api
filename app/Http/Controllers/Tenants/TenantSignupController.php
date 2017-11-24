@@ -96,7 +96,7 @@ class TenantSignupController extends BaseController  {
 			$pending->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
 		}
 
-		$columns = (isset($sort['cities.name:city_id'])) ? ['signups.*', 'cities.name'] : ['*'];
+		$columns = (isset($sort['cities.name:city_id'])) ? ['tenant_signups.*', 'cities.name'] : ['*'];
 
 		$pending = $max ? $pending->paginate($max, $columns) : $pending->get($columns);
 		$meta = $max ? Utils::buildPaginatorMeta($pending) : null;
