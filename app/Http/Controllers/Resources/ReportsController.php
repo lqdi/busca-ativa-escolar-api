@@ -125,7 +125,7 @@ class ReportsController extends BaseController {
 						->count(),
 
 					'num_children_reinserted' => Child::query()
-						->where('child_status', Child::STATUS_IN_SCHOOL)
+						->whereIn('child_status', [Child::STATUS_IN_SCHOOL, Child::STATUS_OBSERVATION])
 						->count(),
 
 					'num_pending_signups' => TenantSignup::query()
@@ -187,7 +187,7 @@ class ReportsController extends BaseController {
 
 					'num_children_reinserted' => Child::query()
 						->whereIn('tenant_id', $tenantIDs)
-						->where('child_status', Child::STATUS_IN_SCHOOL)
+						->whereIn('child_status', [Child::STATUS_IN_SCHOOL, Child::STATUS_OBSERVATION])
 						->count(),
 
 					'num_pending_signups' => TenantSignup::query()
