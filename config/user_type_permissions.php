@@ -10,6 +10,8 @@ return [
 		//'cases.map',
 		'tenants.manage',
 		'tenants.view',
+		'ufs.view',
+		'ufs.manage',
 		'developer_tools',
 		'maintenance',
 	],
@@ -22,6 +24,8 @@ return [
 		'users.export',
 		'tenants.manage',
 		'tenants.view',
+		'ufs.view',
+		'ufs.manage',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO => [

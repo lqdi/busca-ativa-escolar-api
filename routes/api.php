@@ -91,11 +91,11 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/signups/tenants/{signup}/resend_notification', 'Tenants\TenantSignupController@resendNotification');
 
 		// State Sign-ups
-		Route::any('/signups/state/pending', 'Tenants\StateSignupController@get_pending');
-		Route::post('/signups/state/{signup}/approve', 'Tenants\StateSignupController@approve')->middleware('can:tenants.manage');
-		Route::post('/signups/state/{signup}/reject', 'Tenants\StateSignupController@reject')->middleware('can:tenants.manage');
-		Route::post('/signups/state/{signup}/update_registration_email', 'Tenants\StateSignupController@updateRegistrationEmail')->middleware('can:tenants.manage');
-		Route::post('/signups/state/{signup}/resend_notification', 'Tenants\StateSignupController@resendNotification');
+		Route::any('/signups/state/pending', 'Tenants\StateSignupController@get_pending')->middleware('can:ufs.manage');
+		Route::post('/signups/state/{signup}/approve', 'Tenants\StateSignupController@approve')->middleware('can:ufs.manage');
+		Route::post('/signups/state/{signup}/reject', 'Tenants\StateSignupController@reject')->middleware('can:ufs.manage');
+		Route::post('/signups/state/{signup}/update_registration_email', 'Tenants\StateSignupController@updateRegistrationEmail')->middleware('can:ufs.manage');
+		Route::post('/signups/state/{signup}/resend_notification', 'Tenants\StateSignupController@resendNotification')->middleware('can:ufs.manage');
 
 		// Tenants (authenticated)
 		Route::any('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.view');
