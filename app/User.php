@@ -242,6 +242,24 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	}
 
 	/**
+	 * Gets the list of user types this user can manage, based on their type
+	 * @return array
+	 */
+	public function getWhoCanManage() {
+		if(!$this->type) return [];
+		return config('user_type_permissions.can_manage_types.' . $this->type, []);
+	}
+
+	/**
+	 * Gets the list of user types this user can view/filter, based on their type
+	 * @return array
+	 */
+	public function getWhoCanFilter() {
+		if(!$this->type) return [];
+		return config('user_type_permissions.can_filter_types.' . $this->type, []);
+	}
+
+	/**
 	 * Checks if a user has a certain permission
 	 * @param string $permission
 	 * @param array $arguments

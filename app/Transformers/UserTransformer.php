@@ -55,6 +55,8 @@ class UserTransformer extends TransformerAbstract {
 			] + (($this->mode == 'long') ? [
 
 				'permissions' => $user->getPermissions(),
+				'can_manage' => $user->getWhoCanManage(),
+				'can_filter' => $user->getWhoCanFilter(),
 
 				'cpf' => $user->cpf,
 				'dob' => $user->dob,
