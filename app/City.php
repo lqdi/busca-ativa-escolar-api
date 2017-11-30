@@ -13,7 +13,6 @@
 
 namespace BuscaAtivaEscolar;
 
-
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use Cache;
@@ -22,6 +21,24 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
+/**
+ * @property int $id
+ *
+ * @property string $uf
+ * @property string $region
+ * @property string $name
+ * @property string $name_ascii
+ * @property string $ibge_city_id
+ * @property string $ibge_uf_id
+ * @property string $ibge_region_id
+ * @property string $webdoc_url
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ *
+ * @property Tenant $tenant
+ */
 class City extends Model implements Searchable {
 
 	use SoftDeletes;

@@ -377,8 +377,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
 	public function toExportArray() {
 		return [
-			'UF' => $this->tenant->uf ?? '',
-			'Município' => $this->tenant->name ?? '',
+			'UF' => $this->tenant->city->uf ?? '',
+			'Município' => $this->tenant->city->name ?? '',
+			'Nome interno' => $this->tenant->name ?? '',
 			'Data de adesão' => $this->tenant ? $this->tenant->created_at->toDateTimeString() : '',
 			'Data de cadastro' => $this->created_at ? $this->created_at->toDateTimeString() : '',
 			'Nome do usuário' => $this->name,

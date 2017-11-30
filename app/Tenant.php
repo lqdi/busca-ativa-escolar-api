@@ -20,6 +20,7 @@ use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
 use Cache;
+use Carbon\Carbon;
 use DB;
 use Geocoder\Geocoder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,31 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Log;
 use Mail;
 
+/**
+ * @property int $id
+ *
+ * @property string $name
+ * @property string $city_id
+ * @property string $uf
+ * @property string $operational_admin_id
+ * @property string $political_admin_id
+ * @property boolean $is_registered
+ * @property boolean $is_active
+ * @property boolean $is_setup
+ * @property Carbon|null $last_active_at
+ * @property Carbon|null $registered_at
+ * @property Carbon|null $activated_at
+ * @property float $map_lat
+ * @property float $map_lng
+ *
+ * @property City $city
+ * @property Group $primary_group
+ * @property TenantSettings $settings
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ */
 class Tenant extends Model  {
 
 	use IndexedByUUID;
@@ -199,6 +225,7 @@ class Tenant extends Model  {
 		$now = date('Y-m-d H:i:s');
 
 		$tenant = Tenant::create([
+			'uf' => $city->uf,
 			'name' => Tenant::generateNameFromCity($city),
 			'city_id' => $city->id,
 			'operational_admin_id' => null,
