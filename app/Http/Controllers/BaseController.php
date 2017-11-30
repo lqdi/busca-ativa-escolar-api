@@ -34,6 +34,17 @@ class BaseController extends Controller {
     	return auth()->user();
     }
 
+    protected function tickTenantLastActivity() {
+    	if(!auth()->check()) return;
+    	if(!auth()->user()->tenant) return;
+
+	    try {
+		    auth()->user()->tenant->tickLastActivity();
+	    } catch (\Exception $ex) {
+		    Bugsnag::notifyException($ex);
+	    }
+    }
+
     protected function api_exception(\Exception $exception, $data = []) {
 
     	if(!$data) $data = [];

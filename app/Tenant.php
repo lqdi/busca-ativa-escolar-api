@@ -163,6 +163,15 @@ class Tenant extends Model  {
 		return ['lat' => $this->map_lat, 'lng' => $this->map_lng, 'zoom' => 10];
 	}
 
+	/**
+	 * Updates the 'last active at' datetime
+	 */
+	public function tickLastActivity() {
+		$this->last_active_at = Carbon::now();
+		// Done using DB so we don't modify "updated_at" column
+		DB::update("UPDATE tenants SET last_active_at = ? WHERE id = ?", [$this->last_active_at->toDateTimeString(), $this->id]);
+	}
+
 	// ------------------------------------------------------------------------
 
 	/**

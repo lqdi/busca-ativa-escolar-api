@@ -52,6 +52,8 @@ class IdentityController extends BaseController  {
 
 		}
 
+		$this->tickTenantLastActivity();
+
 		return response()->json(compact('token', 'user'));
 	}
 
@@ -70,6 +72,8 @@ class IdentityController extends BaseController  {
 			return response()->json(['error' => 'token_refresh_fail', 'reason' => $ex->getMessage()], 500);
 		}
 
+		$this->tickTenantLastActivity();
+
 
 		return response()->json(compact('token', 'user'));
 	}
@@ -77,6 +81,8 @@ class IdentityController extends BaseController  {
 	public function identity() {
 
 		$user = Auth::user();
+
+		$this->tickTenantLastActivity();
 
 		return fractal()
 			->item($user)
