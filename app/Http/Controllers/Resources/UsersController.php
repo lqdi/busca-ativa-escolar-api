@@ -119,10 +119,10 @@ class UsersController extends BaseController {
 				$input['tenant_id'] = Auth::user()->tenant_id;
 			}
 
-			$needsTenantID = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
-			$needsUF = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
+			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
-			$validation = $user->validate($input, false, $needsTenantID, $needsUF);
+			$validation = $user->validate($input, false, $isTenantUser, $isUFUser);
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
@@ -145,6 +145,11 @@ class UsersController extends BaseController {
 
 			$user->save();
 
+			if(!$user->uf && $user->tenant_id) {
+				$user->uf = $user->tenant->uf;
+				$user->save();
+			}
+
 			return response()->json(['status' => 'ok', 'updated' => $input]);
 
 		} catch (\Exception $ex) {
@@ -164,10 +169,10 @@ class UsersController extends BaseController {
 
 			$initialPassword = $input['password'];
 
-			$needsTenantID = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
-			$needsUF = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
+			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
-			$validation = $user->validate($input, true, $needsTenantID, $needsUF);
+			$validation = $user->validate($input, true, $isTenantUser, $isUFUser);
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
@@ -188,9 +193,14 @@ class UsersController extends BaseController {
 
 			$user->save();
 
+			if(!$user->uf && $user->tenant_id) {
+				$user->uf = $user->tenant->uf;
+				$user->save();
+			}
+
 			if($user->tenant) {
 				Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
-			} else if($user->uf) {
+			} else if($isUFUser) {
 				Mail::to($user->email)->send(new StateUserRegistered($user->uf, $user, $initialPassword));
 			}
 

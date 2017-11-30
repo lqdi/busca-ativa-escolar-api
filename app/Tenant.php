@@ -238,9 +238,12 @@ class Tenant extends Model  {
 		]);
 
 		$politicalAdminData['type'] = User::TYPE_GESTOR_POLITICO;
+		$politicalAdminData['uf'] = $tenant->uf;
 		$politicalAdminData['tenant_id'] = $tenant->id;
+
 		$operationalAdminData['type'] = User::TYPE_GESTOR_OPERACIONAL;
 		$operationalAdminData['tenant_id'] = $tenant->id;
+		$operationalAdminData['uf'] = $tenant->uf;
 
 		$politicalAdmin = new User();
 		$politicalAdmin->fill($politicalAdminData);
