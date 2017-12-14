@@ -69,10 +69,18 @@ class UsersController extends BaseController {
 	}
 
 	public function export() {
-		$users = User::query()
+		$query= User::query()
 			->with(['group', 'tenant'])
 			->withTrashed()
-			->orderBy('name', 'ASC')
+			->orderBy('name', 'ASC');
+
+		// If user is UF-bound, they can only see other UF-bound users in their UF
+		if($this->currentUser()->isRestrictedToUF()) {
+			$query->where('uf', $this->currentUser()->uf);
+			$query->whereIn('type', [User::TYPE_GESTOR_ESTADUAL, User::TYPE_SUPERVISOR_ESTADUAL]);
+		}
+
+		$users = $query
 			->get()
 			->map(function ($user) { /* @var $user User */
 				return $user->toExportArray();

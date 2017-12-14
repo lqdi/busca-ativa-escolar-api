@@ -33,6 +33,7 @@ return [
 		'cases.map',
 		'users.view',
 		'users.manage',
+		'users.export',
 		'alerts.spawn',
 		'settings.manage',
 		'preferences',
@@ -43,6 +44,7 @@ return [
 		'cases.map',
 		'users.view',
 		'users.manage',
+		'users.export',
 		'tenants.view',
 	],
 
@@ -50,6 +52,7 @@ return [
 		'reports.view',
 		'users.view',
 		'users.manage',
+		'users.export',
 		'cases.view',
 		'cases.manage',
 		'cases.cancel',
