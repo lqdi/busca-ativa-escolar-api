@@ -114,6 +114,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Reports
 		Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
+		Route::post('/reports/tenants', 'Resources\ReportsController@query_tenants')->middleware('can:reports.view');
+		Route::post('/reports/ufs', 'Resources\ReportsController@query_ufs')->middleware('can:reports.view');
 		Route::get('/reports/country_stats', 'Resources\ReportsController@country_stats');
 		Route::get('/reports/state_stats', 'Resources\ReportsController@state_stats');
 

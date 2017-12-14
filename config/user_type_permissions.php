@@ -3,6 +3,8 @@ return [
 
 	BuscaAtivaEscolar\User::TYPE_SUPERUSER => [
 		'reports.view',
+		'reports.ufs',
+		'reports.tenants',
 		'users.view',
 		'users.manage',
 		'users.export',
@@ -18,6 +20,8 @@ return [
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
 		'reports.view',
+		'reports.ufs',
+		'reports.tenants',
 		'cases.map',
 		'users.view',
 		'users.manage',

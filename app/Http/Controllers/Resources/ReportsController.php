@@ -25,6 +25,7 @@ use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Data\IncomeRange;
 use BuscaAtivaEscolar\Data\WorkActivity;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\IBGE\Region;
 use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\Reports\Reports;
 use BuscaAtivaEscolar\School;
@@ -33,6 +34,7 @@ use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\StateSignup;
 use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\User;
 use Cache;
 use DB;
 use Illuminate\Support\Str;
@@ -95,6 +97,90 @@ class ReportsController extends BaseController {
 			'query' => $query->getQuery(),
 			'attempted' => $query->getAttemptedQuery(),
 			'response' => $response,
+			'labels' => $labels
+		]);
+	}
+
+	public function query_tenants() {
+
+		$filters = request('filters', []);
+
+		// Scope the query within the tenant
+		if(isset($filters['uf'])) $filters['uf'] = Str::lower($filters['uf']);
+		if(Auth::user()->isRestrictedToUF()) $filters['uf'] = Auth::user()->uf;
+
+		$query = Tenant::query();
+
+		if(isset($filters['uf'])) $query->where('uf', $filters['uf']);
+
+		$tenants = $query->get();
+		$recordsTotal = $tenants->count();
+
+		$report = null;
+		$labels = [];
+
+		switch(request('dimension')) {
+
+			case "uf":
+
+				$report = $tenants
+					->groupBy('uf')
+					->map(function ($group) {
+						return $group->count();
+					});
+
+				$labels = $report->keys();
+
+				break;
+
+			case "region":
+
+				$labels = collect(Region::getAll())->pluck('name', 'id');
+
+				$report = collect(Region::getAll())
+					->map(function ($region) use ($tenants) {
+						$ufs = collect(UF::getAll())->where('region_id', $region->id)->pluck('code')->toArray();
+						return $tenants->whereIn('uf', $ufs)->count();
+					});
+
+				break;
+
+		}
+
+		return response()->json([
+			'response' => [
+				'records_total' => $recordsTotal,
+				'report' => $report
+			],
+			'labels' => $labels
+		]);
+	}
+
+	public function query_ufs() {
+
+		$ufs = collect(UF::getAllByCode());
+
+		$report = DB::table("users")
+			->whereIn('type', User::$UF_SCOPED_TYPES)
+			->groupBy('uf')
+			->select(['uf', DB::raw('COUNT(id) as num')])
+			->get()
+			->map(function ($user) use ($ufs) {
+				$user->region_id = $ufs[$user->uf]['region_id'];
+				return $user;
+			})
+			->groupBy('region_id')
+			->map(function ($region) {
+				return $region->count();
+			});
+
+		$labels = collect(Region::getAll())->pluck('name', 'id');
+
+		return response()->json([
+			'response' => [
+				'records_total' => $report->sum(),
+				'report' => $report
+			],
 			'labels' => $labels
 		]);
 	}
