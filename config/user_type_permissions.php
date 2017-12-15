@@ -107,6 +107,7 @@ return [
 		'reports.view',
 		'users.view',
 		'users.manage',
+		'users.export',
 		'cases.view',
 		'cases.manage',
 		'cases.cancel',

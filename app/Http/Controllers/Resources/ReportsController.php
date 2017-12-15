@@ -136,14 +136,22 @@ class ReportsController extends BaseController {
 
 			case "region":
 
-				$labels = collect(Region::getAll())->pluck('name', 'id')->sort();
+				$labels = collect(Region::getAll())->pluck('name', 'id');
 
 				$report = collect(Region::getAll())
 					->sortBy('name')
-					->map(function ($region) use ($tenants) {
-						$ufs = collect(UF::getAll())->where('region_id', $region->id)->pluck('code')->toArray();
-						return $tenants->whereIn('uf', $ufs)->count();
-					});
+					->map(function ($region) use ($tenants, $labels) {
+						$ufs = collect(UF::getAll())
+							->where('region_id', $region->id)
+							->pluck('code')
+							->toArray();
+
+						return [
+							'name' => $labels[$region->id],
+							'count' => $tenants->whereIn('uf', $ufs)->count()
+						];
+					})
+					->pluck('count', 'name');
 
 				break;
 
