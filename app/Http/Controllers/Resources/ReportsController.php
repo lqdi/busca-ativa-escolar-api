@@ -130,13 +130,13 @@ class ReportsController extends BaseController {
 						return $group->count();
 					});
 
-				$labels = $report->keys();
+				$labels = $report->keys()->sort();
 
 				break;
 
 			case "region":
 
-				$labels = collect(Region::getAll())->pluck('name', 'id');
+				$labels = collect(Region::getAll())->sortBy('name')->pluck('name', 'id');
 
 				$report = collect(Region::getAll())
 					->sortBy('name')
@@ -161,7 +161,7 @@ class ReportsController extends BaseController {
 	public function query_ufs() {
 
 		$ufs = collect(UF::getAllByCode());
-		$labels = collect(Region::getAll())->pluck('name', 'id');
+		$labels = collect(Region::getAll())->sortBy('name')->pluck('name', 'id');
 
 		$report = DB::table("users")
 			->whereIn('type', User::$UF_SCOPED_TYPES)
