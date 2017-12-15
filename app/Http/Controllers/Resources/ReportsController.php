@@ -136,7 +136,7 @@ class ReportsController extends BaseController {
 
 			case "region":
 
-				$labels = collect(Region::getAll())->sortBy('name')->pluck('name', 'id');
+				$labels = collect(Region::getAll())->pluck('name', 'id')->sort();
 
 				$report = collect(Region::getAll())
 					->sortBy('name')
