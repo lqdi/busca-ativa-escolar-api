@@ -36,7 +36,9 @@ use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
 use Cache;
+use Carbon\Carbon;
 use DB;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class ReportsController extends BaseController {
@@ -194,6 +196,42 @@ class ReportsController extends BaseController {
 			],
 			'labels' => $labels
 		]);
+	}
+
+	public function query_signups() {
+
+		$today = Carbon::now();
+
+		$numSignups = DB::table("tenant_signups")
+			->select([DB::raw('CONCAT(YEAR(created_at), CONCAT("-", MONTH(created_at))) as month'), DB::raw('COUNT(id) as qty')])
+			->groupBy('month')
+			->get()
+			->pluck('qty', 'month');
+
+		$lastTwelveMonths = collect(range(0, 11))
+			->map(function($i) use ($today) {
+				$date = $today->copy()->addMonths(-$i);
+
+				return [
+					'index' => $i,
+					'date' => $date->format('Y-m') . "-01",
+					'month' => $date->format('Y-n'),
+					'label' => $date->format('M/Y'),
+				];
+			})
+			->keyBy('label')
+			->map(function ($period) use ($numSignups) {
+				return ['num_tenant_signups' => $numSignups[$period['month']] ?? 0];
+			});
+
+		return response()->json([
+			'response' => [
+				'records_total' => 0,
+				'report' => $lastTwelveMonths
+			],
+			'labels' => ['num_tenant_signups' => 'Qtd. de adesões municipais']
+		]);
+
 	}
 
 	public function country_stats() {
