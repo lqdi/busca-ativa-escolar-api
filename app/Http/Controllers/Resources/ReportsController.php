@@ -209,6 +209,7 @@ class ReportsController extends BaseController {
 			->pluck('qty', 'month');
 
 		$lastTwelveMonths = collect(range(0, 11))
+			->reverse()
 			->map(function($i) use ($today) {
 				$date = $today->copy()->addMonths(-$i);
 
