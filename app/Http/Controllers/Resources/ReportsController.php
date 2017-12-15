@@ -124,8 +124,8 @@ class ReportsController extends BaseController {
 			case "uf":
 
 				$report = $tenants
+					->sortBy('uf')
 					->groupBy('uf')
-					->sort()
 					->map(function ($group) {
 						return $group->count();
 					});
@@ -139,7 +139,7 @@ class ReportsController extends BaseController {
 				$labels = collect(Region::getAll())->pluck('name', 'id');
 
 				$report = collect(Region::getAll())
-					->sort()
+					->sortBy('name')
 					->map(function ($region) use ($tenants) {
 						$ufs = collect(UF::getAll())->where('region_id', $region->id)->pluck('code')->toArray();
 						return $tenants->whereIn('uf', $ufs)->count();
