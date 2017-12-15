@@ -125,6 +125,7 @@ class ReportsController extends BaseController {
 
 				$report = $tenants
 					->groupBy('uf')
+					->sort()
 					->map(function ($group) {
 						return $group->count();
 					});
@@ -138,6 +139,7 @@ class ReportsController extends BaseController {
 				$labels = collect(Region::getAll())->pluck('name', 'id');
 
 				$report = collect(Region::getAll())
+					->sort()
 					->map(function ($region) use ($tenants) {
 						$ufs = collect(UF::getAll())->where('region_id', $region->id)->pluck('code')->toArray();
 						return $tenants->whereIn('uf', $ufs)->count();
@@ -159,22 +161,23 @@ class ReportsController extends BaseController {
 	public function query_ufs() {
 
 		$ufs = collect(UF::getAllByCode());
+		$labels = collect(Region::getAll())->pluck('name', 'id');
 
 		$report = DB::table("users")
 			->whereIn('type', User::$UF_SCOPED_TYPES)
 			->groupBy('uf')
 			->select(['uf', DB::raw('COUNT(id) as num')])
 			->get()
-			->map(function ($user) use ($ufs) {
+			->map(function ($user) use ($ufs, $labels) {
 				$user->region_id = $ufs[$user->uf]['region_id'];
+				$user->region_name = $labels[$user->region_id] ?? '';
 				return $user;
 			})
 			->groupBy('region_id')
+			->sortBy('region_name')
 			->map(function ($region) {
 				return $region->count();
 			});
-
-		$labels = collect(Region::getAll())->pluck('name', 'id');
 
 		return response()->json([
 			'response' => [
