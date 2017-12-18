@@ -116,6 +116,18 @@ class City extends Model implements Searchable {
 	}
 
 	/**
+	 * Finds a city by its internal ID or IBGE ID
+	 * @param string $id An internal city UUID or an IBGE city ID
+	 * @return Model|null|static
+	 */
+	public static function findByID($id) {
+		return self::query()
+			->where('id', $id)
+			->orWhere('ibge_city_id', $id)
+			->first();
+	}
+
+	/**
 	 * Gets a list of all city IDs within a specific state
 	 * @param string $uf
 	 * @return array
