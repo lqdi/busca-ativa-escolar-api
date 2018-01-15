@@ -28,6 +28,7 @@ use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\AttachmentTransformer;
+use BuscaAtivaEscolar\Transformers\ChildExportResultsTransformer;
 use BuscaAtivaEscolar\Transformers\ChildSearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\ChildTransformer;
 use BuscaAtivaEscolar\Transformers\CommentTransformer;
@@ -40,8 +41,7 @@ use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class ChildrenController extends BaseController  {
 
-	public function search(Search $search) {
-
+	protected function prepareSearchQuery() : ElasticSearchQuery {
 		$params = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
 
 		// Scope the query within the tenant
@@ -105,6 +105,13 @@ class ChildrenController extends BaseController  {
 
 		}
 
+		return $query;
+	}
+
+	public function search(Search $search) {
+
+		$query = $this->prepareSearchQuery();
+
 		$attempted = $query->getAttemptedQuery();
 		$query = $query->getQuery();
 
@@ -116,6 +123,55 @@ class ChildrenController extends BaseController  {
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
+
+	}
+
+	public function export(Search $search) {
+
+		$query = $this->prepareSearchQuery();
+
+		$attempted = $query->getAttemptedQuery();
+		$query = $query->getQuery();
+
+		$results = $search->search(new Child(), $query, 128);
+
+		$data = fractal()
+			->item($results)
+			->transformWith(new SearchResultsTransformer(new ChildExportResultsTransformer(), $query, $attempted))
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->toArray();
+
+		$tenantID = auth()->user()->tenant_id ?? 'global';
+
+		$exportFile = uniqid("export_", true);
+		$exportFolder = storage_path('app/export/' . $tenantID);
+
+		$exported = \Excel::create($exportFile, function($excel) use ($data) {
+
+			$excel->sheet('export', function($sheet) use ($data) {
+				$sheet->fromArray($data['results']);
+			});
+
+		})->store('xls', $exportFolder, true);
+
+		$token = \JWTAuth::fromUser(auth()->user());
+
+		return $this->api_success([
+			'export_file' => $exported['file'],
+			'download_url' => route('api.children.download_exported', ['filename' => $exported['file'], 'token' => $token])
+		]);
+
+	}
+
+	public function download_exported($filename) {
+
+		$tenantID = auth()->user()->tenant_id ?? 'global';
+		$token = request('token');
+
+		\JWTAuth::invalidate($token);
+
+		return response()->download(storage_path('app/export/' . $tenantID . '/' . basename($filename)));
 
 	}
 
