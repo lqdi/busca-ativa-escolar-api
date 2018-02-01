@@ -238,9 +238,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	public function scopeHasCaseInProgress($query) {
 		return $query
 			->where('alert_status', Child::ALERT_STATUS_ACCEPTED)
-			->whereHas('currentCase', function ($sq) {
-				return $sq->where('case_status', ChildCase::STATUS_IN_PROGRESS);
-			});
+			->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION]);
 	}
 
 	// ------------------------------------------------------------------------
