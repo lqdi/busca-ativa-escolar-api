@@ -175,12 +175,12 @@ class UsersController extends BaseController {
 				$input['tenant_id'] = Auth::user()->tenant_id;
 			}
 
-			$initialPassword = $input['password'];
-
 			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
 			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
 			$validation = $user->validate($input, true, $isTenantUser, $isUFUser);
+
+			$initialPassword = $input['password'];
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
