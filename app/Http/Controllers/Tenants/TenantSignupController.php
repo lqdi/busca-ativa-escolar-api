@@ -189,6 +189,10 @@ class TenantSignupController extends BaseController  {
 		$politicalAdmin = request('political', []);
 		$operationalAdmin = request('operational', []);
 
+		if(trim(strtolower($politicalAdmin['email'])) === trim(strtolower($operationalAdmin['email']))) {
+			return $this->api_failure("admin_emails_are_the_same");
+		}
+
 		try {
 			$tenant = Tenant::provision($signup, $politicalAdmin, $operationalAdmin);
 
