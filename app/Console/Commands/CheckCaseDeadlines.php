@@ -30,6 +30,8 @@ class CheckCaseDeadlines extends Command {
 		foreach($children as $child) {
 			$step = $child->currentStep; /* @var $step CaseStep */
 
+			if(!$step || !$child->tenant) continue;
+
 			$stepDeadline = $child->tenant->getDeadlineFor($step->getSlug());
 
 			$currentStatus = $child->deadline_status;
