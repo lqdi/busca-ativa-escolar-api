@@ -253,11 +253,15 @@ class ReportsController extends BaseController {
 						->count(),
 
 					'num_alerts' => Alerta::query()
-						->notRejected()
+						->accepted()
 						->count(),
 
-					'num_cases_in_progress' => ChildCase::query()
-						->where('case_status', ChildCase::STATUS_IN_PROGRESS)
+					'num_pending_alerts' => Alerta::query()
+						->pending()
+						->count(),
+
+					'num_cases_in_progress' => Child::with(['currentCase'])
+						->hasCaseInProgress()
 						->count(),
 
 					'num_children_reinserted' => Child::query()

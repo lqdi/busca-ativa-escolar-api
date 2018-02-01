@@ -13,11 +13,14 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Events\CaseStepAssigned;
 use BuscaAtivaEscolar\Events\CaseStepCompleted;
 use BuscaAtivaEscolar\Events\CaseStepStarted;
 use BuscaAtivaEscolar\Events\CaseStepUpdated;
+use BuscaAtivaEscolar\Group;
+use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use BuscaAtivaEscolar\User;
@@ -25,8 +28,42 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Collection;
 
+/**
+ * @property int $id
+ *
+ * @property string $tenant_id
+ * @property string $child_id
+ * @property string $case_id
+ *
+ * @property string $step_type
+ * @property string $next_type
+ *
+ * @property integer $index
+ * @property integer $step_index
+ * @property integer $next_index
+ *
+ * @property string $assigned_user_id
+ * @property string $assigned_group_id
+ *
+ * @property boolean $is_pending_assignment
+ * @property boolean $is_completed
+ *
+ * @property Carbon $completed_at
+ * @property Carbon $started_at
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ *
+ * @property Tenant $tenant
+ * @property Child $child
+ * @property ChildCase $child_case
+ * @property User|null $assigned_user
+ * @property Group|null $assigned_group
+ *
+ * @property array|null $_next
+ */
 abstract class CaseStep extends Model {
 
 	use SoftDeletes;

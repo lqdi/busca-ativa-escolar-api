@@ -13,12 +13,10 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Data\AlertCause;
-use BuscaAtivaEscolar\Data\Gender;
-use BuscaAtivaEscolar\Data\Race;
 use BuscaAtivaEscolar\FormBuilder\CanGenerateForms;
 use BuscaAtivaEscolar\FormBuilder\FormBuilder;
-use BuscaAtivaEscolar\IBGE\UF;
 
 class Alerta extends CaseStep implements CanGenerateForms  {
 
@@ -72,6 +70,10 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 		return $query->where('alert_status', 'rejected');
 	}
 
+	public function scopePending($query) {
+		return $query->where('alert_status', 'pending');
+	}
+
 	public function scopeNotRejected($query) {
 		return $query->whereIn('alert_status', ['accepted', 'pending']);
 	}
@@ -85,9 +87,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 		$this->child->save();
 
-		if(!$this->dob) return true;
-
-		$this->child->recalculateAgeThroughBirthday($this->dob);
+		if($this->dob) $this->child->recalculateAgeThroughBirthday($this->dob);
 
 		$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
 

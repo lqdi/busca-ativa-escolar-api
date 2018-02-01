@@ -36,11 +36,52 @@ use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use Carbon\Carbon;
 use Geocoder\Geocoder;
 use Geocoder\Model\Address;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Log;
 
+/**
+ * @property int $id
+ *
+ * @property string $name
+ * @property string $tenant_id
+ * @property string $city_id
+ * @property string $mother_name
+ * @property string $father_name
+ * @property string $risk_level
+ * @property string $gender
+ * @property integer $age
+ * @property string $alert_submitter_id
+ * @property string $alert_status
+ * @property string $current_case_id
+ * @property string $current_step_type
+ * @property string $current_step_id
+ * @property string $deadline_status
+ * @property string $child_status
+ * @property float $lat
+ * @property float $lng
+ * @property string $map_region
+ * @property object $map_geocoded_address
+ *
+ * @property Tenant $tenant
+ * @property City $city
+ * @property ChildCase $currentCase
+ * @property ChildCase $current_case
+ * @property Alerta $alert
+ * @property User $submitter
+ * @property CaseStep $currentStep
+ * @property CaseStep $current_step
+ * @property ChildCase[]|Collection $cases
+ * @property Comment[]|Collection $comments
+ * @property Attachment[]|Collection $attachments
+ * @property ActivityLog[]|Collection $activity
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ */
 class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyMetrics {
 
 	use SoftDeletes;
@@ -190,6 +231,16 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		return $query->where('alert_status', 'rejected');
 	}
 
+	public function scopeHasCaseInProgress($query) {
+		return $query
+			->where('alert_status', Child::ALERT_STATUS_ACCEPTED)
+			->whereHas('currentCase', function ($sq) {
+				return $sq->where('case_status', ChildCase::STATUS_IN_PROGRESS);
+			});
+	}
+
+	// ------------------------------------------------------------------------
+
 	/**
 	 * Gets the URL for viewing a child
 	 * @return string
@@ -325,6 +376,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	/**
 	 * Builds the searchable document for the child.
 	 * @return array
+	 * @throws \Exception
 	 */
 	public function buildSearchDocument() : array {
 
@@ -392,6 +444,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	/**
 	 * Builds a documents with aggregable & filterable metrics for the reporting system
 	 * @return array
+	 * @throws \Exception
 	 */
 	public function buildMetricsDocument(): array {
 
