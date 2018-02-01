@@ -18,6 +18,7 @@ use BuscaAtivaEscolar\Mailables\StateSignupApproved;
 use BuscaAtivaEscolar\Mailables\StateSignupRejected;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Mail;
@@ -36,6 +37,7 @@ use Mail;
  *
  * @property User|null $user
  * @property User|null $judged_by
+ * @property User[]|Collection|null $users
  */
 class StateSignup extends Model {
 
@@ -65,11 +67,15 @@ class StateSignup extends Model {
 	];
 
 	public function user() {
-		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'user_id');
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'user_id')->withTrashed();
 	}
 
 	public function judge() {
-		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'judged_by');
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'judged_by')->withTrashed();
+	}
+
+	public function users() {
+		return $this->hasMany(User::class, 'uf', 'uf')->whereIn('type', User::$UF_SCOPED_TYPES)->withTrashed();
 	}
 
 	// -----------------------------------------------------------------------------------------------------------------

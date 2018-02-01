@@ -104,6 +104,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/tenants/{tenant}/cancel', 'Tenants\TenantsController@cancel')->middleware('can:tenants.manage');
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
 
+		Route::any('/states/all', 'Resources\StatesController@all')->middleware('can:ufs.view');
+
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');
 
