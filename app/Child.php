@@ -231,6 +231,10 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		return $query->where('alert_status', 'rejected');
 	}
 
+	public function scopePending($query) {
+		return $query->where('alert_status', 'pending');
+	}
+
 	public function scopeHasCaseInProgress($query) {
 		return $query
 			->where('alert_status', Child::ALERT_STATUS_ACCEPTED)

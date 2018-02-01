@@ -252,11 +252,11 @@ class ReportsController extends BaseController {
 						->where('is_provisioned', 0)
 						->count(),
 
-					'num_alerts' => Alerta::query()
+					'num_alerts' => Child::query()
 						->accepted()
 						->count(),
 
-					'num_pending_alerts' => Alerta::query()
+					'num_pending_alerts' => Child::query()
 						->pending()
 						->count(),
 
