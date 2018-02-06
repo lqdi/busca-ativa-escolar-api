@@ -27,23 +27,23 @@ class ChildExportResultsTransformer extends TransformerAbstract {
 		}
 
 		return [
-			'ID' => $document['_id'],
+			//'ID' => $document['_id'],
 			'Nome' => $document['_source']['name'] ?? '',
 
 			'Nome da mãe' => $document['_source']['mother_name'] ?? null,
 			'Nome do pai' => $document['_source']['father_name'] ?? null,
 
-			'Risco' => $document['_source']['risk_level'] ?? null,
-			'Gênero' => $document['_source']['gender'] ?? null,
-			'Idade' => $document['_source']['age'] ?? null,
+			'Risco' => isset($document['_source']['risk_level']) ? trans('risk_level.' . $document['_source']['risk_level']) : null,
+			'Sexo' => isset($document['_source']['gender']) ? trans('child.gender.' . $document['_source']['gender']) : null,
+			'Idade' => $document['_source']['age'],
 
 			'Usuário responsável' => $document['_source']['assigned_user_name'] ?? null,
 
-			'ID do Caso' => $document['_source']['current_case_id'] ?? null,
+			//'ID do Caso' => $document['_source']['current_case_id'] ?? null,
 
 			'Etapa' => $document['_source']['step_name'] ?? null,
 
-			'Está Atrasado?' => (($document['_source']['deadline_status'] ?? 'normal') === Child::DEADLINE_STATUS_LATE),
+			'Está Atrasado?' => (($document['_source']['deadline_status'] ?? 'normal') === Child::DEADLINE_STATUS_LATE) ? 'Sim' : 'Não',
 
 			'Status da Criança' => trans('child.status.' . $document['_source']['child_status'] ?? null),
 			'Status do Caso' => trans('child_case.status.' . $document['_source']['case_status'] ?? null),
