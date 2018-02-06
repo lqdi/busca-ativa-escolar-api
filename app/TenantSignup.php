@@ -63,6 +63,7 @@ class TenantSignup extends Model {
 
 		// Sort-only fields
 		'cities.name',
+		'cities.uf',
 		'created_at',
 	];
 

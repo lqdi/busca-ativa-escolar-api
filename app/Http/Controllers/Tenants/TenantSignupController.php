@@ -81,6 +81,12 @@ class TenantSignupController extends BaseController  {
 			});
 		}
 
+		if(isset($filter['city_uf']) && strlen($filter['city_uf']) > 0) {
+			$pending->whereHas('city', function ($sq) use ($filter) {
+				return $sq->where('uf', 'REGEXP', Str::ascii($filter['city_uf']));
+			});
+		}
+
 		switch($filter['status']) {
 			case "all": $pending->withTrashed(); break;
 			case "rejected": $pending->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 0); break;
