@@ -25,6 +25,7 @@ use DB;
 use Geocoder\Geocoder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Log;
 use Mail;
 
@@ -32,6 +33,7 @@ use Mail;
  * @property int $id
  *
  * @property string $name
+ * @property string $name_ascii
  * @property string $city_id
  * @property string $uf
  * @property string $operational_admin_id
@@ -63,6 +65,7 @@ class Tenant extends Model  {
 
 	protected $fillable = [
 		'name',
+		'name_ascii',
 		'city_id',
 		'uf',
 
@@ -233,9 +236,12 @@ class Tenant extends Model  {
 
 		$now = date('Y-m-d H:i:s');
 
+		$name = Tenant::generateNameFromCity($city);
+
 		$tenant = Tenant::create([
 			'uf' => $city->uf,
-			'name' => Tenant::generateNameFromCity($city),
+			'name' => $name,
+			'name_ascii' => strtolower(Str::ascii($name)),
 			'city_id' => $city->id,
 			'operational_admin_id' => null,
 			'political_admin_id' => null,

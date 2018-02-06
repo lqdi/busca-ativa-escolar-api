@@ -23,6 +23,8 @@ use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\TenantTransformer;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class TenantsController extends BaseController  {
@@ -51,7 +53,7 @@ class TenantsController extends BaseController  {
 		Tenant::applySorting($tenants, $sort);
 
 		if(isset($filter['name']) && strlen($filter['name']) > 0) {
-			$tenants->where('name', 'REGEXP', $filter['name']);
+			$tenants->where('name_ascii', 'REGEXP', strtolower(Str::ascii($filter['name'])));
 		}
 
 		if(isset($filter['political_admin']) && strlen($filter['political_admin']) > 0) {
