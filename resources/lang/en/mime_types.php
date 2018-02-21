@@ -32,6 +32,7 @@ return [
 	"image/png" => "Imagem (PNG)",
 	"application/pdf" => "Documento (PDF)",
 	"application/vnd.ms-powerpoint" => "Apresentação (PowerPoint)",
+	"application/vnd.ms-office" => "Arquivo do Microsoft Office",
 	"application/vnd.openxmlformats-officedocument.presentationml.presentation" => "Apresentação (PowerPoint)",
 	"application/x-rar-compressed" => "Múltiplos arquivos (RAR)",
 	"application/rtf" => "Documento (RTF)",
