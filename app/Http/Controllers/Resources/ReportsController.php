@@ -216,7 +216,7 @@ class ReportsController extends BaseController {
 				return [
 					'index' => $i,
 					'date' => $date->format('Y-m') . "-01",
-					'month' => $date->format('Y-n'),
+					'month' => $date->formatLocalized('Y-n'),
 					'label' => $date->format('M/Y'),
 				];
 			})
