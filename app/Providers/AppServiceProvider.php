@@ -30,6 +30,9 @@ class AppServiceProvider extends ServiceProvider {
 
     public function boot() {
 
+	    setlocale(LC_ALL, config('app.locale') . '.utf8');
+	    Carbon::setLocale(config('app.locale'));
+
 	    Child::observe(new ChildActivityLogObserver());
     	Comment::observe(new CommentActivityLogObserver());
     	Attachment::observe(new AttachmentActivityLogObserver());
@@ -49,9 +52,6 @@ class AppServiceProvider extends ServiceProvider {
     }
 
     public function register() {
-
-	    setlocale(LC_ALL, config('app.locale') . '.utf8');
-	    Carbon::setLocale(config('app.locale'));
 
 	    $this->app->register(\Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class);
 	    $this->app->alias('bugsnag.logger', \Illuminate\Contracts\Logging\Log::class);
