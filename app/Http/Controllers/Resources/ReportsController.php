@@ -216,8 +216,8 @@ class ReportsController extends BaseController {
 				return [
 					'index' => $i,
 					'date' => $date->format('Y-m') . "-01",
-					'month' => $date->formatLocalized('Y-n'),
-					'label' => $date->format('M/Y'),
+					'month' => $date->format('Y-n'),
+					'label' => $date->formatLocalized('M/Y'),
 				];
 			})
 			->keyBy('label')
