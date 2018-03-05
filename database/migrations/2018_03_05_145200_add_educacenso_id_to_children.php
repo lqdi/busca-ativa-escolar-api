@@ -19,6 +19,7 @@ class AddEducacensoIdToChildren extends Migration
         });
 
         $user = User::create([
+        	'tenant_id' => 'global',
         	'name' => 'Importação Educacenso INEP',
         	'email' => 'educacenso@buscaativaescolar.org.br',
 	        'password' => str_random(64),
