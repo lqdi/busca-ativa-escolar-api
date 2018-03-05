@@ -183,7 +183,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 					'place_map_geocoded_address' => ($address) ? $address->toArray() : null,
 				]);
 			} catch (\Exception $ex) {
-				Log::error("[pesquisa.on_update.geocode_addr] ({$this->id}) Failed to geocode address: {$ex->getMessage()}");
+				Log::debug("[pesquisa.on_update.geocode_addr] ({$this->id}) Failed to geocode address: {$ex->getMessage()}");
 			}
 
 		}
