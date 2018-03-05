@@ -55,6 +55,10 @@ class ReportsController extends BaseController {
 		if(isset($filters['place_uf'])) $filters['place_uf'] = Str::lower($filters['place_uf']);
 		if(isset($filters['uf'])) $filters['uf'] = Str::lower($filters['uf']);
 
+		if(!isset($params['view'])) {
+			$params['view'] = "linear";
+		}
+
 		$entity = new Child();
 		$query = ElasticSearchQuery::withParameters($filters)
 			->filterByTerm('tenant_id', false)
@@ -366,6 +370,8 @@ class ReportsController extends BaseController {
 
 	protected function fetchDimensionLabels($dimension, $ids = []) {
 
+		$hasIDs = is_array($ids) && sizeof($ids) > 0;
+
 		switch($dimension) {
 			case 'child_status': return trans('child.status');
 			case 'step_slug': return trans('case_step.name_by_slug');
@@ -377,8 +383,8 @@ class ReportsController extends BaseController {
 			case 'case_cause_ids': return array_pluck(CaseCause::getAllAsArray(), 'label', 'id');
 			case 'alert_cause_id': return array_pluck(AlertCause::getAllAsArray(), 'label', 'id');
 			case 'place_uf': return array_pluck(UF::getAllAsArray(), 'code', 'slug');
-			case 'place_city_id': return City::whereIn('id', $ids)->get()->pluck('name', 'id'); // TODO: create full_name field that contains UF
-			case 'school_last_id': return School::whereIn('id', $ids)->get()->pluck('name', 'id');
+			case 'place_city_id': return $hasIDs ? City::whereIn('id', $ids)->get()->pluck('name', 'id') : []; // TODO: create full_name field that contains UF
+			case 'school_last_id': return $hasIDs ? School::whereIn('id', $ids)->get()->pluck('name', 'id') : [];
 			default: return [];
 		}
 
