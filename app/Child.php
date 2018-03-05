@@ -134,6 +134,10 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		'map_geocoded_address',
 	];
 
+	protected $sortable = [
+		'created_at',
+	];
+
 	protected $casts = [
 		'map_geocoded_address' => 'array',
 	];
