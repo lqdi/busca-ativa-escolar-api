@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
         Commands\ReindexAllSchools::class,
         Commands\SnapshotDailyMetrics::class,
         Commands\TestSchedulingSystem::class,
+        Commands\TestEducacensoImporter::class,
         Commands\CheckCaseDeadlines::class,
         Commands\SimulateReceivedSMS::class,
         Commands\RebuildGroupCausesMap::class,

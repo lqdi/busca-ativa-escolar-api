@@ -132,6 +132,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		'lng',
 		'map_region',
 		'map_geocoded_address',
+
+		'educacenso_id',
 	];
 
 	protected $sortable = [
@@ -246,6 +248,20 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	}
 
 	// ------------------------------------------------------------------------
+
+	/**
+	 * @param CaseStep|Model $stepClass
+	 * @param int $index
+	 * @return CaseStep|Model|null
+	 */
+	public function getStepInCurrentCase($stepClass, $index = 0) {
+		if(!$this->currentCase) return null;
+
+		return $stepClass->query()
+			->where('case_id', $this->currentCase->id)
+			->skip($index)
+			->first();
+	}
 
 	/**
 	 * Gets the URL for viewing a child
