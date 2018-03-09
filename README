@@ -1,7 +1,9 @@
 ## Busca Ativa Escolar - Back-end API
+
 Aplicação Web-server-side baseada em PHP, com framework Laravel, banco de dados postgres e outros componetes. Provê estrutura de ao sistema Busca Ativa Escolar e aos aplicativos.
 
 ## Projetos Correlatos
+
 * API
   * https://github.com/institutotim/busca-ativa-escolar-api
 * Landing Page
