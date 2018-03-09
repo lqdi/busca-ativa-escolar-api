@@ -77,6 +77,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	use TenantScopedModel;
 	use Sortable;
 
+	const ID_EDUCACENSO_BOT = "b6b720e1-bee4-4cbb-9700-f1651db45094";
+
 	// Types of user
 	const TYPE_SUPERUSER = "superuser";
 	const TYPE_GESTOR_NACIONAL = "gestor_nacional";

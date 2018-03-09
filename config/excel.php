@@ -58,15 +58,15 @@ return array(
     ),
 
     'properties' => array(
-        'creator'        => 'Maatwebsite',
-        'lastModifiedBy' => 'Maatwebsite',
+        'creator'        => 'Busca Ativa Escolar',
+        'lastModifiedBy' => 'Busca Ativa Escolar',
         'title'          => 'Spreadsheet',
-        'description'    => 'Default spreadsheet export',
-        'subject'        => 'Spreadsheet export',
-        'keywords'       => 'maatwebsite, excel, export',
+        'description'    => 'Export',
+        'subject'        => 'Export',
+        'keywords'       => 'excel, export',
         'category'       => 'Excel',
-        'manager'        => 'Maatwebsite',
-        'company'        => 'Maatwebsite',
+        'manager'        => 'Busca Ativa Escolar',
+        'company'        => 'Busca Ativa Escolar',
     ),
 
     /*
@@ -106,7 +106,7 @@ return array(
     |
     */
 
-    'creator'    => 'Maatwebsite',
+    'creator'    => 'Busca Ativa Escolar',
 
     'csv'        => array(
         /*

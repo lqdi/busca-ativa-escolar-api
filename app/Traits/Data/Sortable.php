@@ -42,7 +42,12 @@ trait Sortable {
 				continue;
 			}
 
-			if(!in_array($field, $instance->fillable)) continue;
+			$isFillable = in_array($field, $instance->fillable);
+			$isSortable = isset($instance->sortable) && in_array($field, $instance->sortable);
+
+			if(!$isFillable && !$isSortable) {
+				continue;
+			}
 
 			// TODO: fix dot-notation sorting (need a way to resolve table/pk from relationship name to apply join())
 

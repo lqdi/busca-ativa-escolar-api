@@ -143,6 +143,9 @@ class SmsConversation extends Model {
 				$i = 1;
 
 				$causeList = collect(AlertCause::getAll())
+					->filter(function ($cause) {
+						return !$cause->hidden;
+					})
 					->map(function ($item) use (&$i) {
 						return $i++ . ' - ' . Str::ascii($item->label);
 					})

@@ -180,11 +180,11 @@ class UsersController extends BaseController {
 
 			$validation = $user->validate($input, true, $isTenantUser, $isUFUser);
 
-			$initialPassword = $input['password'];
-
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
 			}
+
+			$initialPassword = $input['password'];
 
 			$input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
 
