@@ -60,8 +60,7 @@ Vale lembrar que os requisitos de hardware podem variar de acordo com a latênci
 
 
 ### Dev Enviroment
-[http://busca-ativa-escolar-web.dev.lqdi.net]
-
+* https://plataforma.testes.buscaativaescolar.org.br
 
 ## Partners > Sponsors and Operational 
 
@@ -97,4 +96,3 @@ Vale lembrar que os requisitos de hardware podem variar de acordo com a latênci
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
---- 
