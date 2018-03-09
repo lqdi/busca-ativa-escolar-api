@@ -21,6 +21,7 @@ use BuscaAtivaEscolar\Observers\ChildActivityLogObserver;
 use BuscaAtivaEscolar\Observers\CommentActivityLogObserver;
 use BuscaAtivaEscolar\SMS\Handlers\Zenvia;
 use BuscaAtivaEscolar\SMS\SmsProvider;
+use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
 use Log;
 use Validator;
@@ -29,7 +30,10 @@ class AppServiceProvider extends ServiceProvider {
 
     public function boot() {
 
-    	Child::observe(new ChildActivityLogObserver());
+	    setlocale(LC_ALL, config('app.locale') . '.utf8');
+	    Carbon::setLocale(config('app.locale'));
+
+	    Child::observe(new ChildActivityLogObserver());
     	Comment::observe(new CommentActivityLogObserver());
     	Attachment::observe(new AttachmentActivityLogObserver());
 
@@ -48,6 +52,7 @@ class AppServiceProvider extends ServiceProvider {
     }
 
     public function register() {
+
 	    $this->app->register(\Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class);
 	    $this->app->alias('bugsnag.logger', \Illuminate\Contracts\Logging\Log::class);
 	    $this->app->alias('bugsnag.logger', \Psr\Log\LoggerInterface::class);

@@ -51,6 +51,8 @@ use Mail;
  * @property Group $primary_group
  * @property TenantSettings $settings
  *
+ * @property object $educacenso_import_details
+ *
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -83,11 +85,15 @@ class Tenant extends Model  {
 		
 		'map_lat',
 		'map_lng',
+
+		'educacenso_import_details',
 	];
 
 	protected $casts = [
 		'is_registered' => 'boolean',
 		'is_active' => 'boolean',
+
+		'educacenso_import_details' => 'object',
 
 		'last_active_at' => 'datetime',
 		'registered_at' => 'datetime',

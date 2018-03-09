@@ -46,7 +46,11 @@ class TenantScope implements Scope  {
 		}
 
 		if($currentUser->isRestrictedToTenant()) {
-			$builder->where('tenant_id', $currentUser->tenant_id);
+			$builder->where(function ($b) use ($currentUser) {
+				return $b->where('tenant_id', $currentUser->tenant_id)
+					     ->orWhere('tenant_id', 'global');
+			});
+
 			return;
 		}
 

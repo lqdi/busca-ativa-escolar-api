@@ -35,7 +35,7 @@ class SettingsController extends BaseController {
 
 		return fractal()
 			->item($settings)
-			->transformWith(new TenantSettingsTransformer())
+			->transformWith(new TenantSettingsTransformer($user->tenant))
 			->serializeWith(new SimpleArraySerializer())
 			->respond();
 

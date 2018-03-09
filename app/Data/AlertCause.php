@@ -32,6 +32,7 @@ class AlertCause extends StaticObject  {
 		140 => ['id' => 140, 'sms_index' => 14, 'slug' => 'uso_substancias', 'label' => "Uso, abuso ou dependência de substâncias psicoativas", "case_cause_ids" => [140]],
 		150 => ['id' => 150, 'sms_index' => 15, 'slug' => 'violencia_familiar', 'label' => "Violência familiar", "case_cause_ids" => [150]],
 		160 => ['id' => 160, 'sms_index' => 16, 'slug' => 'violencia_escolar', 'label' => "Violência na escola", "case_cause_ids" => [161, 162, 163]],
+		500 => ['id' => 500, 'sms_index' => null, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", "case_cause_ids" => [500], 'hidden' => true],
 	];
 
 	protected static $indexes = [
@@ -52,6 +53,7 @@ class AlertCause extends StaticObject  {
 			'uso_substancias' => 140,
 			'violencia_familiar' => 150,
 			'violencia_escolar' => 160,
+			'educacenso_inep' => 500,
 		],
 		'sms_index' => [
 			1 => 10,
@@ -99,6 +101,11 @@ class AlertCause extends StaticObject  {
 	public $case_cause_ids;
 
 	/**
+	 * @var bool Is this cause hidden from user selection?
+	 */
+	public $hidden;
+
+	/**
 	 * Gets an alert cause by it's slug
 	 * @param string $slug
 	 * @return AlertCause
@@ -115,6 +122,18 @@ class AlertCause extends StaticObject  {
 	public static function getBySMSIndex($index) {
 		$index = intval($index);
 		return self::getByIndex('sms_index', $index);
+	}
+
+	/**
+	 * Gets all alert causes that are visible for user selection
+	 * @return array
+	 */
+	public static function getAllVisible() {
+		return collect(self::getAllAsArray())
+			->filter(function ($cause) {
+				return !isset($cause['hidden']) || !boolval($cause['hidden']);
+			})
+			->toArray();
 	}
 
 }
