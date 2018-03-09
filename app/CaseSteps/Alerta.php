@@ -13,11 +13,45 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
-use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\FormBuilder\CanGenerateForms;
 use BuscaAtivaEscolar\FormBuilder\FormBuilder;
 
+/**
+ * Class Alerta
+ * @package BuscaAtivaEscolar\CaseSteps
+ *
+ * @property string $id
+ * @property string $name
+ * @property string $gender
+ * @property string $race
+ * @property string $dob
+ * @property string $rg
+ * @property string $cpf
+ * @property string $nis
+ * @property string $alert_cause_id
+ * @property string $alert_status
+ * @property string $mother_name
+ * @property string $mother_rg
+ * @property string $mother_phone
+ * @property string $father_name
+ * @property string $father_rg
+ * @property string $father_phone
+ * @property string $place_address
+ * @property string $place_cep
+ * @property string $place_reference
+ * @property string $place_neighborhood
+ * @property string $place_city_id
+ * @property string $place_city_name
+ * @property string $place_uf
+ * @property string $place_phone
+ * @property string $place_mobile
+ * @property string $place_lat
+ * @property string $place_lng
+ * @property string $place_map_region
+ * @property string $place_map_geocoded_address
+ *
+ */
 class Alerta extends CaseStep implements CanGenerateForms  {
 
 	protected $table = "case_steps_alerta";

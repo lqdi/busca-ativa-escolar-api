@@ -393,7 +393,7 @@ abstract class CaseStep extends Model {
 	 * @param string $case_id The child case ID
 	 * @param string $step_type The type of step
 	 * @param integer $index The case step sequence index
-	 * @return CaseStep
+	 * @return CaseStep|static
 	 */
 	public static function fetchWithinCase($case_id, $step_type, $index) {
 		return ($step_type)::query()

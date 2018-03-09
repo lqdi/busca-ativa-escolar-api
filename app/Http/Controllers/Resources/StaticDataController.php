@@ -27,7 +27,9 @@ class StaticDataController extends BaseController {
 			'timestamp' => date('Y-m-d\TH:i:s'),
 			'data' => [
 				'AlertCause' => \BuscaAtivaEscolar\Data\AlertCause::getAllAsArray(),
+				'VisibleAlertCause' => \BuscaAtivaEscolar\Data\AlertCause::getAllVisible(),
 				'CaseCause' => \BuscaAtivaEscolar\Data\CaseCause::getAllAsArray(),
+				'VisibleCaseCause' => \BuscaAtivaEscolar\Data\CaseCause::getAllVisible(),
 				'Gender' => \BuscaAtivaEscolar\Data\Gender::getAllAsArray(),
 				'HandicappedRejectReason' => \BuscaAtivaEscolar\Data\HandicappedRejectReason::getAllAsArray(),
 				'IncomeRange' => \BuscaAtivaEscolar\Data\IncomeRange::getAllAsArray(),

@@ -39,6 +39,7 @@ class CaseCause extends StaticObject  {
 		161 => ['id' => 161, 'alert_cause_id' => 160, 'slug' => 'violencia_escolar_genero', 'label' => "Violência na escola (Discriminação de gênero) "],
 		162 => ['id' => 162, 'alert_cause_id' => 160, 'slug' => 'violencia_escolar_raca', 'label' => "Violência na escola (Discriminação racial) "],
 		163 => ['id' => 163, 'alert_cause_id' => 160, 'slug' => 'violencia_escolar_religiao', 'label' => "Violência na escola (Discriminação religiosa) "],
+		500 => ['id' => 500, 'alert_cause_id' => 500, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", 'hidden' => true],
 	];
 
 	protected static $indexes = [
@@ -65,6 +66,7 @@ class CaseCause extends StaticObject  {
 			'violencia_escolar_genero' => 161,
 			'violencia_escolar_raca' => 162,
 			'violencia_escolar_religiao' => 163,
+			'educacenso_inep' => 500,
 		]
 	];
 
@@ -94,6 +96,11 @@ class CaseCause extends StaticObject  {
 	public $is_handicapped = false;
 
 	/**
+	 * @var bool Is this cause hidden from user selection?
+	 */
+	public $hidden = false;
+
+	/**
 	 * Gets an alert cause by it's slug
 	 * @param string $slug
 	 * @return CaseCause
@@ -114,5 +121,18 @@ class CaseCause extends StaticObject  {
 			->pluck('id')
 			->toArray();
 	}
+
+	/**
+	 * Gets all alert causes that are visible for user selection
+	 * @return array
+	 */
+	public static function getAllVisible() {
+		return collect(self::getAllAsArray())
+			->filter(function ($cause) {
+				return !isset($cause['hidden']) || !boolval($cause['hidden']);
+			})
+			->toArray();
+	}
+
 
 }

@@ -61,8 +61,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 			Route::delete('/groups/{group}', 'Resources\GroupsController@destroy');
 
 			// Tenant Settings
-			Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings')->middleware('can:settings.manage');
+			Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings');//->middleware('can:settings.manage');
 			Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings')->middleware('can:settings.manage');
+
+			Route::post('/settings/import_educacenso', 'Resources\EducacensoController@import')->middleware('can:settings.manage');
 
 		});
 
