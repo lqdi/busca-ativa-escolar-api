@@ -19,12 +19,42 @@ use BuscaAtivaEscolar\Mailables\UserCredentialsForNewTenant;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
+use Cache;
+use Carbon\Carbon;
+use DB;
 use Geocoder\Geocoder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Log;
 use Mail;
 
+/**
+ * @property int $id
+ *
+ * @property string $name
+ * @property string $name_ascii
+ * @property string $city_id
+ * @property string $uf
+ * @property string $operational_admin_id
+ * @property string $political_admin_id
+ * @property boolean $is_registered
+ * @property boolean $is_active
+ * @property boolean $is_setup
+ * @property Carbon|null $last_active_at
+ * @property Carbon|null $registered_at
+ * @property Carbon|null $activated_at
+ * @property float $map_lat
+ * @property float $map_lng
+ *
+ * @property City $city
+ * @property Group $primary_group
+ * @property TenantSettings $settings
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ */
 class Tenant extends Model  {
 
 	use IndexedByUUID;
@@ -35,7 +65,10 @@ class Tenant extends Model  {
 
 	protected $fillable = [
 		'name',
+		'name_ascii',
 		'city_id',
+		'uf',
+
 		'operational_admin_id',
 		'political_admin_id',
 
@@ -68,7 +101,7 @@ class Tenant extends Model  {
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
 	public function operationalAdmin() {
-		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'operational_admin_id');
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'operational_admin_id')->withTrashed();
 	}
 
 	/**
@@ -76,7 +109,7 @@ class Tenant extends Model  {
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
 	public function politicalAdmin() {
-		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'political_admin_id');
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'political_admin_id')->withTrashed();
 	}
 
 	/**
@@ -133,6 +166,15 @@ class Tenant extends Model  {
 		return ['lat' => $this->map_lat, 'lng' => $this->map_lng, 'zoom' => 10];
 	}
 
+	/**
+	 * Updates the 'last active at' datetime
+	 */
+	public function tickLastActivity() {
+		$this->last_active_at = Carbon::now();
+		// Done using DB so we don't modify "updated_at" column
+		DB::update("UPDATE tenants SET last_active_at = ? WHERE id = ?", [$this->last_active_at->toDateTimeString(), $this->id]);
+	}
+
 	// ------------------------------------------------------------------------
 
 	/**
@@ -168,7 +210,7 @@ class Tenant extends Model  {
 	/**
 	 * Provisions a tenant based on sign-up data
 	 *
-	 * @param SignUp $signup
+	 * @param TenantSignup $signup
 	 * @param array $politicalAdminData
 	 * @param array $operationalAdminData
 	 *
@@ -176,64 +218,81 @@ class Tenant extends Model  {
 	 *
 	 * @returns Tenant
 	 */
-	public static function provision(SignUp $signup, array $politicalAdminData, array $operationalAdminData) {
+	public static function provision(TenantSignup $signup, array $politicalAdminData, array $operationalAdminData) {
 
 		$city = $signup->city;
+
 		if(!$city) {
 			throw new ValidationException('invalid_signup_city');
 		}
 
-		$politicalAdminData['type'] = User::TYPE_GESTOR_POLITICO;
-		$operationalAdminData['type'] = User::TYPE_GESTOR_OPERACIONAL;
-
-		$politicalAdmin = new User();
-		$politicalAdmin->fill($politicalAdminData);
-		$validator = $politicalAdmin->validate($politicalAdminData);
-
-		if(User::checkIfExists($politicalAdmin->email)) {
+		if(User::checkIfExists($politicalAdminData['email'])) {
 			throw new ValidationException('political_admin_email_in_use');
 		}
 
-		if($validator->fails()) {
-			throw new ValidationException('invalid_political_admin_data', $validator);
-		}
-
-		$operationalAdmin = new User();
-		$operationalAdmin->fill($operationalAdminData);
-		$validator = $operationalAdmin->validate($operationalAdminData);
-
-		if(User::checkIfExists($operationalAdmin->email)) {
+		if(User::checkIfExists($operationalAdminData['email'])) {
 			throw new ValidationException('operational_admin_email_in_use');
 		}
 
-		if($validator->fails()) {
-			throw new ValidationException('invalid_operational_admin_data', $validator);
-		}
-
-		$politicalAdmin->password = password_hash($politicalAdminData['password'], PASSWORD_DEFAULT);
-		$politicalAdmin->save();
-
-		$operationalAdmin->password = password_hash($operationalAdminData['password'], PASSWORD_DEFAULT);
-		$operationalAdmin->save();
-
 		$now = date('Y-m-d H:i:s');
 
+		$name = Tenant::generateNameFromCity($city);
+
 		$tenant = Tenant::create([
-			'name' => Tenant::generateNameFromCity($city),
+			'uf' => $city->uf,
+			'name' => $name,
+			'name_ascii' => strtolower(Str::ascii($name)),
 			'city_id' => $city->id,
-			'operational_admin_id' => $operationalAdmin->id,
-			'political_admin_id' => $politicalAdmin->id,
-			'is_registered' => true,
-			'is_active' => true,
+			'operational_admin_id' => null,
+			'political_admin_id' => null,
+			'is_registered' => false,
+			'is_active' => false,
 			'last_active_at' => $now,
 			'registered_at' => $signup->created_at,
 			'activated_at' => $now,
 		]);
 
+		$politicalAdminData['type'] = User::TYPE_GESTOR_POLITICO;
+		$politicalAdminData['uf'] = $tenant->uf;
+		$politicalAdminData['tenant_id'] = $tenant->id;
+
+		$operationalAdminData['type'] = User::TYPE_GESTOR_OPERACIONAL;
+		$operationalAdminData['tenant_id'] = $tenant->id;
+		$operationalAdminData['uf'] = $tenant->uf;
+
+		$politicalAdmin = new User();
+		$politicalAdmin->fill($politicalAdminData);
+		$politicalAdmin->password = password_hash($politicalAdminData['password'], PASSWORD_DEFAULT);
+
+		$validator = $politicalAdmin->validate($politicalAdminData, true, true, false);
+
+		if($validator->fails()) {
+			$tenant->delete();
+			throw new ValidationException('invalid_political_admin_data', $validator);
+		}
+
+		$operationalAdmin = new User();
+		$operationalAdmin->fill($operationalAdminData);
+		$operationalAdmin->password = password_hash($operationalAdminData['password'], PASSWORD_DEFAULT);
+
+		$validator = $operationalAdmin->validate($operationalAdminData, true, true, false);
+
+		if($validator->fails()) {
+			$tenant->delete();
+			throw new ValidationException('invalid_operational_admin_data', $validator);
+		}
+
+
+		$politicalAdmin->save();
+		$operationalAdmin->save();
+
 		Group::createDefaultPrimaryGroup($tenant);
 
-		$politicalAdmin->update(['tenant_id' => $tenant->id]);
-		$operationalAdmin->update(['tenant_id' => $tenant->id]);
+		$tenant->political_admin_id = $politicalAdmin->id;
+		$tenant->operational_admin_id = $operationalAdmin->id;
+		$tenant->is_registered = true;
+		$tenant->is_active = true;
+		$tenant->save();
 
 		$signup->is_provisioned = true;
 		$signup->tenant_id = $tenant->id;
@@ -244,6 +303,21 @@ class Tenant extends Model  {
 
 		return $tenant;
 
+	}
+
+	/**
+	 * Gets a list of all tenant IDs within a specific state
+	 * @param string $uf
+	 * @return array
+	 */
+	public static function getIDsWithinUF($uf) {
+		return Cache::remember('uf_tenants_' . $uf, config('cache.timeouts.uf_tenants'), function () use ($uf) {
+			return DB::table('tenants')
+				->where('uf', $uf)
+				->get(['id'])
+				->pluck('id')
+				->toArray();
+		});
 	}
 
 }

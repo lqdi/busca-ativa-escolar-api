@@ -66,6 +66,14 @@ class Zenvia implements SmsProvider {
 		$shortCode = $request['callbackMoRequest']['shortCode'] ?? null;
 		$carrier = $request['callbackMoRequest']['mobileOperatorName'] ?? null;
 
+		if(!is_string($number) || sizeof($number) <= 0) {
+			throw new \InvalidArgumentException("Invalid MSISDN in request: " . json_encode($request));
+		}
+
+		if(!is_string($message) || sizeof($message) <= 0) {
+			$message = "";
+		}
+
 		$keyword = env('ZENVIA_KEYWORD');
 
 		// Strips the keyword from the message

@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Maintenance;
 
 
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use Log;
 
 class SystemHealthController extends BaseController {
 
@@ -38,6 +39,12 @@ class SystemHealthController extends BaseController {
 				'os' => $primaryNodeHealth['os']
 			]
 		]);
+	}
+
+	public function test_error_reporting() {
+		Log::info("This is a logged info");
+		Log::error("This is a logged error");
+		throw new \Exception("This is a test exception");
 	}
 
 

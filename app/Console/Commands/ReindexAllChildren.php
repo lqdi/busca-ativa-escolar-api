@@ -25,7 +25,7 @@ class ReindexAllChildren extends Command {
 		$children = Child::with('tenant')->get();
 
 		foreach($children as $child) {
-			$this->comment("Reindexing: {$child->tenant->name} / {$child->id} -> {$child->name}");
+			$this->comment("Reindexing: " . ($child->tenant->name ?? '## NO TENANT! ##') . " / {$child->id} -> {$child->name}");
 			$child->save();
 		}
 

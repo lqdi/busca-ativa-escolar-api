@@ -129,4 +129,12 @@ class UF extends StaticObject  {
 		return Region::getByID($this->region_id);
 	}
 
+	/**
+	 * Gets the lat/lng coordinates of the UF on an associative array
+	 * @return array
+	 */
+	public function getCoordinates() {
+		return ['lat' => $this->lat, 'lng' => $this->lng];
+	}
+
 }

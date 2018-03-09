@@ -26,6 +26,7 @@ use BuscaAtivaEscolar\Events\SearchableNeedsReindexing;
 use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
 use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Reports\Traits\AggregatedBySearchDocument;
+use BuscaAtivaEscolar\Scopes\TenantScope;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
@@ -35,11 +36,52 @@ use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use Carbon\Carbon;
 use Geocoder\Geocoder;
 use Geocoder\Model\Address;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Log;
 
+/**
+ * @property int $id
+ *
+ * @property string $name
+ * @property string $tenant_id
+ * @property string $city_id
+ * @property string $mother_name
+ * @property string $father_name
+ * @property string $risk_level
+ * @property string $gender
+ * @property integer $age
+ * @property string $alert_submitter_id
+ * @property string $alert_status
+ * @property string $current_case_id
+ * @property string $current_step_type
+ * @property string $current_step_id
+ * @property string $deadline_status
+ * @property string $child_status
+ * @property float $lat
+ * @property float $lng
+ * @property string $map_region
+ * @property object $map_geocoded_address
+ *
+ * @property Tenant $tenant
+ * @property City $city
+ * @property ChildCase $currentCase
+ * @property ChildCase $current_case
+ * @property Alerta $alert
+ * @property User $submitter
+ * @property CaseStep $currentStep
+ * @property CaseStep $current_step
+ * @property ChildCase[]|Collection $cases
+ * @property Comment[]|Collection $comments
+ * @property Attachment[]|Collection $attachments
+ * @property ActivityLog[]|Collection $activity
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ */
 class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyMetrics {
 
 	use SoftDeletes;
@@ -181,6 +223,26 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	// ------------------------------------------------------------------------
 
+	public function scopeAccepted($query) {
+		return $query->where('alert_status', 'accepted');
+	}
+
+	public function scopeRejected($query) {
+		return $query->where('alert_status', 'rejected');
+	}
+
+	public function scopePending($query) {
+		return $query->where('alert_status', 'pending');
+	}
+
+	public function scopeHasCaseInProgress($query) {
+		return $query
+			->where('alert_status', Child::ALERT_STATUS_ACCEPTED)
+			->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION]);
+	}
+
+	// ------------------------------------------------------------------------
+
 	/**
 	 * Gets the URL for viewing a child
 	 * @return string
@@ -230,7 +292,13 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$this->alert_status = 'accepted';
 		$this->save();
 
+		$this->currentCase->case_status = ChildCase::STATUS_IN_PROGRESS;
+		$this->currentCase->save();
+
 		$alertStep = $this->currentStep; /* @var $alertStep Alerta */
+		$alertStep->alert_status = 'accepted';
+		$alertStep->save();
+
 		$alertStep->complete();
 
 		event(new AlertStatusChanged($this, $prevStatus, 'accepted'));
@@ -242,7 +310,13 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	 */
 	public function rejectAlert() {
 		$prevStatus = $this->alert_status;
+
+		$this->currentCase->case_status = ChildCase::STATUS_CANCELLED;
+		$this->currentCase->cancel_reason = ChildCase::CANCEL_REASON_REJECTED_ALERT;
+		$this->currentCase->save();
+
 		$this->alert_status = 'rejected';
+		$this->child_status = self::STATUS_CANCELLED;
 		$this->save();
 
 		event(new AlertStatusChanged($this, $prevStatus, 'rejected'));
@@ -290,7 +364,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	// ------------------------------------------------------------------------
 
-	public function getSearchIndex() : string { return 'children'; }
+	public function getSearchIndex() : string { return config('search.index_prefix') . 'children'; }
 	public function getSearchType() : string { return 'child'; }
 	public function getSearchID() { return $this->id; }
 
@@ -304,6 +378,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 	/**
 	 * Builds the searchable document for the child.
 	 * @return array
+	 * @throws \Exception
 	 */
 	public function buildSearchDocument() : array {
 
@@ -326,8 +401,14 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 
 		if($this->currentStep) {
-			$data['assigned_user_id'] = $this->currentStep->assignedUser->id ?? null;
-			$data['assigned_user_name'] = $this->currentStep->assignedUser->name ?? null;
+			$data['assigned_user_id'] = $this->currentStep->assigned_user_id ?? null;
+
+			$assignedUser = $this->currentStep->assigned_user_id ? // TODO: refactor the way we deal with non-scoped models
+				User::withoutGlobalScope(TenantScope::class)->find($data['assigned_user_id']) : null;
+
+			$data['assigned_user_name'] = $assignedUser->name ?? null;
+			$data['assigned_uf'] = $assignedUser->uf ?? null;
+
 			$data['step_name'] = $this->currentStep->getName() ?? null;
 			$data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
 		}
@@ -359,12 +440,13 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	// ------------------------------------------------------------------------
 
-	public function getTimeSeriesIndex() : string { return 'children_daily'; }
+	public function getTimeSeriesIndex() : string { return config('search.index_prefix') . 'children_daily'; }
 	public function getTimeSeriesType(): string { return 'child'; }
 
 	/**
 	 * Builds a documents with aggregable & filterable metrics for the reporting system
 	 * @return array
+	 * @throws \Exception
 	 */
 	public function buildMetricsDocument(): array {
 
@@ -414,6 +496,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             "assigned_user_id",
             "alert_submitter_id",
             "uf",
+            "assigned_uf",
             "country_region",
 		]);
 

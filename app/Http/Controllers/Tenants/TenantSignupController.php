@@ -1,7 +1,7 @@
 <?php
 /**
  * busca-ativa-escolar-api
- * TenantSignUpController.php
+ * TenantSignupController.php
  *
  * Copyright (c) LQDI Digital
  * www.lqdi.net - 2016
@@ -18,13 +18,16 @@ use Auth;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Exceptions\ValidationException;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
-use BuscaAtivaEscolar\SignUp;
+use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
+use BuscaAtivaEscolar\Utils;
+use Carbon\Carbon;
 use DB;
 use Event;
+use Illuminate\Support\Str;
 
-class SignUpController extends BaseController  {
+class TenantSignupController extends BaseController  {
 
 	public function register() {
 		$data = request()->all();
@@ -36,14 +39,14 @@ class SignUpController extends BaseController  {
 		if(!$city) return $this->api_failure('invalid_city');
 
 		$existingTenant = Tenant::where('city_id', $city->id)->first();
-		$existingSignUp = SignUp::where('city_id', $city->id)->first();
+		$existingSignUp = TenantSignup::where('city_id', $city->id)->first();
 
 		if($existingTenant) return $this->api_failure('tenant_already_registered');
 		if($existingSignUp) return $this->api_failure('signup_in_progress');
 
 		try {
 
-			$validator = SignUp::validate($data);
+			$validator = TenantSignup::validate($data);
 
 			if($validator->fails()) {
 				return $this->api_failure('invalid_input', $validator->failed());
@@ -53,7 +56,7 @@ class SignUpController extends BaseController  {
 				return $this->api_failure('political_admin_email_in_use');
 			}
 
-			$signup = SignUp::createFromForm($data);
+			$signup = TenantSignup::createFromForm($data);
 
 			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
 		} catch (\Exception $ex) {
@@ -63,21 +66,57 @@ class SignUpController extends BaseController  {
 	}
 
 	public function get_pending() {
-		$pending = SignUp::with('city')
+		$pending = TenantSignup::with('city')
 			->where('is_provisioned', false);
 
 		$sort = request('sort', []);
+		$filter = request('filter', []);
+		$max = request('max', null);
 
-		SignUp::applySorting($pending, request('sort'));
+		TenantSignup::applySorting($pending, request('sort'));
 
-		$columns = (isset($sort['cities.name:city_id'])) ? ['signups.*', 'cities.name'] : ['*'];
+		if(isset($filter['city_name']) && strlen($filter['city_name']) > 0) {
+			$pending->whereHas('city', function ($sq) use ($filter) {
+				return $sq->where('name_ascii', 'REGEXP', Str::ascii($filter['city_name']));
+			});
+		}
 
-		$pending = $pending->get($columns);
+		if(isset($filter['city_uf']) && strlen($filter['city_uf']) > 0) {
+			$pending->whereHas('city', function ($sq) use ($filter) {
+				return $sq->where('uf', 'REGEXP', Str::ascii($filter['city_uf']));
+			});
+		}
+
+		switch($filter['status']) {
+			case "all": $pending->withTrashed(); break;
+			case "rejected": $pending->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 0); break;
+			case "pending_approval": $pending->where('is_approved', 0); break;
+			case "pending_setup": $pending->where( 'is_approved', 1)->where('is_provisioned', 0 ); break;
+			case "pending": default: break;
+		}
+
+		if(isset($filter['created_at']) && strlen($filter['created_at']) > 0) {
+			$numDays = intval($filter['created_at']);
+			$cutoffDate = Carbon::now()->addDays(-$numDays);
+
+			$pending->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
+		}
+
+		$columns = (isset($sort['cities.name:city_id'])) ? ['tenant_signups.*', 'cities.name'] : ['*'];
+
+		$pending = $max ? $pending->paginate($max, $columns) : $pending->get($columns);
+		$meta = $max ? Utils::buildPaginatorMeta($pending) : null;
+
+		$pending->each(function (&$item) { /* @var $item TenantSignup */
+			if($item->is_approved && !$item->is_provisioned) {
+				$item->provision_url = env('APP_PANEL_URL') . "/admin_setup/" . $item->id . '?token=' . $item->getURLToken();
+			}
+		});
 		
-		return response()->json(['data' => $pending]);
+		return response()->json(['data' => $max ? $pending->items() : $pending, 'meta' => $meta]);
 	}
 
-	public function get_via_token(SignUp $signup) {
+	public function get_via_token(TenantSignup $signup) {
 		$token = request('token');
 		$validToken = $signup->getURLToken();
 
@@ -89,7 +128,7 @@ class SignUpController extends BaseController  {
 		return response()->json($signup);
 	}
 
-	public function approve(SignUp $signup) {
+	public function approve(TenantSignup $signup) {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
@@ -102,7 +141,7 @@ class SignUpController extends BaseController  {
 		}
 	}
 
-	public function reject(SignUp $signup) {
+	public function reject(TenantSignup $signup) {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
@@ -115,7 +154,7 @@ class SignUpController extends BaseController  {
 		}
 	}
 
-	public function resendNotification(SignUp $signup) {
+	public function resendNotification(TenantSignup $signup) {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
@@ -129,7 +168,7 @@ class SignUpController extends BaseController  {
 		}
 	}
 
-	public function updateRegistrationEmail(SignUp $signup) {
+	public function updateRegistrationEmail(TenantSignup $signup) {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
@@ -144,7 +183,7 @@ class SignUpController extends BaseController  {
 		}
 	}
 
-	public function complete(SignUp $signup) {
+	public function complete(TenantSignup $signup) {
 		$token = request('token');
 		$validToken = $signup->getURLToken();
 
@@ -155,6 +194,10 @@ class SignUpController extends BaseController  {
 
 		$politicalAdmin = request('political', []);
 		$operationalAdmin = request('operational', []);
+
+		if(trim(strtolower($politicalAdmin['email'])) === trim(strtolower($operationalAdmin['email']))) {
+			return $this->api_failure("admin_emails_are_the_same");
+		}
 
 		try {
 			$tenant = Tenant::provision($signup, $politicalAdmin, $operationalAdmin);

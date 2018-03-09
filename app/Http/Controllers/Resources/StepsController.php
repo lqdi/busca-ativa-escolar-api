@@ -15,7 +15,10 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
+use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Scopes\TenantScope;
+use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\StepTransformer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
@@ -97,8 +100,14 @@ class StepsController extends BaseController {
 		try {
 			$step = CaseStep::fetch($step_type, $step_id);
 
-			$query = User::query()->orderBy('type', 'ASC');
+			$query = User::withoutGlobalScope(TenantScope::class)->orderBy('type', 'ASC');
 			$query = $step->applyAssignableUsersFilter($query);
+
+			$query->where(function($q) use ($step) {
+				return $q // Allow both tenant users or state agent users
+					->where('tenant_id', $step->tenant_id)
+					->orWhereRaw('(tenant_id IS NULL AND uf = ?)', [$step->tenant->uf]);
+			});
 
 			$users = $query->get();
 
@@ -112,12 +121,14 @@ class StepsController extends BaseController {
 		}
 	}
 
-	public function assignUser($step_type, $step_id) {
+	public function assignUser($step_type, $step_id, Search $search) {
 		try {
-			$user = User::findOrFail(request('user_id'));
+			$user = User::withoutGlobalScope(TenantScope::class)->findOrFail(request('user_id'));
 			$step = CaseStep::fetch($step_type, $step_id);
 
 			$step->assignToUser($user);
+
+			// TODO: fix assignment not reindexing
 
 			return response()->json(['status' => 'ok', 'user' => fractal()->item($user, new UserTransformer())]);
 

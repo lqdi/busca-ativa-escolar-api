@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Data\Gender;
@@ -30,6 +31,7 @@ use BuscaAtivaEscolar\FormBuilder\FormBuilder;
 use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
+use Log;
 
 class Pesquisa extends CaseStep implements CanGenerateForms {
 
@@ -146,8 +148,6 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		if($this->mother_name) $this->child->mother_name = $this->mother_name;
 		if($this->father_name) $this->child->father_name = $this->father_name;
 
-		$this->child->save();
-
 		if($this->case_cause_ids) {
 			$this->childCase->case_cause_ids = $this->case_cause_ids;
 			$this->childCase->save();
@@ -157,15 +157,34 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 			$this->child->recalculateAgeThroughBirthday($this->dob);
 		}
 
-		if($this->place_address && $this->place_city_name && $this->place_uf) {
-			$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
+		if($this->place_city_id) {
+			$city = City::findByID($this->place_city_id);
 
-			$this->update([
-				'place_lat' => ($address) ? $address->getLatitude() : null,
-				'place_lng' => ($address) ? $address->getLongitude() : null,
-				'place_map_region' => ($address) ? $address->getSubLocality() : null,
-				'place_map_geocoded_address' => ($address) ? $address->toArray() : null,
-			]);
+			if($city) {
+				$this->update([
+					'place_city_id' => $city->id,
+					'place_city_name' => $city->name,
+					'place_uf' => $city->uf,
+				]);
+			}
+
+		}
+
+		$this->child->save();
+
+		if($this->place_address && $this->place_city_name && $this->place_uf) {
+			try {
+				$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
+
+				$this->update([
+					'place_lat' => ($address) ? $address->getLatitude() : null,
+					'place_lng' => ($address) ? $address->getLongitude() : null,
+					'place_map_region' => ($address) ? $address->getSubLocality() : null,
+					'place_map_geocoded_address' => ($address) ? $address->toArray() : null,
+				]);
+			} catch (\Exception $ex) {
+				Log::error("[pesquisa.on_update.geocode_addr] ({$this->id}) Failed to geocode address: {$ex->getMessage()}");
+			}
 
 		}
 	}
@@ -250,9 +269,9 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 				->field('reason_not_enrolled', 'multiline', trans('form_builder.pesquisa.field.reason_not_enrolled'), ['show_if_false' => 'has_been_in_school'])
 				->field('school_last_grade', 'select', trans('form_builder.pesquisa.field.school_last_grade'), ['show_if_true' => 'has_been_in_school', 'options' => SchoolGrade::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('school_last_year', 'number', trans('form_builder.pesquisa.field.school_last_year'), ['show_if_true' => 'has_been_in_school'])
-				->field('school_last_id', 'model', trans('form_builder.pesquisa.field.school_last_id'), ['show_if_true' => 'has_been_in_school', 'key_as' => 'school_last', 'search_by' => 'name', 'source' => route('api.school.search'), 'key' => 'id', 'label' => 'name', 'list_key' => 'results'])
+				->field('school_last_id', 'model', trans('form_builder.pesquisa.field.school_last_id'), ['show_if_true' => 'has_been_in_school', 'key_as' => 'school_last', 'search_by' => 'name', 'source' => route('api.school.search'), 'key' => 'id', 'label' => 'name', 'list_key' => 'results', 'is_available_offline' => true, 'offline_index' => 'schools_idx', 'offline_field' => 'name', 'offline_label' => 'name'])
 				->field('school_last_name', 'model_field', trans('form_builder.pesquisa.field.school_last_name'), ['show_if_true' => 'has_been_in_school', 'key' => 'school_last', 'field' => 'name'])
-				->field('school_last_status', 'select', trans('form_builder.pesquisa.field.school_last_status'), ['show_if_true' => 'has_been_in_school'], ['options' => SchoolLastStatus::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+				->field('school_last_status', 'select', trans('form_builder.pesquisa.field.school_last_status'), ['show_if_true' => 'has_been_in_school', 'options' => SchoolLastStatus::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('school_last_age', 'number', trans('form_builder.pesquisa.field.school_last_age'), ['show_if_true' => 'has_been_in_school'])
 				->field('school_last_address', 'string', trans('form_builder.pesquisa.field.school_last_address'), ['show_if_true' => 'has_been_in_school']);
 			})
@@ -300,7 +319,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 				->field('place_reference', 'string', trans('form_builder.pesquisa.field.place_reference'))
 				->field('place_neighborhood', 'string', trans('form_builder.pesquisa.field.place_neighborhood'))
 				//->field('place_uf', 'select', trans('form_builder.pesquisa.field.place_uf'), ['options' => UF::getAllAsArray(), 'key' => 'code', 'label' => 'name'])
-				->field('place_city_id', 'model', trans('form_builder.pesquisa.field.place_city_id'), ['key_as' => 'place_city', 'search_by' => 'name', 'source' => route('api.cities.search'), 'list_key' => 'results', 'key' => 'id', 'label' => 'full_name'])
+				->field('place_city_id', 'model', trans('form_builder.pesquisa.field.place_city_id'), ['key_as' => 'place_city', 'search_by' => 'name', 'source' => route('api.cities.search'), 'list_key' => 'results', 'key' => 'id', 'label' => 'name',  'is_available_offline' => true, 'offline_index' => 'cities_idx', 'offline_field' => 'search_string', 'offline_label' => 'display_name'])
 				->field('place_city_name', 'model_field', trans('form_builder.pesquisa.field.place_city_name'), ['key' => 'place_city', 'field' => 'name'])
 				->field('place_uf', 'model_field', trans('form_builder.pesquisa.field.place_uf'), ['key' => 'place_city', 'field' => 'uf'])
 				->field('place_kind', 'select', trans('form_builder.pesquisa.field.place_kind'), ['options' => PlaceKind::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])

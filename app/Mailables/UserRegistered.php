@@ -14,7 +14,7 @@
 namespace BuscaAtivaEscolar\Mailables;
 
 
-use BuscaAtivaEscolar\SignUp;
+use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
 use Illuminate\Mail\Mailable;

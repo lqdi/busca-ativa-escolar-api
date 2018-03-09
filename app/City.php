@@ -13,13 +13,32 @@
 
 namespace BuscaAtivaEscolar;
 
-
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
+use Cache;
+use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
+/**
+ * @property int $id
+ *
+ * @property string $uf
+ * @property string $region
+ * @property string $name
+ * @property string $name_ascii
+ * @property string $ibge_city_id
+ * @property string $ibge_uf_id
+ * @property string $ibge_region_id
+ * @property string $webdoc_url
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ *
+ * @property Tenant $tenant
+ */
 class City extends Model implements Searchable {
 
 	use SoftDeletes;
@@ -31,6 +50,7 @@ class City extends Model implements Searchable {
 		'region',
 
 		'name',
+		'name_ascii',
 
 		'ibge_city_id',
 		'ibge_uf_id',
@@ -95,7 +115,34 @@ class City extends Model implements Searchable {
 		return $query;
 	}
 
-	public function getSearchIndex(): string { return 'cities'; }
+	/**
+	 * Finds a city by its internal ID or IBGE ID
+	 * @param string $id An internal city UUID or an IBGE city ID
+	 * @return Model|null|static
+	 */
+	public static function findByID($id) {
+		return self::query()
+			->where('id', $id)
+			->orWhere('ibge_city_id', $id)
+			->first();
+	}
+
+	/**
+	 * Gets a list of all city IDs within a specific state
+	 * @param string $uf
+	 * @return array
+	 */
+	public static function getIDsWithinUF($uf) {
+		return Cache::remember('uf_cities_' . $uf, config('cache.timeouts.uf_cities'), function () use ($uf) {
+			return DB::table('cities')
+				->where('uf', $uf)
+				->get(['id'])
+				->pluck('id')
+				->toArray();
+		});
+	}
+
+	public function getSearchIndex(): string { return config('search.index_prefix') . 'cities'; }
 	public function getSearchType(): string { return 'city'; }
 	public function getSearchID() { return $this->id; }
 

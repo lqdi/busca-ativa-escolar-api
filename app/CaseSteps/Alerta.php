@@ -13,12 +13,10 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Data\AlertCause;
-use BuscaAtivaEscolar\Data\Gender;
-use BuscaAtivaEscolar\Data\Race;
 use BuscaAtivaEscolar\FormBuilder\CanGenerateForms;
 use BuscaAtivaEscolar\FormBuilder\FormBuilder;
-use BuscaAtivaEscolar\IBGE\UF;
 
 class Alerta extends CaseStep implements CanGenerateForms  {
 
@@ -33,7 +31,9 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 		'cpf',
 		'nis',
+
 		'alert_cause_id',
+		'alert_status',
 
 		'mother_name',
 		'mother_rg',
@@ -62,6 +62,22 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 		'place_map_geocoded_address' => 'array',
 	];
 
+	public function scopeAccepted($query) {
+		return $query->where('alert_status', 'accepted');
+	}
+
+	public function scopeRejected($query) {
+		return $query->where('alert_status', 'rejected');
+	}
+
+	public function scopePending($query) {
+		return $query->where('alert_status', 'pending');
+	}
+
+	public function scopeNotRejected($query) {
+		return $query->whereIn('alert_status', ['accepted', 'pending']);
+	}
+
 	protected function onComplete() : bool {
 
 		if($this->gender) $this->child->gender = $this->gender;
@@ -71,9 +87,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 		$this->child->save();
 
-		if(!$this->dob) return true;
-
-		$this->child->recalculateAgeThroughBirthday($this->dob);
+		if($this->dob) $this->child->recalculateAgeThroughBirthday($this->dob);
 
 		$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
 
@@ -124,7 +138,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 		return (new FormBuilder())
 			->group('personal', trans('form_builder.alerta.group.personal'), function (FormBuilder $group) {
 				return $group
-					->field('name', 'string', trans('form_builder.alerta.field.name'))
+					->field('name', 'string', trans('form_builder.alerta.field.name'), ['required' => true])
 					//->field('gender', 'select', trans('form_builder.alerta.field.gender'), ['options' => Gender::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 					//->field('race', 'select', trans('form_builder.alerta.field.race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 					->field('dob', 'date', trans('form_builder.alerta.field.dob'));
@@ -136,7 +150,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 			->group('parents', trans('form_builder.alerta.group.parents'), function (FormBuilder $group) {
 				return $group
-					->field('mother_name', 'string', trans('form_builder.alerta.field.mother_name'));
+					->field('mother_name', 'string', trans('form_builder.alerta.field.mother_name'), ['required' => true]);
 					//->field('mother_rg', 'alphanum', trans('form_builder.alerta.field.mother_rg'))
 					//->field('mother_phone', 'alphanum', trans('form_builder.alerta.field.mother_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation', 'placeholder' => '(00) 00000-0000'])
 
@@ -148,12 +162,12 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 			->group('place', trans('form_builder.alerta.group.place'), function (FormBuilder $group) {
 				return $group
-					->field('place_address', 'string', trans('form_builder.alerta.field.place_address'))
+					->field('place_address', 'string', trans('form_builder.alerta.field.place_address'), ['required' => true])
 					//->field('place_cep', 'alphanum', trans('form_builder.alerta.field.place_cep'), ['mask' => 'cep', 'transform' => 'strip_punctuation', 'placeholder' => '00000-000'])
 					->field('place_reference', 'string', trans('form_builder.alerta.field.place_reference'))
-					->field('place_neighborhood', 'string', trans('form_builder.alerta.field.place_neighborhood'))
+					->field('place_neighborhood', 'string', trans('form_builder.alerta.field.place_neighborhood'), ['required' => true])
 					//->field('place_uf', 'select', trans('form_builder.alerta.field.place_uf'), ['options' => UF::getAllAsArray(), 'key' => 'code', 'label' => 'name'])
-					->field('place_city_id', 'model', trans('form_builder.alerta.field.place_city_id'), ['key_as' => 'place_city', 'search_by' => 'name', 'source' => route('api.cities.search'), 'list_key' => 'results', 'key' => 'id', 'label' => 'full_name'])
+					->field('place_city_id', 'model', trans('form_builder.alerta.field.place_city_id'), ['key_as' => 'place_city', 'search_by' => 'name', 'source' => route('api.cities.search'), 'list_key' => 'results', 'key' => 'id', 'label' => 'full_name', 'hide_if_offline' => true])
 					->field('place_city_name', 'model_field', trans('form_builder.alerta.field.place_city_name'), ['key' => 'place_city', 'field' => 'name'])
 					->field('place_uf', 'model_field', trans('form_builder.alerta.field.place_uf'), ['key' => 'place_city', 'field' => 'uf']);
 					//->field('place_phone', 'alphanum', trans('form_builder.alerta.field.place_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation'])

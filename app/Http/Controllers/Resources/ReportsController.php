@@ -25,14 +25,20 @@ use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Data\IncomeRange;
 use BuscaAtivaEscolar\Data\WorkActivity;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\IBGE\Region;
 use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\Reports\Reports;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
-use BuscaAtivaEscolar\SignUp;
+use BuscaAtivaEscolar\StateSignup;
+use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\User;
 use Cache;
+use Carbon\Carbon;
+use DB;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class ReportsController extends BaseController {
@@ -44,12 +50,15 @@ class ReportsController extends BaseController {
 
 		// Scope the query within the tenant
 		if(Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
+		if(Auth::user()->isRestrictedToUF()) $filters['uf'] = Auth::user()->uf;
 
-		//if(isset($filters['place_uf'])) $filters['place_uf'] = Str::lower($filters['place_uf']);
+		if(isset($filters['place_uf'])) $filters['place_uf'] = Str::lower($filters['place_uf']);
+		if(isset($filters['uf'])) $filters['uf'] = Str::lower($filters['uf']);
 
 		$entity = new Child();
 		$query = ElasticSearchQuery::withParameters($filters)
 			->filterByTerm('tenant_id', false)
+			->filterByTerm('uf', false)
 			//->filterByTerms('deadline_status', false)
 			->filterByTerms('case_status', false)
 			->filterByTerms('alert_status', false)
@@ -94,21 +103,248 @@ class ReportsController extends BaseController {
 		]);
 	}
 
+	public function query_tenants() {
+
+		$filters = request('filters', []);
+
+		// Scope the query within the tenant
+		if(isset($filters['uf'])) $filters['uf'] = Str::lower($filters['uf']);
+		if(Auth::user()->isRestrictedToUF()) $filters['uf'] = Auth::user()->uf;
+
+		$query = Tenant::query();
+
+		if(isset($filters['uf'])) $query->where('uf', $filters['uf']);
+
+		$tenants = $query->get();
+		$recordsTotal = $tenants->count();
+
+		$report = null;
+		$labels = [];
+
+		switch(request('dimension')) {
+
+			case "uf":
+
+				$report = $tenants
+					->sortBy('uf')
+					->groupBy('uf')
+					->map(function ($group) {
+						return $group->count();
+					});
+
+				$labels = $report->keys()->sort();
+
+				break;
+
+			case "region":
+
+				$labels = collect(Region::getAll())->pluck('name', 'id');
+
+				$report = collect(Region::getAll())
+					->sortBy('name')
+					->map(function ($region) use ($tenants, $labels) {
+						$ufs = collect(UF::getAll())
+							->where('region_id', $region->id)
+							->pluck('code')
+							->toArray();
+
+						return [
+							'name' => $labels[$region->id],
+							'count' => $tenants->whereIn('uf', $ufs)->count()
+						];
+					})
+					->pluck('count', 'name');
+
+				break;
+
+		}
+
+		return response()->json([
+			'response' => [
+				'records_total' => $recordsTotal,
+				'report' => $report
+			],
+			'labels' => $labels
+		]);
+	}
+
+	public function query_ufs() {
+
+		$ufs = collect(UF::getAllByCode());
+		$labels = collect(Region::getAll())->sortBy('name')->pluck('name', 'id');
+
+		$report = DB::table("users")
+			->whereIn('type', User::$UF_SCOPED_TYPES)
+			->groupBy('uf')
+			->select(['uf', DB::raw('COUNT(id) as num')])
+			->get()
+			->map(function ($user) use ($ufs, $labels) {
+				$user->region_id = $ufs[$user->uf]['region_id'];
+				$user->region_name = $labels[$user->region_id] ?? '';
+				return $user;
+			})
+			->groupBy('region_id')
+			->sortBy('region_name')
+			->map(function ($region) {
+				return $region->count();
+			});
+
+		return response()->json([
+			'response' => [
+				'records_total' => $report->sum(),
+				'report' => $report
+			],
+			'labels' => $labels
+		]);
+	}
+
+	public function query_signups() {
+
+		$today = Carbon::now();
+
+		$numSignups = DB::table("tenant_signups")
+			->select([DB::raw('CONCAT(YEAR(created_at), CONCAT("-", MONTH(created_at))) as month'), DB::raw('COUNT(id) as qty')])
+			->groupBy('month')
+			->get()
+			->pluck('qty', 'month');
+
+		$lastTwelveMonths = collect(range(0, 11))
+			->reverse()
+			->map(function($i) use ($today) {
+				$date = $today->copy()->addMonths(-$i);
+
+				return [
+					'index' => $i,
+					'date' => $date->format('Y-m') . "-01",
+					'month' => $date->format('Y-n'),
+					'label' => $date->format('M/Y'),
+				];
+			})
+			->keyBy('label')
+			->map(function ($period) use ($numSignups) {
+				return ['num_tenant_signups' => $numSignups[$period['month']] ?? 0];
+			});
+
+		return response()->json([
+			'response' => [
+				'records_total' => 0,
+				'report' => $lastTwelveMonths
+			],
+			'labels' => ['num_tenant_signups' => 'Qtd. de adesões municipais']
+		]);
+
+	}
+
 	public function country_stats() {
 
 		try {
 
 			$stats = Cache::remember('stats_country', config('cache.timeouts.stats_platform'), function() {
 				return [
-					'num_tenants' => Tenant::query()->count(),
-					'num_alerts' => Alerta::query()->count(),
-					'num_cases_in_progress' => ChildCase::query()->where('case_status', ChildCase::STATUS_IN_PROGRESS)->count(),
-					'num_children_reinserted' => Child::query()->where('child_status', Child::STATUS_IN_SCHOOL)->count(),
-					'num_pending_signups' => SignUp::query()->whereNull('judged_by')->count(),
+					'num_tenants' => Tenant::query()
+						->count(),
+
+					'num_signups' => TenantSignup::query()
+						->count(),
+
+					'num_pending_setup' => TenantSignup::query()
+						->where('is_approved', 1)
+						->where('is_provisioned', 0)
+						->count(),
+
+					'num_alerts' => Child::query()
+						->accepted()
+						->count(),
+
+					'num_pending_alerts' => Child::query()
+						->pending()
+						->count(),
+
+					'num_rejected_alerts' => Child::query()
+						->rejected()
+						->count(),
+
+					'num_total_alerts' => Child::query()
+						->count(),
+
+					'num_cases_in_progress' => Child::with(['currentCase'])
+						->hasCaseInProgress()
+						->count(),
+
+					'num_children_reinserted' => Child::query()
+						->whereIn('child_status', [Child::STATUS_IN_SCHOOL, Child::STATUS_OBSERVATION])
+						->count(),
+
+					'num_pending_signups' => TenantSignup::query()
+						->whereNull('judged_by')
+						->count(),
+
+					'num_pending_state_signups' => StateSignup::query()
+						->whereNull('judged_by')
+						->count(),
 				];
 			});
 
 			return response()->json(['status' => 'ok', 'stats' => $stats]);
+
+		} catch (\Exception $ex) {
+			return $this->api_exception($ex);
+		}
+
+	}
+
+	public function state_stats() {
+
+		$uf = request('uf', $this->currentUser()->uf);
+
+		if(!$uf) {
+			return $this->api_failure('invalid_uf');
+		}
+
+		$tenantIDs = Tenant::getIDsWithinUF($uf);
+		$cityIDs = City::getIDsWithinUF($uf);
+
+		try {
+
+			$stats = Cache::remember('stats_state_' . $uf, config('cache.timeouts.stats_platform'), function() use ($uf, $cityIDs, $tenantIDs) {
+				return [
+					'num_tenants' => Tenant::query()
+						->where('uf', $uf)
+						->count(),
+
+					'num_signups' => TenantSignup::query()
+						->whereIn('city_id', $cityIDs)
+						->count(),
+
+					'num_pending_setup' => TenantSignup::query()
+						->whereIn('city_id', $cityIDs)
+						->where('is_approved', 1)
+						->where('is_provisioned', 0)
+						->count(),
+
+					'num_alerts' => Alerta::query()
+						->whereIn('tenant_id', $tenantIDs)
+						->notRejected()
+						->count(),
+
+					'num_cases_in_progress' => ChildCase::query()
+						->whereIn('tenant_id', $tenantIDs)
+						->where('case_status', ChildCase::STATUS_IN_PROGRESS)
+						->count(),
+
+					'num_children_reinserted' => Child::query()
+						->whereIn('tenant_id', $tenantIDs)
+						->whereIn('child_status', [Child::STATUS_IN_SCHOOL, Child::STATUS_OBSERVATION])
+						->count(),
+
+					'num_pending_signups' => TenantSignup::query()
+						->whereIn('city_id', $cityIDs)
+						->whereNull('judged_by')
+						->count(),
+				];
+			});
+
+			return response()->json(['status' => 'ok', 'stats' => $stats, 'uf' => $uf, 'tenant_ids' => $tenantIDs, 'city_ids' => $cityIDs]);
 
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);

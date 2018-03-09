@@ -6,6 +6,7 @@ use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
+use Illuminate\Support\Str;
 
 class RegisterTenant extends Command {
 
@@ -36,8 +37,11 @@ class RegisterTenant extends Command {
 
 	    $now = date('Y-m-d H:i:s');
 
+	    $name = Tenant::generateNameFromCity($city);
+
 	    $tenant = Tenant::create([
-	    	'name' => Tenant::generateNameFromCity($city),
+	    	'name' => $name,
+	    	'name_ascii' => strtolower(Str::ascii($name)),
 		    'city_id' => $city->id,
 		    'operational_admin_id' => $manager->id,
 		    'political_admin_id' => $manager->id,

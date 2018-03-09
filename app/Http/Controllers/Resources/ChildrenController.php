@@ -22,13 +22,14 @@ use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\AttachmentTransformer;
+use BuscaAtivaEscolar\Transformers\ChildExportResultsTransformer;
 use BuscaAtivaEscolar\Transformers\ChildSearchResultsTransformer;
-use BuscaAtivaEscolar\Transformers\ChildSearchTransformer;
 use BuscaAtivaEscolar\Transformers\ChildTransformer;
 use BuscaAtivaEscolar\Transformers\CommentTransformer;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
@@ -40,16 +41,27 @@ use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class ChildrenController extends BaseController  {
 
-	public function search(Search $search) {
-
-		$params = $this->filterAsciiFields(request()->all(), ['assigned_user_name', 'location_full']);
+	protected function prepareSearchQuery() : ElasticSearchQuery {
+		$params = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
 
 		// Scope the query within the tenant
-		if(Auth::user()->isRestrictedToTenant()) $params['tenant_id'] = Auth::user()->tenant_id;
+		if(Auth::user()->isRestrictedToTenant()) {
+			$params['tenant_id'] = Auth::user()->tenant_id;
+		}
+
+		// Scope the query to state agents
+		if(Auth::user()->isRestrictedToUF()) {
+			$params['assigned_uf'] = Auth::user()->uf;
+		}
+
+		if(isset($params['uf'])) $params['uf'] = Str::lower($params['uf']);
+		if(isset($params['assigned_uf'])) $params['assigned_uf'] = Str::lower($params['assigned_uf']);
 
 		$query = ElasticSearchQuery::withParameters($params)
 			->filterByTerm('tenant_id', false)
-			->addTextFields(['name', 'cause_name', 'step_name', 'assigned_user_name'])
+			->filterByTerm('uf', false)
+			->filterByTerm('assigned_uf', false)
+			->addTextFields(['name', 'cause_name', 'step_name', 'assigned_user_name'], 'match')
 			->searchTextInColumns(
 				'location_full',
 				['place_address^3', 'place_cep^2', 'place_city^2', 'place_uf', 'place_neighborhood', 'place_reference']
@@ -93,6 +105,13 @@ class ChildrenController extends BaseController  {
 
 		}
 
+		return $query;
+	}
+
+	public function search(Search $search) {
+
+		$query = $this->prepareSearchQuery();
+
 		$attempted = $query->getAttemptedQuery();
 		$query = $query->getQuery();
 
@@ -104,6 +123,55 @@ class ChildrenController extends BaseController  {
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with'))
 			->respond();
+
+	}
+
+	public function export(Search $search) {
+
+		$query = $this->prepareSearchQuery();
+
+		$attempted = $query->getAttemptedQuery();
+		$query = $query->getQuery();
+
+		$results = $search->search(new Child(), $query, 128);
+
+		$data = fractal()
+			->item($results)
+			->transformWith(new SearchResultsTransformer(new ChildExportResultsTransformer(), $query, $attempted))
+			->serializeWith(new SimpleArraySerializer())
+			->parseIncludes(request('with'))
+			->toArray();
+
+		$tenantID = auth()->user()->tenant_id ?? 'global';
+
+		$exportFile = uniqid("export_", true);
+		$exportFolder = storage_path('app/export/' . $tenantID);
+
+		$exported = \Excel::create($exportFile, function($excel) use ($data) {
+
+			$excel->sheet('export', function($sheet) use ($data) {
+				$sheet->fromArray($data['results']);
+			});
+
+		})->store('xls', $exportFolder, true);
+
+		$token = \JWTAuth::fromUser(auth()->user());
+
+		return $this->api_success([
+			'export_file' => $exported['file'],
+			'download_url' => route('api.children.download_exported', ['filename' => $exported['file'], 'token' => $token])
+		]);
+
+	}
+
+	public function download_exported($filename) {
+
+		$tenantID = auth()->user()->tenant_id ?? 'global';
+		$token = request('token');
+
+		\JWTAuth::invalidate($token);
+
+		return response()->download(storage_path('app/export/' . $tenantID . '/' . basename($filename)));
 
 	}
 
@@ -252,10 +320,16 @@ class ChildrenController extends BaseController  {
 
 	public function getMap() {
 
-		$user = Auth::user();
-		$mapCenter = $user->tenant ?
-			$user->tenant->getMapCoordinates() : // Tenant coordinates
-			['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4]; // Map of Brazil
+		$mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
+
+		if($this->currentUser()->isRestrictedToTenant() && !$this->currentUser()->isRestrictedToUF()) {
+			$mapCenter =  $this->currentUser()->tenant->getMapCoordinates();
+		}
+
+		if($this->currentUser()->isRestrictedToUF()) {
+			$mapCenter = UF::getByCode($this->currentUser()->uf)->getCoordinates();
+			$mapCenter['zoom'] = 6;
+		}
 
 		// TODO: cache this (w/ tenant ID)
 

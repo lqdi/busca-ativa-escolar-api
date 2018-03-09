@@ -13,6 +13,8 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use BuscaAtivaEscolar\User;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -23,11 +25,32 @@ use Log;
 class BaseController extends Controller {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+	/**
+	 * Gets the currently authenticated user
+	 * @return User|null
+	 */
+    protected function currentUser() {
+    	if(auth()->guest()) return null;
+    	return auth()->user();
+    }
+
+    protected function tickTenantLastActivity() {
+    	if(!auth()->check()) return;
+    	if(!auth()->user()->tenant) return;
+
+	    try {
+		    auth()->user()->tenant->tickLastActivity();
+	    } catch (\Exception $ex) {
+		    Bugsnag::notifyException($ex);
+	    }
+    }
+
     protected function api_exception(\Exception $exception, $data = []) {
 
     	if(!$data) $data = [];
 
-    	Log::warning('[api_exception] ' . $exception->getMessage());
+    	Log::error('[api_exception] ' . $exception->getMessage() . "\n\n {$exception->getTraceAsString()}");
+    	Bugsnag::notifyException($exception);
 
 	    $exceptionInfo = $exception->getMessage();
 
@@ -57,6 +80,8 @@ class BaseController extends Controller {
 
 	protected function api_failure($reason, $fields = null, $data = []) {
     	if(!$data) $data = [];
+
+    	Log::debug("[api_failure] Returned API failure: {$reason}; fields=" . json_encode($fields) . ", data=" .json_encode($data));
 
     	$data['status'] = 'error';
 		$data['reason'] = $reason;

@@ -16,10 +16,13 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use Auth;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Mailables\StateUserRegistered;
 use BuscaAtivaEscolar\Mailables\UserRegistered;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
 use BuscaAtivaEscolar\User;
+use Excel;
+use Exception;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Mail;
 
@@ -28,8 +31,15 @@ class UsersController extends BaseController {
 	public function search() {
 		$query = User::with('group');
 
-		if(!Auth::user()->isRestrictedToTenant() && request()->has('tenant_id')) {
+		// If user is global user, they can filter by tenant_id
+		if(!$this->currentUser()->isRestrictedToTenant() && request()->has('tenant_id')) {
 			$query->where('tenant_id', request('tenant_id'));
+		}
+
+		// If user is UF-bound, they can only see other UF-bound users in their UF
+		if($this->currentUser()->isRestrictedToUF()) {
+			$query->where('uf', $this->currentUser()->uf);
+			$query->whereIn('type', [User::TYPE_GESTOR_ESTADUAL, User::TYPE_SUPERVISOR_ESTADUAL]);
 		}
 
 		if(request()->has('group_id')) $query->where('group_id', request('group_id'));
@@ -42,7 +52,7 @@ class UsersController extends BaseController {
 			User::applySorting($query, request('sort', []));
 		}
 
-		$max = intval(request('max', 128));
+		$max = request('max', 128);
 		if($max > 128) $max = 128;
 		if($max < 16) $max = 16;
 
@@ -56,6 +66,37 @@ class UsersController extends BaseController {
 			->paginateWith(new IlluminatePaginatorAdapter($paginator))
 			->parseIncludes(request('with'))
 			->respond();
+	}
+
+	public function export() {
+		$query= User::query()
+			->with(['group', 'tenant'])
+			->withTrashed()
+			->orderBy('name', 'ASC');
+
+		// If user is UF-bound, they can only see other UF-bound users in their UF
+		if($this->currentUser()->isRestrictedToUF()) {
+			$query->where('uf', $this->currentUser()->uf);
+			$query->whereIn('type', [User::TYPE_GESTOR_ESTADUAL, User::TYPE_SUPERVISOR_ESTADUAL]);
+		}
+
+		$users = $query
+			->get()
+			->map(function ($user) { /* @var $user User */
+				return $user->toExportArray();
+			})
+			->toArray();
+
+		Excel::create('buscaativaescolar_users', function($excel) use ($users) {
+
+			$excel->sheet('users', function($sheet) use ($users) {
+
+				$sheet->setOrientation('landscape');
+				$sheet->fromArray($users);
+
+			});
+
+		})->export('xls');
 	}
 
 	public function show(User $user) {
@@ -82,7 +123,14 @@ class UsersController extends BaseController {
 				unset($input['email']);
 			}
 
-			$validation = $user->validate($input, false);
+			if(Auth::user()->isRestrictedToTenant()) {
+				$input['tenant_id'] = Auth::user()->tenant_id;
+			}
+
+			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
+
+			$validation = $user->validate($input, false, $isTenantUser, $isUFUser);
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
@@ -94,12 +142,21 @@ class UsersController extends BaseController {
 
 			$user->fill($input);
 
+			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
+				throw new Exception("tenant_id_inconsistency");
+			}
+
 			// Here we check if we have enough permission to set the target user to this new state
 			if(!Auth::user()->canManageUser($user)) {
 				return $this->api_failure('not_enough_permissions');
 			}
 
 			$user->save();
+
+			if(!$user->uf && $user->tenant_id) {
+				$user->uf = $user->tenant->uf;
+				$user->save();
+			}
 
 			return response()->json(['status' => 'ok', 'updated' => $input]);
 
@@ -118,9 +175,12 @@ class UsersController extends BaseController {
 				$input['tenant_id'] = Auth::user()->tenant_id;
 			}
 
-			$initialPassword = $input['password'];
+			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
-			$validation = $user->validate($input, true);
+			$validation = $user->validate($input, true, $isTenantUser, $isUFUser);
+
+			$initialPassword = $input['password'];
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
@@ -130,6 +190,10 @@ class UsersController extends BaseController {
 
 			$user->fill($input);
 
+			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
+				throw new Exception("tenant_id_inconsistency");
+			}
+			
 			// Check if the resulting user can be created by the current user
 			if(!Auth::user()->canManageUser($user)) {
 				return $this->api_failure('not_enough_permissions');
@@ -137,8 +201,15 @@ class UsersController extends BaseController {
 
 			$user->save();
 
+			if(!$user->uf && $user->tenant_id) {
+				$user->uf = $user->tenant->uf;
+				$user->save();
+			}
+
 			if($user->tenant) {
 				Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
+			} else if($isUFUser) {
+				Mail::to($user->email)->send(new StateUserRegistered($user->uf, $user, $initialPassword));
 			}
 
 			return response()->json(['status' => 'ok', 'id' => $user->id]);

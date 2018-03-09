@@ -13,6 +13,8 @@
 
 namespace BuscaAtivaEscolar;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
 
 class Utils {
 
@@ -45,11 +47,26 @@ class Utils {
 		return $out;
 	}
 
+	public static function clearSearchableField($in) {
+		$out = preg_replace('/[^A-Za-z0-9\-]/', '', $in);
+		return Str::ascii($out);
+	}
+
 	public static function renderHighlightableText($text) {
 		$text = preg_replace('#\*{2}(.*?)\*{2}#', '<strong>$1</strong>', $text);
 		$text = preg_replace('#\-{2}(.*?)\-{2}#', '<em>$1</em>', $text);
 
 		return $text;
+	}
+
+	public static function buildPaginatorMeta(LengthAwarePaginator $paginator) {
+		return ['pagination' => [
+			'current_page' => $paginator->currentPage(),
+			'total_pages' => $paginator->lastPage(),
+			'total' => $paginator->total(),
+			'count' => $paginator->count(),
+			'per_page' => $paginator->perPage(),
+		]];
 	}
 
 }

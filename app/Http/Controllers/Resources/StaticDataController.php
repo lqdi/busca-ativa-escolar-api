@@ -41,6 +41,7 @@ class StaticDataController extends BaseController {
 				'UserType' => \BuscaAtivaEscolar\User::$ALLOWED_TYPES,
 				'CaseStepSlugs' => \BuscaAtivaEscolar\CaseSteps\CaseStep::SLUGS,
 				'UFs' => \BuscaAtivaEscolar\IBGE\UF::getAllAsArray(),
+				'UFsByCode' => \BuscaAtivaEscolar\IBGE\UF::getAllByCode(),
 				'Regions' => \BuscaAtivaEscolar\IBGE\Region::getAllAsArray(),
 				'APIEndpoints' => $this->buildAPIEndpointList(),
 				'CaseCancelReasons' => \BuscaAtivaEscolar\ChildCase::CANCEL_REASONS,

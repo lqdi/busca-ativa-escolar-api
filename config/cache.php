@@ -6,6 +6,8 @@ return [
 
     'timeouts' => [
     	'stats_platform' => 4 * 60, // 4 hours
+	    'uf_tenants' => 60,
+	    'uf_cities' => 60,
     ],
 
     'stores' => [
@@ -55,6 +57,6 @@ return [
 
     ],
 
-    'prefix' => 'laravel',
+    'prefix' => env('CACHE_PREFIX', 'laravel'),
 
 ];

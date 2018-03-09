@@ -15,6 +15,8 @@ namespace BuscaAtivaEscolar\Scopes;
 
 
 use Auth;
+use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
@@ -27,7 +29,22 @@ class TenantScope implements Scope  {
 
 		$currentUser = Auth::user();
 
-		// Curries regular users to their own tenants
+		// Curries regular users to their own tenants / states
+
+		if($currentUser->isRestrictedToUF()) {
+
+			$builder->whereIn('tenant_id', Tenant::getIDsWithinUF($currentUser->uf));
+
+			if($model->getTable() === 'users') {
+				$builder->orWhere(function ($query) {
+					$query->whereNull('tenant_id');
+					$query->whereIn('type', User::$UF_SCOPED_TYPES);
+				});
+			}
+
+			return;
+		}
+
 		if($currentUser->isRestrictedToTenant()) {
 			$builder->where('tenant_id', $currentUser->tenant_id);
 			return;

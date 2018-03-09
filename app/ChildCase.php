@@ -22,7 +22,37 @@ use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
+/**
+ * @property int $id
+ *
+ * @property string $tenant_id
+ * @property string $child_id
+ * @property string $case_status
+ * @property string $cancel_reason
+ * @property string $name
+ * @property string $risk_level
+ * @property boolean $is_current
+ * @property string $assigned_group_id
+ * @property string $assigned_user_id
+ * @property string $alert_cause_id
+ * @property array $case_cause_ids
+ * @property string $created_by_user_id
+ * @property string $current_step_id
+ * @property string $current_step_type
+ * @property Collection|array $linked_steps
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ * @property mixed $tenant
+ * @property mixed $child
+ * @property mixed $assigned_user
+ * @property mixed $current_step
+ *
+ * @property array|null $_steps
+ */
 class ChildCase extends Model  {
 
 	use SoftDeletes;
@@ -149,6 +179,7 @@ class ChildCase extends Model  {
 	 *
 	 * @return CaseStep[]
 	 */
+
 	public function fetchSteps() {
 		if($this->_steps != null) return $this->_steps;
 

@@ -27,6 +27,8 @@ class Kernel extends ConsoleKernel
         Commands\CheckCaseDeadlines::class,
         Commands\SimulateReceivedSMS::class,
         Commands\RebuildGroupCausesMap::class,
+        Commands\GenerateSchoolsJSON::class,
+        Commands\GenerateStaticDataSQL::class,
     ];
 
     /**
