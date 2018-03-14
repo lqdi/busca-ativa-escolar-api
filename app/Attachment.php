@@ -22,6 +22,28 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\UploadedFile;
 use Webpatser\Uuid\Uuid;
 
+/**
+ * @property int $id
+ *
+ * @property string $tenant_id
+ * @property string $content_type
+ * @property string $content_id
+ * @property string $uploader_id
+ * @property string $mime_type
+ * @property string $file_name
+ * @property string $description
+ * @property string $uri
+ * @property string $location
+ * @property object $metadata
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ *
+ * @property Tenant $tenant
+ * @property User $uploader
+ * @property Model $content
+ */
 class Attachment extends Model {
 
 	use SoftDeletes;
@@ -121,6 +143,7 @@ class Attachment extends Model {
 	 * @param User $uploader The user who uploaded the file (or null if uploaded by command/bot/etc.)
 	 * @param string $description The description of the file, as given by the uploader
 	 * @return Attachment
+	 * @throws \Exception
 	 */
 	public static function createFromUpload(UploadedFile $upload, Model $content, $uploader = null, $description = '') {
 		$attachment = new Attachment();

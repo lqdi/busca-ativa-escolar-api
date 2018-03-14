@@ -21,8 +21,22 @@ use DB;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property int $id
+ *
+ * @property string $tenant_id
+ * @property string $name
+ * @property string $is_primary
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property \Carbon\Carbon $deleted_at
+ *
+ * @property Tenant $tenant
+ * @property User[]|Collection $users
+ * @property-read GroupSettings $settings
+ */
 class Group extends Model {
 
 	use IndexedByUUID;

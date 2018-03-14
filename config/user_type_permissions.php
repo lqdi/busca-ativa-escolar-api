@@ -42,6 +42,7 @@ return [
 		'users.export',
 		'alerts.spawn',
 		'settings.manage',
+		'settings.educacenso',
 		'preferences',
 	],
 
@@ -77,6 +78,7 @@ return [
 		'alerts.pending',
 		'alerts.spawn',
 		'settings.manage',
+		'settings.educacenso',
 		'tenant.complete_setup',
 		'preferences',
 	],

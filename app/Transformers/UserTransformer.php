@@ -25,6 +25,7 @@ class UserTransformer extends TransformerAbstract {
 	];
 
 	protected $defaultIncludes = [
+		'tenant',
 		'group'
 	];
 

@@ -11,39 +11,59 @@
  * Created at: 05/03/2018, 16:21
  */
 
-namespace BuscaAtivaEscolar\INEP;
+namespace BuscaAtivaEscolar\Importers;
 
-
-use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Data\AlertCause;
+use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
 use Excel;
 use Log;
 
-class EducacensoImporter {
+class EducacensoXLSImporter implements Importer {
 
+	const TYPE = "inep_educacenso_xls";
+
+	/**
+	 * @var ImportJob The import job submitted
+	 */
+	public $job;
+
+	/**
+	 * @var Tenant The tenant that is importing the alerts
+	 */
 	public $tenant;
+
+	/**
+	 * @var string The XLS file absolute path
+	 */
 	public $file;
 
+	/**
+	 * @var User The agent that is identified as the creator of the alerts
+	 */
 	private $agent;
 
-	public function __construct(Tenant $tenant, $file) {
-		$this->tenant = $tenant;
-		$this->file = $file;
+	/**
+	 * Handles the importing of Educacenso's XLS
+	 * @param ImportJob $job
+	 * @throws \Exception
+	 */
+	public function handle(ImportJob $job) {
+
+		$this->job = $job;
+		$this->tenant = $job->tenant;
+		$this->file = $job->getAbsolutePath();
 
 		$this->agent = User::find(User::ID_EDUCACENSO_BOT);
 
 		if(!$this->agent) {
 			throw new \Exception("Failed to find Educacenso bot user!");
 		}
-	}
-
-	public function process() {
 
 		Log::debug("[educacenso_import] Tenant {$this->tenant->name}, file {$this->file}");
 
@@ -51,6 +71,7 @@ class EducacensoImporter {
 			$reader->noHeading(true);
 
 			$fieldMap = null;
+			$numRecords = 0;
 
 			Log::debug("[educacenso_import] Looking for data block begin...");
 
@@ -78,16 +99,21 @@ class EducacensoImporter {
 					break;
 				}
 
+				// Map headers to keys in rows
 				$mappedRow = collect($row)->mapWithKeys(function ($value, $index) use ($fieldMap) {
 					if(!isset($fieldMap[$index])) return null;
 					return [$fieldMap[$index] => $value];
 				});
+
+				$numRecords++;
 
 				Log::debug("[educacenso_import] Parsing child in row {$rowNumber}... ");
 
 				$this->parseChildRow($mappedRow);
 
 			}
+
+			$this->job->setTotalRecords($numRecords);
 
 			Log::debug("[educacenso_import] Completed parsing Sheet #0!");
 
@@ -96,6 +122,7 @@ class EducacensoImporter {
 		$this->tenant->educacenso_import_details = [
 			'has_imported' => true,
 			'imported_at' => date('Y-m-d H:i:s'),
+			'last_job_id' => $this->job->id,
 			'file' => $this->file
 		];
 		$this->tenant->save();
@@ -135,8 +162,6 @@ class EducacensoImporter {
 		$data['educacenso_id'] = strval($data['educacenso_id'] ?? "unkn_" . uniqid());
 		$data['name'] = $data['name'] ?? "-- informação não disponível --";
 		$data['dob'] = isset($data['dob']) ? Carbon::createFromFormat('d/m/Y', $data['dob'])->format('Y-m-d') : null;
-		$data['mother_name'] = $data['mother_name'] ?? "-- informação não disponível --";
-		//$data['place_address'] = "-- informação não disponível --";
 		$data['place_uf'] = $this->tenant->city->uf;
 		$data['place_city_id'] = strval($this->tenant->city->id);
 		$data['place_city_name'] = $this->tenant->city->name;

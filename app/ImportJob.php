@@ -14,10 +14,31 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\Importers\EducacensoXLSImporter;
 use BuscaAtivaEscolar\Importers\Importer;
 use BuscaAtivaEscolar\Importers\SchoolCSVImporter;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ *
+ * @property string $type
+ * @property string $status
+ * @property string $path
+ * @property array $errors
+ * @property string $user_id
+ * @property string $tenant_id
+ * @property object $metadata
+ * @property integer $offset
+ * @property integer $total_records
+ *
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ *
+ * @property User|null $user
+ * @property Tenant|null $tenant
+ */
 class ImportJob extends Model {
 
 	const PUBLIC_FIELDS = [
@@ -26,6 +47,8 @@ class ImportJob extends Model {
 
 		'type',
 		'status',
+		'user_id',
+		'tenant_id',
 
 		'path',
 
@@ -35,6 +58,7 @@ class ImportJob extends Model {
 
 	const TYPES = [
 		'school_csv' => SchoolCSVImporter::class,
+		'inep_educacenso_xls' => EducacensoXLSImporter::class,
 	];
 
 	const STATUS_PENDING = "pending";
@@ -51,6 +75,11 @@ class ImportJob extends Model {
 		'path',
 		'errors',
 
+		'user_id',
+		'tenant_id',
+
+		'metadata',
+
 		'offset',
 		'total_records',
 	];
@@ -59,7 +88,16 @@ class ImportJob extends Model {
 		'offset' => 'integer',
 		'total_records' => 'integer',
 		'errors' => 'array',
+		'metadata' => 'object',
 	];
+
+	public function user() {
+		return $this->hasOne(User::class, 'id', 'user_id');
+	}
+
+	public function tenant() {
+		return $this->hasOne(Tenant::class, 'id', 'tenant_id');
+	}
 
 	public function storeError(\Exception $ex) {
 		if(!$this->errors) $this->errors = [];
@@ -98,6 +136,50 @@ class ImportJob extends Model {
 
 	public function getAbsolutePath() {
 		return storage_path('app/' . $this->path);
+	}
+
+	/**
+	 * Creates a new import job from a file attachment
+	 * @param string $importType The type of import job to run
+	 * @param Attachment $attachment The attached file to process
+	 * @return ImportJob
+	 * @throws \Exception when import type is invalid
+	 */
+	public static function createFromAttachment(string $importType, Attachment $attachment) {
+
+		if(!in_array($importType, array_keys(self::TYPES))) {
+			throw new \Exception("Invalid import type: {$importType}");
+		}
+
+		return self::create([
+			'type' => $importType,
+			'status' => self::STATUS_PENDING,
+			'path' => $attachment->uri,
+			'user_id' => $attachment->uploader_id,
+			'tenant_id' => $attachment->tenant_id
+		]);
+
+	}
+
+	/**
+	 * Fetches all jobs assigned to a tenant, optionally filtering by job type
+	 * @param string $tenantID The ID of the tenant
+	 * @param null|string $type [optional] The job type
+	 * @return ImportJob[]|Collection
+	 */
+	public static function fetchTenantJobs(string $tenantID, ?string $type = null) {
+
+		$q = self::query()
+			->with(['user', 'tenant'])
+			->orderBy('created_at', 'DESC')
+			->where('tenant_id', $tenantID);
+
+		if($type !== null) {
+			$q->where('type', $type);
+		}
+
+		return $q->get();
+
 	}
 
 }

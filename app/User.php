@@ -13,7 +13,6 @@
 
 namespace BuscaAtivaEscolar;
 
-use BuscaAtivaEscolar\Notifications\ChildAssigned;
 use BuscaAtivaEscolar\Notifications\PasswordReset;
 use BuscaAtivaEscolar\Settings\UserSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
@@ -27,7 +26,6 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Notification;
 
 /**
  * @property int $id
@@ -66,6 +64,7 @@ use Notification;
  * @property \Carbon\Carbon $deleted_at
  *
  * @property string $remember_token
+ * @property-read UserSettings $settings
  */
 class User extends Model implements AuthenticatableContract, AuthorizableContract {
 
@@ -240,7 +239,32 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 */
 	public function getPermissions() {
 		if(!$this->type) return [];
-		return config('user_type_permissions.' . $this->type, []);
+		$permissions = config('user_type_permissions.' . $this->type, []);
+
+		if($this->hasType(self::TYPE_SUPERVISOR_INSTITUCIONAL) && $this->belongsToPrimaryGroup()) {
+			array_push($permissions, 'settings.educacenso');
+		}
+
+		return $permissions;
+	}
+
+	/**
+	 * Checks if a user is of a certain type
+	 * @param null|string $type The type to check against (@see User::TYPE_*)
+	 * @return bool
+	 */
+	public function hasType(?string $type) {
+		if(!$this->type) return false;
+		if(!$type) return false;
+		return $this->type === $type;
+	}
+
+	/**
+	 * Checks if the user belongs to the primary tenant group
+	 * @return bool
+	 */
+	public function belongsToPrimaryGroup() {
+		return $this->tenant->primary_group_id && $this->group_id === $this->tenant->primary_group_id;
 	}
 
 	/**

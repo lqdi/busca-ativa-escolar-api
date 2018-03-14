@@ -18,20 +18,51 @@ use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\Search;
 use DB;
-use Illuminate\Support\Str;
 use Log;
 use PDO;
 
 class SchoolCSVImporter implements Importer {
 
+	const TYPE = "school_csv";
+
+	/**
+	 * @var DB
+	 */
+	private $db;
+
+	/**
+	 * @var Log
+	 */
+	private $log;
+
+	/**
+	 * @var PDO
+	 */
+	private $pdo;
+
+	/**
+	 * @var int The given records' offset to begin importing
+	 */
 	private $offset = 0;
+
+	/**
+	 * @var array The header alignment map
+	 */
 	private $headers = null;
 
 	/**
-	 * @var Search
+	 * @var Search The search index service
 	 */
 	private $search;
+
+	/**
+	 * @var \PDOStatement Stored statement to spawn schools
+	 */
 	private $insertSchoolStmt;
+
+	/**
+	 * @var \PDOStatement Stored statement to find cities by INEP ID
+	 */
 	private $findCityStmt;
 
 
@@ -45,6 +76,10 @@ class SchoolCSVImporter implements Importer {
 		$this->findCityStmt = $this->pdo->prepare("SELECT id, region, uf, name FROM cities WHERE ibge_city_id = ?");
 	}
 
+	/**
+	 * @param ImportJob $job
+	 * @throws \Throwable
+	 */
 	public function handle(ImportJob $job) {
 
 		$this->offset = $job->offset;
@@ -80,7 +115,7 @@ class SchoolCSVImporter implements Importer {
 			$this->offset = $current;
 			$job->setOffset($this->offset);
 
-		} catch (\Error $ex) {
+		} catch (\Throwable $ex) {
 			$this->log->error("Error while processing file (at offset={$this->offset}): {$ex->getMessage()}");
 			$job->setOffset($this->offset);
 

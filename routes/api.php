@@ -61,11 +61,15 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 			Route::delete('/groups/{group}', 'Resources\GroupsController@destroy');
 
 			// Tenant Settings
-			Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings');//->middleware('can:settings.manage');
-			Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings')->middleware('can:settings.manage');
+			Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings');
 
-			Route::post('/settings/import_educacenso', 'Resources\EducacensoController@import')->middleware('can:settings.manage');
+		});
 
+		Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings');//->middleware('can:settings.view');
+
+		Route::group(['middleware' => 'can:settings.educacenso'], function () {
+			Route::post('/settings/educacenso/import', 'Resources\EducacensoController@import');
+			Route::get('/settings/educacenso/jobs', 'Resources\EducacensoController@list_jobs');
 		});
 
 		// Maintenance

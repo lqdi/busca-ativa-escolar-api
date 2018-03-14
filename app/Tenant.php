@@ -38,6 +38,7 @@ use Mail;
  * @property string $uf
  * @property string $operational_admin_id
  * @property string $political_admin_id
+ * @property string $primary_group_id
  * @property boolean $is_registered
  * @property boolean $is_active
  * @property boolean $is_setup
@@ -73,6 +74,7 @@ class Tenant extends Model  {
 
 		'operational_admin_id',
 		'political_admin_id',
+		'primary_group_id',
 
 		'is_registered',
 		'is_active',
@@ -123,7 +125,7 @@ class Tenant extends Model  {
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
 	public function primaryGroup() {
-		return $this->hasOne('BuscaAtivaEscolar\Group', 'tenant_id', 'id');
+		return $this->hasOne('BuscaAtivaEscolar\Group', 'id', 'primary_group_id');
 	}
 
 	/**
@@ -292,10 +294,11 @@ class Tenant extends Model  {
 		$politicalAdmin->save();
 		$operationalAdmin->save();
 
-		Group::createDefaultPrimaryGroup($tenant);
+		$primaryGroup = Group::createDefaultPrimaryGroup($tenant);
 
 		$tenant->political_admin_id = $politicalAdmin->id;
 		$tenant->operational_admin_id = $operationalAdmin->id;
+		$tenant->primary_group_id = $primaryGroup->id;
 		$tenant->is_registered = true;
 		$tenant->is_active = true;
 		$tenant->save();
