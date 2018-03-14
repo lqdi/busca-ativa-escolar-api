@@ -306,8 +306,10 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 	/**
 	 * Accepts a child alert, moving it to the list of ongoing cases
+	 * @param array|null $updatedDetails
 	 */
-	public function acceptAlert() {
+	public function acceptAlert(array $updatedDetails = []) {
+
 		$prevStatus = $this->alert_status;
 		$this->alert_status = 'accepted';
 		$this->save();
@@ -316,6 +318,15 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		$this->currentCase->save();
 
 		$alertStep = $this->currentStep; /* @var $alertStep Alerta */
+
+		if(sizeof($updatedDetails) > 0) {
+			$updatedDetails = collect($updatedDetails)
+				->only(['place_address'])
+				->toArray();
+
+			$alertStep->fill($updatedDetails);
+		}
+
 		$alertStep->alert_status = 'accepted';
 		$alertStep->save();
 

@@ -58,7 +58,7 @@ class AlertsController extends BaseController {
 				return response()->json(['status' => 'failed', 'reason' => 'not_pending']);
 			}
 
-			$child->acceptAlert();
+			$child->acceptAlert(request()->all());
 
 			return response()->json(['status' => 'ok']);
 

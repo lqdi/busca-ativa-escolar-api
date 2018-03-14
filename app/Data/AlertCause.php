@@ -15,6 +15,8 @@ namespace BuscaAtivaEscolar\Data;
 
 class AlertCause extends StaticObject  {
 
+	const ID_EDUCACENSO = 500;
+
 	protected static $data = [
 		10 => ['id' => 10, 'sms_index' => 1, 'slug' => 'adolescente_em_conflito_com_a_lei', 'label' => "Adolescente em conflito com a lei", "case_cause_ids" => [10]],
 		20 => ['id' => 20, 'sms_index' => 2, 'slug' => 'crianca_com_deficiencia', 'label' => "Criança ou adolescente com deficiência(s)", "case_cause_ids" => [21, 22, 23, 24]],

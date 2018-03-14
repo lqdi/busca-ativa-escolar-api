@@ -14,7 +14,9 @@
 namespace BuscaAtivaEscolar\Transformers;
 
 
+use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\Data\AlertCause;
 use League\Fractal\TransformerAbstract;
 
 class PendingAlertTransformer extends TransformerAbstract {
@@ -51,6 +53,8 @@ class PendingAlertTransformer extends TransformerAbstract {
 
 			'child_status' => $child->child_status,
 			'alert_status' => $child->alert_status,
+
+			'requires_address_update' => ($child->alert && $child->alert->alert_cause_id === AlertCause::ID_EDUCACENSO),
 
 			'created_at' => $child->created_at ? $child->created_at->toIso8601String() : null,
 			'updated_at' => $child->updated_at ? $child->updated_at->toIso8601String() : null,

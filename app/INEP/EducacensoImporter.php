@@ -136,7 +136,7 @@ class EducacensoImporter {
 		$data['name'] = $data['name'] ?? "-- informação não disponível --";
 		$data['dob'] = isset($data['dob']) ? Carbon::createFromFormat('d/m/Y', $data['dob'])->format('Y-m-d') : null;
 		$data['mother_name'] = $data['mother_name'] ?? "-- informação não disponível --";
-		$data['place_address'] = "-- informação não disponível --";
+		//$data['place_address'] = "-- informação não disponível --";
 		$data['place_uf'] = $this->tenant->city->uf;
 		$data['place_city_id'] = strval($this->tenant->city->id);
 		$data['place_city_name'] = $this->tenant->city->name;

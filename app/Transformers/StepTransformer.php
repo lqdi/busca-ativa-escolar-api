@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Transformers;
 
 
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
+use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Scopes\TenantScope;
 use League\Fractal\TransformerAbstract;
 
@@ -57,6 +58,10 @@ class StepTransformer extends TransformerAbstract {
 			'updated_at' => $step->updated_at ? $step->updated_at->toIso8601String() : null,
 			'completed_at' => $step->completed_at ? $step->completed_at->toIso8601String() : null,
 		];
+
+		if($step->step_type == 'BuscaAtivaEscolar\\CaseSteps\\Alerta') {
+			$data['requires_address_update'] = ($step->alert_cause_id === AlertCause::ID_EDUCACENSO);
+		}
 
 		if($step->step_type == 'BuscaAtivaEscolar\\CaseSteps\\Observacao') {
 			$data['report_index'] = $step->report_index;
