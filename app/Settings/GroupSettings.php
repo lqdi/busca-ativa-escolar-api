@@ -90,6 +90,7 @@ class GroupSettings extends SerializableObject {
 	/**
 	 * Updates the settings with form data
 	 * @param array $data
+	 * @throws \Exception
 	 */
 	public function update($data) {
 		if(!isset($data['alerts'])) return;

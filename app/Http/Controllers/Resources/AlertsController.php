@@ -35,7 +35,7 @@ class AlertsController extends BaseController {
 		if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
 			$group = Auth::user()->group; /* @var $group Group */
 
-			if(!$group) $group = Auth::user()->tenant->primaryGroup;
+			if(!$group) $group = Auth::user()->tenant->primary_group;
 			if(!$group) $group = new Group();
 
 			$query->whereHas('alert', function ($sq) use ($group) {
