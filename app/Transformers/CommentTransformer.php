@@ -42,6 +42,7 @@ class CommentTransformer extends TransformerAbstract {
 	}
 
 	public function includeAuthor(Comment $comment) {
+		if(!$comment->author) return null;
 		return $this->item($comment->author, new UserTransformer(), false);
 	}
 
@@ -55,6 +56,7 @@ class CommentTransformer extends TransformerAbstract {
 	}
 
 	public function includeTenant(Comment $comment) {
+		if(!$comment->tenant) return null;
 		return $this->item($comment->tenant, new TenantTransformer(), false);
 	}
 

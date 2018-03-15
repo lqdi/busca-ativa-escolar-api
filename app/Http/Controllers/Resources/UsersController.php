@@ -34,7 +34,10 @@ class UsersController extends BaseController {
 		// If user is global user, they can filter by tenant_id
 		if(!$this->currentUser()->isRestrictedToTenant() && request()->has('tenant_id')) {
 			$query->where('tenant_id', request('tenant_id'));
+		} else {
+			$query->where('tenant_id', '!=', 'global');
 		}
+
 
 		// If user is UF-bound, they can only see other UF-bound users in their UF
 		if($this->currentUser()->isRestrictedToUF()) {
