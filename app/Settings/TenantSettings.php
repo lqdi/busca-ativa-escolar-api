@@ -37,6 +37,7 @@ class TenantSettings extends SerializableObject {
 		140 =>  'high', // Uso, abuso ou dependência de substâncias psicoativas
 		150 =>  'high', // Violência familiar
 		160 =>  'high', // Violência na escola
+		500 =>  'medium', // Planilha Educacenso
 	];
 
 	public $stepDeadlines = [

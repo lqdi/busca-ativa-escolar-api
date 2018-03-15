@@ -36,6 +36,7 @@ class GroupSettings extends SerializableObject {
 		140 =>  true, // Uso, abuso ou dependência de substâncias psicoativas
 		150 =>  true, // Violência familiar
 		160 =>  true, // Violência na escola
+		500 =>  true, // Importados do Educacenso
 	];
 
 	/**
