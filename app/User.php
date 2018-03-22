@@ -81,8 +81,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	// Types of user
 	const TYPE_SUPERUSER = "superuser";
 	const TYPE_GESTOR_NACIONAL = "gestor_nacional";
+	const TYPE_COMITE_NACIONAL = "comite_nacional";
 	const TYPE_GESTOR_POLITICO = "gestor_politico";
 	const TYPE_GESTOR_ESTADUAL = "gestor_estadual";
+	const TYPE_COMITE_ESTADUAL = "comite_estadual";
 	const TYPE_GESTOR_OPERACIONAL = "coordenador_operacional";
 	const TYPE_SUPERVISOR_INSTITUCIONAL = "supervisor_institucional";
 	const TYPE_SUPERVISOR_ESTADUAL = "supervisor_estadual";
@@ -110,7 +112,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
 	public static $UF_SCOPED_TYPES = [
 		self::TYPE_GESTOR_ESTADUAL,
+		self::TYPE_COMITE_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
+	];
+
+	public static $GLOBAL_SCOPED_TYPES = [
+		self::TYPE_SUPERUSER,
+		self::TYPE_GESTOR_NACIONAL,
+		self::TYPE_COMITE_NACIONAL,
 	];
 
     protected $fillable = [
@@ -321,7 +330,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 * @return bool True when tenant-based, false when global.
 	 */
 	public function isRestrictedToTenant() {
-		return !($this->type == self::TYPE_SUPERUSER || $this->type == self::TYPE_GESTOR_NACIONAL);
+		return !in_array($this->type, self::$GLOBAL_SCOPED_TYPES) && !in_array($this->type, self::$UF_SCOPED_TYPES);
 	}
 
 	/**
@@ -329,7 +338,15 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 * @return bool True when state-based, false when global.
 	 */
 	public function isRestrictedToUF() {
-		return ($this->type === self::TYPE_GESTOR_ESTADUAL || $this->type == self::TYPE_SUPERVISOR_ESTADUAL);
+		return in_array($this->type, self::$UF_SCOPED_TYPES);
+	}
+
+	/**
+	 * Checks if a user is global or restricted/assigned to tenants in a specific state.
+	 * @return bool True when state-based, false when global.
+	 */
+	public function isGlobal() {
+		return in_array($this->type, self::$GLOBAL_SCOPED_TYPES);
 	}
 
 	/**

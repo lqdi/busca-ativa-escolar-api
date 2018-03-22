@@ -34,6 +34,16 @@ return [
 		'ufs.manage',
 	],
 
+	BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL => [
+		'reports.view',
+		'reports.ufs',
+		'reports.tenants',
+		'reports.signups',
+		'cases.map',
+		'tenants.view',
+		'ufs.view',
+	],
+
 	BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO => [
 		'reports.view',
 		'cases.map',
@@ -52,6 +62,12 @@ return [
 		'users.view',
 		'users.manage',
 		'users.export',
+		'tenants.view',
+	],
+
+	BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL => [
+		'reports.view',
+		'cases.map',
 		'tenants.view',
 	],
 
@@ -160,6 +176,8 @@ return [
 			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
 			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
 		],
 		BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
 			BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL,
@@ -170,10 +188,13 @@ return [
 			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
 			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
 		],
 		BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
 			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
 		],
 		BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL => [
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
@@ -211,6 +232,8 @@ return [
 			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
 			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
 		],
 		BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
 			BuscaAtivaEscolar\User::TYPE_SUPERUSER,
@@ -222,10 +245,13 @@ return [
 			BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
 			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
 		],
 		BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
 			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
 		],
 		BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL => [
 			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,

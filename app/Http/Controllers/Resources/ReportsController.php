@@ -16,7 +16,6 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use Auth;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
-use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\City;
@@ -30,7 +29,6 @@ use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\Reports\Reports;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
-use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\StateSignup;
 use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
@@ -38,7 +36,6 @@ use BuscaAtivaEscolar\User;
 use Cache;
 use Carbon\Carbon;
 use DB;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class ReportsController extends BaseController {
@@ -61,8 +58,8 @@ class ReportsController extends BaseController {
 
 		$entity = new Child();
 		$query = ElasticSearchQuery::withParameters($filters)
-			->filterByTerm('tenant_id', false)
-			->filterByTerm('uf', false)
+			->filterByTerm('tenant_id', false, 'filter', Auth::user()->isRestrictedToTenant() ? 'must' : 'should')
+			->filterByTerm('uf', false, 'filter', Auth::user()->isRestrictedToUF() ? 'must' : 'should')
 			//->filterByTerms('deadline_status', false)
 			->filterByTerms('case_status', false)
 			->filterByTerms('alert_status', false)
@@ -111,8 +108,10 @@ class ReportsController extends BaseController {
 
 		$filters = request('filters', []);
 
-		// Scope the query within the tenant
 		if(isset($filters['uf'])) $filters['uf'] = Str::lower($filters['uf']);
+
+		// Scope the query within the tenant
+		if(Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
 		if(Auth::user()->isRestrictedToUF()) $filters['uf'] = Auth::user()->uf;
 
 		$query = Tenant::query();

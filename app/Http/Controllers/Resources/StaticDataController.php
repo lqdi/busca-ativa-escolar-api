@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\User;
 use Route;
 
 class StaticDataController extends BaseController {
@@ -48,6 +49,8 @@ class StaticDataController extends BaseController {
 				'APIEndpoints' => $this->buildAPIEndpointList(),
 				'CaseCancelReasons' => \BuscaAtivaEscolar\ChildCase::CANCEL_REASONS,
 				'Permissions' => config('user_type_permissions', []),
+				'UsersWithGlobalScope' => User::$GLOBAL_SCOPED_TYPES,
+				'UsersWithUFScope' => User::$UF_SCOPED_TYPES,
 				'Config' => [
 					'uploads' => [
 						'allowed_mime_types' => config('uploads.allowed_mime_types'),

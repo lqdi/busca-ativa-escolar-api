@@ -32,17 +32,16 @@ class UsersController extends BaseController {
 		$query = User::with('group');
 
 		// If user is global user, they can filter by tenant_id
-		if(!$this->currentUser()->isRestrictedToTenant() && request()->has('tenant_id')) {
+		if($this->currentUser()->isGlobal() && request()->has('tenant_id')) {
 			$query->where('tenant_id', request('tenant_id'));
-		} else {
+		} else if($this->currentUser()->isRestrictedToTenant()) {
 			$query->where('tenant_id', '!=', 'global');
 		}
-
 
 		// If user is UF-bound, they can only see other UF-bound users in their UF
 		if($this->currentUser()->isRestrictedToUF()) {
 			$query->where('uf', $this->currentUser()->uf);
-			$query->whereIn('type', [User::TYPE_GESTOR_ESTADUAL, User::TYPE_SUPERVISOR_ESTADUAL]);
+			$query->whereIn('type', User::$UF_SCOPED_TYPES);
 		}
 
 		if(request()->has('group_id')) $query->where('group_id', request('group_id'));
@@ -116,20 +115,29 @@ class UsersController extends BaseController {
 		try {
 
 			// Here we check if we have enough permission to edit the target user
-			if(!Auth::user()->canManageUser($user)) {
+			if (!Auth::user()->canManageUser($user)) {
 				return $this->api_failure('not_enough_permissions');
 			}
 
 			$input = request()->all();
 
-			if($input['email'] === $user->email) {
+			// If user is editing himself, we clear the e-mail so we avoid hitting validation rules (issue #201, #203)
+			// Note: this happens due to user details confirmation flow in tenant setup
+			if ($input['email'] === $user->email) {
 				unset($input['email']);
 			}
 
-			if(Auth::user()->isRestrictedToTenant()) {
+			// Tenant-bound users can ony manage users within their tenant
+			if (Auth::user()->isRestrictedToTenant()) {
 				$input['tenant_id'] = Auth::user()->tenant_id;
 			}
 
+			// UF-bound users can only manage users within their UF
+			if (Auth::user()->isRestrictedToUF()) {
+				$input['uf'] = Auth::user()->uf;
+			}
+
+			// These flags are used for validation (eg: non-tenant-bound users do not require a tenant_id, and so on)
 			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
 			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
@@ -145,17 +153,19 @@ class UsersController extends BaseController {
 
 			$user->fill($input);
 
+			// Block setting a tenant-scope user without a tenant ID set
 			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
 				throw new Exception("tenant_id_inconsistency");
 			}
 
-			// Here we check if we have enough permission to set the target user to this new state
+			// Here we check if we still have enough permission to set the target user to this new state (maybe type changed?)
 			if(!Auth::user()->canManageUser($user)) {
 				return $this->api_failure('not_enough_permissions');
 			}
 
 			$user->save();
 
+			// Refresh user UF (used for filtering) (maybe parent tenant changed?)
 			if(!$user->uf && $user->tenant_id) {
 				$user->uf = $user->tenant->uf;
 				$user->save();
@@ -174,10 +184,12 @@ class UsersController extends BaseController {
 			$user = new User();
 			$input = request()->all();
 
+			// Tenant-bound users can ony manage users within their tenant
 			if(Auth::user()->isRestrictedToTenant()) {
 				$input['tenant_id'] = Auth::user()->tenant_id;
 			}
 
+			// These flags are used for validation (eg: non-tenant-bound users do not require a tenant_id, and so on)
 			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
 			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
@@ -187,12 +199,14 @@ class UsersController extends BaseController {
 				return $this->api_validation_failed('validation_failed', $validation);
 			}
 
+			// Cache initial password so we can send it as cleartext through e-mail later
 			$initialPassword = $input['password'];
 
 			$input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
 
 			$user->fill($input);
 
+			// Block setting a tenant-scope user without a tenant ID set
 			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
 				throw new Exception("tenant_id_inconsistency");
 			}
@@ -204,6 +218,7 @@ class UsersController extends BaseController {
 
 			$user->save();
 
+			// Refresh user UF (used for filtering) (maybe parent tenant changed?)
 			if(!$user->uf && $user->tenant_id) {
 				$user->uf = $user->tenant->uf;
 				$user->save();

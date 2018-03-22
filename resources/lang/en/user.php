@@ -3,6 +3,8 @@ return [
 	'type' => [
 		"superuser" => 'Super Administrador',
 		"gestor_nacional" => 'Gestor Nacional',
+		"comite_nacional" => 'Membro do Comitê Nacional',
+		"comite_estadual" => 'Membro do Comitê Estadual',
 		"gestor_politico" => 'Gestor Político',
 		"gestor_estadual" => 'Gestor Estadual',
 		"supervisor_estadual" => 'Supervisor Estadual',
