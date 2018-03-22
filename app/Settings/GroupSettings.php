@@ -16,6 +16,7 @@ namespace BuscaAtivaEscolar\Settings;
 
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\SerializableObject;
+use BuscaAtivaEscolar\Group;
 
 class GroupSettings extends SerializableObject {
 
@@ -36,8 +37,14 @@ class GroupSettings extends SerializableObject {
 		140 =>  true, // Uso, abuso ou dependência de substâncias psicoativas
 		150 =>  true, // Violência familiar
 		160 =>  true, // Violência na escola
-		500 =>  true, // Importados do Educacenso
+		500 =>  false, // Importados do Educacenso
 	];
+
+	public function __construct(Group $group) {
+		if($group->is_primary) { // Only primary group gets to act on cause 500
+			$this->alerts[500] = true;
+		}
+	}
 
 	/**
 	 * Checks if this group handles a certain alert cause
@@ -97,9 +104,12 @@ class GroupSettings extends SerializableObject {
 		if(!is_array($data['alerts'])) throw new \InvalidArgumentException('invalid_format');
 
 		foreach($data['alerts'] as $alertCauseID => $handlesAlert) {
-			$alertCauseID = intval($alertCauseID);
-			if(!AlertCause::getByID($alertCauseID)) throw new \InvalidArgumentException('invalid_alert_cause_id');
-			$this->alerts[$alertCauseID] = boolval($handlesAlert);
+			$alertCause = AlertCause::getByID(intval($alertCauseID));
+
+			if(!$alertCause) throw new \InvalidArgumentException('invalid_alert_cause_id');
+			if($alertCause->blocked) continue;
+
+			$this->alerts[$alertCause->id] = boolval($handlesAlert);
 
 		}
 

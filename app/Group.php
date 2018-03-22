@@ -91,7 +91,7 @@ class Group extends Model {
 	 * @return GroupSettings
 	 */
 	public function getSettings() {
-		if(!$this->settings) return new GroupSettings();
+		if(!$this->settings) return new GroupSettings($this);
 		return GroupSettings::unserialize($this->settings);
 	}
 

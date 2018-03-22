@@ -34,7 +34,7 @@ class AlertCause extends StaticObject  {
 		140 => ['id' => 140, 'sms_index' => 14, 'slug' => 'uso_substancias', 'label' => "Uso, abuso ou dependência de substâncias psicoativas", "case_cause_ids" => [140]],
 		150 => ['id' => 150, 'sms_index' => 15, 'slug' => 'violencia_familiar', 'label' => "Violência familiar", "case_cause_ids" => [150]],
 		160 => ['id' => 160, 'sms_index' => 16, 'slug' => 'violencia_escolar', 'label' => "Violência na escola", "case_cause_ids" => [161, 162, 163]],
-		500 => ['id' => 500, 'sms_index' => null, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", "case_cause_ids" => [500], 'hidden' => true],
+		500 => ['id' => 500, 'sms_index' => null, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", "case_cause_ids" => [500], 'hidden' => true, 'blocked' => true],
 	];
 
 	protected static $indexes = [
@@ -105,7 +105,12 @@ class AlertCause extends StaticObject  {
 	/**
 	 * @var bool Is this cause hidden from user selection?
 	 */
-	public $hidden;
+	public $hidden = false;
+
+	/**
+	 * @var bool Is updating this cause parameterization via group settings blocked?
+	 */
+	public $blocked = false;
 
 	/**
 	 * Gets an alert cause by it's slug
