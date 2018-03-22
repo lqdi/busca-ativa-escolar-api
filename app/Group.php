@@ -115,6 +115,8 @@ class Group extends Model {
 	 * @param Group $group
 	 */
 	public static function updateCausesMap(Group $group) {
+		if(!$group->tenant_id) return;
+
 		$map = DB::table("group_causes");
 		$causes = $group->getSettings()->getHandledAlertCauses();
 
