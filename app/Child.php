@@ -380,7 +380,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		try {
 			$address = $geocoder->geocode($rawAddress)->get()->first(); /* @var $address Address */
 		} catch (\Exception $ex) {
-			Log::error("Failed to geocode child (id={$this->id}) coords with address '{$rawAddress}': " . $ex->getMessage());
+			return null;
+			//Log::error("Failed to geocode child (id={$this->id}) coords with address '{$rawAddress}': " . $ex->getMessage());
 		}
 
 		$this->update([
