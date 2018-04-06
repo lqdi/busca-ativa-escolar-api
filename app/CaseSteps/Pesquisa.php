@@ -265,7 +265,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 
 			->group('school', trans('form_builder.pesquisa.group.school'), function (FormBuilder $group) {
 				return $group
-				->field('has_been_in_school', 'boolean', trans('form_builder.pesquisa.field.has_been_in_school'))
+				->field('has_been_in_school', 'boolean', trans('form_builder.pesquisa.field.has_been_in_school'), ['required' => true])
 				->field('reason_not_enrolled', 'multiline', trans('form_builder.pesquisa.field.reason_not_enrolled'), ['show_if_false' => 'has_been_in_school'])
 				->field('school_last_grade', 'select', trans('form_builder.pesquisa.field.school_last_grade'), ['show_if_true' => 'has_been_in_school', 'options' => SchoolGrade::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('school_last_year', 'number', trans('form_builder.pesquisa.field.school_last_year'), ['show_if_true' => 'has_been_in_school'])
@@ -278,7 +278,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 
 			->group('work', trans('form_builder.pesquisa.group.work'), function(FormBuilder $group) {
 				return $group
-				->field('is_working', 'boolean', trans('form_builder.pesquisa.field.is_working'))
+				->field('is_working', 'boolean', trans('form_builder.pesquisa.field.is_working'), ['required' => true])
 				->field('work_activity', 'select', trans('form_builder.pesquisa.field.work_activity'), ['show_if_true' => 'is_working', 'options' => WorkActivity::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('work_activity_other', 'string', trans('form_builder.pesquisa.field.work_activity_other'), ['show_if_equal' => ['work_activity', 'other']])
 				->field('work_is_paid', 'boolean', trans('form_builder.pesquisa.field.work_is_paid'), ['show_if_true' => 'is_working'])
