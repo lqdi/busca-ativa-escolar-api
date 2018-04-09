@@ -405,7 +405,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
 		return validator($data, [
 			'name' => 'required|string',
-			'email' => ($isCreating ? 'required' : 'nullable') . '|email|unique:users',
+			'email' => ($isCreating ? 'required' : 'nullable') . '|email',
 			'password' => ($isCreating ? 'required' : 'nullable') . '|min:6',
 
 			'tenant_id' => ($needsTenantID) ? 'required' : 'nullable',
@@ -483,7 +483,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 * @return bool
 	 */
 	public static function checkIfExists($email) {
-		return (self::query()->where('email', '=', $email)->count() > 0);
+		return (self::query()
+				->where('email', '=', $email)
+				->whereNull('deleted_at')
+				->count() > 0);
 	}
 
 	/**

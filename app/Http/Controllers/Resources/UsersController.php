@@ -141,6 +141,10 @@ class UsersController extends BaseController {
 			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
 			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
+			if(isset($input['email']) && User::checkIfExists($input['email'])) {
+				return $this->api_failure('email_already_exists');
+			}
+
 			$validation = $user->validate($input, false, $isTenantUser, $isUFUser);
 
 			if($validation->fails()) {
@@ -192,6 +196,12 @@ class UsersController extends BaseController {
 			// These flags are used for validation (eg: non-tenant-bound users do not require a tenant_id, and so on)
 			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
 			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
+
+			$email = trim(strtolower($input['email']));
+
+			if(User::checkIfExists($email)) {
+				return $this->api_failure('email_already_exists');
+			}
 
 			$validation = $user->validate($input, true, $isTenantUser, $isUFUser);
 
@@ -253,6 +263,10 @@ class UsersController extends BaseController {
 	public function restore($user_id) {
 		try {
 			$user = User::withTrashed()->findOrFail($user_id);
+
+			if(User::checkIfExists($user->email)) {
+				return $this->api_failure('email_already_exists');
+			}
 
 			if(!Auth::user()->canManageUser($user)) {
 				return $this->api_failure('not_enough_permissions');
