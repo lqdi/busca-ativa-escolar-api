@@ -109,7 +109,7 @@ return [
 	    'rg' => 'RG',
 	    'cpf' => 'CPF',
 	    'nis' => 'NIS',
-	    'alert_cause_id' => 'causa do alerta',
+	    'alert_cause_id' => 'motivo do alerta',
 	    'mother_name' => 'nome da mãe ou responsável',
 	    'mother_rg' => 'RG da mãe ou responsável',
 	    'mother_phone' => 'telefone da mãe ou responsável',

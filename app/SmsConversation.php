@@ -138,7 +138,7 @@ class SmsConversation extends Model {
 				break;
 
 			case self::STEP_ASK_CAUSE:
-				$this->queueReply("Qual a possivel causa da crianca estar fora da escola? Responda conforme a tabela de causas de 1 a 16.");
+				$this->queueReply("Qual o possivel motivo da crianca estar fora da escola? Responda conforme a tabela de motivos de 1 a 16.");
 
 				$i = 1;
 
@@ -240,7 +240,7 @@ class SmsConversation extends Model {
 				$causeIndex = intval($message);
 
 				if($causeIndex < 1 || $causeIndex > 16) {
-					$this->queueReply('Voce deve indicar um numero de 1 a 16, de acordo com a tabela de causas.');
+					$this->queueReply('Voce deve indicar um numero de 1 a 16, de acordo com a tabela de motivos.');
 					$this->setStep(self::STEP_ASK_CAUSE);
 					return;
 				}
@@ -248,7 +248,7 @@ class SmsConversation extends Model {
 				$cause = AlertCause::getBySMSIndex($causeIndex);
 
 				if(!$cause || !$cause->id) {
-					$this->queueReply('Causa invalida! Voce deve indicar um numero de 1 a 16, de acordo com a tabela de causas.');
+					$this->queueReply('Motivo invalido! Voce deve indicar um numero de 1 a 16, de acordo com a tabela de motivos.');
 					$this->setStep(self::STEP_ASK_CAUSE);
 					return;
 				}

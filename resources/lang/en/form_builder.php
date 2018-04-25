@@ -7,7 +7,7 @@ return [
 			'school' => 'Educação',
 			'work' => 'Trabalho',
 			'guardians' => 'Sobre os pais ou responsáveis',
-			'cause' => 'Sobre a causa de exclusão escolar',
+			'cause' => 'Sobre o motivo de exclusão escolar',
 			'place' => 'Dados de localização',
 		],
 		'field' => [
@@ -64,7 +64,7 @@ return [
 	'alerta' => [
 		'group' => [
 			'personal' => 'Dados da criança ou adolescente',
-			'cause' => 'Sobre a causa de exclusão escolar',
+			'cause' => 'Sobre o motivo de exclusão escolar',
 			'parents' => 'Sobre os pais ou responsáveis',
 			'place' => 'Dados de localização',
 		],
