@@ -42,6 +42,8 @@ class UserTransformer extends TransformerAbstract {
 			'name' => $user->name,
 			'email' => $user->email,
 
+			'contact_phone' => $user->getContactPhone(),
+
 			'tenant_id' => $user->tenant_id,
 			'group_id' => $user->group_id,
 			'city_id' => $user->city_id,

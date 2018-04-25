@@ -269,6 +269,17 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	}
 
 	/**
+	 * Returns one of the available phone numbers in the account, following the priority:
+	 * work phone, work mobile and personal mobile
+	 * @return string
+	 */
+	public function getContactPhone() {
+		if($this->work_phone) return $this->work_phone;
+		if($this->work_mobile) return $this->work_mobile;
+		return $this->personal_mobile;
+	}
+
+	/**
 	 * Checks if the user belongs to the primary tenant group
 	 * @return bool
 	 */
