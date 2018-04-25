@@ -374,7 +374,7 @@ class ReportsController extends BaseController {
 		switch($dimension) {
 			case 'child_status': return trans('child.status');
 			case 'step_slug': return trans('case_step.name_by_slug');
-			case 'age': return []; // TODO: return age ranges
+			case 'age': return ['0' => 'menos de 1 ano']; // TODO: return age ranges
 			case 'gender': return trans('child.gender');
 			case 'parents_income': return array_pluck(IncomeRange::getAllAsArray(), 'label', 'slug');
 			case 'place_kind': return trans('child.place_kind');
