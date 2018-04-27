@@ -24,6 +24,7 @@ class ChildTransformer extends TransformerAbstract {
 		'currentCase',
 		'currentStep',
 		'submitter',
+		'consolidated',
 	];
 
 	protected $defaultIncludes = [
@@ -87,6 +88,14 @@ class ChildTransformer extends TransformerAbstract {
 	public function includeSubmitter(Child $child) {
 		if(!$child->submitter) return null;
 		return $this->item($child->submitter, new UserTransformer(), false);
+	}
+
+	public function includeConsolidated(Child $child) {
+		try { // TODO: cache this?
+			return $this->item($child->buildSearchDocument(), new GenericTransformer(), 'consolidated');
+		} catch (\Exception $e) {
+			return null;
+		}
 	}
 
 }
