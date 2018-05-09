@@ -175,30 +175,52 @@ class ReportsController extends BaseController {
 	public function query_ufs() {
 
 		$ufs = collect(UF::getAllByCode());
-		$labels = collect(Region::getAll())->sortBy('name')->pluck('name', 'id');
+		$regionLabels = collect(Region::getAll())->sortBy('name')->pluck('name', 'id');
+
+		$dimension = request('dimension');
 
 		$report = DB::table("users")
 			->whereIn('type', User::$UF_SCOPED_TYPES)
 			->groupBy('uf')
 			->select(['uf', DB::raw('COUNT(id) as num')])
 			->get()
-			->map(function ($user) use ($ufs, $labels) {
+			->map(function ($user) use ($ufs, $regionLabels) {
 				$user->region_id = $ufs[$user->uf]['region_id'];
 				$user->region_name = $labels[$user->region_id] ?? '';
 				return $user;
-			})
-			->groupBy('region_id')
-			->sortBy('region_name')
-			->map(function ($region) {
-				return $region->count();
 			});
+
+		switch($dimension) {
+			case "uf":
+				$seriesName = 'Número de usuários por estado';
+				$report = $report
+					->sortBy('uf')
+					->keyBy('uf')
+					->map(function ($dimension) {
+						return $dimension->num;
+					});
+
+				break;
+
+			case "region":default:
+				$seriesName = 'Número de estados participantes';
+				$report = $report
+					->groupBy('region_id')
+					->sortBy('region_name')
+					->map(function ($dimension) {
+						return $dimension->count();
+					});
+
+				break;
+		}
 
 		return response()->json([
 			'response' => [
 				'records_total' => $report->sum(),
-				'report' => $report
+				'report' => $report,
+				'seriesName' => $seriesName,
 			],
-			'labels' => $labels
+			'labels' => $regionLabels
 		]);
 	}
 
