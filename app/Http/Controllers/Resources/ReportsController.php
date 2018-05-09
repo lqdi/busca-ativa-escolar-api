@@ -68,6 +68,7 @@ class ReportsController extends BaseController {
 			->filterByTerm('place_city_id',$filters['place_city_id_null'] ?? false)
 			->filterByTerm('case_cause_ids',false)
 			->filterByTerms('child_status', false)
+			->filterByTerm('school_last_grade', $params['school_last_grade_null'] ?? false)
 			->filterByTerms('risk_level', $filters['risk_level_null'] ?? false)
 			->filterByTerms('gender',$filters['gender_null'] ?? false)
 			->filterByTerms('place_kind',$filters['place_kind_null'] ?? false)
