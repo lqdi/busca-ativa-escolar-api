@@ -34,6 +34,7 @@ class StaticDataController extends BaseController {
 				'Gender' => \BuscaAtivaEscolar\Data\Gender::getAllAsArray(),
 				'HandicappedRejectReason' => \BuscaAtivaEscolar\Data\HandicappedRejectReason::getAllAsArray(),
 				'IncomeRange' => \BuscaAtivaEscolar\Data\IncomeRange::getAllAsArray(),
+				'AgeRange' => \BuscaAtivaEscolar\Data\AgeRange::getAllAsArray(),
 				'PlaceKind' => \BuscaAtivaEscolar\Data\PlaceKind::getAllAsArray(),
 				'GuardianType' => \BuscaAtivaEscolar\Data\GuardianType::getAllAsArray(),
 				'SchoolLastStatus' => \BuscaAtivaEscolar\Data\SchoolLastStatus::getAllAsArray(),

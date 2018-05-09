@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\City;
+use BuscaAtivaEscolar\Data\AgeRange;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Data\IncomeRange;
@@ -71,11 +72,26 @@ class ReportsController extends BaseController {
 			->filterByTerm('school_last_grade', $params['school_last_grade_null'] ?? false)
 			->filterByTerms('risk_level', $filters['risk_level_null'] ?? false)
 			->filterByTerms('gender',$filters['gender_null'] ?? false)
-			->filterByTerms('place_kind',$filters['place_kind_null'] ?? false)
+			->filterByTerms('place_kind',$filters['place_kind_null'] ?? false);
 			//->filterByTerm('race',$filters['race_null'] ?? false)
 			//->filterByTerm('guardian_schooling',$filters['guardian_schooling_null'] ?? false)
 			//->filterByTerm('parents_income',$filters['parents_income_null'] ?? false)
-			->filterByRange('age',$filters['age_null'] ?? false);
+			//->filterByRange('age',$filters['age_null'] ?? false);
+
+		if(isset($filters['age_ranges'])) {
+			$rangesQuery = collect($filters['age_ranges'])->map(function ($rangeSlug) {
+				$range = AgeRange::getBySlug($rangeSlug);
+				return ['range' => ['age' => ['from' => $range->from, 'to' => $range->to]]];
+			});
+
+			$ageQuery = ['should' => [$rangesQuery->toArray()]];
+
+			if($filters['age_null'] ?? false) {
+				array_push($ageQuery['should'], ['missing' => ['field' => 'age']]);
+			}
+
+			$query->appendBoolQuery('filter', ['bool' => $ageQuery]);
+		}
 
 		if($params['view'] == "time_series") {
 			if(!isset($filters['date'])) $filters['date'] = ['lte' => 'now', 'gte' => 'now-2d'];

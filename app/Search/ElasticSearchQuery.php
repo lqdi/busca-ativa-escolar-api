@@ -244,6 +244,11 @@ class ElasticSearchQuery {
 		return $this->attemptedQuery;
 	}
 
+	public function appendBoolQuery($priority, $query) {
+		array_push($this->attemptedQuery, ['appendedQuery', $priority, $query]);
+		array_push($this->query['bool'][$priority], $query);
+	}
+
 	/**
 	 * Creates a search query and gives it a specified set of search parameters.
 	 *
