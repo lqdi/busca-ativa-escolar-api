@@ -167,6 +167,9 @@ class TenantSignup extends Model {
 			'Instância - Gestor Político - Nome' => $this->tenant->politicalAdmin->name ?? null,
 			'Instância - Gestor Político - E-mail' => $this->tenant->politicalAdmin->email ?? null,
 			'Instância - Gestor Político - Telefone' => ($this->tenant && $this->tenant->politicalAdmin) ? $this->tenant->politicalAdmin->getContactPhone() : null,
+			'Data adesão' => $this->created_at ?? null,
+			'Data ativação' => $this->tenant->created_at ?? null,
+			'Data exclusão' => $this->tenant->deleted_at ?? null,
 		];
 	}
 
