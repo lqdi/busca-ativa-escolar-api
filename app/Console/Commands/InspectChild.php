@@ -22,7 +22,19 @@ class InspectChild extends Command {
 		    $this->comment("\t Case #{$caseIndex} - {$case->name} (ID={$case->id})");
 	    }
 
+	    $this->comment("\t X: See consolidated search document for child");
+
 	    $selectedCase = $this->ask("Enter case #: ", '0');
+
+	    if(strtolower($selectedCase) === 'x') {
+	    	$document = $child->buildSearchDocument();
+
+	    	foreach($document as $key => $value) {
+	    		$this->info("[{$key}] => " . json_encode($value));
+		    }
+
+		    return;
+	    }
 
 	    $case = $cases[intval($selectedCase)];
 

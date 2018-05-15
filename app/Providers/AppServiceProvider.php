@@ -38,9 +38,17 @@ class AppServiceProvider extends ServiceProvider {
     	Attachment::observe(new AttachmentActivityLogObserver());
 
 	    Validator::extend('required_for_completion', function ($attribute, $value, $parameters, $validator) {
-	    	if(!isset($this->data['is_completing_step'])) return true;
-	    	if(!boolval($this->data['is_completing_step'])) return true;
+	    	if(!isset($validator->getData()['is_completing_step'])) return true;
+	    	if(!boolval($validator->getData()['is_completing_step'])) return true;
 	    	return !empty($value);
+	    });
+
+	    Validator::extend('required_if_different', function ($attribute, $value, $parameters, $validator) {
+	    	if($validator->getData()[$parameters[0]] !== $validator->getData()[$parameters[1]]) {
+	    		return !empty($value);
+		    }
+
+		    return true;
 	    });
 
 	    $monolog = Log::getMonolog();

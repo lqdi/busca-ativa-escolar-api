@@ -49,6 +49,11 @@ class StepsController extends BaseController {
 			$data = request()->all();
 
 			$step = CaseStep::fetch($step_type, $step_id);
+
+			if(isset($step->reinsertion_date_original)) { // TODO: move this to an abstraction
+				$data['reinsertion_date_original'] = $step->reinsertion_date_original;
+			}
+
 			$validation = $step->validate($data);
 
 			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);

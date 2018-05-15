@@ -65,6 +65,10 @@ class StepFieldsTransformer extends TransformerAbstract {
 			$data['school'] = School::find($data['school_id'])->toArray();
 		}
 
+		if(isset($step->reinsertion_date_original)) {
+			$data['reinsertion_date_original'] = $step->reinsertion_date_original;
+		}
+
 		return $data;
 	}
 
