@@ -51,6 +51,8 @@ use Mail;
  * @property City $city
  * @property Group $primary_group
  * @property TenantSettings $settings
+ * @property User $politicalAdmin
+ * @property User $operationalAdmin
  *
  * @property object $educacenso_import_details
  *
@@ -181,6 +183,29 @@ class Tenant extends Model  {
 		$this->last_active_at = Carbon::now();
 		// Done using DB so we don't modify "updated_at" column
 		DB::update("UPDATE tenants SET last_active_at = ? WHERE id = ?", [$this->last_active_at->toDateTimeString(), $this->id]);
+	}
+
+	/**
+	 * Generates an array to export as XLS
+	 * @return array
+	 */
+	public function toExportArray() {
+		return [
+			'Nome' => $this->name,
+			'UF' => $this->uf,
+			'Gestor Operacional - Nome' => $this->politicalAdmin->name ?? null,
+			'Gestor Operacional - Email' => $this->operationalAdmin->email ?? null,
+			'Gestor Operacional - Telefone' => $this->operationalAdmin ? $this->operationalAdmin->getContactPhone() : null,
+			'Gestor Político - Nome' => $this->politicalAdmin->name ?? null,
+			'Gestor Político - Email' => $this->politicalAdmin->email ?? null,
+			'Gestor Político - Telefone' => $this->politicalAdmin ? $this->politicalAdmin->getContactPhone() : null,
+			'Está ativo?' => $this->is_active,
+			'Está configurado?' => $this->is_setup,
+			'Data exclusão' => $this->deleted_at ?? null,
+			'Data última atividade' => $this->last_active_at ? $this->last_active_at->format('Y-m-d H:i:s') : null,
+			'Data cadastro' => $this->registered_at ? $this->registered_at->format('Y-m-d H:i:s') : null,
+			'Data ativação' => $this->activated_at ? $this->activated_at->format('Y-m-d H:i:s') : null,
+		];
 	}
 
 	// ------------------------------------------------------------------------

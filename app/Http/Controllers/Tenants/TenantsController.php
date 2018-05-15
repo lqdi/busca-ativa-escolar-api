@@ -24,6 +24,7 @@ use BuscaAtivaEscolar\Transformers\TenantTransformer;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
 use DB;
+use Excel;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
@@ -131,6 +132,36 @@ class TenantsController extends BaseController  {
 
 		return $this->api_success();
 
+	}
+
+	public function export() {
+		$query = Tenant::query()
+			->with(['operationalAdmin', 'politicalAdmin'])
+			->withTrashed()
+			->orderBy('name', 'ASC');
+
+		// If user is UF-bound, they can only see tenants in their UF
+		if($this->currentUser()->isRestrictedToUF()) {
+			$query->where('uf', $this->currentUser()->uf);
+		}
+
+		$tenants = $query
+			->get()
+			->map(function ($tenant) { /* @var $tenant User */
+				return $tenant->toExportArray();
+			})
+			->toArray();
+
+		Excel::create('buscaativaescolar_tenants', function($excel) use ($tenants) {
+
+			$excel->sheet('tenants', function($sheet) use ($tenants) {
+
+				$sheet->setOrientation('landscape');
+				$sheet->fromArray($tenants);
+
+			});
+
+		})->export('xls');
 	}
 
 }

@@ -15,6 +15,7 @@ return [
 		'tenants.view',
 		'tenants.activity',
 		'tenants.contact_info',
+		'tenants.export',
 		'ufs.view',
 		'ufs.manage',
 		'developer_tools',
@@ -34,6 +35,7 @@ return [
 		'tenants.view',
 		'tenants.activity',
 		'tenants.contact_info',
+		'tenants.export',
 		'ufs.view',
 		'ufs.manage',
 	],
@@ -69,6 +71,7 @@ return [
 		'tenants.view',
 		'tenants.activity',
 		'tenants.contact_info',
+		'tenants.export',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL => [
