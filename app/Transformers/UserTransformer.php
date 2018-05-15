@@ -35,6 +35,8 @@ class UserTransformer extends TransformerAbstract {
 
 	public function transform(User $user) {
 
+		$canSeeContactInfo = auth()->user()->canSeeContactInfoFor($user);
+
 		return [
 			'id' => $user->id,
 			'type' => $user->type,
@@ -42,7 +44,7 @@ class UserTransformer extends TransformerAbstract {
 			'name' => $user->name,
 			'email' => $user->email,
 
-			'contact_phone' => $user->getContactPhone(),
+			'contact_phone' => $canSeeContactInfo ? $user->getContactPhone() : null,
 
 			'tenant_id' => $user->tenant_id,
 			'group_id' => $user->group_id,
@@ -61,12 +63,12 @@ class UserTransformer extends TransformerAbstract {
 				'can_manage' => $user->getWhoCanManage(),
 				'can_filter' => $user->getWhoCanFilter(),
 
-				'cpf' => $user->cpf,
-				'dob' => $user->dob,
-				'work_phone' => $user->work_phone,
-				'work_mobile' => $user->work_mobile,
-				'personal_mobile' => $user->personal_mobile,
-				'skype_username' => $user->skype_username,
+				'cpf' => $canSeeContactInfo ? $user->cpf : null,
+				'dob' => $canSeeContactInfo ? $user->dob : null,
+				'work_phone' => $canSeeContactInfo ? $user->work_phone : null,
+				'work_mobile' => $canSeeContactInfo ? $user->work_mobile : null,
+				'personal_mobile' => $canSeeContactInfo ? $user->personal_mobile : null,
+				'skype_username' => $canSeeContactInfo ? $user->skype_username : null,
 				'work_address' => $user->work_address,
 				'work_cep' => $user->work_cep,
 				'work_neighborhood' => $user->work_neighborhood,

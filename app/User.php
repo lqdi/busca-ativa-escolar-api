@@ -269,6 +269,17 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	}
 
 	/**
+	 * Can this user see the contact info for target user?
+	 * @param User $user The target user
+	 * @return bool
+	 */
+	public function canSeeContactInfoFor(User $user) {
+		if($this->id === $user->id) return true; // Is himself
+		if($this->tenant_id !== null && $this->tenant_id === $user->tenant_id) return true; // Is tenant-bound & are same tenant
+		return $this->can('tenants.contact_info'); // Checks for user type permissions
+	}
+
+	/**
 	 * Returns one of the available phone numbers in the account, following the priority:
 	 * work phone, work mobile and personal mobile
 	 * @return string
