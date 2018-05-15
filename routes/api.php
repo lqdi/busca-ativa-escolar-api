@@ -92,6 +92,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Tenant Sign-ups
 		Route::any('/signups/tenants/pending', 'Tenants\TenantSignupController@get_pending');
+		Route::any('/signups/tenants/export', 'Tenants\TenantSignupController@export_signups')->middleware('can:tenants.export_signups');
 		Route::post('/signups/tenants/complete_setup', 'Tenants\TenantSignupController@completeSetup')->middleware('can:tenant.complete_setup');
 		Route::post('/signups/tenants/{signup}/approve', 'Tenants\TenantSignupController@approve')->middleware('can:tenants.manage');
 		Route::post('/signups/tenants/{signup}/reject', 'Tenants\TenantSignupController@reject')->middleware('can:tenants.manage');

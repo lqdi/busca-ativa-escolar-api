@@ -147,7 +147,7 @@ class TenantsController extends BaseController  {
 
 		$tenants = $query
 			->get()
-			->map(function ($tenant) { /* @var $tenant User */
+			->map(function ($tenant) { /* @var $tenant Tenant */
 				return $tenant->toExportArray();
 			})
 			->toArray();

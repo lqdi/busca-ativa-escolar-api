@@ -21,6 +21,7 @@ use BuscaAtivaEscolar\Traits\Data\Sortable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Messages\MailMessage;
+use Jenssegers\Agent\Agent;
 use Mail;
 
 /**
@@ -78,11 +79,11 @@ class TenantSignup extends Model {
 	}
 
 	public function tenant() {
-		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
+		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id')->withTrashed();
 	}
 
 	public function judge() {
-		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'judged_by');
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'judged_by')->withTrashed();
 	}
 
 	// -----------------------------------------------------------------------------------------------------------------
@@ -130,6 +131,43 @@ class TenantSignup extends Model {
 
 	public function getURLToken() {
 		return self::generateURLToken($this);
+	}
+
+	public function renderStatus() {
+		if(!$this->judged_by) return 'pending';
+		if($this->is_approved === false) return 'rejected';
+		if($this->is_provisioned !== true || !$this->tenant) return 'pending_initial_setup';
+		if(!$this->tenant->is_setup) return 'pending_tenant_setup';
+		if($this->tenant->deleted_at) return 'deleted';
+		if(!$this->tenant->is_active) return 'inactive';
+
+		return 'active';
+	}
+
+	public function toExportArray() {
+		return [
+			'ID Adesão' => $this->id,
+			'Município' => $this->city->uf ?? null,
+			'UF' => $this->city->uf ?? null,
+			'Região' => $this->city ? $this->city->getRegion()->name : null,
+			'Status' => trans('signups.status.' . $this->renderStatus()),
+			'Endereço IP' => $this->ip_addr,
+			'Navegador' => $this->user_agent ? Utils::renderUserAgent($this->user_agent) : null,
+			'Adesão - Gestor - Nome' => $this->data['admin']['name'] ?? null,
+			'Adesão - Gestor - E-mail' => $this->data['admin']['email'] ?? null,
+			'Adesão - Gestor - Telefone' => $this->data['admin']['phone'] ?? null,
+			'Adesão - Prefeito - Nome' => $this->data['mayor']['name'] ?? null,
+			'Adesão - Prefeito - E-mail' => $this->data['mayor']['email'] ?? null,
+			'Adesão - Prefeito - Telefone' => $this->data['mayor']['phone'] ?? null,
+			'Instância - ID' => $this->tenant_id ?? null,
+			'Instância - Nome' => $this->tenant->name ?? null,
+			'Instância - Gestor Operacional - Nome' => $this->tenant->operationalAdmin->name ?? null,
+			'Instância - Gestor Operacional - E-mail' => $this->tenant->operationalAdmin->email ?? null,
+			'Instância - Gestor Operacional - Telefone' => ($this->tenant && $this->tenant->operationalAdmin) ? $this->tenant->operationalAdmin->getContactPhone() : null,
+			'Instância - Gestor Político - Nome' => $this->tenant->politicalAdmin->name ?? null,
+			'Instância - Gestor Político - E-mail' => $this->tenant->politicalAdmin->email ?? null,
+			'Instância - Gestor Político - Telefone' => ($this->tenant && $this->tenant->politicalAdmin) ? $this->tenant->politicalAdmin->getContactPhone() : null,
+		];
 	}
 
 

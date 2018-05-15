@@ -25,6 +25,7 @@ use BuscaAtivaEscolar\Utils;
 use Carbon\Carbon;
 use DB;
 use Event;
+use Excel;
 use Illuminate\Support\Str;
 
 class TenantSignupController extends BaseController  {
@@ -114,6 +115,31 @@ class TenantSignupController extends BaseController  {
 		});
 		
 		return response()->json(['data' => $max ? $pending->items() : $pending, 'meta' => $meta]);
+	}
+
+	public function export_signups() {
+		$query = TenantSignup::query()
+			->with(['city','judge','tenant.operationalAdmin', 'tenant.politicalAdmin'])
+			->withTrashed()
+			->orderBy('created_at', 'ASC');
+
+		$signups = $query
+			->get()
+			->map(function ($signup) { /* @var $signup TenantSignup */
+				return $signup->toExportArray();
+			})
+			->toArray();
+
+		Excel::create('buscaativaescolar_signups', function($excel) use ($signups) {
+
+			$excel->sheet('signups', function($sheet) use ($signups) {
+
+				$sheet->setOrientation('landscape');
+				$sheet->fromArray($signups);
+
+			});
+
+		})->export('xls');
 	}
 
 	public function get_via_token(TenantSignup $signup) {

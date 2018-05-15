@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use Jenssegers\Agent\Agent;
 
 class Utils {
 
@@ -26,6 +27,13 @@ class Utils {
 
 		return $in . "&" . $params;
 
+	}
+
+	public static function renderUserAgent($userAgent) {
+		if(!$userAgent) return 'Unknown';
+		$ua = new Agent(null, $userAgent);
+
+		return "{$ua->platform()} - {$ua->browser()} - {$ua->device()}";
 	}
 
 	public static function clearPhoneNumber($phone) {
