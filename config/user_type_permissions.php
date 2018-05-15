@@ -75,6 +75,7 @@ return [
 		'reports.view',
 		'cases.map',
 		'tenants.view',
+		'tenants.contact_info',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL => [
