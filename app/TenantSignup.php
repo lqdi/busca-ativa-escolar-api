@@ -147,7 +147,7 @@ class TenantSignup extends Model {
 	public function toExportArray() {
 		return [
 			'ID Adesão' => $this->id,
-			'Município' => $this->city->uf ?? null,
+			'Município' => $this->city->name ?? null,
 			'UF' => $this->city->uf ?? null,
 			'Região' => $this->city ? $this->city->getRegion()->name : null,
 			'Status' => trans('signups.status.' . $this->renderStatus()),
