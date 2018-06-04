@@ -149,8 +149,8 @@ class SchoolMicrodataImporter {
 	}
 
 	protected function persistRecord(array $data) {
-		School::create($data);
-		//$this->insertSchoolStmt->execute($data);
+		//School::create($data);
+		$this->insertSchoolStmt->execute($data);
 	}
 
 	protected function buildHeadersMap(array $data) {
