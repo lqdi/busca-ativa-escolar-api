@@ -20,12 +20,14 @@ use League\Fractal\TransformerAbstract;
 class StateTransformer extends TransformerAbstract {
 
 	protected $defaultIncludes = [
-		'user',
+		'admin',
+		'coordinator',
 	];
 
 	protected $availableIncludes = [
 		'users',
-		'user',
+		'admin',
+		'coordinator',
 	];
 
 	public function transform(StateSignup $state) {
@@ -34,7 +36,8 @@ class StateTransformer extends TransformerAbstract {
 			'id' => $state->id,
 			'uf' => $state->uf,
 
-			'user_id' => $state->user_id,
+			'admin_id' => $state->admin_id,
+			'coordinator_id' => $state->coordinator_id,
 
 			'is_approved' => $state->is_approved,
 
@@ -44,9 +47,14 @@ class StateTransformer extends TransformerAbstract {
 
 	}
 
-	public function includeUser(StateSignup $state) {
-		if(!$state->user) return null;
-		return $this->item($state->user, new UserTransformer(), false);
+	public function includeAdmin(StateSignup $state) {
+		if(!$state->admin) return null;
+		return $this->item($state->admin, new UserTransformer(), false);
+	}
+
+	public function includeCoordinator(StateSignup $state) {
+		if(!$state->coordinator) return null;
+		return $this->item($state->coordinator, new UserTransformer(), false);
 	}
 
 	public function includeUsers(StateSignup $state) {

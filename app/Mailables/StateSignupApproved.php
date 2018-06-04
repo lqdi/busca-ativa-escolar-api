@@ -37,7 +37,7 @@ class StateSignupApproved extends Mailable {
 			->line("A adesão como gestor estadual de {$uf->name} à Busca Ativa Escolar foi aprovada.")
 			->line('Clique no botão abaixo para acessar.')
 			->success()
-			->action('Acessar', url('/'));
+			->action('Acessar', env('APP_PANEL_URL'));
 
 		$this->from(env('MAIL_USERNAME'), 'Busca Ativa Escolar');
 		$this->subject("[Busca Ativa Escolar] Sua adesão foi aprovada!");

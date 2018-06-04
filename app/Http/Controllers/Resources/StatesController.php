@@ -30,7 +30,7 @@ class StatesController extends BaseController {
 		$sort = request('sort', []);
 
 		$states = StateSignup::query()
-			->with(['user', 'users'])
+			->with(['admin', 'coordinator', 'users'])
 			->where('is_approved', 1);
 			//->whereNotNull('user_id');
 
@@ -44,9 +44,15 @@ class StatesController extends BaseController {
 			$states->where('name', 'REGEXP', $filter['name']);
 		}
 
-		if(isset($filter['primary_user']) && strlen($filter['primary_user']) > 0) {
+		if(isset($filter['admin']) && strlen($filter['admin']) > 0) {
 			$states->whereHas('user', function ($sq) use ($filter) {
-				return $sq->where('name', 'REGEXP', $filter['primary_user']);
+				return $sq->where('name', 'REGEXP', $filter['admin']);
+			});
+		}
+
+		if(isset($filter['coordinator']) && strlen($filter['coordinator']) > 0) {
+			$states->whereHas('user', function ($sq) use ($filter) {
+				return $sq->where('name', 'REGEXP', $filter['coordinator']);
 			});
 		}
 

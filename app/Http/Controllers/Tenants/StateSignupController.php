@@ -49,6 +49,10 @@ class StateSignupController extends BaseController {
 				return $this->api_failure('admin_email_in_use');
 			}
 
+			if(User::checkIfExists($data['coordinator']['email'])) {
+				return $this->api_failure('coordinator_email_in_use');
+			}
+
 			$signup = StateSignup::createFromForm($data);
 
 			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
@@ -59,7 +63,7 @@ class StateSignupController extends BaseController {
 	}
 
 	public function get_pending() {
-		$pending = StateSignup::query()->with('user');
+		$pending = StateSignup::query()->with(['admin', 'coordinator']);
 
 		$sort = request('sort', []);
 		$filter = request('filter', []);
@@ -133,7 +137,7 @@ class StateSignupController extends BaseController {
 		try {
 
 			if(!$signup) return $this->api_failure('invalid_signup_id');
-			if(!in_array(request('type'), ['admin', 'supervisor'])) return $this->api_failure('invalid_email_type');
+			if(!in_array(request('type'), ['admin', 'coordinator'])) return $this->api_failure('invalid_email_type');
 
 			$signup->updateRegistrationEmail(request('type'), request('email'));
 

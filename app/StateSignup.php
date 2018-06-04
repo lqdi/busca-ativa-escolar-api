@@ -27,6 +27,8 @@ use Mail;
  * @property int $id
  * @property string $uf
  * @property string $user_id
+ * @property string $admin_id
+ * @property string $coordinator_id
  * @property bool $is_approved
  * @property string $ip_addr
  * @property string $user_agent
@@ -35,7 +37,8 @@ use Mail;
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
  *
- * @property User|null $user
+ * @property User|null $admin
+ * @property User|null $coordinator
  * @property User|null $judged_by
  * @property User[]|Collection|null $users
  */
@@ -48,7 +51,8 @@ class StateSignup extends Model {
 	protected $table = "state_signups";
 	protected $fillable = [
 		'uf',
-		'user_id',
+		'admin_id',
+		'coordinator_id',
 		'judged_by',
 
 		'is_approved',
@@ -66,8 +70,12 @@ class StateSignup extends Model {
 		'data' => 'array',
 	];
 
-	public function user() {
-		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'user_id')->withTrashed();
+	public function admin() {
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'admin_id')->withTrashed();
+	}
+
+	public function coordinator() {
+		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'coordinator_id')->withTrashed();
 	}
 
 	public function judge() {
@@ -103,18 +111,19 @@ class StateSignup extends Model {
 		$adminData['type'] = User::TYPE_GESTOR_ESTADUAL;
 		$adminData['password'] = password_hash($this->data['admin']['password'], PASSWORD_DEFAULT);
 
-		$supervisorData = collect($this->data['supervisor'])->only($userFields)->toArray();
-		$supervisorData['uf'] = $this->uf;
-		$supervisorData['tenant_id'] = null;
-		$supervisorData['type'] = User::TYPE_SUPERVISOR_ESTADUAL;
-		$supervisorData['password'] = password_hash($this->data['supervisor']['password'], PASSWORD_DEFAULT);
+		$coordinatorData = collect($this->data['coordinator'])->only($userFields)->toArray();
+		$coordinatorData['uf'] = $this->uf;
+		$coordinatorData['tenant_id'] = null;
+		$coordinatorData['type'] = User::TYPE_COORDENADOR_ESTADUAL;
+		$coordinatorData['password'] = password_hash($this->data['coordinator']['password'], PASSWORD_DEFAULT);
 
 		// TODO: validate user data again
 
 		$admin = User::create($adminData);
-		$supervisor = User::create($supervisorData);
+		$coordinator = User::create($coordinatorData);
 
-		$this->user_id = $admin->id;
+		$this->admin_id = $admin->id;
+		$this->coordinator_id = $coordinator->id;
 		$this->save();
 
 		$this->sendNotification();
@@ -131,8 +140,8 @@ class StateSignup extends Model {
 	}
 
 	public function updateRegistrationEmail($type, $email) {
-		if(!in_array($type, ['admin', 'supervisor'])) {
-			throw new \InvalidArgumentException("Invalid e-mail type: {$type}; valid types are: admin | supervisor");
+		if(!in_array($type, ['admin', 'coordinator'])) {
+			throw new \InvalidArgumentException("Invalid e-mail type: {$type}; valid types are: admin | coordinator");
 		}
 
 		$email = filter_var($email, FILTER_SANITIZE_EMAIL);
@@ -144,15 +153,15 @@ class StateSignup extends Model {
 
 	public function sendNotification() {
 		$adminEmail = $this->data['admin']['email'];
-		$supervisorEmail = $this->data['supervisor']['email'];
+		$coordinatorEmail = $this->data['coordinator']['email'];
 
-		Mail::to([$adminEmail, $supervisorEmail])->send(new StateSignupApproved($this));
+		Mail::to([$adminEmail, $coordinatorEmail])->send(new StateSignupApproved($this));
 	}
 
 	public function sendRejectionNotification() {
 		$adminEmail = $this->data['admin']['email'];
-		$supervisorEmail = $this->data['supervisor']['email'];
-		Mail::to([$adminEmail, $supervisorEmail])->send(new StateSignupRejected($this));
+		$coordinatorEmail = $this->data['coordinator']['email'];
+		Mail::to([$adminEmail, $coordinatorEmail])->send(new StateSignupRejected($this));
 	}
 
 
@@ -172,7 +181,7 @@ class StateSignup extends Model {
 		$signup->user_agent = $_SERVER['HTTP_USER_AGENT'];
 
 		$signup->uf = $data['uf'];
-		$signup->data = collect($data)->only(['uf', 'admin', 'supervisor'])->toArray();
+		$signup->data = collect($data)->only(['uf', 'admin', 'coordinator'])->toArray();
 
 		$signup->save();
 
@@ -196,15 +205,15 @@ class StateSignup extends Model {
 			'admin.institution' => 'required|string',
 			'admin.position' => 'required|string',
 			'admin.password' => 'required|string',
-			'supervisor.dob' => 'required|date',
-			'supervisor.cpf' => 'required|alpha_dash',
-			'supervisor.email' => 'required|email',
-			'supervisor.name' => 'required|string',
-			'supervisor.phone' => 'required|alpha_dash',
-			'supervisor.mobile' => 'nullable|alpha_dash',
-			'supervisor.institution' => 'required|string',
-			'supervisor.position' => 'required|string',
-			'supervisor.password' => 'required|string',
+			'coordinator.dob' => 'required|date',
+			'coordinator.cpf' => 'required|alpha_dash',
+			'coordinator.email' => 'required|email',
+			'coordinator.name' => 'required|string',
+			'coordinator.phone' => 'required|alpha_dash',
+			'coordinator.mobile' => 'nullable|alpha_dash',
+			'coordinator.institution' => 'required|string',
+			'coordinator.position' => 'required|string',
+			'coordinator.password' => 'required|string',
 		]);
 	}
 

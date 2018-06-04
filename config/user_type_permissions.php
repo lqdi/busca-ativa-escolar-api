@@ -76,6 +76,18 @@ return [
 		'tenants.export',
 	],
 
+	BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL => [
+		'reports.view',
+		'cases.map',
+		'users.view',
+		'users.manage',
+		'users.export',
+		'tenants.view',
+		'tenants.activity',
+		'tenants.contact_info',
+		'tenants.export',
+	],
+
 	BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL => [
 		'reports.view',
 		'cases.map',
@@ -207,6 +219,12 @@ return [
 		],
 		BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
 			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
+		],
+		BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL=> [
+			BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
 		],
@@ -263,6 +281,11 @@ return [
 			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
 		],
 		BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
+			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
+			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
+		],
+		BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL => [
 			BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
 			BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,

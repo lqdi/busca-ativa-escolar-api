@@ -87,6 +87,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	const TYPE_COMITE_ESTADUAL = "comite_estadual";
 	const TYPE_GESTOR_OPERACIONAL = "coordenador_operacional";
 	const TYPE_SUPERVISOR_INSTITUCIONAL = "supervisor_institucional";
+	const TYPE_COORDENADOR_ESTADUAL = "coordenador_estadual";
 	const TYPE_SUPERVISOR_ESTADUAL = "supervisor_estadual";
 	const TYPE_TECNICO_VERIFICADOR = "tecnico_verificador";
 	const TYPE_AGENTE_COMUNITARIO = "agente_comunitario";
@@ -99,6 +100,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		self::TYPE_TECNICO_VERIFICADOR,
 		self::TYPE_AGENTE_COMUNITARIO,
 		self::TYPE_GESTOR_ESTADUAL,
+		self::TYPE_COORDENADOR_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
 	];
 
@@ -113,6 +115,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	public static $UF_SCOPED_TYPES = [
 		self::TYPE_GESTOR_ESTADUAL,
 		self::TYPE_COMITE_ESTADUAL,
+		self::TYPE_COORDENADOR_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
 	];
 
