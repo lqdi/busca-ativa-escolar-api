@@ -43,8 +43,11 @@ class ReportsController extends BaseController {
 
 	public function query_children(Reports $reports) {
 
+		// TODO: this needs a major refactoring to clear up the complexity that crept in
+
 		$params = request()->all();
 		$filters = request('filters', []);
+		$format = request('format', 'json');
 
 		// Scope the query within the tenant
 		if(Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
@@ -113,6 +116,10 @@ class ReportsController extends BaseController {
 			return $this->api_exception($ex);
 		}
 
+		if($format === 'xls') {
+			return $this->exportResults($params['view'], $response, $labels);
+		}
+
 		return response()->json([
 			'query' => $query->getQuery(),
 			'attempted' => $query->getAttemptedQuery(),
@@ -124,6 +131,7 @@ class ReportsController extends BaseController {
 	public function query_tenants() {
 
 		$filters = request('filters', []);
+		$format = request('format', 'json');
 
 		if(isset($filters['uf'])) $filters['uf'] = Str::lower($filters['uf']);
 
@@ -179,11 +187,17 @@ class ReportsController extends BaseController {
 
 		}
 
+		$response = [
+			'records_total' => $recordsTotal,
+			'report' => $report,
+		];
+
+		if($format === 'xls') {
+			return $this->exportResults('linear', $response, $labels);
+		}
+
 		return response()->json([
-			'response' => [
-				'records_total' => $recordsTotal,
-				'report' => $report
-			],
+			'response' => $response,
 			'labels' => $labels
 		]);
 	}
@@ -194,6 +208,7 @@ class ReportsController extends BaseController {
 		$regionLabels = collect(Region::getAll())->sortBy('name')->pluck('name', 'id');
 
 		$dimension = request('dimension');
+		$format = request('format', 'json');
 
 		$report = DB::table("users")
 			->whereIn('type', User::$UF_SCOPED_TYPES)
@@ -230,12 +245,19 @@ class ReportsController extends BaseController {
 				break;
 		}
 
+		$recordsTotal = $report->sum();
+		$response = [
+			'records_total' => $recordsTotal,
+			'report' => $report,
+			'seriesName' => $seriesName,
+		];
+
+		if($format === 'xls') {
+			return $this->exportResults('linear', $response, $regionLabels);
+		}
+
 		return response()->json([
-			'response' => [
-				'records_total' => $report->sum(),
-				'report' => $report,
-				'seriesName' => $seriesName,
-			],
+			'response' => $response,
 			'labels' => $regionLabels
 		]);
 	}
@@ -243,6 +265,7 @@ class ReportsController extends BaseController {
 	public function query_signups() {
 
 		$today = Carbon::now();
+		$format = request('format', 'json');
 
 		$numSignups = DB::table("tenant_signups")
 			->select([DB::raw('CONCAT(YEAR(created_at), CONCAT("-", MONTH(created_at))) as month'), DB::raw('COUNT(id) as qty')])
@@ -267,13 +290,86 @@ class ReportsController extends BaseController {
 				return ['num_tenant_signups' => $numSignups[$period['month']] ?? 0];
 			});
 
+		$labels = ['num_tenant_signups' => 'Qtd. de adesões municipais'];
+		$response = [
+			'records_total' => 0,
+			'report' => $lastTwelveMonths,
+		];
+
+		if($format === 'xls') {
+			return $this->exportResults('linear', $response, $labels);
+		}
+
 		return response()->json([
-			'response' => [
-				'records_total' => 0,
-				'report' => $lastTwelveMonths
-			],
-			'labels' => ['num_tenant_signups' => 'Qtd. de adesões municipais']
+			'response' => $response,
+			'labels' => $labels
 		]);
+
+	}
+
+	private function exportResults($view, $response, $labels) {
+
+		$exportFile = uniqid("report_export_", true);
+		$exportFolder = storage_path('app/export/' . auth()->user()->id);
+
+		if($view === 'linear') {
+
+			$data = collect($response['report'])
+				->map(function ($value, $column) use ($labels) {
+					return [$labels[$column] ?? $column, $value ?? 0];
+				})
+				->values()
+				->toArray();
+
+		} else if($view === "time_series") { // TODO: optimize for performance
+
+			$header = null;
+			$data = collect($response['report'])
+				->map(function ($stats, $date) use ($labels, &$header) {
+					if($header === null) {
+						$header = collect($stats)
+							->map(function ($_, $column) use ($labels) { return $labels[$column] ?? $column; })
+							->values()
+							->toArray();
+					}
+
+					array_unshift($stats, $date);
+
+					return collect($stats)->values()->toArray();
+				})
+				->values()
+				->toArray();
+
+			array_unshift($header, 'Data');
+			array_unshift($data, $header);
+
+		}
+
+		$exported = \Excel::create($exportFile, function($excel) use ($data) {
+
+			$excel->sheet('export', function($sheet) use ($data) {
+				$sheet->fromArray($data, null, 'A1', false, false);
+			});
+
+		})->store('xls', $exportFolder, true);
+
+		$token = \JWTAuth::fromUser(auth()->user());
+
+		return $this->api_success([
+			'export_file' => $exported['file'],
+			'download_url' => route('api.reports.download_exported', ['filename' => $exported['file'], 'token' => $token])
+		]);
+
+
+	}
+
+	public function download_exported($filename) {
+
+		$token = request('token');
+
+		\JWTAuth::invalidate($token);
+
+		return response()->download(storage_path('app/export/' . auth()->user()->id . '/' . basename($filename)));
 
 	}
 
