@@ -200,8 +200,8 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 			'rg' => 'nullable|alpha_num',
 			'cpf' => 'nullable|digits:11',
 
-			'has_been_in_school' => 'required_for_completion|boolean',
-			'reason_not_enrolled' => 'nullable|required_if:has_been_in_school,0|string',
+			'has_been_in_school' => 'boolean_required_for_completion',
+			'reason_not_enrolled' => 'nullable|required_unless:has_been_in_school,1|string',
 
 			'school_last_grade' => 'nullable|required_if:has_been_in_school,1|' . \BuscaAtivaEscolar\Data\SchoolGrade::getSlugValidationMask(),
 			'school_last_year' => 'nullable|required_if:has_been_in_school,1|digits:4',
@@ -211,7 +211,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 			'school_last_age' => 'nullable|required_if:has_been_in_school,1|numeric',
 			'school_last_address' => 'nullable|required_if:has_been_in_school,1|string',
 
-			'is_working' => 'required_for_completion|boolean',
+			'is_working' => 'boolean_required_for_completion',
 			'work_activity' => 'nullable|required_if:is_working,1|' . \BuscaAtivaEscolar\Data\WorkActivity::getSlugValidationMask(),
 			'work_activity_other' => 'nullable|required_if:work_activity,other|string',
 			'work_is_paid' => 'nullable|required_if:is_working,1|boolean',

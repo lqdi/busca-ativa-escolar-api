@@ -43,6 +43,16 @@ class AppServiceProvider extends ServiceProvider {
 	    	return !empty($value);
 	    });
 
+	    Validator::extend('boolean_required_for_completion', function ($attribute, $value, $parameters, $validator) {
+	    	if(!isset($validator->getData()['is_completing_step'])) return true;
+	    	if(!boolval($validator->getData()['is_completing_step'])) return true;
+	    	return !empty($value)
+			    || ($value === "0")
+			    || ($value === "false")
+			    || ($value === 0)
+			    || ($value === false);
+	    });
+
 	    Validator::extend('required_if_different', function ($attribute, $value, $parameters, $validator) {
 	    	if($validator->getData()[$parameters[0]] !== $validator->getData()[$parameters[1]]) {
 	    		return !empty($value);

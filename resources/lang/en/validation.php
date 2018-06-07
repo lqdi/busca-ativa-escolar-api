@@ -62,6 +62,7 @@ return [
     'required_without_all' => 'O campo \':attribute\' é obrigatório quando nenhum dos campos \':values\' são informados.',
     'required_if_different' => 'O campo \':attribute\' é obrigatório.',
     'required_for_completion' => 'O campo \':attribute\' é obrigatório para concluir essa etapa.',
+    'boolean_required_for_completion' => 'O campo \':attribute\' deve ser preenchido com Sim ou Não para concluir essa etapa.',
     'same'                 => 'Os campos \':attribute\' e \':other\' devem ser iguais.',
     'size'                 => [
         'numeric' => 'O campo \':attribute\' deve ser :size.',

@@ -80,7 +80,7 @@ class Observacao extends CaseStep {
 			'report_date' => 'required_for_completion|date',
 			'report_index' => 'digits:1|in:1,2,3,4',
 			'is_child_still_in_school' => 'required_for_completion|boolean',
-			'evasion_reason' => 'required_if:is_child_still_in_school,0',
+			'evasion_reason' => 'required_unless:is_child_still_in_school,1',
 			'observations' => 'string|nullable',
 			'reinsertion_date' => 'required_for_completion|date',
 			'reinsertion_date_change_reason' => 'required_if_different:reinsertion_date,reinsertion_date_original',
