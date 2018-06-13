@@ -42,7 +42,7 @@ class UserTransformer extends TransformerAbstract {
 			'type' => $user->type,
 
 			'name' => $user->name,
-			'email' => $user->email,
+			'email' => $canSeeContactInfo ? $user->email : null,
 
 			'contact_phone' => $canSeeContactInfo ? $user->getContactPhone() : null,
 
