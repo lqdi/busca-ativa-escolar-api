@@ -19,6 +19,7 @@ return [
 		'tenants.export_signups',
 		'ufs.view',
 		'ufs.manage',
+		'ufs.contact_info',
 		'developer_tools',
 		'maintenance',
 	],
@@ -40,6 +41,7 @@ return [
 		'tenants.export_signups',
 		'ufs.view',
 		'ufs.manage',
+		'ufs.contact_info',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL => [
