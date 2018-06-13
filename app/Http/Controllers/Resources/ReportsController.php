@@ -340,6 +340,10 @@ class ReportsController extends BaseController {
 				->values()
 				->toArray();
 
+			if($header === null) { // In case no header was built due to no records found
+				$header = [];
+			}
+
 			array_unshift($header, 'Data');
 			array_unshift($data, $header);
 
