@@ -137,7 +137,7 @@ class TenantSignup extends Model {
 		if(!$this->judged_by) return 'pending';
 		if($this->is_approved === false) return 'rejected';
 		if($this->is_provisioned !== true || !$this->tenant) return 'pending_initial_setup';
-		if(!$this->tenant->is_setup) return 'pending_tenant_setup';
+		//if(!$this->tenant->is_setup) return 'pending_tenant_setup';
 		if($this->tenant->deleted_at) return 'deleted';
 		if(!$this->tenant->is_active) return 'inactive';
 
