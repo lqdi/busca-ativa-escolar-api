@@ -139,7 +139,7 @@ class TenantSignup extends Model {
 		if($this->is_provisioned !== true || !$this->tenant) return 'pending_initial_setup';
 		//if(!$this->tenant->is_setup) return 'pending_tenant_setup';
 		if($this->tenant->deleted_at) return 'deleted';
-		if(!$this->tenant->is_active) return 'inactive';
+		if(!$this->tenant->isActive()) return 'inactive';
 
 		return 'active';
 	}

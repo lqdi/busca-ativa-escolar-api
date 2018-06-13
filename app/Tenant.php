@@ -177,6 +177,18 @@ class Tenant extends Model  {
 	}
 
 	/**
+	 * Checks if the tenant is considered "active" (activity in the last 30 days)
+	 * @return bool
+	 */
+	public function isActive() {
+		if(!$this->last_active_at) {
+			return false;
+		}
+
+		return abs($this->last_active_at->diffInDays(Carbon::now())) >= 30;
+	}
+
+	/**
 	 * Updates the 'last active at' datetime
 	 */
 	public function tickLastActivity() {
