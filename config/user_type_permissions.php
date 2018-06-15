@@ -64,6 +64,7 @@ return [
 		'settings.manage',
 		'settings.educacenso',
 		'preferences',
+		'notifications',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
@@ -123,6 +124,7 @@ return [
 		'settings.educacenso',
 		'tenant.complete_setup',
 		'preferences',
+		'notifications',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL => [
@@ -147,6 +149,7 @@ return [
 		'alerts.pending',
 		'alerts.spawn',
 		'preferences',
+		'notifications',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL => [
@@ -175,6 +178,7 @@ return [
 		//'alerts.pending',
 		//'alerts.spawn',
 		//'preferences',
+		'notifications',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR => [
@@ -187,6 +191,7 @@ return [
 		'cases.step.analise_tecnica',
 		'alerts.spawn',
 		'preferences',
+		'notifications',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO => [
