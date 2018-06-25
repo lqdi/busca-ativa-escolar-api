@@ -199,16 +199,16 @@ class UsersController extends BaseController {
 			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
 			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
-			$email = trim(strtolower($input['email'] ?? ''));
-
-			if(User::checkIfExists($email)) {
-				return $this->api_failure('email_already_exists');
-			}
-
 			$validation = $user->validate($input, true, $isTenantUser, $isUFUser);
 
 			if($validation->fails()) {
 				return $this->api_validation_failed('validation_failed', $validation);
+			}
+
+			$email = trim(strtolower($input['email'] ?? ''));
+
+			if(User::checkIfExists($email)) {
+				return $this->api_failure('email_already_exists');
 			}
 
 			// Cache initial password so we can send it as cleartext through e-mail later
