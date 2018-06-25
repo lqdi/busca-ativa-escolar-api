@@ -199,7 +199,7 @@ class UsersController extends BaseController {
 			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
 			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
-			$email = trim(strtolower($input['email']));
+			$email = trim(strtolower($input['email'] ?? ''));
 
 			if(User::checkIfExists($email)) {
 				return $this->api_failure('email_already_exists');
