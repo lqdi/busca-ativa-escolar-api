@@ -61,19 +61,9 @@ class AppServiceProvider extends ServiceProvider {
 		    return true;
 	    });
 
-	    $monolog = Log::getMonolog();
-	    $syslog = new \Monolog\Handler\SyslogHandler('papertrail');
-	    $formatter = new \Monolog\Formatter\LineFormatter('%channel%.%level_name%: %message% %extra%');
-	    $syslog->setFormatter($formatter);
-
-	    $monolog->pushHandler($syslog);
     }
 
     public function register() {
-
-	    $this->app->register(\Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class);
-	    $this->app->alias('bugsnag.logger', \Illuminate\Contracts\Logging\Log::class);
-	    $this->app->alias('bugsnag.logger', \Psr\Log\LoggerInterface::class);
 	    $this->app->bind(SmsProvider::class, Zenvia::class);
     }
 }

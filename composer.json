@@ -25,7 +25,6 @@
         "elasticsearch/elasticsearch": "^5.1",
         "toin0u/geocoder-laravel": "^1.0",
         "rap2hpoutre/laravel-log-viewer": "^0.8.0",
-        "bugsnag/bugsnag-laravel": "^2.0",
         "pda/pheanstalk": "^3.1",
         "jenssegers/agent": "^2.6"
     },

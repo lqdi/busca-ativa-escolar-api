@@ -13,7 +13,6 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers;
 
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use BuscaAtivaEscolar\User;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller;
@@ -41,7 +40,7 @@ class BaseController extends Controller {
 	    try {
 		    auth()->user()->tenant->tickLastActivity();
 	    } catch (\Exception $ex) {
-		    Bugsnag::notifyException($ex);
+	    	Log::debug('[tick_tenant_last_activity] ' . $ex->getMessage());
 	    }
     }
 
@@ -50,7 +49,6 @@ class BaseController extends Controller {
     	if(!$data) $data = [];
 
     	Log::error('[api_exception] ' . $exception->getMessage() . "\n\n {$exception->getTraceAsString()}");
-    	Bugsnag::notifyException($exception);
 
 	    $exceptionInfo = $exception->getMessage();
 

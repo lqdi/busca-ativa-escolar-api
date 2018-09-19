@@ -177,7 +177,6 @@ return [
 	    Barryvdh\Cors\ServiceProvider::class,
 	    Geocoder\Laravel\Providers\GeocoderService::class,
 	    Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
-	    Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
 	    Jenssegers\Agent\AgentServiceProvider::class,
 
 
@@ -246,7 +245,6 @@ return [
 	    'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
 	    'Curl' => Ixudra\Curl\Facades\Curl::class,
 	    'Fractal' => Spatie\Fractal\FractalFacade::class,
-	    'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
 	    'Agent' => Jenssegers\Agent\Facades\Agent::class,
 
 
