@@ -49,6 +49,8 @@ class ReportsController extends BaseController {
 		$filters = request('filters', []);
 		$format = request('format', 'json');
 
+
+
 		// Scope the query within the tenant
 		if(Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
 		if(Auth::user()->isRestrictedToUF()) $filters['uf'] = Auth::user()->uf;

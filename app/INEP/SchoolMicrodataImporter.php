@@ -47,7 +47,7 @@ class SchoolMicrodataImporter {
 	 */
 	protected $findCityStmt;
 
-	public $sourceFilePath = 'app/inep_schools.csv';
+	public $sourceFilePath = 'static/inep_schools.csv';
 	public $fieldMap = [
 		'CO_ENTIDADE' => 'id',
 		'NO_ENTIDADE' => 'name',
@@ -76,7 +76,7 @@ class SchoolMicrodataImporter {
 	}
 
 	protected function openMicrodataFile() {
-		$path = storage_path($this->sourceFilePath);
+		$path = database_path($this->sourceFilePath);
 
 		$this->log->debug("Loading file from path: {$path}");
 
