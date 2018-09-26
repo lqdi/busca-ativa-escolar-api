@@ -22,6 +22,9 @@ class ReindexAllChildren extends Command {
 	protected $description = 'Forces all children in the system to be reindex in ElasticSearch';
 
 	public function handle() {
+		set_time_limit(0);
+		ini_set('memory_limit', '2G');
+
 		$children = Child::with('tenant')->get();
 
 		foreach($children as $child) {
