@@ -388,6 +388,8 @@ class ReportsController extends BaseController {
 					'num_tenants' => Tenant::query()
 						->count(),
 
+					'num_ufs' => StateSignup::query()->count(),
+
 					'num_signups' => TenantSignup::query()
 						->count(),
 
