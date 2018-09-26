@@ -283,14 +283,18 @@ class ReportsController extends BaseController {
 				return [
 					'index' => $i,
 					'date' => $date->format('Y-m') . "-01",
-					'month' => $date->format('Y-m'),
+					'month' => $date->format('Y-n'),
 					'label' => $date->formatLocalized('%b/%Y'),
 				];
 			})
 			->keyBy('label')
 			->map(function ($period) use ($numSignups) {
+			    //$this->debug_push('period', $period['month'], $numSignups[$period['month']] ?? null);
 				return ['num_tenant_signups' => $numSignups[$period['month']] ?? 0];
 			});
+
+		//return $this->debug_output();
+
 
 		$labels = ['num_tenant_signups' => 'Qtd. de adesões municipais'];
 		$response = [

@@ -44,6 +44,26 @@ class BaseController extends Controller {
 	    }
     }
 
+    protected $_debug = [];
+
+    protected function debug_push(... $params) {
+        ob_start();
+
+        foreach($params as $param) {
+            dump($param);
+        }
+
+        $content = ob_get_contents();
+
+        ob_end_clean();
+
+        array_push($this->_debug, $content);
+    }
+
+    protected function debug_output() {
+        return response(join("<br><br>", $this->_debug));
+    }
+
     protected function api_exception(\Exception $exception, $data = []) {
 
     	if(!$data) $data = [];
