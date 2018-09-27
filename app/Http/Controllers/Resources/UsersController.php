@@ -195,6 +195,11 @@ class UsersController extends BaseController {
 				$input['tenant_id'] = Auth::user()->tenant_id;
 			}
 
+			// UF-bound users can only manage users within their UF
+			if (Auth::user()->isRestrictedToUF()) {
+				$input['uf'] = Auth::user()->uf;
+			}
+
 			// These flags are used for validation (eg: non-tenant-bound users do not require a tenant_id, and so on)
 			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
 			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
