@@ -57,6 +57,10 @@ class TenantsController extends BaseController  {
 			$tenants->where('name_ascii', 'REGEXP', strtolower(Str::ascii($filter['name'])));
 		}
 
+		if(isset($filter['uf']) && strlen($filter['uf']) > 0) {
+			$tenants->where('uf', 'REGEXP', strtoupper(Str::ascii($filter['uf'])));
+		}
+
 		if(isset($filter['political_admin']) && strlen($filter['political_admin']) > 0) {
 			$tenants->whereHas('politicalAdmin', function ($sq) use ($filter) {
 				return $sq->where('name', 'REGEXP', $filter['political_admin']);
