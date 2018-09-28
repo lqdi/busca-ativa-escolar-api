@@ -73,9 +73,13 @@ class EducacensoXLSImporter implements Importer {
 			$fieldMap = null;
 			$numRecords = 0;
 
+			Log::debug("[educacenso_import] Loading spreadsheet data into memory...");
+
+			$data = $reader->get();
+
 			Log::debug("[educacenso_import] Looking for data block begin...");
 
-			foreach($reader->get() as $rowNumber => $row) {
+			foreach($data as $rowNumber => $row) {
 
 				$firstColumn = $row->first();
 

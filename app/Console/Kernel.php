@@ -29,6 +29,7 @@ class Kernel extends ConsoleKernel
         Commands\RebuildGroupCausesMap::class,
         Commands\GenerateSchoolsJSON::class,
         Commands\GenerateStaticDataSQL::class,
+        Commands\ManualEducacensoImport::class,
     ];
 
     /**
