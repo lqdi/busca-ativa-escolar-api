@@ -65,6 +65,7 @@ return [
 		'settings.educacenso',
 		'preferences',
 		'notifications',
+        'groups.manage',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
@@ -77,6 +78,7 @@ return [
 		'tenants.activity',
 		'tenants.contact_info',
 		'tenants.export',
+        'groups.manage',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL => [
@@ -89,6 +91,7 @@ return [
 		'tenants.activity',
 		'tenants.contact_info',
 		'tenants.export',
+		'groups.manage',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL => [
@@ -125,6 +128,7 @@ return [
 		'tenant.complete_setup',
 		'preferences',
 		'notifications',
+        'groups.manage',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL => [

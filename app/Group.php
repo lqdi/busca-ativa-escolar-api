@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  *
  * @property string $tenant_id
+ * @property string $uf
  * @property string $name
  * @property string $is_primary
  *

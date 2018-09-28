@@ -56,7 +56,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_USERNAME'),
+        'address' => env('MAIL_FROM', env('MAIL_USERNAME')),
         'name' => 'Busca Ativa Escolar',
     ],
 

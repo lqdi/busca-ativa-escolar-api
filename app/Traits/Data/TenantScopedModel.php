@@ -26,6 +26,10 @@ trait TenantScopedModel {
 		return with(new static())->newQueryWithoutScope(new TenantScope());
 	}
 
+	public static function withoutGlobalScope() {
+		return with(new static())->newQueryWithoutScope(new TenantScope());
+	}
+
 	public function getTenantWhereClause($tenantColumn, $tenantId) {
 		return "{$this->getTable()}.{$tenantColumn} = '{$tenantId}''";
 	}

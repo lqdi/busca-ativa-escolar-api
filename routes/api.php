@@ -49,28 +49,24 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 			Route::resource('/users', 'Resources\UsersController');
 		});
 
-		// Settings
-		Route::get('/groups', 'Resources\GroupsController@index');
-		Route::group(['middleware' => 'can:settings.manage'], function() {
+        // User Groups
+        Route::get('/groups', 'Resources\GroupsController@index');
+        Route::post('/groups', 'Resources\GroupsController@store')->middleware('can:groups.manage');
+        Route::get('/groups/{group}', 'Resources\GroupsController@show')->middleware('can:groups.manage');
+        Route::put('/groups/{group}/settings', 'Resources\GroupsController@update_settings')->middleware('can:groups.manage');
+        Route::put('/groups/{group}', 'Resources\GroupsController@update')->middleware('can:groups.manage');
+        Route::delete('/groups/{group}', 'Resources\GroupsController@destroy')->middleware('can:groups.manage');
 
-			// User Groups
-			Route::post('/groups', 'Resources\GroupsController@store');
-			Route::get('/groups/{group}', 'Resources\GroupsController@show');
-			Route::put('/groups/{group}/settings', 'Resources\GroupsController@update_settings');
-			Route::put('/groups/{group}', 'Resources\GroupsController@update');
-			Route::delete('/groups/{group}', 'Resources\GroupsController@destroy');
-
-			// Tenant Settings
-			Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings');
-
-		});
-
+        // Tenant Settings
 		Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings');//->middleware('can:settings.view');
+        Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings')->middleware('can:settings.manage');
 
+        // Tenant Educacenso
 		Route::group(['middleware' => 'can:settings.educacenso'], function () {
 			Route::post('/settings/educacenso/import', 'Resources\EducacensoController@import');
 			Route::get('/settings/educacenso/jobs', 'Resources\EducacensoController@list_jobs');
 		});
+
 
 		// Maintenance
 		Route::group(['middleware' => 'can:maintenance'], function() {

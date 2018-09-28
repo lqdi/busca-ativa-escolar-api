@@ -119,6 +119,7 @@ class StepsController extends BaseController {
 			return fractal()
 				->collection($users, new UserTransformer(), 'users')
 				->serializeWith(new SimpleArraySerializer())
+                ->parseIncludes(['group', 'tenant'])
 				->respond();
 
 		} catch (\Exception $ex) {
