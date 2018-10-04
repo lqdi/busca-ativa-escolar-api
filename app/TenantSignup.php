@@ -219,7 +219,7 @@ class TenantSignup extends Model {
 			'admin.position' => 'required|string',
 			'mayor.name' => 'required|string',
 			'mayor.dob' => 'required|date',
-			'mayor.email' => 'required|email',
+			'mayor.email' => 'email',
 			'mayor.phone' => 'required|alpha_dash',
 			'mayor.mobile' => 'nullable|alpha_dash',
 		]);
