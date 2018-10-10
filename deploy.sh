@@ -7,6 +7,6 @@ if [ -f artisan ]
 then
     php artisan migrate --force
     php artisan cache:clear
-    php artisan queue:restart
+    php php artisan queue:work --timeout=0
     php artisan optimize
 fi
