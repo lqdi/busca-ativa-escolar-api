@@ -344,6 +344,8 @@ class Tenant extends Model  {
 		$signup->tenant_id = $tenant->id;
 		$signup->save();
 
+		Cache::forget('uf_tenants_' . $tenant->uf);
+
 		Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
 		Mail::to($operationalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $operationalAdmin, $operationalAdminData['password']));
 

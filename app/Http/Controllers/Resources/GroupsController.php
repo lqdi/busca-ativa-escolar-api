@@ -24,7 +24,11 @@ class GroupsController extends BaseController {
 
 	public function index() {
 
-		$groups = Group::orderBy('created_at', 'ASC')->get();
+		$query = $this->currentUser()->isRestrictedToUF()
+            ? Group::withoutGlobalScope()->where('uf', $this->currentUser()->uf)
+            : Group::query();
+
+		$groups = $query->orderBy('created_at', 'ASC')->get();
 
 		return fractal()
 			->collection($groups)
@@ -36,10 +40,15 @@ class GroupsController extends BaseController {
 	}
 
 	public function store() {
+	    $isUF = Auth::user()->isRestrictedToUF();
+
 		$group = new Group();
 		$group->fill(request()->all());
 		$group->is_primary = false;
-		$group->tenant_id = Auth::user()->tenant_id;
+
+		$group->tenant_id = $isUF ? null : Auth::user()->tenant_id;
+		$group->uf = $isUF ? Auth::user()->uf : null;
+
 		$group->save();
 
 		return response()->json(['status' => 'ok', 'group' => $group]);
@@ -63,12 +72,14 @@ class GroupsController extends BaseController {
 
 	public function destroy(Group $group) {
 
-		$tenant = $group->tenant;
+	    $targetGroup = Auth::user()->isRestrictedToTenant()
+            ? $group->tenant->primaryGroup->id // If group is tenant-bound, existing users get moved to primary group
+            : null; // Else (if UF-bound), users get moved to no group at all.
 
-		$group->users()->update(['group_id' => $tenant->primaryGroup->id]);
+        $group->users()->update(['group_id' => $targetGroup]);
 		$group->delete();
 
-		return response()->json(['status' => 'ok', 'users_moved_to' => $tenant->primaryGroup->id]);
+		return response()->json(['status' => 'ok', 'users_moved_to' => $targetGroup]);
 	}
 
 }

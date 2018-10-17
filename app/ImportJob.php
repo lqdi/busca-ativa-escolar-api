@@ -14,6 +14,8 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\Importers\EducacensoCVSImporter;
+use BuscaAtivaEscolar\Importers\EducacensoXLSChunkImporter;
 use BuscaAtivaEscolar\Importers\EducacensoXLSImporter;
 use BuscaAtivaEscolar\Importers\Importer;
 use BuscaAtivaEscolar\Importers\SchoolCSVImporter;
@@ -59,6 +61,8 @@ class ImportJob extends Model {
 	const TYPES = [
 		'school_csv' => SchoolCSVImporter::class,
 		'inep_educacenso_xls' => EducacensoXLSImporter::class,
+        'inep_educacenso_csv' => EducacensoCVSImporter::class,
+        'inep_educacenso_xls_chunck' => EducacensoXLSChunkImporter::class
 	];
 
 	const STATUS_PENDING = "pending";

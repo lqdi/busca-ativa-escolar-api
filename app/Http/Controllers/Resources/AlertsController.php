@@ -22,11 +22,15 @@ use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\AgentAlertTransformer;
 use BuscaAtivaEscolar\Transformers\PendingAlertTransformer;
 use BuscaAtivaEscolar\User;
+use Illuminate\Database\Query\Builder;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class AlertsController extends BaseController {
 
 	public function get_pending() {
-		$query = Child::with('alert')->where('alert_status', 'pending');
+
+	    /** @var Builder $query */
+		$query = Child::with('alert')->where('children.alert_status', 'pending');
 
 		if(request()->has('sort')) {
 			Child::applySorting($query, json_decode(request('sort'), true));
@@ -43,13 +47,31 @@ class AlertsController extends BaseController {
 			});
 		}
 
+		//filter to name
+        if(request()->has('name')) $query->where('name', 'LIKE', request('name') . '%');
+
+        //filter to submitter_name
+        if(request()->has('submitter_name')) {
+            $query->whereHas('submitter', function ($sq) {
+                $sq->where('name', 'LIKE', '%' . request('submitter_name') . '%');
+            });
+        }
+
+        //define a pagination
+        $max = request('max', 128);
+        if($max > 128) $max = 128;
+        if($max < 16) $max = 16;
+
+        $paginator = $query->paginate($max);
+        $collection = $paginator->getCollection();
+
 		return fractal()
-			->collection($query->get())
+			->collection($collection)
 			->transformWith(new PendingAlertTransformer())
 			->serializeWith(new SimpleArraySerializer())
+            ->paginateWith(new IlluminatePaginatorAdapter($paginator))
 			->parseIncludes(request('with'))
 			->respond();
-
 	}
 
 	public function accept(Child $child) {

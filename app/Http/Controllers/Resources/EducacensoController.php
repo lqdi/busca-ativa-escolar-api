@@ -16,7 +16,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
-use BuscaAtivaEscolar\Importers\EducacensoXLSImporter;
+use BuscaAtivaEscolar\Importers\EducacensoXLSChunkImporter;
 use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\Jobs\ProcessImportJob;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
@@ -27,6 +27,11 @@ class EducacensoController extends BaseController {
 
 	public function import() {
 		$file = request()->file('file');
+
+		if($file->getMimeType() != "application/vnd.ms-office"){
+            return $this->api_failure('file_not_uploaded', ['file' => $file]);
+        }
+
 		$tenant = auth()->user()->tenant; /* @var $tenant Tenant */
 
 		if(!$tenant) {
@@ -43,7 +48,7 @@ class EducacensoController extends BaseController {
 			$attachment->tenant_id = $tenant->id;
 			$attachment->save();
 
-			$job = ImportJob::createFromAttachment(EducacensoXLSImporter::TYPE, $attachment);
+			$job = ImportJob::createFromAttachment(EducacensoXLSChunkImporter::TYPE, $attachment);
 
 			dispatch(new ProcessImportJob($job));
 
@@ -61,7 +66,7 @@ class EducacensoController extends BaseController {
 			return $this->api_failure("user_must_be_bound_to_tenant");
 		}
 
-		$jobs = ImportJob::fetchTenantJobs($tenant->id, EducacensoXLSImporter::TYPE);
+		$jobs = ImportJob::fetchTenantJobs($tenant->id, EducacensoXLSChunkImporter::TYPE);
 
 		return fractal($jobs)
 			->parseIncludes(['user', 'tenant'])

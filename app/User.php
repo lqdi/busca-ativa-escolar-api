@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\Notifications\PasswordReset;
+use BuscaAtivaEscolar\Scopes\TenantScope;
 use BuscaAtivaEscolar\Settings\UserSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
@@ -191,7 +192,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
 	public function group() {
-		return $this->hasOne('BuscaAtivaEscolar\Group', 'id', 'group_id');
+		return $this->hasOne('BuscaAtivaEscolar\Group', 'id', 'group_id')->withoutGlobalScope(TenantScope::class);
 	}
 
 	/**
@@ -279,6 +280,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	public function canSeeContactInfoFor(User $user) {
 		if($this->id === $user->id) return true; // Is himself
 		if($this->tenant_id !== null && $this->tenant_id === $user->tenant_id) return true; // Is tenant-bound & are same tenant
+		if($this->isRestrictedToUF() && $user->isRestrictedToUF() && $this->uf === $user->uf) { // Is UF-bound and is looking at users from the same UF
+		    return true;
+        }
 		if($this->isRestrictedToUF()) return $this->can('ufs.contact_info'); // Is UF-bound and has relevant permission
 		return $this->can('tenants.contact_info'); // Checks for user type permissions
 	}
