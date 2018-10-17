@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-git pull origin master
+git pull origin testing
 composer install --no-interaction --prefer-dist --optimize-autoloader
 echo "" | sudo -S service php7.1-fpm reload
 
