@@ -64,39 +64,44 @@ class EducacensoXLSChunkImporter
 
         Log::debug("[educacenso_import] Tenant {$this->tenant->name}, file {$this->file}");
 
-        Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(250, function ($results) {
+        Log::debug("[educacenso_import] Loading spreadsheet data into memory ...");
 
-            $numRecords = 0;
+        $numRecords = 0;
 
-            Log::debug("[educacenso_import] Loading spreadsheet data into memory...");
+        Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
 
-            foreach ($results->toArray() as $rowNumber => $row) {
+            250,
 
-                //Init loop in line of number 14 and search for header with name 'uf'
-                if(!array_key_exists('uf', $row)){
-                    Log::debug("[educacenso_import] \t no 'UF' keyword found");
-                    throw new \Exception("Failed to find header with name UF!");
+            function ($results) use ($numRecords) {
+
+                foreach ($results->toArray() as $rowNumber => $row) {
+
+                    if(!array_key_exists('uf', $row)){
+                        Log::debug("[educacenso_import] \t no 'UF' keyword found");
+                        throw new \Exception("Failed to find header with name UF!");
+                    }
+
+                    Log::debug("[educacenso_import] \t Found UF keyword!");
+
+                    if($row['uf'] == null){
+                        Log::debug("[educacenso_import] Found empty line in data block, block has closed!");
+                        break;
+                    }
+
+                    $numRecords++;
+
+                    $this->parseChildRow($row);
+
                 }
-                Log::debug("[educacenso_import] \t Found UF keyword!");
 
-                // Empty line, the block is done
-                if($row['uf'] == null){
-                    Log::debug("[educacenso_import] Found empty line in data block, block has closed!");
-                    break;
-                }
+            },
 
-                $numRecords++;
+            false
+        );
 
-                $this->parseChildRow($row);
+        $this->job->setTotalRecords($numRecords);
 
-            }
-
-            $this->job->setTotalRecords($numRecords);
-
-            Log::debug("[educacenso_import] Completed parsing Sheet #0!");
-
-
-        }, $shouldQueue = false);
+        Log::debug("[educacenso_import] Completed parsing all records");
 
         $this->tenant->educacenso_import_details = [
             'has_imported' => true,
@@ -104,6 +109,7 @@ class EducacensoXLSChunkImporter
             'last_job_id' => $this->job->id,
             'file' => $this->file
         ];
+
         $this->tenant->save();
 
         Log::debug("[educacenso_import] Job completed!");
