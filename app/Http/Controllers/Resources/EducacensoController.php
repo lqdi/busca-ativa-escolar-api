@@ -27,6 +27,11 @@ class EducacensoController extends BaseController {
 
 	public function import() {
 		$file = request()->file('file');
+
+		if($file->getMimeType() != "application/vnd.ms-office"){
+            return $this->api_failure('file_not_uploaded', ['file' => $file]);
+        }
+
 		$tenant = auth()->user()->tenant; /* @var $tenant Tenant */
 
 		if(!$tenant) {
