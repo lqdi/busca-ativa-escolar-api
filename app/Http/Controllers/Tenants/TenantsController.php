@@ -141,7 +141,7 @@ class TenantsController extends BaseController  {
 	public function export() {
 		$query = Tenant::query()
 			->with(['operationalAdmin', 'politicalAdmin'])
-			->withTrashed()
+			//->withTrashed()
 			->orderBy('name', 'ASC');
 
 		// If user is UF-bound, they can only see tenants in their UF
