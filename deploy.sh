@@ -9,3 +9,4 @@ then
     php artisan queue:work --timeout=0
     php artisan optimize
 fi
+exit 1;
