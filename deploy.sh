@@ -7,6 +7,6 @@ then
     php artisan migrate --force
     php artisan cache:clear
     php artisan queue:work --timeout=0
-    php artisan optimize
+    php artisan optimize --timeout=0
 fi
 done
