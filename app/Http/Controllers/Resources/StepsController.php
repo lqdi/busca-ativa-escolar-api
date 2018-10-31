@@ -15,14 +15,18 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
+use BuscaAtivaEscolar\CaseSteps\Observacao;
+use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Scopes\TenantScope;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\StepTransformer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
 use BuscaAtivaEscolar\User;
+use Carbon\Carbon;
 
 class StepsController extends BaseController {
 
@@ -55,6 +59,50 @@ class StepsController extends BaseController {
 			}
 
 			$validation = $step->validate($data);
+
+            //Custom validation for date update in ChildCase Observacao
+            if($step_type == "BuscaAtivaEscolar\CaseSteps\Observacao") {
+
+                $deadline = 0;
+                $latest_update = null;
+                $today = Carbon::now();
+
+                $tenant = Tenant::find($step->getAttribute('tenant_id'));
+
+                if ($step->getSlug() == "1a_observacao") {
+
+                    $deadline = $tenant->getSettings()->stepDeadlines['1a_observacao'];
+                    $latest_step = Rematricula::where( [ ['case_id', '=', $step->case_id], ['step_index', '=', 50] ] )->first();
+                    $latest_update = $latest_step->updated_at;
+                    $difference_days = $today->diffInDays($latest_update);
+                    if( $difference_days < $deadline ) return $this->api_failure("A etapa ainda não está no perído para cadastro.");
+
+                } elseif ($step->getSlug() == "2a_observacao") {
+
+                    $deadline = $tenant->getSettings()->stepDeadlines['2a_observacao'];
+                    $latest_step = Observacao::where( [ ['case_id', '=', $step->case_id], ['step_index', '=', 60] ] )->first();
+                    $latest_update = $latest_step->updated_at;
+                    $difference_days = $today->diffInDays($latest_update);
+                    if( $difference_days < $deadline ) return $this->api_failure("A etapa ainda não está no perído para cadastro");
+
+                } elseif ($step->getSlug() == "3a_observacao") {
+
+                    $deadline = $tenant->getSettings()->stepDeadlines['3a_observacao'];
+                    $latest_step = Observacao::where( [ ['case_id', '=', $step->case_id], ['step_index', '=', 70] ] )->first();
+                    $latest_update = $latest_step->updated_at;
+                    $difference_days = $today->diffInDays($latest_update);
+                    if( $difference_days < $deadline ) return $this->api_failure("A etapa ainda não está no perído para cadastro");
+
+                }elseif ($step->getSlug() == "4a_observacao") {
+
+                    $deadline = $tenant->getSettings()->stepDeadlines['4a_observacao'];
+                    $latest_step = Observacao::where( [ ['case_id', '=', $step->case_id], ['step_index', '=', 80] ] )->first();
+                    $latest_update = $latest_step->updated_at;
+                    $difference_days = $today->diffInDays($latest_update);
+                    if( $difference_days < $deadline ) return $this->api_failure("A etapa ainda não está no perído para cadastro");
+                }
+            }
+            //Final Custom validation -----------------------------------------
 
 			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
 
@@ -142,5 +190,6 @@ class StepsController extends BaseController {
 			return $this->api_exception($ex);
 		}
 	}
+
 
 }
