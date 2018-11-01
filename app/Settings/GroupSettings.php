@@ -38,6 +38,7 @@ class GroupSettings extends SerializableObject {
 		150 =>  true, // Violência familiar
 		160 =>  true, // Violência na escola
 		500 =>  false, // Importados do Educacenso
+		61 =>  true, // Crianças ou adolescentes migrantes estrangeiros
 	];
 
 	public function __construct(Group $group) {

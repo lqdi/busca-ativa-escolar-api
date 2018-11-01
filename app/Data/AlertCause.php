@@ -76,7 +76,7 @@ class AlertCause extends StaticObject  {
 			14 => 140,
 			15 => 150,
 			16 => 160,
-			17 => 170,
+			17 => 61,
 		]
 	];
 
