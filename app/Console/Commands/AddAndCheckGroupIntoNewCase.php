@@ -1,4 +1,7 @@
 <?php
+/**
+ * Job para atualizar visibilidade de grupos
+ */
 
 namespace BuscaAtivaEscolar\Console\Commands;
 

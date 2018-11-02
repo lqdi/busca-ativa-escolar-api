@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Job para atualizar prioridade para os motivivos sem status
+ */
 namespace BuscaAtivaEscolar\Console\Commands;
 
 use Illuminate\Console\Command;
