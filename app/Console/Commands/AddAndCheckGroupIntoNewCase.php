@@ -6,6 +6,7 @@
 namespace BuscaAtivaEscolar\Console\Commands;
 
 use Illuminate\Console\Command;
+use Log;
 
 class AddAndCheckGroupIntoNewCase extends Command
 {
@@ -26,9 +27,19 @@ class AddAndCheckGroupIntoNewCase extends Command
     /**
      * @var array
      */
+
     private $alerts;
+    /**
+     * @var int
+     */
 
     private $count = 0;
+
+    /**
+     * @var array
+     */
+
+    private $log = [];
 
     /**
      * Create a new command instance.
@@ -80,7 +91,8 @@ class AddAndCheckGroupIntoNewCase extends Command
                 }
             }
         }
-        $this->comment($this->count, ' linhas atualizadas');
+        $this->comment($this->count. ' linhas atualizadas');
+        Log::info('Log Group:', $this->log);
     }
 
     private function checkMotiveExist($alertsBase)
@@ -98,8 +110,13 @@ class AddAndCheckGroupIntoNewCase extends Command
         $sql = "UPDATE groups SET settings = '$serializeValues' WHERE id = '$id'";
         $update = \DB::update($sql);
         if ($update) {
-            $this->comment($id .' atualizado');
+            $this->comment($id . ' atualizado');
             $this->count++;
+            $logId = $id;
+            array_push($this->log, $logId);
+        } else {
+            $logId = 'fail' . $id;
+            array_push($this->log, $logId);
         }
     }
 }

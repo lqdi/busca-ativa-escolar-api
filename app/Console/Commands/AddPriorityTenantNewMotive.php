@@ -2,9 +2,11 @@
 /**
  * Job para atualizar prioridade para os motivivos sem status
  */
+
 namespace BuscaAtivaEscolar\Console\Commands;
 
 use Illuminate\Console\Command;
+use Log;
 
 class AddPriorityTenantNewMotive extends Command
 {
@@ -20,16 +22,26 @@ class AddPriorityTenantNewMotive extends Command
      *
      * @var string
      */
+
     protected $description = 'Put value hight for tenants config';
 
     /**
      * @var array
      */
+
     private $alerts;
+
     /**
      * @var int
      */
+
     private $count = 0;
+
+    /**
+     * @var array
+     */
+
+    private $log = [];
 
 
     /**
@@ -82,7 +94,8 @@ class AddPriorityTenantNewMotive extends Command
                 }
             }
         }
-        $this->comment($this->count, ' linhas atualizadas');
+        $this->comment($this->count . ' linhas atualizadas');
+        Log::info('Log Tenant:', $this->log);
     }
 
     private function checkMotiveExist($alertsBase)
@@ -100,8 +113,13 @@ class AddPriorityTenantNewMotive extends Command
         $sql = "UPDATE tenants SET settings = '$serializeValues' WHERE id = '$id'";
         $update = \DB::update($sql);
         if ($update) {
-            $this->comment($id .' atualizado');
+            $this->comment($id . ' atualizado');
             $this->count++;
+            $logId = $id;
+            array_push($this->log, $logId);
+        } else {
+            $logId = 'fail' . $id;
+            array_push($this->log, $logId);
         }
     }
 }
