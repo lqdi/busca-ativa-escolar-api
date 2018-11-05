@@ -30,6 +30,8 @@ class Kernel extends ConsoleKernel
         Commands\GenerateSchoolsJSON::class,
         Commands\GenerateStaticDataSQL::class,
         Commands\ManualEducacensoImport::class,
+        Commands\AddAndCheckGroupIntoNewCase::class,
+        Commands\AddPriorityTenantNewMotive::class,
     ];
 
     /**
