@@ -211,12 +211,12 @@ class Tenant extends Model  {
 			'Gestor Político - Nome' => $this->politicalAdmin->name ?? null,
 			'Gestor Político - Email' => $this->politicalAdmin->email ?? null,
 			'Gestor Político - Telefone' => $this->politicalAdmin ? $this->politicalAdmin->getContactPhone() : null,
-			'Está ativo?' => $this->is_active,
+			'Está ativo?' => $this->last_active_at->diffInDays(Carbon::now()) >= 30 ? 'Inativo' : 'Ativo',
 			'Está configurado?' => $this->is_setup,
 			'Data exclusão' => $this->deleted_at ?? null,
-			'Data última atividade' => $this->last_active_at ? $this->last_active_at->format('Y-m-d H:i:s') : null,
-			'Data cadastro' => $this->registered_at ? $this->registered_at->format('Y-m-d H:i:s') : null,
-			'Data ativação' => $this->activated_at ? $this->activated_at->format('Y-m-d H:i:s') : null,
+			'Data última atividade' => $this->last_active_at ? $this->last_active_at->format('d/m/Y') : null,
+			'Data cadastro' => $this->registered_at ? $this->registered_at->format('d/m/Y') : null,
+			'Data ativação' => $this->activated_at ? $this->activated_at->format('d/m/Y') : null,
 		];
 	}
 
