@@ -35,7 +35,7 @@ class TenantSignupApproved extends Mailable {
 			->subject("Sua adesão foi aprovada!")
 			->greeting('Olá!')
 			->line("A adesão de {$this->signup->city->name} à Busca Ativa Escolar foi aprovada.")
-			->line('Clique no botão abaixo para configurar a plataforma de seu município.')
+			->line('Clique no botão abaixo para configurar a plataforma.')
 			->success()
 			->action('Configurar', $setupURL);
 
