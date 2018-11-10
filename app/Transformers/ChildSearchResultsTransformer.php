@@ -65,6 +65,8 @@ class ChildSearchResultsTransformer extends TransformerAbstract {
 			'deadline_status' => $document['_source']['deadline_status'] ?? null,
 			'alert_status' => $document['_source']['alert_status'] ?? null,
 
+            'cancel_reason' => $document['_source']['cancel_reason'] ?? null,
+
 			'created_at' => isset($document['_source']['created_at']) ? Carbon::createFromTimestamp(strtotime($document['_source']['created_at']))->toIso8601String() : null,
 			'updated_at' => isset($document['_source']['updated_at']) ? Carbon::createFromTimestamp(strtotime($document['_source']['updated_at']))->toIso8601String() : null,
 

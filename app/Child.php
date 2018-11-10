@@ -451,6 +451,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 		if($this->currentCase) {
 			$data['case_status'] = $this->currentCase->case_status;
+            $data['cancel_reason'] = $this->currentCase->cancel_reason;
 
 			if($this->currentCase->case_cause_ids) { // TODO: refactor this
 				$data['cause_name'] = join(", ", array_map(function ($cause_id) {
