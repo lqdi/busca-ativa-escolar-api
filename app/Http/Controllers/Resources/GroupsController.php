@@ -57,10 +57,19 @@ class GroupsController extends BaseController {
 
 	public function update_settings(Group $group) {
 		$settings = $group->getSettings();
+
+		if( strtolower($group->name) == "secretaria municipal de educação" || strtolower($group->name) == "secretaria de educação" ){
+            $request = request('settings', []);
+            foreach ($request['alerts'] as $key => $alert){
+                if($key !== 500 AND $alert !== true){
+                    return response()->json(['status' => 'error', 'message' => 'O grupo Secretaria Municipal de Educação, obrigatoriamente, deve estar selecionado para todos os motivos de evasão escolar.' ], 405);
+                }
+            }
+		}
+
 		$settings->update( request('settings', []) );
 		$group->setSettings($settings);
-
-		return response()->json(['status' => 'ok']);
+        return response()->json(['status' => 'ok']);
 	}
 
 	public function update(Group $group) {
