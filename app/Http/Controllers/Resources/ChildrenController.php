@@ -24,6 +24,7 @@ use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
+use BuscaAtivaEscolar\Search\ElasticSearchSort;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Tenant;
@@ -39,319 +40,348 @@ use BuscaAtivaEscolar\User;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
-class ChildrenController extends BaseController  {
+class ChildrenController extends BaseController
+{
+
+    protected function prepareSearchQuery(): ElasticSearchQuery
+    {
+        $params = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
+
+        // Scope the query within the tenant
+        if (Auth::user()->isRestrictedToTenant()) {
+            $params['tenant_id'] = Auth::user()->tenant_id;
+        }
 
-	protected function prepareSearchQuery() : ElasticSearchQuery {
-		$params = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
+        // Scope the query to state agents
+        if (Auth::user()->isRestrictedToUF()) {
+            $params['assigned_uf'] = Auth::user()->uf;
+        }
 
-		// Scope the query within the tenant
-		if(Auth::user()->isRestrictedToTenant()) {
-			$params['tenant_id'] = Auth::user()->tenant_id;
-		}
+        if (isset($params['uf'])) $params['uf'] = Str::lower($params['uf']);
+        if (isset($params['assigned_uf'])) $params['assigned_uf'] = Str::lower($params['assigned_uf']);
+
+        $query = ElasticSearchQuery::withParameters($params)
+            ->filterByTerm('tenant_id', false)
+            ->filterByTerm('uf', false)
+            ->filterByTerm('assigned_uf', false)
+            ->addTextFields(['name', 'cause_name', 'step_name', 'assigned_user_name'], 'match')
+            ->searchTextInColumns(
+                'location_full',
+                ['place_address^3', 'place_cep^2', 'place_city^2', 'place_uf', 'place_neighborhood', 'place_reference']
+            )
+            ->filterByTerms('alert_status', false)
+            ->filterByTerms('case_status', false)
+            ->filterByTerms('risk_level', $params['risk_level_null'] ?? false)
+            //->filterByTerms('case_cause_ids', false)
+            //->filterByTerm('assigned_user_id', $params['assigned_user_id_null'] ?? false)
+            ->filterByTerm('current_step_type', false)
+            ->filterByTerm('step_slug', false)
+            ->filterByTerms('gender', $params['gender_null'] ?? false)
+            ->filterByTerms('place_kind', $params['place_kind_null'] ?? false)
+            ->filterByRange('age', $params['age_null'] ?? false);
 
-		// Scope the query to state agents
-		if(Auth::user()->isRestrictedToUF()) {
-			$params['assigned_uf'] = Auth::user()->uf;
-		}
 
-		if(isset($params['uf'])) $params['uf'] = Str::lower($params['uf']);
-		if(isset($params['assigned_uf'])) $params['assigned_uf'] = Str::lower($params['assigned_uf']);
+        // Scope query within user, when relevant
+        if (Auth::user()->type === User::TYPE_TECNICO_VERIFICADOR) {
+            $query->filterByOneOf(['assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id]]);
+        }
 
-		$query = ElasticSearchQuery::withParameters($params)
-			->filterByTerm('tenant_id', false)
-			->filterByTerm('uf', false)
-			->filterByTerm('assigned_uf', false)
-			->addTextFields(['name', 'cause_name', 'step_name', 'assigned_user_name'], 'match')
-			->searchTextInColumns(
-				'location_full',
-				['place_address^3', 'place_cep^2', 'place_city^2', 'place_uf', 'place_neighborhood', 'place_reference']
-			)
-			->filterByTerms('alert_status', false)
-			->filterByTerms('case_status', false)
-			->filterByTerms('risk_level', $params['risk_level_null'] ?? false)
-			//->filterByTerms('case_cause_ids', false)
-			//->filterByTerm('assigned_user_id', $params['assigned_user_id_null'] ?? false)
-			->filterByTerm('current_step_type', false)
-			->filterByTerm('step_slug', false)
-			->filterByTerms('gender',$params['gender_null'] ?? false)
-			->filterByTerms('place_kind',$params['place_kind_null'] ?? false)
-			->filterByRange('age',$params['age_null'] ?? false);
+        // Scope query within group responsabilities (via parameterized case cause ids)
+        if (Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
+            $group = Auth::user()->group;
+            /* @var $group Group */
+            $tenant = Auth::user()->tenant;
 
+            if (!$group) $group = $tenant->primaryGroup;
+            if (!$group) $group = new Group();
 
-		// Scope query within user, when relevant
-		if(Auth::user()->type === User::TYPE_TECNICO_VERIFICADOR) {
-			$query->filterByOneOf(['assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id]]);
-		}
+            $filters = [
+                'assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id],
+                'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
+                //'alert_cause_id' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledAlertCauses()],
+            ];
 
-		// Scope query within group responsabilities (via parameterized case cause ids)
-		if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
-			$group = Auth::user()->group; /* @var $group Group */
-			$tenant = Auth::user()->tenant;
 
-			if(!$group) $group = $tenant->primaryGroup;
-			if(!$group) $group = new Group();
+            if ($group->id === $tenant->primaryGroup->id) {
+                $filters['current_step_type'] = ['type' => 'term', 'search' => 'BuscaAtivaEscolar\\CaseSteps\\Rematricula'];
+            }
 
-			$filters = [
-				'assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id],
-				'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
-				//'alert_cause_id' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledAlertCauses()],
-			];
+            $query->filterByOneOf($filters);
 
+        }
 
-			if($group->id === $tenant->primaryGroup->id) {
-				$filters['current_step_type'] = ['type' => 'term', 'search' => 'BuscaAtivaEscolar\\CaseSteps\\Rematricula'];
-			}
+        return $query;
+    }
 
-			$query->filterByOneOf($filters);
+    protected function prepareSearchSort(): ElasticSearchSort
+    {
+        $params = request()->all();
 
-		}
+        $sort = ElasticSearchSort::withParameters()
+            ->addSort($params['sort']);
+        return $sort;
+    }
 
-		return $query;
-	}
+    public function search(Search $search)
+    {
 
-	public function search(Search $search) {
+        $query = $this->prepareSearchQuery();
 
-		$query = $this->prepareSearchQuery();
+        $sort = $this->prepareSearchSort();
 
-		$attempted = $query->getAttemptedQuery();
-		$query = $query->getQuery();
+        $attempted = $query->getAttemptedQuery();
+        $query = $query->getQuery();
 
-		$results = $search->search(new Child(), $query, 128);
+        $results = $search->search(new Child(), $query, $sort->sort, 128);
 
-		return fractal()
-			->item($results)
-			->transformWith(new SearchResultsTransformer(new ChildSearchResultsTransformer(), $query, $attempted))
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond();
+        return fractal()
+            ->item($results)
+            ->transformWith(new SearchResultsTransformer(new ChildSearchResultsTransformer(), $query, $attempted))
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
 
-	}
+    }
 
-	public function export(Search $search) {
+    public function export(Search $search)
+    {
 
-		$query = $this->prepareSearchQuery();
+        $query = $this->prepareSearchQuery();
 
-		$attempted = $query->getAttemptedQuery();
-		$query = $query->getQuery();
+        $attempted = $query->getAttemptedQuery();
+        $query = $query->getQuery();
 
-		$results = $search->search(new Child(), $query, 128);
+        $results = $search->search(new Child(), $query, 128);
 
-		$data = fractal()
-			->item($results)
-			->transformWith(new SearchResultsTransformer(new ChildExportResultsTransformer(), $query, $attempted))
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->toArray();
-
-		$tenantID = auth()->user()->tenant_id ?? 'global';
-
-		$exportFile = uniqid("export_", true);
-		$exportFolder = storage_path('app/export/' . $tenantID);
-
-		$exported = \Excel::create($exportFile, function($excel) use ($data) {
-
-			$excel->sheet('export', function($sheet) use ($data) {
-				$sheet->fromArray($data['results']);
-			});
-
-		})->store('xls', $exportFolder, true);
+        $data = fractal()
+            ->item($results)
+            ->transformWith(new SearchResultsTransformer(new ChildExportResultsTransformer(), $query, $attempted))
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->toArray();
 
-		$token = \JWTAuth::fromUser(auth()->user());
-
-		return $this->api_success([
-			'export_file' => $exported['file'],
-			'download_url' => route('api.children.download_exported', ['filename' => $exported['file'], 'token' => $token])
-		]);
-
-	}
-
-	public function download_exported($filename) {
-
-		$tenantID = auth()->user()->tenant_id ?? 'global';
-		$token = request('token');
+        $tenantID = auth()->user()->tenant_id ?? 'global';
+
+        $exportFile = uniqid("export_", true);
+        $exportFolder = storage_path('app/export/' . $tenantID);
 
-		\JWTAuth::invalidate($token);
+        $exported = \Excel::create($exportFile, function ($excel) use ($data) {
+
+            $excel->sheet('export', function ($sheet) use ($data) {
+                $sheet->fromArray($data['results']);
+            });
+
+        })->store('xls', $exportFolder, true);
+
+        $token = \JWTAuth::fromUser(auth()->user());
+
+        return $this->api_success([
+            'export_file' => $exported['file'],
+            'download_url' => route('api.children.download_exported', ['filename' => $exported['file'], 'token' => $token])
+        ]);
+
+    }
+
+    public function download_exported($filename)
+    {
+
+        $tenantID = auth()->user()->tenant_id ?? 'global';
+        $token = request('token');
+
+        \JWTAuth::invalidate($token);
+
+        return response()->download(storage_path('app/export/' . $tenantID . '/' . basename($filename)));
+
+    }
+
+    protected function filterAsciiFields($input, $fields)
+    {
+        $output = [];
+
+        foreach ($input as $key => $value) {
+            if (in_array($key, $fields)) $value = Str::ascii($value);
+            $output[$key] = $value;
+        }
+
+        return $output;
+    }
+
+    protected function list()
+    {
+        $paginator = Child::with('cases')->paginate(64);
+        $collection = $paginator->getCollection();
+
+        return fractal()
+            ->collection($collection)
+            ->transformWith(new ChildTransformer)
+            ->paginateWith(new IlluminatePaginatorAdapter($paginator))
+            ->excludeCases()
+            ->respond();
+    }
 
-		return response()->download(storage_path('app/export/' . $tenantID . '/' . basename($filename)));
-
-	}
+    public function show(Child $child)
+    {
+
+        return fractal()
+            ->item($child)
+            ->transformWith(new ChildTransformer)
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
+    }
 
-	protected function filterAsciiFields($input, $fields) {
-		$output = [];
+    public function getAlert(Child $child)
+    {
+        $alert = $child->alert;
 
-		foreach($input as $key => $value) {
-			if(in_array($key, $fields)) $value = Str::ascii($value);
-			$output[$key] = $value;
-		}
+        return fractal()
+            ->item($alert)
+            ->transformWith(new StepTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(['fields', 'case'])
+            ->respond();
+    }
 
-		return $output;
-	}
+    public function comments(Child $child)
+    {
+        return fractal()
+            ->collection($child->comments)
+            ->transformWith(new CommentTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
+    }
 
-	protected function list() {
-		$paginator = Child::with('cases')->paginate(64);
-		$collection = $paginator->getCollection();
+    public function attachments(Child $child)
+    {
+        return fractal()
+            ->collection($child->attachments)
+            ->transformWith(new AttachmentTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
+    }
 
-		return fractal()
-			->collection($collection)
-			->transformWith(new ChildTransformer)
-			->paginateWith(new IlluminatePaginatorAdapter($paginator))
-			->excludeCases()
-			->respond();
-	}
+    public function activityLog(Child $child)
+    {
+        return fractal()
+            ->collection(ActivityLog::fetchEntries($child, 64, true))
+            ->transformWith(new LogEntryTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
+    }
 
-	public function show(Child $child) {
+    public function addComment(Child $child)
+    {
+        try {
 
-		return fractal()
-			->item($child)
-			->transformWith(new ChildTransformer)
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond();
-	}
+            $message = request('message', '');
+            $comment = Comment::post($child, Auth::user(), $message);
 
-	public function getAlert(Child $child) {
-		$alert = $child->alert;
+            return response()->json(['status' => 'ok', 'comment_id' => $comment->id]);
 
-		return fractal()
-			->item($alert)
-			->transformWith(new StepTransformer())
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(['fields', 'case'])
-			->respond();
-	}
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+    }
 
-	public function comments(Child $child) {
-		return fractal()
-			->collection($child->comments)
-			->transformWith(new CommentTransformer())
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond();
-	}
+    public function removeAttachment(Child $child, Attachment $attachment)
+    {
+        try {
 
-	public function attachments(Child $child) {
-		return fractal()
-			->collection($child->attachments)
-			->transformWith(new AttachmentTransformer())
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond();
-	}
+            if ($attachment->content_id !== $child->id) {
+                return $this->api_failure('not_allowed');
+            }
 
-	public function activityLog(Child $child) {
-		return fractal()
-			->collection(ActivityLog::fetchEntries($child, 64, true))
-			->transformWith(new LogEntryTransformer())
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond();
-	}
+            $attachment->delete();
 
-	public function addComment(Child $child) {
-		try {
+            return $this->api_success();
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+    }
 
-			$message = request('message', '');
-			$comment = Comment::post($child, Auth::user(), $message);
+    public function addAttachment(Child $child)
+    {
+        try {
 
-			return response()->json(['status' => 'ok', 'comment_id' => $comment->id]);
+            $file = request()->file('file');
 
-		} catch (\Exception $ex) {
-			return $this->api_exception($ex);
-		}
-	}
+            if (!$file || !$file->isValid()) {
+                return $this->api_failure('file_not_uploaded', ['file' => $file]);
+            }
 
-	public function removeAttachment(Child $child, Attachment $attachment) {
-		try {
+            $description = request('description', '');
+            $attachment = Attachment::createFromUpload($file, $child, Auth::user(), $description);
 
-			if($attachment->content_id !== $child->id) {
-				return $this->api_failure('not_allowed');
-			}
+            return response()->json(['status' => 'ok', 'attachment_id' => $attachment->id]);
 
-			$attachment->delete();
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+    }
 
-			return $this->api_success();
-		} catch (\Exception $ex) {
-			return $this->api_exception($ex);
-		}
-	}
+    public function store()
+    {
 
-	public function addAttachment(Child $child) {
-		try {
+        try {
+            $user = Auth::user();
+            $tenant = $user->isRestrictedToTenant() ? $user->tenant : Tenant::findOrFail(request('tenant_id'));
 
-			$file = request()->file('file');
+            $data = request()->toArray();
+            $validation = (new Alerta())->validate($data);
 
-			if(!$file || !$file->isValid()) {
-				return $this->api_failure('file_not_uploaded', ['file' => $file]);
-			}
+            if ($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
 
-			$description = request('description', '');
-			$attachment = Attachment::createFromUpload($file, $child, Auth::user(), $description);
+            $child = Child::spawnFromAlertData($tenant, $user->id, $data);
 
-			return response()->json(['status' => 'ok', 'attachment_id' => $attachment->id]);
+            return response()->json([
+                'status' => 'ok',
+                'tenant_id' => $tenant->id,
+                'child_id' => $child->id,
+            ]);
 
-		} catch (\Exception $ex) {
-			return $this->api_exception($ex);
-		}
-	}
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
 
-	public function store() {
+    }
 
-		try {
-			$user = Auth::user();
-			$tenant = $user->isRestrictedToTenant() ? $user->tenant : Tenant::findOrFail(request('tenant_id'));
+    public function getMap()
+    {
 
-			$data = request()->toArray();
-			$validation = (new Alerta())->validate($data);
+        $mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
 
-			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);
+        if ($this->currentUser()->isRestrictedToTenant() && !$this->currentUser()->isRestrictedToUF()) {
+            $mapCenter = $this->currentUser()->tenant->getMapCoordinates();
+        }
 
-			$child = Child::spawnFromAlertData($tenant, $user->id, $data);
+        if ($this->currentUser()->isRestrictedToUF()) {
+            $mapCenter = UF::getByCode($this->currentUser()->uf)->getCoordinates();
+            $mapCenter['zoom'] = 6;
+        }
 
-			return response()->json([
-				'status' => 'ok',
-				'tenant_id' => $tenant->id,
-				'child_id' => $child->id,
-			]);
+        // TODO: cache this (w/ tenant ID)
 
-		} catch (\Exception $ex) {
-			return $this->api_exception($ex);
-		}
+        $coordinates = Child::query()
+            ->whereIn('child_status', ['out_of_school', 'in_observation'])
+            ->whereNotNull('lat')
+            ->whereNotNull('lng')
+            ->get(['id', 'lat', 'lng'])
+            ->map(function ($child) {
+                return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
+            });
 
-	}
+        return response()->json([
+            'center' => [
+                'latitude' => $mapCenter['lat'],
+                'longitude' => $mapCenter['lng'],
+                'zoom' => $mapCenter['zoom'],
+            ],
+            'coordinates' => $coordinates
+        ]);
 
-	public function getMap() {
-
-		$mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
-
-		if($this->currentUser()->isRestrictedToTenant() && !$this->currentUser()->isRestrictedToUF()) {
-			$mapCenter =  $this->currentUser()->tenant->getMapCoordinates();
-		}
-
-		if($this->currentUser()->isRestrictedToUF()) {
-			$mapCenter = UF::getByCode($this->currentUser()->uf)->getCoordinates();
-			$mapCenter['zoom'] = 6;
-		}
-
-		// TODO: cache this (w/ tenant ID)
-
-		$coordinates = Child::query()
-			->whereIn('child_status', ['out_of_school', 'in_observation'])
-			->whereNotNull('lat')
-			->whereNotNull('lng')
-			->get(['id', 'lat', 'lng'])
-			->map(function ($child) {
-				return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
-			});
-
-		return response()->json([
-			'center' => [
-				'latitude' => $mapCenter['lat'],
-				'longitude' => $mapCenter['lng'],
-				'zoom' => $mapCenter['zoom'],
-			],
-			'coordinates' => $coordinates
-		]);
-
-	}
+    }
 
 }

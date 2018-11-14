@@ -27,12 +27,12 @@ class Search {
 		$this->client = $client;
 	}
 
-	public function search(Searchable $searchable, array $query, $maxResults = null) {
+	public function search(Searchable $searchable, array $query, array $sort, $maxResults = null) {
 		return $this->rawSearch([
 			'index' => $searchable->getSearchIndex(),
 			'type' => $searchable->getSearchType(),
 			'size' => $maxResults,
-			'body' => ['query' => $query],
+			'body' => ['query' => $query, 'sort' => $sort],
 		]);
 	}
 
