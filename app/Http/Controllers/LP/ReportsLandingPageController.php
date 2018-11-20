@@ -103,6 +103,8 @@ class ReportsLandingPageController extends BaseController
                 ->where(function ($query){
                     $query->where('case_status', '=', ChildCase::STATUS_IN_PROGRESS)
                         ->orWhere('case_status', '=', ChildCase::STATUS_COMPLETED);
+                })->whereHas('child', function ($query){
+                        $query->where('alert_status', '=', 'accepted');
                 })->whereHas('tenant', function ($query) use ($uf){
                     $query->where('uf', '=', $uf);
                 })
@@ -139,12 +141,14 @@ class ReportsLandingPageController extends BaseController
                 'cases' => [
                     '_enrollment' => Child::query()
                         ->whereIn('child_status', [Child::STATUS_IN_SCHOOL])
+                        ->accepted()
                         ->whereHas('tenant', function ($query) use ($uf){
                             $query->where('uf', '=', $uf);
                         })
                         ->count(),
                     '_in_progress' => Child::query()
                         ->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
+                        ->accepted()
                         ->whereHas('tenant', function ($query) use ($uf){
                             $query->where('uf', '=', $uf);
                         })
@@ -178,6 +182,8 @@ class ReportsLandingPageController extends BaseController
                     ->where(function ($query){
                         $query->where('case_status', '=', ChildCase::STATUS_IN_PROGRESS)
                             ->orWhere('case_status', '=', ChildCase::STATUS_COMPLETED);
+                    })->whereHas('child', function ($query){
+                        $query->where('alert_status', '=', 'accepted');
                     })->whereHas('tenant', function ($query) use ($city){
                         $query->where('name', '=', $city);
                     })
@@ -228,12 +234,14 @@ class ReportsLandingPageController extends BaseController
                 'cases' => [
                     '_enrollment' => Child::query()
                         ->whereIn('child_status', [Child::STATUS_IN_SCHOOL])
+                        ->accepted()
                         ->whereHas('tenant', function ($query) use ($city){
                             $query->where('name', '=', $city);
                         })
                         ->count(),
                     '_in_progress' => Child::query()
                         ->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
+                        ->accepted()
                         ->whereHas('tenant', function ($query) use ($city){
                             $query->where('name', '=', $city);
                         })
