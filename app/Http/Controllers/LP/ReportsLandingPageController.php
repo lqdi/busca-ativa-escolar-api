@@ -30,6 +30,8 @@ class ReportsLandingPageController extends BaseController
 
                 $qtd = ChildCase::where(function ($query) use ($cause){
                     $query->where('alert_cause_id', '=', "{$cause->id}");
+                })->where(function ($query){
+                    $query->where('alert_status', '=', 'accepted');
                 })
                 ->where(function ($query){
                     $query->where('case_status', '=', ChildCase::STATUS_IN_PROGRESS)
