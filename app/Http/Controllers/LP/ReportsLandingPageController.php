@@ -66,9 +66,11 @@ class ReportsLandingPageController extends BaseController
                 'cases' => [
                     '_enrollment' => Child::query()
                         ->whereIn('child_status', [Child::STATUS_IN_SCHOOL])
+                        ->accepted()
                         ->count(),
                     '_in_progress' => Child::query()
                         ->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
+                        ->accepted()
                         ->count(),
                 ],
 
