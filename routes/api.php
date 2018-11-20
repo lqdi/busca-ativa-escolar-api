@@ -167,4 +167,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@on_message_received');
 	Route::get('/integration/forms/{form}', 'Integration\FormBuilderController@render_form');
 
+	//Open data to landing page
+    Route::get('/lp/report', 'LP\ReportsLandingPageController@report_country');
+    Route::get('/lp/report/uf', 'LP\ReportsLandingPageController@report_uf');
+    Route::get('/lp/report/city', 'LP\ReportsLandingPageController@report_city');
+    Route::get('/lp/report/list/cities', 'LP\ReportsLandingPageController@list_cities');
+
 });
