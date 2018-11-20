@@ -70,10 +70,10 @@ class ReportsLandingPageController extends BaseController
                         ->whereIn('child_status', [Child::STATUS_IN_SCHOOL])
                         ->accepted()
                         ->count(),
-                    '_in_progress' => Child::query()
-                        ->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
-                        ->accepted()
-                        ->count(),
+                    '_in_progress' => ChildCase::whereHas('child', function ($query) {
+                        $query->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
+                            ->where('alert_status', '=', 'accepted');
+                    })->where('case_status', '=', 'in_progress')->count()
                 ],
 
                 'causes' => $causes
@@ -146,13 +146,13 @@ class ReportsLandingPageController extends BaseController
                             $query->where('uf', '=', $uf);
                         })
                         ->count(),
-                    '_in_progress' => Child::query()
-                        ->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
-                        ->accepted()
-                        ->whereHas('tenant', function ($query) use ($uf){
+
+                    '_in_progress' => ChildCase::whereHas('child', function ($query) {
+                            $query->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
+                                ->where('alert_status', '=', 'accepted');
+                        })->where('case_status', '=', 'in_progress')->whereHas('tenant', function ($query) use ($uf){
                             $query->where('uf', '=', $uf);
-                        })
-                        ->count(),
+                        })->count()
                 ],
 
                 'causes' => $causes
@@ -239,13 +239,13 @@ class ReportsLandingPageController extends BaseController
                             $query->where('name', '=', $city);
                         })
                         ->count(),
-                    '_in_progress' => Child::query()
-                        ->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
-                        ->accepted()
-                        ->whereHas('tenant', function ($query) use ($city){
+
+                    '_in_progress' => ChildCase::whereHas('child', function ($query) {
+                        $query->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
+                            ->where('alert_status', '=', 'accepted');
+                        })->where('case_status', '=', 'in_progress')->whereHas('tenant', function ($query) use ($city){
                             $query->where('name', '=', $city);
-                        })
-                        ->count(),
+                        })->count()
                 ],
 
                 'causes' => $causes,
