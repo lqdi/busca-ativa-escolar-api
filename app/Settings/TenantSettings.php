@@ -27,6 +27,7 @@ class TenantSettings extends SerializableObject {
 		40 =>  'high', // Criança ou adolescente em abrigo
 		50 =>  'high', // Criança ou adolescente em situação de rua
 		60 =>  'high', // Criança ou adolescente vítima de abuso / violência sexual
+		61 =>  'high', // Crianças ou adolescentes migrantes estrangeiros
 		70 =>  'low', // Evasão porque sente a escola desinteressante
 		80 =>  'low', // Falta de documentação da criança ou adolescente
 		90 =>  'medium', // Falta de infraestrutura escolar
