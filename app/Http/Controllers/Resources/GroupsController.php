@@ -39,6 +39,25 @@ class GroupsController extends BaseController {
 
 	}
 
+	public function findByTenant(){
+
+        $tenant_id = request('tenant_id');
+
+	    $query = Group::whereHas('tenant', function($query) use ($tenant_id){
+	        $query->where('id', '=', $tenant_id);
+        });
+
+        $groups = $query->orderBy('created_at', 'ASC')->get();
+
+        return fractal()
+            ->collection($groups)
+            ->transformWith(new GroupTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
+
+    }
+
 	public function store() {
 	    $isUF = Auth::user()->isRestrictedToUF();
 
