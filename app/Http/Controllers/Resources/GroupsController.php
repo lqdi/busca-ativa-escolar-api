@@ -58,6 +58,23 @@ class GroupsController extends BaseController {
 
     }
 
+    public function findByUf(){
+
+        $uf = request('uf');
+
+        $query = Group::where('uf', '=', $uf);
+
+        $groups = $query->orderBy('created_at', 'ASC')->get();
+
+        return fractal()
+            ->collection($groups)
+            ->transformWith(new GroupTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
+
+    }
+
 	public function store() {
 	    $isUF = Auth::user()->isRestrictedToUF();
 
