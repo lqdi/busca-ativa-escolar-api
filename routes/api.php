@@ -104,6 +104,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Tenants (authenticated)
 		Route::any('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.view');
+        Route::get('/tenants/uf', 'Tenants\TenantsController@getByUf')->middleware('can:tenants.view');
 		Route::get('/tenants/export', 'Tenants\TenantsController@export')->middleware('can:tenants.export');
 		Route::post('/tenants/{tenant}/cancel', 'Tenants\TenantsController@cancel')->middleware('can:tenants.manage');
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
