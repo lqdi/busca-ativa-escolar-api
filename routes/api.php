@@ -51,6 +51,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
         // User Groups
         Route::get('/groups', 'Resources\GroupsController@index');
+        Route::post('/groups/tenant', 'Resources\GroupsController@findByTenant');
+        Route::post('/groups/uf', 'Resources\GroupsController@findByUf');
         Route::post('/groups', 'Resources\GroupsController@store')->middleware('can:groups.manage');
         Route::get('/groups/{group}', 'Resources\GroupsController@show')->middleware('can:groups.manage');
         Route::put('/groups/{group}/settings', 'Resources\GroupsController@update_settings')->middleware('can:groups.manage');
@@ -104,6 +106,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Tenants (authenticated)
 		Route::any('/tenants/all', 'Tenants\TenantsController@all')->middleware('can:tenants.view');
+        Route::get('/tenants/uf', 'Tenants\TenantsController@getByUf')->middleware('can:tenants.view');
 		Route::get('/tenants/export', 'Tenants\TenantsController@export')->middleware('can:tenants.export');
 		Route::post('/tenants/{tenant}/cancel', 'Tenants\TenantsController@cancel')->middleware('can:tenants.manage');
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
@@ -166,5 +169,11 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::post('/integration/lp/alert_spawn', 'Integration\AlertSpawnController@spawn_alert');
 	Route::any('/integration/sms/on_receive', 'Integration\SmsConversationController@on_message_received');
 	Route::get('/integration/forms/{form}', 'Integration\FormBuilderController@render_form');
+
+	//Open data to landing page
+    Route::get('/lp/report', 'LP\ReportsLandingPageController@report_country');
+    Route::get('/lp/report/uf', 'LP\ReportsLandingPageController@report_uf');
+    Route::get('/lp/report/city', 'LP\ReportsLandingPageController@report_city');
+    Route::get('/lp/report/list/cities', 'LP\ReportsLandingPageController@list_cities');
 
 });
