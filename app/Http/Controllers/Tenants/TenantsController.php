@@ -43,6 +43,21 @@ class TenantsController extends BaseController  {
 			->respond();
 	}
 
+    public function getByUf() {
+	    $uf = request('uf');
+        $tenants = Tenant::query()
+            ->where('uf', '=', $uf)
+            ->orderBy('name', 'ASC')
+            ->get();
+
+        return fractal()
+            ->collection($tenants)
+            ->transformWith(new TenantTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes('city')
+            ->respond();
+    }
+
 	public function all() {
 
 		$max = intval(request('max', null));
