@@ -49,6 +49,7 @@ class ChildSearchResultsTransformer extends TransformerAbstract {
 
 			'assigned_user_id' => $document['_source']['assigned_user_id'] ?? null,
 			'assigned_user_name' => $document['_source']['assigned_user_name'] ?? null,
+			'assigned_group_name' => $document['_source']['assigned_group_name'] ?? null,
 
 			'current_case_id' => $document['_source']['current_case_id'] ?? null,
 

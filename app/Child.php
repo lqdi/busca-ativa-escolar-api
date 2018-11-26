@@ -440,6 +440,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 			$data['assigned_user_name'] = $assignedUser->name ?? null;
 			$data['assigned_uf'] = $assignedUser->uf ?? null;
+			$data['assigned_group_name'] = $assignedUser->group->name ?? null;
 
 			$data['step_name'] = $this->currentStep->getName() ?? null;
 			$data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
