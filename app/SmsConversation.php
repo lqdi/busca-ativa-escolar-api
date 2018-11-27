@@ -187,7 +187,7 @@ class SmsConversation extends Model {
 			case self::STEP_IDENTIFY:
 
 				$email = strtolower(str_replace(' ', '', $message));
-				$user = User::whereEmail($email)->first();
+				$user = User::where('email', '=', $email )->first();
 
 				if(!$user) {
 					$this->queueReply("O email informado nao esta cadastrado. Verifique se digitou corretamente e tente novamente.");
