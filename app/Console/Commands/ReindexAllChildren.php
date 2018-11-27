@@ -16,24 +16,25 @@ namespace BuscaAtivaEscolar\Console\Commands;
 
 use BuscaAtivaEscolar\Child;
 
-class ReindexAllChildren extends Command {
+class ReindexAllChildren extends Command
+{
+    protected $signature = 'maintenance:reindex_all_children';
+    protected $description = 'Forces all children in the system to be reindex in ElasticSearch';
 
-	protected $signature = 'maintenance:reindex_all_children';
-	protected $description = 'Forces all children in the system to be reindex in ElasticSearch';
+    public function handle()
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', '2G');
 
-	public function handle() {
-		set_time_limit(0);
-		ini_set('memory_limit', '2G');
+        Child::with('tenant')->chunk(500, function ($children) {
+            foreach ($children as $child) {
+                $this->comment("Reindexing: " . ($child->tenant->name ?? '## NO TENANT! ##') . " / {$child->id} -> {$child->name}");
+                $child->save();
+            }
+            $this->comment("chunk");
+        });
 
-		$children = Child::with('tenant')->get();
-
-		foreach($children as $child) {
-			$this->comment("Reindexing: " . ($child->tenant->name ?? '## NO TENANT! ##') . " / {$child->id} -> {$child->name}");
-			$child->save();
-		}
-
-		$this->comment("All children reindexed!");
-
-	}
+        $this->comment("All children reindexed!");
+    }
 
 }
