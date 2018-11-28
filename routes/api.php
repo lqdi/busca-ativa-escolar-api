@@ -112,6 +112,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
 
 		Route::any('/states/all', 'Resources\StatesController@all')->middleware('can:ufs.view');
+        Route::get('/states/export', 'Resources\StatesController@export');
+
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');

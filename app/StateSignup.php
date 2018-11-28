@@ -218,4 +218,35 @@ class StateSignup extends Model {
 	}
 
 
+    /**
+     * Generates an array to export as XLS
+     * @return array
+     */
+    public function toExportArray() {
+        return [
+            'UF' => $this->uf,
+            'Data de adesão' => $this->created_at ? $this->created_at->format('d/m/Y') : null,
+            'Data exclusão' => $this->deleted_at ?? null,
+
+            'Gestor estadual' => $this->data['admin']['name'] ?? null,
+
+            'Gestor estadual - CPF' => $this->data['admin']['cpf'] ?? null,
+            'Gestor estadual - Data de nascimento' => $this->data['admin']['dob'] ?? null,
+            'Gestor estadual - Email' => $this->data['admin']['email'] ?? null,
+            'Gestor estadual - Telefone' => $this->data['admin']['phone'] ?? null,
+            'Gestor estadual -Posição' => $this->data['admin']['position'] ?? null,
+            'Gestor estadual -Instituição' => $this->data['admin']['institution'] ?? null,
+
+            'Coordenador estadual' => $this->data['coordinator']['name'] ?? null,
+
+            'Coordenador estadual - CPF' => $this->data['coordinator']['cpf'] ?? null,
+            'Coordenador estadual - Data de nascimento' => $this->data['coordinator']['dob'] ?? null,
+            'Coordenador estadual - Email' => $this->data['coordinator']['email'] ?? null,
+            'Coordenador estadual - Telefone' => $this->data['coordinator']['phone'] ?? null,
+            'Coordenador estadual -Posição' => $this->data['coordinator']['position'] ?? null,
+            'Coordenador estadual -Instituição' => $this->data['coordinator']['institution'] ?? null,
+    ];
+}
+
+
 }
