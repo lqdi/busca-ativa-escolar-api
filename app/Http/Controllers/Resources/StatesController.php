@@ -18,7 +18,9 @@ use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\StateSignup;
 use BuscaAtivaEscolar\Transformers\StateTransformer;
+use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
+use Excel;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
 class StatesController extends BaseController {
@@ -87,5 +89,31 @@ class StatesController extends BaseController {
 
 		return $results->respond();
 	}
+
+    public function export() {
+        $query = StateSignup::query()
+            ->withTrashed()
+            ->orderBy('uf', 'ASC');
+
+        $states = $query
+            ->get()
+            ->map(function ($state) { /* @var $state StateSignup */
+                return $state->toExportArray();
+            })
+            ->toArray();
+
+        Excel::create('buscaativaescolar_states', function($excel) use ($states) {
+
+            $excel->sheet('states', function($sheet) use ($states) {
+
+                $sheet->setOrientation('landscape');
+                $sheet->fromArray($states);
+
+            });
+
+        })->export('xls');
+    }
+
+
 
 }
