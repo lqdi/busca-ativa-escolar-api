@@ -65,6 +65,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		'parents_has_mother',
 		'parents_has_father',
 		'parents_has_brother',
+        'parents_has_others',
 
 		'parents_who_is_guardian',
 		'parents_income',
