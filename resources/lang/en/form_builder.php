@@ -35,6 +35,7 @@ return [
 			'parents_has_father' => 'A criança tem o pai presente?*',
 			'parents_has_mother' => "A criança tem a mãe presente?*",
 			'parents_has_brother' => 'A criança tem irmãos/irmãs presentes?*',
+            'parents_has_others' => 'A criança tem outros parentes presentes?*',
 			'parents_who_is_guardian' => "Quem é o responsável?*",
 			'mother_name' => "Nome completo da mãe*",
 			'guardian_name' => "Nome completo do responsável*",
