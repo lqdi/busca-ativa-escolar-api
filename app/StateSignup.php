@@ -234,8 +234,8 @@ class StateSignup extends Model {
             'Gestor estadual - Data de nascimento' => $this->data['admin']['dob'] ?? null,
             'Gestor estadual - Email' => $this->data['admin']['email'] ?? null,
             'Gestor estadual - Telefone' => $this->data['admin']['phone'] ?? null,
-            'Gestor estadual -Posição' => $this->data['admin']['position'] ?? null,
-            'Gestor estadual -Instituição' => $this->data['admin']['institution'] ?? null,
+            'Gestor estadual - Função' => $this->data['admin']['position'] ?? null,
+            'Gestor estadual - Instituição' => $this->data['admin']['institution'] ?? null,
 
             'Coordenador estadual' => $this->data['coordinator']['name'] ?? null,
 
@@ -243,7 +243,7 @@ class StateSignup extends Model {
             'Coordenador estadual - Data de nascimento' => $this->data['coordinator']['dob'] ?? null,
             'Coordenador estadual - Email' => $this->data['coordinator']['email'] ?? null,
             'Coordenador estadual - Telefone' => $this->data['coordinator']['phone'] ?? null,
-            'Coordenador estadual -Posição' => $this->data['coordinator']['position'] ?? null,
+            'Coordenador estadual - Função' => $this->data['coordinator']['position'] ?? null,
             'Coordenador estadual -Instituição' => $this->data['coordinator']['institution'] ?? null,
     ];
 }
