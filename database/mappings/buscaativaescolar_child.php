@@ -83,6 +83,7 @@ class BuscaAtivaEscolarChild extends Mapping
 	        $map->boolean("parents_has_mother");
 	        $map->boolean("parents_has_father");
 	        $map->boolean("parents_has_brother");
+            $map->boolean("parents_has_grandparents");
 	        $map->string("parents_who_is_guardian");
 	        $map->string("parents_income");
 	        $map->string("guardian_name")->index('analyzed')->analyzer('folding');
