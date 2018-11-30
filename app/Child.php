@@ -515,7 +515,6 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             "parents_has_grandparents",
             "parents_has_father",
             "parents_has_brother",
-            "parents_has_grandparents",
             "parents_has_others",
             "parents_who_is_guardian",
             "parents_income",
