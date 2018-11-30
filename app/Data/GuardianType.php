@@ -21,6 +21,7 @@ class GuardianType extends StaticObject {
 		2 => ['id' => 2, 'slug' => 'mother', 'label' => "Mãe"],
 		3 => ['id' => 3, 'slug' => 'siblings', 'label' => "Irmão/Irmã"],
 		4 => ['id' => 4, 'slug' => 'other', 'label' => "Outros familiares"],
+        5 => ['id' => 5, 'slug' => 'grandparents', 'label' => "Avós"],
 	];
 
 	protected static $indexes = [
@@ -29,6 +30,7 @@ class GuardianType extends StaticObject {
 			'mother' => 2,
 			'siblings' => 3,
 			'other' => 4,
+            'grandparents' => 5
 		]
 	];
 
