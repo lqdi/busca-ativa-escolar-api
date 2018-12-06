@@ -138,6 +138,14 @@ class Tenant extends Model  {
 		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
 	}
 
+    /**
+     * The users associated with this tenant
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function users(){
+	    return $this->hasMany('BuscaAtivaEscolar\User', 'tenant_id', 'id');
+    }
+
 	/**
 	 * Internal, primary key for API routing.
 	 * @return string
