@@ -25,7 +25,8 @@ class TenantTransformer extends TransformerAbstract {
 
 	protected $availableIncludes = [
 		'city',
-		'settings',
+        'users',
+        'settings',
 		'political_admin',
 		'operational_admin',
 	];
@@ -92,5 +93,11 @@ class TenantTransformer extends TransformerAbstract {
 		if(!$settings) return null;
 		return $this->item($settings, new GenericTransformer(), false);
 	}
+
+    public function includeUsers(Tenant $tenant) {
+        $users = $tenant->users();
+        if(!$users) return null;
+        return $this->item($users, new ListUsersTransformer(), false);
+    }
 
 }
