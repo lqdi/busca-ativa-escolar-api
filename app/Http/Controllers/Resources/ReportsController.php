@@ -103,8 +103,15 @@ class ReportsController extends BaseController {
 			$query->filterByRange('date', false);
 		}
 
+        if($params['view'] == "linear") {
+            if(!isset($filters['created_at'])) $filters['created_at'] = ['lte' => 'now', 'gte' => 'now-2d'];
+            $query->filterByRange('created_at', false);
+        }
+
 		$index = ($params['view'] == 'linear') ? $entity->getAggregationIndex() : $entity->getTimeSeriesIndex();
 		$type = ($params['view'] == 'linear') ? $entity->getAggregationType() : $entity->getTimeSeriesType();
+
+
 
 		try {
 			$response = ($params['view'] == 'time_series') ?

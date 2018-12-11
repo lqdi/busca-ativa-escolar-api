@@ -65,6 +65,8 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		'parents_has_mother',
 		'parents_has_father',
 		'parents_has_brother',
+        'parents_has_others',
+        'parents_has_grandparents',
 
 		'parents_who_is_guardian',
 		'parents_income',
@@ -220,8 +222,11 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 			'parents_has_mother' => 'nullable|boolean',
 			'parents_has_father' => 'nullable|boolean',
 			'parents_has_brother' => 'nullable|boolean',
+            'parents_has_grandparents' => 'nullable|boolean',
+            'parents_has_others' => 'nullable|boolean',
 
-			'parents_who_is_guardian' => 'required_for_completion|in:mother,father,siblings,other',
+
+			'parents_who_is_guardian' => 'required_for_completion|in:mother,father,siblings,other,grandparents',
 			'parents_income' => 'nullable|string',
 			'mother_name' => 'required_for_completion|string',
 
@@ -290,6 +295,8 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 				->field('parents_has_mother', 'boolean', trans('form_builder.pesquisa.field.parents_has_mother'))
 				->field('parents_has_father', 'boolean', trans('form_builder.pesquisa.field.parents_has_father'))
 				->field('parents_has_brother', 'boolean', trans('form_builder.pesquisa.field.parents_has_brother'))
+                ->field('parents_has_others', 'boolean', trans('form_builder.pesquisa.field.parents_has_others'))
+                ->field('parents_has_grandparents', 'boolean', trans('form_builder.pesquisa.field.parents_has_grandparents'))
 
 				->field('parents_who_is_guardian', 'select', trans('form_builder.pesquisa.field.parents_who_is_guardian'), ['options' => GuardianType::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
 				->field('parents_income', 'select', trans('form_builder.pesquisa.field.parents_income'), ['options' => IncomeRange::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])

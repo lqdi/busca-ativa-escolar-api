@@ -155,6 +155,8 @@ return [
 		'parents_has_mother' => 'possui mãe presente?',
 		'parents_has_father' => 'possui pai presente?',
 		'parents_has_brother' => 'possui irmão presente?',
+        'parents_has_grandparents' => 'possui avós presentes?',
+        'parents_has_others' => 'possui outros familiares presentes?',
 		'parents_who_is_guardian' => 'quem é o responsável?',
 		'parents_income' => 'renda familiar',
 		'guardian_name' => 'nome do responsável',
