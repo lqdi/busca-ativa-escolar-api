@@ -332,6 +332,11 @@ abstract class CaseStep extends Model {
 		if(!$now) $now = Carbon::now();
 		if(!$this->started_at) return true;
 
+        //if step case is in index 60, 70, 80 or 90, consider max days + 10 to set late
+        if($this->step_index == 60 OR $this->step_index == 70 OR $this->step_index == 80 OR $this->step_index == 90){
+            $maxDays = $maxDays+10;
+        }
+
 		return ($now->diffInDays($this->started_at) >= $maxDays);
 	}
 
