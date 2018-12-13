@@ -35,7 +35,12 @@ class CheckCaseDeadlines extends Command {
 			$stepDeadline = $child->tenant->getDeadlineFor($step->getSlug());
 
 			$currentStatus = $child->deadline_status;
-			$newStatus = $currentStatus;
+
+			if($step->isLate($today, $stepDeadline)) {
+                $newStatus = 'late';
+            }else{
+                $newStatus = 'normal';
+            }
 
 			// TODO: maybe cache list of tenants for getDeadlineFor? every call is calling unserialize()
 			if($step->isLate($today, $stepDeadline)) $newStatus = 'late';

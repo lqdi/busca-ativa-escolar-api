@@ -444,6 +444,15 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 			$data['step_name'] = $this->currentStep->getName() ?? null;
 			$data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
+
+            $now = Carbon::now();
+			$deadline = $this->tenant->getDeadlineFor($this->currentStep->getSlug());
+
+			if($this->currentStep->isLate($now, $deadline)){
+                $data['deadline_status'] = "late";
+            }else{
+                $data['deadline_status'] = "normal";
+            }
 		}
 
 		if($this->submitter) {
