@@ -36,6 +36,7 @@ use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\StepTransformer;
 use BuscaAtivaEscolar\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 
@@ -229,7 +230,30 @@ class ChildrenController extends BaseController  {
 			->respond();
 	}
 
-	public function attachments(Child $child) {
+	public function removeComment(Child $child, Comment $comment){
+
+	    if($child == null OR $comment == null) return $this->api_failure("A anotação não pode ser removida");
+
+	    if($this->currentUser()->id != $comment->author_id ) {
+	        return $this->api_failure("Você não tem permissão para remover a anotação selecionada");
+	    }else{
+	        $comment->delete();
+            return $this->api_success();
+        }
+
+    }
+
+	public function getComment(Child $child, Comment $comment){
+        if($child == null OR $comment == null) return $this->api_failure("A anotação não foi encontrada");
+
+        if($this->currentUser()->id != $comment->author_id ) {
+            return $this->api_failure("Você não tem permissão para visualizar a anotação selecionada");
+        }else{
+            return response()->json($comment);
+        }
+    }
+
+    public function attachments(Child $child) {
 		return fractal()
 			->collection($child->attachments)
 			->transformWith(new AttachmentTransformer())
@@ -259,6 +283,25 @@ class ChildrenController extends BaseController  {
 			return $this->api_exception($ex);
 		}
 	}
+
+	public function updateComment(){
+
+        try {
+
+            $message = request('message', '');
+            $id_message = request('id_message', null);
+
+            if($message == null OR $id_message == null) return $this->api_failure("A anotação não pode ser editada");
+
+            $comment = Comment::updateComment(Auth::user(), $id_message, $message);
+
+            return response()->json(['status' => 'ok', 'comment_id' => $comment->id]);
+
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+
+    }
 
 	public function removeAttachment(Child $child, Attachment $attachment) {
 		try {

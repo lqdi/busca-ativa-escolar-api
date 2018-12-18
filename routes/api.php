@@ -19,6 +19,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/children/export', 'Resources\ChildrenController@export')->middleware('can:cases.view');
 		Route::get('/children/exported/{filename}', 'Resources\ChildrenController@download_exported')->name('api.children.download_exported')->middleware('can:cases.view');
 		Route::get('/children/{child}/comments', 'Resources\ChildrenController@comments')->middleware('can:cases.view');
+        Route::delete('/children/{child}/comments/{comment}', 'Resources\ChildrenController@removeComment');
+        Route::get('/children/{child}/comments/{comment}', 'Resources\ChildrenController@getComment');
+        Route::put('/children/{child}/comments', 'Resources\ChildrenController@updateComment');
 		Route::get('/children/{child}/attachments', 'Resources\ChildrenController@attachments')->middleware('can:cases.view');
 		Route::get('/children/{child}/activity', 'Resources\ChildrenController@activityLog')->middleware('can:cases.view');
 		Route::post('/children/{child}/comments', 'Resources\ChildrenController@addComment')->middleware('can:cases.view');
