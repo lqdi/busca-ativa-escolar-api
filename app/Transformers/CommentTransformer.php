@@ -31,7 +31,8 @@ class CommentTransformer extends TransformerAbstract {
 
 	public function transform(Comment $comment) {
 		return [
-			'tenant_id' => $comment->tenant_id,
+            'id' => $comment->id,
+		    'tenant_id' => $comment->tenant_id,
 			'content_type' => $comment->content_type,
 			'content_id' => $comment->content_id,
 			'author_id' => $comment->author_id,

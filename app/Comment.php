@@ -16,9 +16,11 @@ namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use phpDocumentor\Reflection\Types\Integer;
 
 class Comment extends Model {
 
@@ -101,5 +103,25 @@ class Comment extends Model {
 
 		return $comment;
 	}
+
+    /**
+     * @param Model $content
+     * @param User $user
+     * @param int $id_message
+     * @param string $message
+     * @return Comment
+     */
+    public static function updateComment(User $user, string $id_message, string $message) {
+
+        $comment = Comment::findOrFail($id_message);
+
+        if($comment->author_id != $user->id) throw new Exception('Usuário não autorizado');
+
+        $comment->message = $message;
+        $comment->save();
+
+        return $comment;
+
+    }
 
 }
