@@ -280,7 +280,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	public function canSeeContactInfoFor(User $user) {
 		if($this->id === $user->id) return true; // Is himself
 		if($this->tenant_id !== null && $this->tenant_id === $user->tenant_id) return true; // Is tenant-bound & are same tenant
-		if($this->isRestrictedToUF() && $user->isRestrictedToUF() && $this->uf === $user->uf) { // Is UF-bound and is looking at users from the same UF
+		if($this->isRestrictedToUF()) { // Is UF-bound and is looking at users from the same UF
 		    return true;
         }
 		if($this->isRestrictedToUF()) return $this->can('ufs.contact_info'); // Is UF-bound and has relevant permission
