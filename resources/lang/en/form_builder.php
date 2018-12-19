@@ -69,6 +69,7 @@ return [
 			'cause' => 'Sobre o motivo de exclusão escolar',
 			'parents' => 'Sobre os pais ou responsáveis',
 			'place' => 'Dados de localização',
+            'observation' => 'Observações'
 		],
 
 		'field' => [
@@ -100,6 +101,8 @@ return [
 
 			//'place_phone' => 'Telefone',
 			//'place_mobile' => 'Celular',
+
+            'observation' => 'Observação'
 		]
 	],
 

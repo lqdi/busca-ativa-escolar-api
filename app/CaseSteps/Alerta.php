@@ -90,6 +90,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 		'place_lng',
 		'place_map_region',
 		'place_map_geocoded_address',
+        'observation'
 	];
 
 	protected $casts = [
@@ -211,7 +212,12 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 			->group('cause', trans('form_builder.alerta.group.cause'), function (FormBuilder $group) {
 				return $group->field('alert_cause_id', 'select', trans('form_builder.alerta.field.alert_cause_id'), ['options' => AlertCause::getAllAsArray(), 'key' => 'id', 'label' => 'label']);
-			});
+			})
+
+            ->group('observation', trans('form_builder.alerta.group.observation'), function (FormBuilder $group) {
+                return $group
+                    ->field('observation', 'string', trans('form_builder.alerta.field.observation'));
+            });
 	}
 
 }
