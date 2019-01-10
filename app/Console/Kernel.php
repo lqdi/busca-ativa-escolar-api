@@ -32,6 +32,7 @@ class Kernel extends ConsoleKernel
         Commands\ManualEducacensoImport::class,
         Commands\AddAndCheckGroupIntoNewCase::class,
         Commands\AddPriorityTenantNewMotive::class,
+        Commands\ForceObligatorinessEducationReason::class
     ];
 
     /**
