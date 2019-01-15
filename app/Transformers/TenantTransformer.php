@@ -37,7 +37,8 @@ class TenantTransformer extends TransformerAbstract {
 
 		return [
 			'id' => $tenant->id,
-			'name' => $tenant->name,
+            'deleted_at' => $tenant->deleted_at ? $tenant->deleted_at : null,
+            'name' => $tenant->name,
 
 			'city_id' => $tenant->city_id,
 			'uf' => $tenant->uf,
@@ -54,6 +55,7 @@ class TenantTransformer extends TransformerAbstract {
 
 			'registered_at' => $tenant->registered_at ? $tenant->registered_at->toIso8601String() : null,
 			'activated_at' => $tenant->activated_at ? $tenant->activated_at->toIso8601String() : null,
+
 		];
 
 	}

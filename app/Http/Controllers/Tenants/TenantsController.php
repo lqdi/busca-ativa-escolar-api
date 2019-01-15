@@ -102,6 +102,8 @@ class TenantsController extends BaseController  {
             $tenants->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
         }
 
+        if(request('show_suspended', false)) $tenants->withTrashed();
+
         if($this->currentUser()->isRestrictedToUF()) {
             $tenants->where('uf', $this->currentUser()->uf);
         }
