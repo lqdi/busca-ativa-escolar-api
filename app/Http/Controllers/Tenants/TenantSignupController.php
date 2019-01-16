@@ -67,8 +67,8 @@ class TenantSignupController extends BaseController  {
 	}
 
 	public function get_pending() {
-		$pending = TenantSignup::with('city')
-			->where('is_provisioned', false);
+		$pending = TenantSignup::with('city');
+			//->where('is_provisioned', false);
 
 		$sort = request('sort', []);
 		$filter = request('filter', []);
@@ -91,6 +91,7 @@ class TenantSignupController extends BaseController  {
 		switch($filter['status']) {
 			case "all": $pending->withTrashed(); break;
 			case "rejected": $pending->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 0); break;
+            case "canceled": $pending->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 1); break;
 			case "pending_approval": $pending->where('is_approved', 0); break;
 			case "pending_setup": $pending->where( 'is_approved', 1)->where('is_provisioned', 0 ); break;
 			case "pending": default: break;
