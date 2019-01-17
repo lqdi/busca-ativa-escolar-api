@@ -94,6 +94,7 @@ class TenantSignupController extends BaseController  {
             case "canceled": $pending->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 1); break;
 			case "pending_approval": $pending->where('is_approved', 0); break;
 			case "pending_setup": $pending->where( 'is_approved', 1)->where('is_provisioned', 0 ); break;
+            case "active": $pending->where('is_approved', 1)->where('is_provisioned', 1); break;
 			case "pending": default: break;
 		}
 
