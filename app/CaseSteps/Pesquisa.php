@@ -99,12 +99,14 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		'place_lng',
 		'place_map_region',
 		'place_map_geocoded_address',
+		'aux',
 
 	];
 
 	protected $casts = [
 		'case_cause_ids' => 'array',
 		'place_map_geocoded_address' => 'array',
+		'aux' => 'array',
 	];
 
 	public function applyAssignableUsersFilter(Builder $query) {
