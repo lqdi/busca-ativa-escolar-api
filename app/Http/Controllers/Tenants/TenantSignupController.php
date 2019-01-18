@@ -132,7 +132,7 @@ class TenantSignupController extends BaseController  {
 			})
 			->toArray();
 
-		Excel::create('buscaativaescolar_signups', function($excel) use ($signups) {
+		Excel::create('buscaativaescolar_adesoes', function($excel) use ($signups) {
 
 			$excel->sheet('signups', function($sheet) use ($signups) {
 
