@@ -225,7 +225,7 @@ class Tenant extends Model  {
             'Está configurado?' => $this->is_setup ? "Sim" : "Não",
 			'Data cadastro' => $this->registered_at ? $this->registered_at->format('d/m/Y') : null,
 			'Data ativação' => $this->activated_at ? $this->activated_at->format('d/m/Y') : null,
-            'Data exclusão' => $this->deleted_at ? $this->deleted_at->format('d/m/Y') : null
+            'Data exclusão' => $this->deleted_at ? $this->deleted_at : null
 		];
 	}
 
