@@ -164,6 +164,7 @@ class TenantsController extends BaseController  {
         $operational_admin = request('operational_admin');
         $last_active_at = request('last_active_at');
         $created_at = request('created_at');
+        $show_suspended = request('show_suspended');
 
         $query = Tenant::query()->with(['operationalAdmin', 'politicalAdmin', 'users']);
 
@@ -198,8 +199,10 @@ class TenantsController extends BaseController  {
             $cutoffDate = Carbon::now()->addDays(-$numDays);
             $query->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
         }
-
-        if(request('show_suspended', false)) $query->withTrashed();
+        
+        if($show_suspended == "true"){
+            $query->withTrashed();
+        }
 
         if($this->currentUser()->isRestrictedToUF()) {
             $query->where('uf', $this->currentUser()->uf);
