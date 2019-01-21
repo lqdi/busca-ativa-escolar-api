@@ -6,7 +6,7 @@ return [
 		'pending_initial_setup' => 'Aguardando configuração',
 		'rejected' => 'Rejeitado',
 		//'pending_tenant_setup' => 'Parametrização',
-		'deleted' => 'Excluído',
+		'deleted' => 'Desativado',
 		'inactive' => 'Inativo',
 		'active' => 'Ativo',
 	]
