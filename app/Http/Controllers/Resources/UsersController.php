@@ -73,34 +73,53 @@ class UsersController extends BaseController {
 	}
 
 	public function export() {
-		$query= User::query()
-			->with(['group', 'tenant'])
-			->withTrashed()
-			->orderBy('name', 'ASC');
 
-		// If user is UF-bound, they can only see other UF-bound users in their UF
-		if($this->currentUser()->isRestrictedToUF()) {
-			$query->where('uf', $this->currentUser()->uf);
-			$query->whereIn('type', [User::TYPE_GESTOR_ESTADUAL, User::TYPE_SUPERVISOR_ESTADUAL]);
-		}
+	    $uf = request('uf');
+        $tenant_id = request('tenant_id');
+        $type = request('type');
+        $email = request('email');
+        $show_suspended = request('show_suspended');
+        $group_id = request('group_id');
 
-		$users = $query
-			->get()
-			->map(function ($user) { /* @var $user User */
-				return $user->toExportArray();
-			})
-			->toArray();
+        $query = User::with('group');
 
-		Excel::create('buscaativaescolar_users', function($excel) use ($users) {
+        if($this->currentUser()->isGlobal() && isset($tenant_id) && $tenant_id != null) {
+            $query->where('tenant_id', $tenant_id);
+        } else if($this->currentUser()->isRestrictedToTenant()) {
+            $query->where('tenant_id', '!=', 'global');
+        }
 
-			$excel->sheet('users', function($sheet) use ($users) {
+        if($this->currentUser()->isGlobal() && isset($uf) && $uf != null) {
+            $query->where('uf', $uf);
+        } else if($this->currentUser()->isRestrictedToUF()) {
+            $query->where('uf', $this->currentUser()->uf);
+            $query->whereIn('type', User::$UF_SCOPED_TYPES);
+        }
 
-				$sheet->setOrientation('landscape');
-				$sheet->fromArray($users);
+        if(isset($group_id) && $group_id != null) $query->where('group_id', $group_id);
+        if(isset($type) && $type != null) $query->where('type', $type);
+        if(isset($email) && $email != null) $query->where('email0', 'LIKE', $email . '%');
 
-			});
+        if($show_suspended == "true") $query->withTrashed();
 
-		})->export('xls');
+        $users = $query
+            ->get()
+            ->map(function ($user) { /* @var $user User */
+                return $user->toExportArray();
+            })
+            ->toArray();
+
+        Excel::create('buscaativaescolar_users', function($excel) use ($users) {
+
+            $excel->sheet('users', function($sheet) use ($users) {
+
+                $sheet->setOrientation('landscape');
+                $sheet->fromArray($users);
+
+            });
+
+        })->export('xls');
+
 	}
 
 	public function show(User $user) {
