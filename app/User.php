@@ -483,7 +483,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 			'Grupo' => $this->group->name ?? '',
 			'Instituição' => $this->institution,
 			'Posição' => $this->position,
-			'Status' => $this->deleted_at ? 'Inativo' : 'Ativo',
+			'Cadastro' => $this->deleted_at ? 'Desativado' : 'Ativo'
 		];
 	}
 
