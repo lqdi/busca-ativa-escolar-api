@@ -65,6 +65,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 		'cpf',
 		'nis',
+        'cns',
 
 		'alert_cause_id',
 		'alert_status',
@@ -147,6 +148,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 			'cpf' => 'digits:11',
 			'nis' => 'alpha_num',
+			'cns' => 'digits:15',
 			'alert_cause_id' => 'required|' . \BuscaAtivaEscolar\Data\AlertCause::getSlugValidationMask('id'),
 
 			'mother_name' => 'required|string',
