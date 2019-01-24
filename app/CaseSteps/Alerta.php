@@ -29,6 +29,7 @@ use BuscaAtivaEscolar\FormBuilder\FormBuilder;
  * @property string $rg
  * @property string $cpf
  * @property string $nis
+ * @property string $cns
  * @property string $alert_cause_id
  * @property string $alert_status
  * @property string $mother_name
