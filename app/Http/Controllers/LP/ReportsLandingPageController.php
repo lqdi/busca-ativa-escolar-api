@@ -10,6 +10,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\LP;
 
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\ChildCase;
+use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Tenant;
@@ -17,7 +18,6 @@ use Carbon\Carbon;
 
 class ReportsLandingPageController extends BaseController
 {
-
     public function report_country(){
 
         try {
@@ -43,10 +43,11 @@ class ReportsLandingPageController extends BaseController
                 }
             }
 
-            $collection_states =  \DB::table('tenants')->whereNotNull('uf')->distinct('uf')->get(['uf'])->toArray();
+            //$collection_states =  \DB::table('tenants')->whereNotNull('uf')->distinct('uf')->get(['uf'])->toArray();
+            $collection_states =  ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 
             foreach ( $collection_states as $state ){
-                array_push($statesInTenants, $state->uf);
+                array_push($statesInTenants, $state);
             }
 
             $data = [
@@ -169,6 +170,7 @@ class ReportsLandingPageController extends BaseController
     public function report_city(){
 
         $city = request('city');
+        $uf = request('uf');
 
         try {
 
@@ -184,8 +186,8 @@ class ReportsLandingPageController extends BaseController
                             ->orWhere('case_status', '=', ChildCase::STATUS_COMPLETED);
                     })->whereHas('child', function ($query){
                         $query->where('alert_status', '=', 'accepted');
-                    })->whereHas('tenant', function ($query) use ($city){
-                        $query->where('name', '=', $city);
+                    })->whereHas('tenant', function ($query) use ($city, $uf){
+                        $query->where('name', '=', $uf.' / '.$city);
                     })
                     ->count();
 
@@ -194,39 +196,45 @@ class ReportsLandingPageController extends BaseController
                 }
             }
 
-            $tenant = Tenant::where('name', '=', $city)->first();
+            $tenant = Tenant::where('name', '=',$uf.' / '.$city)->first();
 
-            $created = $tenant->created_at->format('d/m/Y');
-            $now = Carbon::now();
-            $last_active_at = $tenant->last_active_at;
+            if($tenant != null){
 
-            if ( $now->diffInDays($last_active_at) >= 30 ){
-                $status = "Inativo";
-            } else {
-                $status = "Ativo";
+                $created = $tenant->created_at->format('d/m/Y');
+                $now = Carbon::now();
+                $last_active_at = $tenant->last_active_at;
+
+                if ( $now->diffInDays($last_active_at) >= 30 ){
+                    $status = "Inativo";
+                } else {
+                    $status = "Ativo";
+                }
+
+                $data_city = $data_city =['created' => $created, 'status' => $status];
+
+            }else{
+                $data_city = null;
             }
-
-            $data_city = $data_city =['created' => $created, 'status' => $status];
 
             $data = [
 
                 'alerts' => [
                     '_approved' => Child::query()
                         ->accepted()
-                        ->whereHas('tenant', function ($query) use ($city){
-                            $query->where('name', '=', $city);
+                        ->whereHas('tenant', function ($query) use ($city, $uf){
+                            $query->where('name', '=', $uf.' / '.$city);
                         })
                         ->count(),
                     '_pending' => Child::query()
                         ->pending()
-                        ->whereHas('tenant', function ($query) use ($city){
-                            $query->where('name', '=', $city);
+                        ->whereHas('tenant', function ($query) use ($city, $uf){
+                            $query->where('name', '=', $uf.' / '.$city);
                         })
                         ->count(),
                     '_rejected' => Child::query()
                         ->rejected()
-                        ->whereHas('tenant', function ($query) use ($city){
-                            $query->where('name', '=', $city);
+                        ->whereHas('tenant', function ($query) use ($city, $uf){
+                            $query->where('name', '=', $uf.' / '.$city);
                         })
                         ->count(),
                 ],
@@ -235,17 +243,17 @@ class ReportsLandingPageController extends BaseController
                     '_enrollment' => Child::query()
                         ->whereIn('child_status', [Child::STATUS_IN_SCHOOL])
                         ->accepted()
-                        ->whereHas('tenant', function ($query) use ($city){
-                            $query->where('name', '=', $city);
+                        ->whereHas('tenant', function ($query) use ($city, $uf){
+                            $query->where('name', '=', $uf.' / '.$city);
                         })
                         ->count(),
 
                     '_in_progress' => ChildCase::whereHas('child', function ($query) {
                         $query->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
                             ->where('alert_status', '=', 'accepted');
-                        })->where('case_status', '=', 'in_progress')->whereHas('tenant', function ($query) use ($city){
-                            $query->where('name', '=', $city);
-                        })->count()
+                    })->where('case_status', '=', 'in_progress')->whereHas('tenant', function ($query) use ($city, $uf){
+                        $query->where('name', '=', $uf.' / '.$city);
+                    })->count()
                 ],
 
                 'causes' => $causes,
@@ -265,7 +273,8 @@ class ReportsLandingPageController extends BaseController
     public function list_cities(){
         try {
             $uf = request('uf');
-            $collection_cities = Tenant::query()->where('uf', '=', $uf)->orderBy('name')->get(['name']);
+            //$collection_cities = Tenant::query()->where('uf', '=', $uf)->orderBy('name')->get(['name']);
+            $collection_cities = City::query()->where('uf', '=', $uf)->orderBy('name')->get(['name']);
             $cities = [];
             foreach ($collection_cities as $city){
                 array_push($cities, $city->name);
