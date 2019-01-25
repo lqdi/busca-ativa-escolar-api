@@ -102,6 +102,8 @@ class TenantsController extends BaseController  {
             $tenants->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
         }
 
+        if(request('show_suspended', false)) $tenants->withTrashed();
+
         if($this->currentUser()->isRestrictedToUF()) {
             $tenants->where('uf', $this->currentUser()->uf);
         }
@@ -155,33 +157,75 @@ class TenantsController extends BaseController  {
 	}
 
 	public function export() {
-		$query = Tenant::query()
-			->with(['operationalAdmin', 'politicalAdmin'])
-			//->withTrashed()
-			->orderBy('name', 'ASC');
 
-		// If user is UF-bound, they can only see tenants in their UF
-		if($this->currentUser()->isRestrictedToUF()) {
-			$query->where('uf', $this->currentUser()->uf);
-		}
+        $name = request('name');
+        $uf = request('uf');
+        $political_admin = request('political_admin');
+        $operational_admin = request('operational_admin');
+        $last_active_at = request('last_active_at');
+        $created_at = request('created_at');
+        $show_suspended = request('show_suspended');
 
-		$tenants = $query
-			->get()
-			->map(function ($tenant) { /* @var $tenant Tenant */
-				return $tenant->toExportArray();
-			})
-			->toArray();
+        $query = Tenant::query()->with(['operationalAdmin', 'politicalAdmin', 'users']);
 
-		Excel::create('buscaativaescolar_tenants', function($excel) use ($tenants) {
+        if(isset($name) && strlen($name) > 0) {
+            $query->where('name_ascii', 'REGEXP', strtolower(Str::ascii($name)));
+        }
 
-			$excel->sheet('tenants', function($sheet) use ($tenants) {
+        if(isset($uf) && strlen($uf) > 0) {
+            $query->where('uf', 'REGEXP', strtoupper(Str::ascii($uf)));
+        }
 
-				$sheet->setOrientation('landscape');
-				$sheet->fromArray($tenants);
+        if(isset($political_admin) && strlen($political_admin) > 0) {
+            $query->whereHas('politicalAdmin', function ($sq) use ($political_admin) {
+                return $sq->where('name', 'REGEXP', $political_admin);
+            });
+        }
 
-			});
+        if(isset($operational_admin) && strlen($operational_admin) > 0) {
+            $query->whereHas('operationalAdmin', function ($sq) use ($operational_admin) {
+                return $sq->where('name', 'REGEXP', $operational_admin);
+            });
+        }
 
-		})->export('xls');
+        if(isset($last_active_at) && strlen($last_active_at) > 0) {
+            $numDays = intval($last_active_at);
+            $cutoffDate = Carbon::now()->addDays(-$numDays);
+            $query->where('last_active_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
+        }
+
+        if(isset($created_at) && strlen($created_at) > 0) {
+            $numDays = intval($created_at);
+            $cutoffDate = Carbon::now()->addDays(-$numDays);
+            $query->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
+        }
+        
+        if($show_suspended == "true"){
+            $query->withTrashed();
+        }
+
+        if($this->currentUser()->isRestrictedToUF()) {
+            $query->where('uf', $this->currentUser()->uf);
+        }
+
+        $tenants = $query
+            ->get()
+            ->map(function ($tenant) { /* @var $tenant Tenant */
+                return $tenant->toExportArray();
+            })
+            ->toArray();
+
+        Excel::create('buscaativaescolar_municipios', function($excel) use ($tenants) {
+
+            $excel->sheet('tenants', function($sheet) use ($tenants) {
+
+                $sheet->setOrientation('landscape');
+                $sheet->fromArray($tenants);
+
+            });
+
+        })->export('xls');
+
 	}
 
 }

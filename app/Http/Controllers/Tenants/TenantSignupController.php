@@ -67,8 +67,7 @@ class TenantSignupController extends BaseController  {
 	}
 
 	public function get_pending() {
-		$pending = TenantSignup::with('city')
-			->where('is_provisioned', false);
+		$pending = TenantSignup::with('city');
 
 		$sort = request('sort', []);
 		$filter = request('filter', []);
@@ -91,8 +90,10 @@ class TenantSignupController extends BaseController  {
 		switch($filter['status']) {
 			case "all": $pending->withTrashed(); break;
 			case "rejected": $pending->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 0); break;
+            case "canceled": $pending->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 1); break;
 			case "pending_approval": $pending->where('is_approved', 0); break;
 			case "pending_setup": $pending->where( 'is_approved', 1)->where('is_provisioned', 0 ); break;
+            case "active": $pending->where('is_approved', 1)->where('is_provisioned', 1); break;
 			case "pending": default: break;
 		}
 
@@ -118,10 +119,45 @@ class TenantSignupController extends BaseController  {
 	}
 
 	public function export_signups() {
+
+        $city_name = request('city_name');
+        $city_uf = request('city_uf');
+        $status = request('status');
+        $created_at = request('created_at');
+
+
 		$query = TenantSignup::query()
 			->with(['city','judge','tenant.operationalAdmin', 'tenant.politicalAdmin'])
-			->withTrashed()
 			->orderBy('created_at', 'ASC');
+
+        if(isset($city_name) && strlen($city_name) > 0) {
+            $query->whereHas('city', function ($sq) use ($city_name) {
+                return $sq->where('name_ascii', 'REGEXP', Str::ascii($city_name));
+            });
+        }
+
+        if(isset($city_uf) && strlen($city_uf) > 0) {
+            $query->whereHas('city', function ($sq) use ($city_uf) {
+                return $sq->where('uf', 'REGEXP', Str::ascii($city_uf));
+            });
+        }
+
+        switch($status) {
+            case "all": $query->withTrashed(); break;
+            case "rejected": $query->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 0); break;
+            case "canceled": $query->withTrashed()->whereNotNull('deleted_at')->where('is_approved', 1); break;
+            case "pending_approval": $query->where('is_approved', 0); break;
+            case "pending_setup": $query->where( 'is_approved', 1)->where('is_provisioned', 0 ); break;
+            case "active": $query->where('is_approved', 1)->where('is_provisioned', 1); break;
+            case "pending": default: break;
+        }
+
+        if(isset($created_at) && strlen($created_at) > 0) {
+            $numDays = intval($created_at);
+            $cutoffDate = Carbon::now()->addDays(-$numDays);
+
+            $query->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
+        }
 
 		$signups = $query
 			->get()
@@ -130,7 +166,7 @@ class TenantSignupController extends BaseController  {
 			})
 			->toArray();
 
-		Excel::create('buscaativaescolar_signups', function($excel) use ($signups) {
+		Excel::create('buscaativaescolar_adesoes', function($excel) use ($signups) {
 
 			$excel->sheet('signups', function($sheet) use ($signups) {
 

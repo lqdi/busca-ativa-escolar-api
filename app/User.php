@@ -471,8 +471,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 			'UF' => $this->tenant->city->uf ?? '',
 			'Município' => $this->tenant->city->name ?? '',
 			'Nome interno' => $this->tenant->name ?? '',
-			'Data de adesão' => $this->tenant ? $this->tenant->created_at->toDateTimeString() : '',
-			'Data de cadastro' => $this->created_at ? $this->created_at->toDateTimeString() : '',
+			'Data de adesão' => $this->tenant ? $this->tenant->created_at->format('d/m/Y') : '',
+			'Data de cadastro' => $this->created_at ? $this->created_at->format('d/m/Y') : '',
 			'Nome do usuário' => $this->name,
 			'E-mail' => $this->email,
 			'Telefone Institucional' => $this->work_phone,
@@ -483,7 +483,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 			'Grupo' => $this->group->name ?? '',
 			'Instituição' => $this->institution,
 			'Posição' => $this->position,
-			'Status' => $this->deleted_at ? 'Inativo' : 'Ativo',
+			'Cadastro' => $this->deleted_at ? 'Desativado' : 'Ativo',
+            'Data de desativacao' => $this->deleted_at ? $this->deleted_at : '',
 		];
 	}
 
