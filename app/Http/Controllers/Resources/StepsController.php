@@ -149,7 +149,6 @@ class StepsController extends BaseController {
 		}
 	}
 
-
     private function isValidDateForUpdateStep(CaseStep $step)
     {
         if($step->step_type == "BuscaAtivaEscolar\CaseSteps\Observacao") {
@@ -161,6 +160,5 @@ class StepsController extends BaseController {
             return true;
         }
     }
-
 
 }
