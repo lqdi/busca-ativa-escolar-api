@@ -25,11 +25,17 @@ use BuscaAtivaEscolar\Transformers\ImportJobTransformer;
 
 class EducacensoController extends BaseController {
 
+    const PERMITED_FILES_MIME_TYPES = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+
 	public function import() {
 		$file = request()->file('file');
 
-		if($file->getMimeType() != "application/vnd.ms-office"){
-            return $this->api_failure('file_not_uploaded', ['file' => $file]);
+		if(!in_array($file->getMimeType(), self::PERMITED_FILES_MIME_TYPES)){
+            return response()->json(["reason" => "File not permitted",  "status" => "error"], 400);
         }
 
 		$tenant = auth()->user()->tenant; /* @var $tenant Tenant */
@@ -39,7 +45,7 @@ class EducacensoController extends BaseController {
 		}
 
 		if(!$file || !$file->isValid()) {
-			return $this->api_failure('file_not_uploaded', ['file' => $file]);
+            return response()->json(["reason" => "File not permitted",  "status" => "error"], 400);
 		}
 
 		try {
