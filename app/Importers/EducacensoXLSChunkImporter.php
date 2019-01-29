@@ -78,7 +78,7 @@ class EducacensoXLSChunkImporter
 
                     if(!array_key_exists('uf', $row)){
                         Log::debug("[educacenso_import] \t no 'UF' keyword found");
-                        throw new \Exception("Failed to find header with name UF!");
+                        throw new \Exception("Arquivo diferente do padrão fornecido pelo Educacenso");
                     }
 
                     Log::debug("[educacenso_import] \t Found UF keyword!");
@@ -151,6 +151,7 @@ class EducacensoXLSChunkImporter
         $data['place_city_id'] = strval($this->tenant->city->id);
         $data['place_city_name'] = $this->tenant->city->name;
         $data['place_kind'] = isset($data['place_kind']) ? ($placeKindMap[$data['place_kind']] ?? null) : null;
+        $data['has_been_in_school'] = true;
 
         Log::debug("[educacenso_import] \t Parsed data: " . print_r($data, true));
 
