@@ -68,7 +68,7 @@ class ReportsLandingPageController extends BaseController
 
                 'cases' => [
                     '_enrollment' => Child::query()
-                        ->whereIn('child_status', [Child::STATUS_IN_SCHOOL])
+                        ->whereIn('child_status', [Child::STATUS_IN_SCHOOL, Child::STATUS_OBSERVATION])
                         ->accepted()
                         ->count(),
                     '_in_progress' => ChildCase::whereHas('child', function ($query) {
@@ -141,7 +141,7 @@ class ReportsLandingPageController extends BaseController
 
                 'cases' => [
                     '_enrollment' => Child::query()
-                        ->whereIn('child_status', [Child::STATUS_IN_SCHOOL])
+                        ->whereIn('child_status', [Child::STATUS_IN_SCHOOL, Child::STATUS_OBSERVATION])
                         ->accepted()
                         ->whereHas('tenant', function ($query) use ($uf){
                             $query->where('uf', '=', $uf);
@@ -241,7 +241,7 @@ class ReportsLandingPageController extends BaseController
 
                 'cases' => [
                     '_enrollment' => Child::query()
-                        ->whereIn('child_status', [Child::STATUS_IN_SCHOOL])
+                        ->whereIn('child_status', [Child::STATUS_IN_SCHOOL, Child::STATUS_OBSERVATION])
                         ->accepted()
                         ->whereHas('tenant', function ($query) use ($city, $uf){
                             $query->where('name', '=', $uf.' / '.$city);
