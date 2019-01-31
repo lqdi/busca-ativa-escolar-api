@@ -18,6 +18,7 @@ return [
 		"death" => 'Óbito',
 		"not_found" => 'Criança não foi encontrada',
 		"wrongful_insertion" => 'Caso inserido por engano',
+        "city_transfer" => 'Mudança de município/ estado',
 		//"rejected_alert" => 'Alerta não procedente',
 	]
 ];
