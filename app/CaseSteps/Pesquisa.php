@@ -100,6 +100,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		'place_map_region',
 		'place_map_geocoded_address',
 		'aux',
+		'nis',
 
 	];
 
