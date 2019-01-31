@@ -76,8 +76,15 @@ class ChildCase extends Model  {
 	const CANCEL_REASON_NOT_FOUND = "not_found";
 	const CANCEL_REASON_WRONGFUL_INSERTION = "wrongful_insertion";
 	const CANCEL_REASON_REJECTED_ALERT = "rejected_alert";
+	const CANCEL_REASON_CITY_TRANSFER = "city_transfer";
 
-	const CANCEL_REASONS = [self::CANCEL_REASON_DUPLICATE, self::CANCEL_REASON_DEATH, self::CANCEL_REASON_NOT_FOUND, self::CANCEL_REASON_WRONGFUL_INSERTION];
+	const CANCEL_REASONS = [
+	    self::CANCEL_REASON_DUPLICATE,
+        self::CANCEL_REASON_DEATH,
+        self::CANCEL_REASON_NOT_FOUND,
+        self::CANCEL_REASON_WRONGFUL_INSERTION,
+        self::CANCEL_REASON_CITY_TRANSFER
+    ];
 
 	/**
 	 * The list and order of the default steps a case has.
