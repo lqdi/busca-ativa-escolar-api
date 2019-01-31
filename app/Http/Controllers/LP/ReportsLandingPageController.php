@@ -33,10 +33,10 @@ class ReportsLandingPageController extends BaseController
                 })->whereHas('child', function ($query){
                     $query->where('alert_status', '=', 'accepted');
                 })
-                ->where(function ($query){
-                    $query->where('case_status', '=', ChildCase::STATUS_IN_PROGRESS)
-                        ->orWhere('case_status', '=', ChildCase::STATUS_COMPLETED);
-                })->count();
+                    ->where(function ($query){
+                        $query->where('case_status', '=', ChildCase::STATUS_IN_PROGRESS)
+                            ->orWhere('case_status', '=', ChildCase::STATUS_COMPLETED);
+                    })->count();
 
                 if($qtd > 0){
                     array_push($causes, ['id' => $cause->id, 'cause' => $cause->label, 'qtd' => $qtd]);
@@ -101,15 +101,15 @@ class ReportsLandingPageController extends BaseController
                 $qtd = ChildCase::where(function ($query) use ($cause){
                     $query->where('alert_cause_id', '=', "{$cause->id}");
                 })
-                ->where(function ($query){
-                    $query->where('case_status', '=', ChildCase::STATUS_IN_PROGRESS)
-                        ->orWhere('case_status', '=', ChildCase::STATUS_COMPLETED);
-                })->whereHas('child', function ($query){
+                    ->where(function ($query){
+                        $query->where('case_status', '=', ChildCase::STATUS_IN_PROGRESS)
+                            ->orWhere('case_status', '=', ChildCase::STATUS_COMPLETED);
+                    })->whereHas('child', function ($query){
                         $query->where('alert_status', '=', 'accepted');
-                })->whereHas('tenant', function ($query) use ($uf){
-                    $query->where('uf', '=', $uf);
-                })
-                ->count();
+                    })->whereHas('tenant', function ($query) use ($uf){
+                        $query->where('uf', '=', $uf);
+                    })
+                    ->count();
 
                 if($qtd > 0){
                     array_push($causes, ['id' => $cause->id, 'cause' => $cause->label, 'qtd' => $qtd]);
@@ -149,11 +149,11 @@ class ReportsLandingPageController extends BaseController
                         ->count(),
 
                     '_in_progress' => ChildCase::whereHas('child', function ($query) {
-                            $query->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
-                                ->where('alert_status', '=', 'accepted');
-                        })->where('case_status', '=', 'in_progress')->whereHas('tenant', function ($query) use ($uf){
-                            $query->where('uf', '=', $uf);
-                        })->count()
+                        $query->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])
+                            ->where('alert_status', '=', 'accepted');
+                    })->where('case_status', '=', 'in_progress')->whereHas('tenant', function ($query) use ($uf){
+                        $query->where('uf', '=', $uf);
+                    })->count()
                 ],
 
                 'causes' => $causes
