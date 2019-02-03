@@ -142,6 +142,8 @@ class EducacensoXLSChunkImporter
             $data[$systemField] = $row[$xlsField];
         }
 
+        $data['observation'] = "Escola: ".$row['nome_da_escola']." | Modalidade de ensino: ".$row['modalidade_de_ensino']." | Etapa: ".$row['etapa_de_ensino'];
+
         $data['alert_cause_id'] = AlertCause::getBySlug('educacenso_inep')->id;
 
         $data['educacenso_id'] = strval($data['educacenso_id'] ?? "unkn_" . uniqid());
