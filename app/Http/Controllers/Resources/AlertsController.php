@@ -29,26 +29,39 @@ class AlertsController extends BaseController {
 
 	public function get_pending() {
 
-	    /** @var Builder $query */
-		$query = Child::with('alert')->where('children.alert_status', 'pending');
+        /** @var Builder $query */
+        $query = Child::with('alert');
 
-		if(request()->has('sort')) {
-			Child::applySorting($query, json_decode(request('sort'), true));
-		}
+        $where = [];
 
-		if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
-			$group = Auth::user()->group; /* @var $group Group */
+        if(request('show_suspended') == "true") {
+            array_push($where, ['alert_status','=', 'rejected']);
+        }else{
+            array_push($where, ['alert_status','=', 'pending']);
+        }
 
-			if(!$group) $group = Auth::user()->tenant->primary_group;
-			if(!$group) $group = new Group();
 
-			$query->whereHas('alert', function ($sq) use ($group) {
-				$sq->whereIn('alert_cause_id', $group->getSettings()->getHandledAlertCauses());
-			});
-		}
+        //filter to name
+        if(request()->has('name')) {
+            array_push($where, ['name', 'LIKE', request('name').'%']);
+        }
 
-		//filter to name
-        if(request()->has('name')) $query->where('name', 'LIKE', request('name') . '%');
+        $query->where($where);
+
+        if(request()->has('sort')) {
+            Child::applySorting($query, json_decode(request('sort'), true));
+        }
+
+        if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
+            $group = Auth::user()->group; /* @var $group Group */
+
+            if(!$group) $group = Auth::user()->tenant->primary_group;
+            if(!$group) $group = new Group();
+
+            $query->whereHas('alert', function ($sq) use ($group) {
+                $sq->whereIn('alert_cause_id', $group->getSettings()->getHandledAlertCauses());
+            });
+        }
 
         //filter to submitter_name
         if(request()->has('submitter_name')) {
@@ -65,13 +78,13 @@ class AlertsController extends BaseController {
         $paginator = $query->paginate($max);
         $collection = $paginator->getCollection();
 
-		return fractal()
-			->collection($collection)
-			->transformWith(new PendingAlertTransformer())
-			->serializeWith(new SimpleArraySerializer())
+        return fractal()
+            ->collection($collection)
+            ->transformWith(new PendingAlertTransformer())
+            ->serializeWith(new SimpleArraySerializer())
             ->paginateWith(new IlluminatePaginatorAdapter($paginator))
-			->parseIncludes(request('with'))
-			->respond();
+            ->parseIncludes(request('with'))
+            ->respond();
 	}
 
 	public function accept(Child $child) {
