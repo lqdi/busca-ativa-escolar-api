@@ -29,6 +29,7 @@ use BuscaAtivaEscolar\FormBuilder\FormBuilder;
  * @property string $rg
  * @property string $cpf
  * @property string $nis
+ * @property string $cns
  * @property string $alert_cause_id
  * @property string $alert_status
  * @property string $mother_name
@@ -65,6 +66,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 		'cpf',
 		'nis',
+        'cns',
 
 		'alert_cause_id',
 		'alert_status',
@@ -147,6 +149,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 			'cpf' => 'digits:11',
 			'nis' => 'alpha_num',
+			'cns' => 'digits:15',
 			'alert_cause_id' => 'required|' . \BuscaAtivaEscolar\Data\AlertCause::getSlugValidationMask('id'),
 
 			'mother_name' => 'required|string',

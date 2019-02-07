@@ -4,6 +4,9 @@
  * User: manoelfilho
  * Date: 04/10/18
  * Time: 10:31
+ *
+ * Classe criada para possível uso de arquivos CSV. Este arquivo ainda não está sendo utilizado. Serve apenas de exemplo para possível desenvolvimento de novo processo de importação
+ *
  */
 
 namespace BuscaAtivaEscolar\Importers;

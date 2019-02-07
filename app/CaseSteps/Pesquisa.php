@@ -44,6 +44,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		'dob',
 		'rg',
 		'cpf',
+		'cns',
 
 		'has_been_in_school',
 		'reason_not_enrolled',
@@ -100,6 +101,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 		'place_map_region',
 		'place_map_geocoded_address',
 		'aux',
+		'nis',
 
 	];
 

@@ -49,8 +49,6 @@ class ReportsController extends BaseController {
 		$filters = request('filters', []);
 		$format = request('format', 'json');
 
-
-
 		// Scope the query within the tenant
 		if(Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
 		if(Auth::user()->isRestrictedToUF()) $filters['uf'] = Auth::user()->uf;
@@ -129,12 +127,19 @@ class ReportsController extends BaseController {
 			return $this->exportResults($params['view'], $response, $labels);
 		}
 
-		return response()->json([
-			'query' => $query->getQuery(),
-			'attempted' => $query->getAttemptedQuery(),
-			'response' => $response,
-			'labels' => $labels
-		]);
+        if(isset($filters['place_city_id'])) {
+            $tentant = Tenant::where('city_id', $filters['place_city_id'])->first();
+            $tentant != null ? $response['tenant'] = true : $response['tenant'] = false;
+        }
+
+		return response()->json(
+            [
+                'query' => $query->getQuery(),
+                'attempted' => $query->getAttemptedQuery(),
+                'response' => $response,
+                'labels' => $labels
+            ]
+        );
 	}
 
 	public function query_tenants() {
