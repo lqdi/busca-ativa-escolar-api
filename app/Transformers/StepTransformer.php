@@ -57,6 +57,7 @@ class StepTransformer extends TransformerAbstract {
 			'created_at' => $step->created_at ? $step->created_at->toIso8601String() : null,
 			'updated_at' => $step->updated_at ? $step->updated_at->toIso8601String() : null,
 			'completed_at' => $step->completed_at ? $step->completed_at->toIso8601String() : null,
+            'child_status' => $step->child->child_status
 		];
 
 		if($step->step_type == 'BuscaAtivaEscolar\\CaseSteps\\Alerta') {

@@ -80,6 +80,7 @@ return [
 			'rg' => "RG",
 			'cpf' => "CPF",
 			'nis' => "NIS (Número de Identificação Social)",
+			'cns' => "CNS (Cartão Nacional do SUS)",
 
 			'mother_name' => "Nome completo da mãe ou responsável*",
 			'mother_rg' => "RG da mãe ou responsável",
