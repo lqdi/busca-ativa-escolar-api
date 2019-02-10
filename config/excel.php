@@ -517,11 +517,11 @@ return array(
             |
             */
 
-            'test' => array(
+            'test' => [
 
                 'firstname' => 'A2'
 
-            )
+            ]
 
         )
     ),

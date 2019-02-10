@@ -47,7 +47,7 @@ class SchoolMicrodataImporter {
 	 */
 	protected $findCityStmt;
 
-	public $sourceFilePath = 'static/inep_schools.csv';
+	public $sourceFilePath = 'static/inep_schools_2018.csv';
 	public $fieldMap = [
 		'CO_ENTIDADE' => 'id',
 		'NO_ENTIDADE' => 'name',

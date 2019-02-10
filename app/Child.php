@@ -81,6 +81,8 @@ use Log;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
+ * 
+ * @property integer $educacenso_year
  */
 class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyMetrics {
 
@@ -134,6 +136,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 		'map_geocoded_address',
 
 		'educacenso_id',
+		'educacenso_year'
 	];
 
 	protected $sortable = [
