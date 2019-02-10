@@ -46,6 +46,11 @@ class EducacensoXLSChunkImporter
     private $agent;
 
     /**
+     * @var int The year of Educacenso
+     */
+    public $educacenso_year = 2018;
+
+    /**
      * Handles the importing of Educacenso's XLS
      * @param ImportJob $job
      * @throws \Exception
@@ -63,43 +68,28 @@ class EducacensoXLSChunkImporter
         }
 
         Log::debug("[educacenso_import] Tenant {$this->tenant->name}, file {$this->file}");
-
         Log::debug("[educacenso_import] Loading spreadsheet data into memory ...");
 
-        $numRecords = 0;
-
         Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
-
             250,
-
-            function ($results) use ($numRecords) {
-
+            function ($results) {
                 foreach ($results->toArray() as $rowNumber => $row) {
-
                     if(!array_key_exists('uf', $row)){
                         Log::debug("[educacenso_import] \t no 'UF' keyword found");
                         throw new \Exception("Arquivo diferente do padrão fornecido pelo Educacenso");
                     }
-
                     Log::debug("[educacenso_import] \t Found UF keyword!");
-
                     if($row['uf'] == null){
                         Log::debug("[educacenso_import] Found empty line in data block, block has closed!");
                         break;
                     }
-
-                    $numRecords++;
-
-                    $this->parseChildRow($row);
-
+                    if(!$this->isThereChild($row)){
+                        $this->parseChildRow($row);
+                    }
                 }
-
             },
-
             false
         );
-
-        $this->job->setTotalRecords($numRecords);
 
         Log::debug("[educacenso_import] Completed parsing all records");
 
@@ -154,6 +144,7 @@ class EducacensoXLSChunkImporter
         $data['place_city_name'] = $this->tenant->city->name;
         $data['place_kind'] = isset($data['place_kind']) ? ($placeKindMap[$data['place_kind']] ?? null) : null;
         $data['has_been_in_school'] = true;
+        $data['educacenso_year'] = $this->educacenso_year;
 
         Log::debug("[educacenso_import] \t Parsed data: " . print_r($data, true));
 
@@ -177,6 +168,17 @@ class EducacensoXLSChunkImporter
 
         Log::debug("[educacenso_import] \t Child spawn complete!");
 
+    }
+
+    public function isThereChild($row){
+        $identificacao_unica = strval($row['identificacao_unica']);
+        $child = Child::where([ ['educacenso_year', '=', $this->educacenso_year], ['educacenso_id', '=', $identificacao_unica] ])->first();
+        if($child == null){
+            return false;
+        }else{
+            Log::debug("Child already exists ".$child->name." | ".$child->id);
+            return true;
+        }
     }
 
 }
