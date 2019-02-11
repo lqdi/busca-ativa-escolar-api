@@ -65,23 +65,23 @@ class EducacensoController extends BaseController {
 			$job = ImportJob::createFromAttachment(EducacensoXLSChunkImporter::TYPE, $attachment);
 
 			//validate file
-			Excel::load($job->getAbsolutePath(), function($doc){
-				$sheet = $doc->getSheetByName('Relatório'); 
-				if( $sheet == null ){
-					$this->erro = true;
-					$this->msg_erro = "Aba Relatório não localizada";
-					return;
-				}
-				if( trim($sheet->getCell("B5")) != "Resultados finais do Censo Escolar da Educação Básica 2018 - Educacenso"){
-					$this->erro = true;
-					$this->msg_erro = "Cabeçalho do arquivo diferente do padrão do Educacenso 2018";
-				}
-			});
+			// Excel::load($job->getAbsolutePath(), function($doc){
+			// 	$sheet = $doc->getSheetByName('Relatório'); 
+			// 	if( $sheet == null ){
+			// 		$this->erro = true;
+			// 		$this->msg_erro = "Aba Relatório não localizada";
+			// 		return;
+			// 	}
+			// 	if( trim($sheet->getCell("B5")) != "Resultados finais do Censo Escolar da Educação Básica 2018 - Educacenso"){
+			// 		$this->erro = true;
+			// 		$this->msg_erro = "Cabeçalho do arquivo diferente do padrão do Educacenso 2018";
+			// 	}
+			// });
 
-			if($this->erro){
-				$job->setStatus(ImportJob::STATUS_FAILED);
-				return response()->json(["reason" => $this->msg_erro,  "status" => "error"], 400);
-			}
+			// if($this->erro){
+			// 	$job->setStatus(ImportJob::STATUS_FAILED);
+			// 	return response()->json(["reason" => $this->msg_erro,  "status" => "error"], 400);
+			// }
 			//-------------
 
 			dispatch(new ProcessImportJob($job));
