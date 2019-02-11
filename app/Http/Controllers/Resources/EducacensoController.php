@@ -32,7 +32,8 @@ class EducacensoController extends BaseController {
 
     const PERMITED_FILES_MIME_TYPES = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-excel'
+		'application/vnd.ms-excel',
+		'application/octet-stream'
     ];
 
 	public function import() {
