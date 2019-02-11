@@ -26,27 +26,25 @@ class ImportController extends BaseController {
 	}
 
 	public function upload_file() {
-		
-		return $this->api_failure('invalid_type');
-		
-		// $file = request()->file('file');
-		// $type = request('type');
+				
+		$file = request()->file('file');
+		$type = request('type');
 
-		// if(!in_array($type, array_keys(ImportJob::TYPES))) {
-		// 	return $this->api_failure('invalid_type');
-		// }
+		if(!in_array($type, array_keys(ImportJob::TYPES))) {
+			return $this->api_failure('invalid_type');
+		}
 
-		// $key = uniqid($type . '_', true);
-		// $extension = trim(strtolower($file->getClientOriginalExtension()));
+		$key = uniqid($type . '_', true);
+		$extension = trim(strtolower($file->getClientOriginalExtension()));
 
-		// $path = $file->storeAs('imported', "{$key}.{$extension}");
+		$path = $file->storeAs('imported', "{$key}.{$extension}");
 
-		// $job = ImportJob::create([
-		// 	'type' => $type,
-		// 	'path' => $path,
-		// ]);
+		$job = ImportJob::create([
+			'type' => $type,
+			'path' => $path,
+		]);
 
-		// return $this->api_success(['job_id' => $job]);
+		return $this->api_success(['job_id' => $job]);
 
 	}
 
@@ -66,6 +64,7 @@ class ImportController extends BaseController {
 
 			$job->handle();
 
+			$job->storeError(null);
 			$job->setStatus(ImportJob::STATUS_COMPLETED);
 
 		} catch (\Exception $ex) {
