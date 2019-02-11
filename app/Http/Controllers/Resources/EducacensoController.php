@@ -41,10 +41,6 @@ class EducacensoController extends BaseController {
 		if(!in_array($file->getMimeType(), self::PERMITED_FILES_MIME_TYPES)){
             return response()->json(["reason" => "File not permitted",  "status" => "error"], 400);
 		}
-		
-		if($file->getSize() > 250000){
-            return response()->json(["reason" => "Arquivo com peso acima do permitido. Entre em contato com a Busca Ativa Escolar",  "status" => "error"], 400);
-        }
 
 		$tenant = auth()->user()->tenant; /* @var $tenant Tenant */
 
