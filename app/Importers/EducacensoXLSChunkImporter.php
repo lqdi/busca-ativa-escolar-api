@@ -176,7 +176,7 @@ class EducacensoXLSChunkImporter
         if($child == null){
             return false;
         }else{
-            Log::debug("Child already exists ".$child->name." | ".$child->id);
+            Log::debug("Child already exists ".$child->name." | ID: ".$child->id." | ID Educacenso: ".$child->educacenso_id." | Ano: ".$child->educacenso_year);
             return true;
         }
     }
