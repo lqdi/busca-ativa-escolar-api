@@ -384,7 +384,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 * @return string
 	 */
 	public function getPasswordResetURL() {
-		return config('app_panel_url')."/password_reset?email={$this->email}&token={$this->remember_token}";
+		return config('app_panel_url', 'https://plataforma.buscaativaescolar.org.br')."/password_reset?email={$this->email}&token={$this->remember_token}";
 	}
 
 	/**
