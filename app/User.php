@@ -384,7 +384,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 * @return string
 	 */
 	public function getPasswordResetURL() {
-		return str_finish(env('APP_PANEL_URL'), '/') . "password_reset?email={$this->email}&token={$this->remember_token}";
+		return env('APP_PANEL_URL'). "password_reset?email={$this->email}&token={$this->remember_token}";
 	}
 
 	/**
