@@ -57,6 +57,6 @@ return [
 
     ],
 
-    'prefix' => env('CACHE_PREFIX', 'laravel'),
+    'prefix' => env('CACHE_PREFIX', 'laravel')
 
 ];
