@@ -14,6 +14,11 @@ return [
 
     'name' => 'Busca Ativa Escolar',
 
+
+    'app_url' => env('APP_URL'),
+
+    'app_panel_url' => env('APP_PANEL_URL'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
