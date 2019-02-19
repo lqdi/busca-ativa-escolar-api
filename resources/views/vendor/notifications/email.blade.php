@@ -88,7 +88,7 @@ $style = [
 											@if ($level == 'error')
 												Oops!
 											@else
-												Olá!
+												Olá!!!
 											@endif
 										@endif
 									</h1>
