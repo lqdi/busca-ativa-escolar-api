@@ -38,7 +38,7 @@ class PasswordReset extends Notification implements ShouldQueue {
 	}
 
 	protected function getResetURL($user) {
-		return env('APP_PANEL_URL').$user->getPasswordResetURL();
+		return $user->getPasswordResetURL();
 	}
 
 	public function toArray($notifiable) {
