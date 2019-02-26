@@ -14,17 +14,21 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\Notifications\SchoolNotification;
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use BuscaAtivaEscolar\Traits\Data\NonIncrementingIndex;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
+
 
 class School extends Model implements Searchable {
 
 	use NonIncrementingIndex;
 	use SoftDeletes;
+    use Notifiable;
 
-	protected $table = "schools";
+    protected $table = "schools";
 	protected $fillable = [
 		'id',
 		'name',
@@ -62,5 +66,9 @@ class School extends Model implements Searchable {
 			'city_ibge_id' => $this->city_ibge_id,
 		];
 	}
+
+    public function sendNotification() {
+        $this->notify (new SchoolNotification());
+    }
 
 }

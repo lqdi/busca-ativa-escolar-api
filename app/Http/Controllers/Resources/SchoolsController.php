@@ -48,4 +48,28 @@ class SchoolsController extends BaseController {
 
 	}
 
+	public function sendNotificationSchool() {
+
+        $email = request('email');
+
+        try {
+
+//            // TODO: rate limiting
+//
+            $school = new School();
+//
+            if(!$school) {
+                return $this->api_failure();
+            }
+//
+            $school->sendNotification();
+//
+            return $this->api_success();
+
+
+        } catch (\Exception $ex) {
+            $this->api_failure('reset_send_failed');
+        }
+    }
+
 }
