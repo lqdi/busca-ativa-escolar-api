@@ -14,7 +14,6 @@
 namespace BuscaAtivaEscolar;
 
 
-use BuscaAtivaEscolar\Notifications\SchoolNotification;
 use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use BuscaAtivaEscolar\Traits\Data\NonIncrementingIndex;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +38,9 @@ class School extends Model implements Searchable {
 		'city_name',
 		'city_ibge_id',
 		'metadata',
+        'school_cell_phone',
+        'school_phone',
+        'school_email'
 	];
 
 	protected $casts = [
@@ -67,8 +69,6 @@ class School extends Model implements Searchable {
 		];
 	}
 
-    public function sendNotification() {
-        $this->notify (new SchoolNotification());
-    }
+
 
 }

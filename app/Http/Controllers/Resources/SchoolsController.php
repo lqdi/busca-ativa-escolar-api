@@ -14,20 +14,31 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
+use BuscaAtivaEscolar\CaseSteps\Pesquisa;
+use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\SchoolSearchResultsTransformer;
+use BuscaAtivaEscolar\Transformers\SchoolTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use BuscaAtivaEscolar\User;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use BuscaAtivaEscolar\Notifications\SchoolNotification;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Notifications\Messages\MailMessage;
 
 
 class SchoolsController extends BaseController {
 
-	public function search(Search $search) {
+    use Notifiable;
+
+
+    public function search(Search $search) {
 
 		$parameters = request()->only(['id', 'uf', 'city_id', 'name']);
 		$parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
@@ -58,14 +69,14 @@ class SchoolsController extends BaseController {
 
 //            // TODO: rate limiting
 //
-            $school = School::whereEmail($email)->first(); /* @var $user User */
+            $school = School::whereSchoolEmail($email)->first();
 //
             if(!$school) {
                 return $this->api_failure();
             }
 //
-//            $school->sendNotification();
-            $school->sendPasswordResetNotification();
+            $this->sendNotification($school);
+//            $school->sendPasswordResetNotification();
 
 //
             return $this->api_success();
@@ -75,5 +86,48 @@ class SchoolsController extends BaseController {
             $this->api_failure('reset_send_failed');
         }
     }
+
+	public function all_educacenso(){
+
+        $tenant_id =  $this->currentUser()->tenant->id;
+
+        //return array with schools' id from Pesquisa Model
+        $schools_array_id  = Pesquisa::query()
+            ->select('school_last_id')
+            ->whereHas('child', function ($query_child) {
+                $query_child->where('educacenso_year', '=', 2018);
+            })
+            ->where('tenant_id', $tenant_id)
+            ->groupBy('school_last_id')
+            ->pluck('school_last_id')
+            ->toArray();
+
+        $query_school = School::where('id', '!=', null)
+            ->whereIn('id', $schools_array_id);
+
+        $max = request('max', 128);
+        if($max > 128) $max = 128;
+        if($max < 16) $max = 16;
+
+        $paginator = $query_school->paginate($max);
+        $collection = $paginator->getCollection();
+
+        return fractal()
+            ->collection($collection)
+            ->transformWith(new SchoolTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->paginateWith(new IlluminatePaginatorAdapter($paginator))
+            ->respond();
+
+    }
+
+    private function sendNotification($school) {
+//        Notifiable::send($users, new SchoolNotification("A new user has visited on your application."));
+        $message = new \BuscaAtivaEscolar\Mail\schoolNotification();
+        $targets = explode(",", env('SUPPORT_TICKET_TARGETS', 'dev@lqdi.net'));
+
+        \Mail::to('sandysk8@gmail.com')->send($message);
+    }
+
 
 }
