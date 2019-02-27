@@ -118,7 +118,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
         Route::get('/states/export', 'Resources\StatesController@export');
 
         // Schools comunications
-        Route::any('/schools/notification', 'Resources\SchoolsController@sendNotificationSchool');
+        Route::post('/schools/notification', 'Resources\SchoolsController@sendNotificationSchool');
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');

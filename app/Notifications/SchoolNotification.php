@@ -33,7 +33,7 @@ class SchoolNotification extends Notification implements ShouldQueue {
 			->subject("[Busca Ativa Escolar] Escolas")
 			->line("Ola")
 			->line("Precisamos")
-			->action('Acesse o link', $this->getResetURL($notifiable))
+			->action('Acesse o link', '')
 			->line("Caso você não tenha solicitado a recuperação de senha, ignore essa mensagem.");
 	}
 

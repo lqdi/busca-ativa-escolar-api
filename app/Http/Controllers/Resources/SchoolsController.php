@@ -22,6 +22,8 @@ use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\SchoolSearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
 use Illuminate\Support\Str;
+use BuscaAtivaEscolar\User;
+
 
 class SchoolsController extends BaseController {
 
@@ -56,13 +58,15 @@ class SchoolsController extends BaseController {
 
 //            // TODO: rate limiting
 //
-            $school = new School();
+            $school = School::whereEmail($email)->first(); /* @var $user User */
 //
             if(!$school) {
                 return $this->api_failure();
             }
 //
-            $school->sendNotification();
+//            $school->sendNotification();
+            $school->sendPasswordResetNotification();
+
 //
             return $this->api_success();
 
