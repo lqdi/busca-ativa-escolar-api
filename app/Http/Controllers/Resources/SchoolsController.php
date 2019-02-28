@@ -87,5 +87,16 @@ class SchoolsController extends BaseController {
 
     }
 
+    public function update(School $school){
+
+        $input = request()->all();
+        $school = School::findOrFail((int)$input['id']);
+        $school->fill($input);
+
+        $school->save();
+
+        return response()->json(['status' => 'ok', 'updated' => $input]);
+
+    }
 
 }

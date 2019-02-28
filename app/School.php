@@ -66,4 +66,16 @@ class School extends Model implements Searchable {
 		];
 	}
 
+	public function validate($data){
+        return validator($data, [
+//            'school_phone' => 'required|string',
+//            'city_ibge_id' => 'required|string',
+//            'city_id' => 'required|string',
+//            'city_name' => 'required|string',
+//            'id' => 'required|string',
+//            'name' => 'required|string',
+//            'region' => 'required|string'
+        ]);
+    }
+
 }
