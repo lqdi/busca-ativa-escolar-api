@@ -15,7 +15,6 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
-use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
@@ -24,75 +23,60 @@ use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\SchoolSearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\SchoolTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
-use BuscaAtivaEscolar\Notifications\SchoolNotification;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Mail\Mailable;
-use Illuminate\Notifications\Messages\MailMessage;
+use BuscaAtivaEscolar\Mail\schoolNotification;
 
 
-class SchoolsController extends BaseController {
+class SchoolsController extends BaseController
+{
 
     use Notifiable;
 
 
-    public function search(Search $search) {
+    public function search(Search $search)
+    {
 
-		$parameters = request()->only(['id', 'uf', 'city_id', 'name']);
-		$parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
-		$parameters['name'] = Str::ascii($parameters['name']);
+        $parameters = request()->only(['id', 'uf', 'city_id', 'name']);
+        $parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
+        $parameters['name'] = Str::ascii($parameters['name']);
 
-		$query = ElasticSearchQuery::withParameters($parameters)
-			->searchTextInColumns('name', ['name', 'id'])
-			->filterByTerm('city_id', false)
-			->filterByTerm('uf', false)
-			->getQuery();
+        $query = ElasticSearchQuery::withParameters($parameters)
+            ->searchTextInColumns('name', ['name', 'id'])
+            ->filterByTerm('city_id', false)
+            ->filterByTerm('uf', false)
+            ->getQuery();
 
-		$results = $search->search(new School(), $query, 12);
+        $results = $search->search(new School(), $query, 12);
 
-		return fractal()
-			->item($results)
-			->transformWith(new SearchResultsTransformer(SchoolSearchResultsTransformer::class, $query))
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond();
+        return fractal()
+            ->item($results)
+            ->transformWith(new SearchResultsTransformer(SchoolSearchResultsTransformer::class, $query))
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
 
-	}
+    }
 
-	public function sendNotificationSchool() {
+    public function sendNotificationSchool(Request $request)
+    {
+        $email = $request->request;
 
-        $email = request('email');
-
-        try {
-
-//            // TODO: rate limiting
-//
-            $school = School::whereSchoolEmail($email)->first();
-//
-            if(!$school) {
-                return $this->api_failure();
-            }
-//
-            $this->sendNotification($school);
-//            $school->sendPasswordResetNotification();
-
-//
-            return $this->api_success();
-
-
-        } catch (\Exception $ex) {
-            $this->api_failure('reset_send_failed');
+        foreach ($email as $key => $value) {
+            $this->sendNotification($value['email']);
         }
     }
 
-	public function all_educacenso(){
+    public function all_educacenso()
+    {
 
-        $tenant_id =  $this->currentUser()->tenant->id;
+        $tenant_id = $this->currentUser()->tenant->id;
 
         //return array with schools' id from Pesquisa Model
-        $schools_array_id  = Pesquisa::query()
+        $schools_array_id = Pesquisa::query()
             ->select('school_last_id')
             ->whereHas('child', function ($query_child) {
                 $query_child->where('educacenso_year', '=', 2018);
@@ -106,8 +90,8 @@ class SchoolsController extends BaseController {
             ->whereIn('id', $schools_array_id);
 
         $max = request('max', 128);
-        if($max > 128) $max = 128;
-        if($max < 16) $max = 16;
+        if ($max > 128) $max = 128;
+        if ($max < 16) $max = 16;
 
         $paginator = $query_school->paginate($max);
         $collection = $paginator->getCollection();
@@ -121,12 +105,17 @@ class SchoolsController extends BaseController {
 
     }
 
-    private function sendNotification($school) {
-//        Notifiable::send($users, new SchoolNotification("A new user has visited on your application."));
-        $message = new \BuscaAtivaEscolar\Mail\schoolNotification();
-        $targets = explode(",", env('SUPPORT_TICKET_TARGETS', 'dev@lqdi.net'));
-
-        \Mail::to('sandysk8@gmail.com')->send($message);
+    private function sendNotification($email)
+    {
+        $school = School::whereSchoolEmail($email)->first();
+        if ($school) {
+            try {
+                $message = new schoolNotification($school);
+                Mail::to($school->school_email)->send($message);
+            } catch (\Exception $ex) {
+                $this->api_failure('Problema no envio');
+            }
+        }
     }
 
 
