@@ -117,6 +117,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::any('/states/all', 'Resources\StatesController@all')->middleware('can:ufs.view');
         Route::get('/states/export', 'Resources\StatesController@export');
 
+        // Schools comunications
+        Route::post('/schools/notification', 'Resources\SchoolsController@sendNotificationSchool');
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');

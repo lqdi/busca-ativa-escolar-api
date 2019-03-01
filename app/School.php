@@ -18,13 +18,16 @@ use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use BuscaAtivaEscolar\Traits\Data\NonIncrementingIndex;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
+
 
 class School extends Model implements Searchable {
 
 	use NonIncrementingIndex;
 	use SoftDeletes;
+    use Notifiable;
 
-	protected $table = "schools";
+    protected $table = "schools";
 	protected $fillable = [
 		'id',
 		'name',
@@ -66,6 +69,7 @@ class School extends Model implements Searchable {
 		];
 	}
 
+<<<<<<< HEAD
 	public function validate($data){
         return validator($data, [
 //            'school_phone' => 'required|string',
@@ -77,5 +81,8 @@ class School extends Model implements Searchable {
 //            'region' => 'required|string'
         ]);
     }
+=======
+
+>>>>>>> envio_email_sms_escola
 
 }
