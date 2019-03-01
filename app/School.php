@@ -18,13 +18,16 @@ use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use BuscaAtivaEscolar\Traits\Data\NonIncrementingIndex;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
+
 
 class School extends Model implements Searchable {
 
 	use NonIncrementingIndex;
 	use SoftDeletes;
+    use Notifiable;
 
-	protected $table = "schools";
+    protected $table = "schools";
 	protected $fillable = [
 		'id',
 		'name',
@@ -35,6 +38,9 @@ class School extends Model implements Searchable {
 		'city_name',
 		'city_ibge_id',
 		'metadata',
+        'school_cell_phone',
+        'school_phone',
+        'school_email'
 	];
 
 	protected $casts = [
@@ -62,5 +68,17 @@ class School extends Model implements Searchable {
 			'city_ibge_id' => $this->city_ibge_id,
 		];
 	}
+
+	public function validate($data){
+        return validator($data, [
+//            'school_phone' => 'required|string',
+//            'city_ibge_id' => 'required|string',
+//            'city_id' => 'required|string',
+//            'city_name' => 'required|string',
+//            'id' => 'required|string',
+//            'name' => 'required|string',
+//            'region' => 'required|string'
+        ]);
+    }
 
 }
