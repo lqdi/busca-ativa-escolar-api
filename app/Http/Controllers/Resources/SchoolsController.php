@@ -68,6 +68,11 @@ class SchoolsController extends BaseController
         foreach ($email as $key => $value) {
             $this->sendNotification($value['email']);
         }
+
+        $data['status'] = "ok";
+        $data['message'] = "Mensagens encaminhadas com sucesso";
+
+        return response()->json($data, 200);
     }
 
     public function all_educacenso()
@@ -86,6 +91,7 @@ class SchoolsController extends BaseController
             ->pluck('school_last_id')
             ->toArray();
 
+        //return schools where in $schools_array_id
         $query_school = School::where('id', '!=', null)
             ->whereIn('id', $schools_array_id);
 
@@ -113,7 +119,11 @@ class SchoolsController extends BaseController
                 $message = new schoolNotification($school);
                 Mail::to($school->school_email)->send($message);
             } catch (\Exception $ex) {
-                $this->api_failure('Problema no envio');
+
+                $data['status'] = "error";
+                $data['message'] = $ex->getMessage();
+
+                return response()->json($data, 400);
             }
         }
     }
