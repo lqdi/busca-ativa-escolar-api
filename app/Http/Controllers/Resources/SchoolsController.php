@@ -66,7 +66,7 @@ class SchoolsController extends BaseController
         $email = $request->request;
 
         foreach ($email as $key => $value) {
-            $this->sendNotification($value['email']);
+            $this->sendNotification($value['school_email']);
         }
 
         $data['status'] = "ok";
