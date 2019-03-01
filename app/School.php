@@ -69,7 +69,6 @@ class School extends Model implements Searchable {
 		];
 	}
 
-<<<<<<< HEAD
 	public function validate($data){
         return validator($data, [
 //            'school_phone' => 'required|string',
@@ -81,8 +80,5 @@ class School extends Model implements Searchable {
 //            'region' => 'required|string'
         ]);
     }
-=======
-
->>>>>>> envio_email_sms_escola
 
 }
