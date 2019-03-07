@@ -70,7 +70,7 @@ $style = [
 				<!-- Logo -->
 				<tr bgcolor="#ffffff">
 					<td style="text-align: center;">
-						<img src="http://panel.busca-ativa-escolar.dev.lqdi.net/images/logo_bae_signup.png" style="border: 0; display: block; margin: 0 auto;" />
+						<img src="https://plataforma.buscaativaescolar.org.br/images/logo_bae_signup.png" style="border: 0; display: block; margin: 0 auto;" />
 					</td>
 				</tr>
 
