@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
+use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
@@ -80,11 +81,15 @@ class SchoolsController extends BaseController
 
         $tenant_id = $this->currentUser()->tenant->id;
 
-        //return array with schools' id from Pesquisa Model
+        // Return array with schools' id from Pesquisa Model.
+        // Return the id grouped by schools id, only from child with educacenso id and child case in case step alerta
         $schools_array_id = Pesquisa::query()
             ->select('school_last_id')
             ->whereHas('child', function ($query_child) {
                 $query_child->where('educacenso_year', '=', 2018);
+            })
+            ->whereHas('childCase', function ($query_childCase) {
+                $query_childCase->where('current_step_type', '=', 'BuscaAtivaEscolar\CaseSteps\Alerta');
             })
             ->where('tenant_id', $tenant_id)
             ->groupBy('school_last_id')
@@ -96,8 +101,6 @@ class SchoolsController extends BaseController
             ->whereIn('id', $schools_array_id);
 
         $max = request('max', 128);
-        if ($max > 128) $max = 128;
-        if ($max < 16) $max = 16;
 
         $paginator = $query_school->paginate($max);
         $collection = $paginator->getCollection();
