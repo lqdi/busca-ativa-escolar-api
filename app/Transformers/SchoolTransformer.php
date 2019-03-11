@@ -16,10 +16,19 @@ namespace BuscaAtivaEscolar\Transformers;
 
 use BuscaAtivaEscolar\School;
 use League\Fractal\TransformerAbstract;
+use BuscaAtivaEscolar\Transformers\EmailJobTransformer;
 
 class SchoolTransformer extends TransformerAbstract {
 
-	public function transform(School $school) {
+    protected $availableIncludes = [
+        'emailJob',
+    ];
+
+    protected $defaultIncludes = [
+        'emailJob',
+    ];
+
+    public function transform(School $school) {
 		return [
 			'id' => $school->id,
 
@@ -37,5 +46,10 @@ class SchoolTransformer extends TransformerAbstract {
             'school_email' => $school->school_email
 		];
 	}
+
+    public function includeEmailJob(School $school) {
+        if(!$school->emailJobs) return null;
+        return $this->item($school->emailJobs, new EmailJobTransformer(), false);
+    }
 
 }

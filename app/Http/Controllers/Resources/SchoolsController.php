@@ -15,8 +15,10 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
-use BuscaAtivaEscolar\ChildCase;
+use BuscaAtivaEscolar\EmailJob;
+use BuscaAtivaEscolar\EmailTypes\SchoolEducacensoEmail;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Jobs\ProcessEmailJob;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
@@ -24,12 +26,11 @@ use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\SchoolSearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\SchoolTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
+use BuscaAtivaEscolar\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Illuminate\Notifications\Notifiable;
-use BuscaAtivaEscolar\Mail\schoolNotification;
 
 
 class SchoolsController extends BaseController
@@ -37,7 +38,11 @@ class SchoolsController extends BaseController
 
     use Notifiable;
 
-
+    /**
+     * @param Search $search
+     * @return mixed
+     * @throws \Exception
+     */
     public function search(Search $search)
     {
 
@@ -62,12 +67,22 @@ class SchoolsController extends BaseController
 
     }
 
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     */
     public function sendNotificationSchool(Request $request)
     {
         $email = $request->request;
 
+        $user = auth()->user(); /* @var $user User */
+
         foreach ($email as $key => $value) {
-            $this->sendNotification($value['school_email']);
+            $school = School::whereSchoolEmail($value['school_email'])->first();
+            $job = EmailJob::createFromType(SchoolEducacensoEmail::TYPE, $user, $school);
+            \Queue::pushOn('emails', new ProcessEmailJob($job));
         }
 
         $data['status'] = "ok";
@@ -76,13 +91,14 @@ class SchoolsController extends BaseController
         return response()->json($data, 200);
     }
 
+    /**
+     * @return mixed
+     */
     public function all_educacenso()
     {
 
         $tenant_id = $this->currentUser()->tenant->id;
 
-        // Return array with schools' id from Pesquisa Model.
-        // Return the id grouped by schools id, only from child with educacenso id and child case in case step alerta
         $schools_array_id = Pesquisa::query()
             ->select('school_last_id')
             ->whereHas('child', function ($query_child) {
@@ -114,6 +130,10 @@ class SchoolsController extends BaseController
 
     }
 
+    /**
+     * @param School $school
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(School $school){
 
         $input = request()->all();
@@ -124,23 +144,6 @@ class SchoolsController extends BaseController
 
         return response()->json(['status' => 'ok', 'updated' => $input]);
 
-    }
-
-    private function sendNotification($email)
-    {
-        $school = School::whereSchoolEmail($email)->first();
-        if ($school) {
-            try {
-                $message = new schoolNotification($school);
-                Mail::to($school->school_email)->send($message);
-            } catch (\Exception $ex) {
-
-                $data['status'] = "error";
-                $data['message'] = $ex->getMessage();
-
-                return response()->json($data, 400);
-            }
-        }
     }
 
 

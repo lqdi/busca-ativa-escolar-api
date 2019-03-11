@@ -36,7 +36,10 @@ class EducacensoController extends BaseController {
 		'application/octet-stream'
     ];
 
-	public function import() {
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function import() {
 		$file = request()->file('file');
 
 		if(!in_array($file->getMimeType(), self::PERMITED_FILES_MIME_TYPES)){

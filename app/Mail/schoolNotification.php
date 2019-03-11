@@ -8,9 +8,8 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class schoolNotification extends Mailable implements ShouldQueue
+class SchoolNotification extends Mailable
 {
-    use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
@@ -44,7 +43,7 @@ class schoolNotification extends Mailable implements ShouldQueue
             ->line("Agradecemos imensamente sua disposição em colaborar para a garantia do direito à educação de todas as crianças que residem em nosso município!");
 
 		$this->subject("Precisamos da sua colaboração!");
-;
+
         return $this->view('vendor.notifications.email', $message->toArray());
     }
     private function getUrlToken (){
