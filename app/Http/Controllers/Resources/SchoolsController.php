@@ -86,7 +86,7 @@ class SchoolsController extends BaseController
         }
 
         $data['status'] = "ok";
-        $data['message'] = "Mensagens encaminhadas com sucesso";
+        $data['message'] = "Mensagens encaminhadas para fila de envio";
 
         return response()->json($data, 200);
     }
