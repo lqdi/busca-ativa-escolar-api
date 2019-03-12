@@ -9,9 +9,9 @@
 namespace BuscaAtivaEscolar\EmailTypes;
 
 use BuscaAtivaEscolar\EmailJob;
-use BuscaAtivaEscolar\Mail\SchoolNotification;
 use BuscaAtivaEscolar\School;
 use Illuminate\Support\Facades\Mail;
+use BuscaAtivaEscolar\Mail\SchoolNotification;
 
 
 class SchoolEducacensoEmail implements SendEmail
@@ -20,19 +20,29 @@ class SchoolEducacensoEmail implements SendEmail
     const TYPE = "school_educacenso_email";
 
     /**
-     * @var EmailJob The email job submitted
+     * @var int The number of JOB
      */
-    public $job;
+    public $job_id;
 
     /**
-     * @var User The user that is identified as the creator of emails
+     * @var int The School
      */
-    private $user;
+    public $school;
 
     /**
-     * @var School The school that is identified as the receiver of email
+     * @var string The id of user that is identified as the creator of emails
      */
-    private $school;
+    private $user_id;
+
+    /**
+     * @var string The email of school that is identified as the receiver of email
+     */
+    private $school_email;
+
+    /**
+     * @var string The email of user that is identified as the receiver of email
+     */
+    private $email_user;
 
 
     /**
@@ -42,15 +52,24 @@ class SchoolEducacensoEmail implements SendEmail
      */
     public function handle(EmailJob $job) {
 
-        $this->job = $job;
-        $this->user = auth()->user(); /* @var $user User */
-        $this->school = School::whereSchoolEmail($this->job->school_email)->first();
+        $this->job_id = $job->id;
+        $this->user_id = $job->user_id;
+        $this->school_email = $job->school_email;
+        $this->email_user = $job->email_user;
+        $this->school = School::findOrFail($job->school_id);
+
 
         try {
-            $message = new SchoolNotification($this->school);
-            Mail::to($this->school->school_email)->cc($this->user->email)->send($message);
+            $message = new SchoolNotification($this->school, $this->job_id);
+
+            Mail::to($this->school_email)
+                ->cc($this->email_user)
+                ->send($message);
+
         } catch (\Exception $ex) {
+
             throw $ex;
+
         }
 
     }

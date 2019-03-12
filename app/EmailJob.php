@@ -14,6 +14,7 @@ use BuscaAtivaEscolar\EmailTypes\SchoolEducacensoEmail;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 
+
 class EmailJob extends Model
 {
 
@@ -37,7 +38,12 @@ class EmailJob extends Model
         'tenant_id',
         'school_id',
         'errors',
-        'school_email'
+        'school_email',
+        'email_user'
+    ];
+
+    protected $casts = [
+        'errors' => 'array'
     ];
 
     const TYPES = [
@@ -62,7 +68,7 @@ class EmailJob extends Model
      * @return Model|mixed
      * @throws \Exception
      */
-    public static function createFromType(string $emailType, User $user, School $school){
+    public static function createFromType(string $emailType, User $user, $school){
 
         if(!in_array($emailType, array_keys(self::TYPES))) {
             throw new \Exception("Invalid email type: {$emailType}");
@@ -74,7 +80,8 @@ class EmailJob extends Model
             'user_id' => $user->id,
             'tenant_id' => $user->tenant->id,
             'school_id' => $school->id,
-            'school_email' => $school->school_email
+            'school_email' => $school->school_email,
+            'email_user' => $user->email
         ]);
 
     }

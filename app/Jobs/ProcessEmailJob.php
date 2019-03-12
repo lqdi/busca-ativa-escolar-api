@@ -3,16 +3,10 @@
 namespace BuscaAtivaEscolar\Jobs;
 
 use BuscaAtivaEscolar\EmailJob;
-use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Log;
 
-class ProcessEmailJob implements ShouldQueue
+class ProcessEmailJob
 {
-    use InteractsWithQueue, Queueable, SerializesModels;
-
     public $emailJob;
 
     /**

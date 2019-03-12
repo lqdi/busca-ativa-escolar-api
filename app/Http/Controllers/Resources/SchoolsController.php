@@ -31,6 +31,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Illuminate\Notifications\Notifiable;
+use Queue;
 
 
 class SchoolsController extends BaseController
@@ -82,7 +83,7 @@ class SchoolsController extends BaseController
         foreach ($email as $key => $value) {
             $school = School::whereSchoolEmail($value['school_email'])->first();
             $job = EmailJob::createFromType(SchoolEducacensoEmail::TYPE, $user, $school);
-            \Queue::pushOn('emails', new ProcessEmailJob($job));
+            Queue::pushOn('emails', new ProcessEmailJob($job));
         }
 
         $data['status'] = "ok";

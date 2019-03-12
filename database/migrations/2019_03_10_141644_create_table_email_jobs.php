@@ -22,6 +22,7 @@ class CreateTableEmailJobs extends Migration
             $table->string('school_id');
             $table->json('errors')->nullable();
             $table->string('school_email');
+            $table->string('email_user');
 
             $table->timestamps();
             $table->softDeletes();

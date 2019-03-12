@@ -8,7 +8,6 @@
 
 namespace BuscaAtivaEscolar\EmailTypes;
 
-
 use BuscaAtivaEscolar\EmailJob;
 
 interface SendEmail
