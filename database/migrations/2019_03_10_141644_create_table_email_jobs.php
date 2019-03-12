@@ -19,7 +19,7 @@ class CreateTableEmailJobs extends Migration
             $table->string('status')->default('pending');
             $table->string('user_id');
             $table->string('tenant_id');
-            $table->string('school_id');
+            $table->integer('school_id');
             $table->json('errors')->nullable();
             $table->string('school_email');
             $table->string('email_user');

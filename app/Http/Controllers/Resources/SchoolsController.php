@@ -114,10 +114,10 @@ class SchoolsController extends BaseController
             ->toArray();
 
         //return schools where in $schools_array_id
-        $query_school = School::where('id', '!=', null)
-            ->whereIn('id', $schools_array_id);
+        $query_school = School::query();
+        $query_school->whereIn('id', $schools_array_id);
 
-        $max = request('max', 128);
+        $max = request('max', 5);
 
         $paginator = $query_school->paginate($max);
         $collection = $paginator->getCollection();
@@ -141,7 +141,15 @@ class SchoolsController extends BaseController
         $school = School::findOrFail((int)$input['id']);
         $school->fill($input);
 
-        $school->save();
+        try {
+            $school->save();
+        } catch (\Illuminate\Database\QueryException $e) {
+
+            $data['status'] = "error";
+            $data['message'] = "Email pertence a outra escola";
+            $data['school'] = $school;
+            return response()->json($data, 403);
+        }
 
         return response()->json(['status' => 'ok', 'updated' => $input]);
 

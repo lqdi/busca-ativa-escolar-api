@@ -19,6 +19,7 @@ class EmailJobTransformer extends TransformerAbstract
         $array_collection = [];
 
         foreach ($emailJobs as $emailJob){
+
             $actual_array = [
                 'type' => $emailJob->type,
                 'status' => $emailJob->status,
