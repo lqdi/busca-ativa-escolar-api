@@ -117,9 +117,13 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::any('/states/all', 'Resources\StatesController@all')->middleware('can:ufs.view');
         Route::get('/states/export', 'Resources\StatesController@export');
 
+        // Schools comunications
+        Route::post('/schools/notification', 'Resources\SchoolsController@sendNotificationSchool');
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');
+        Route::get('/schools/all_educacenso', 'Resources\SchoolsController@all_educacenso')->middleware('can:settings.educacenso');
+        Route::put('/schools/{id}', 'Resources\SchoolsController@update')->middleware('can:settings.educacenso');
 
 		// Notifications
 		Route::get('/notifications/unread', 'Resources\NotificationsController@getUnread');
@@ -180,5 +184,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
     Route::get('/lp/report/uf', 'LP\ReportsLandingPageController@report_uf');
     Route::get('/lp/report/city', 'LP\ReportsLandingPageController@report_city');
     Route::get('/lp/report/list/cities', 'LP\ReportsLandingPageController@list_cities');
+
+    //Webhooks Mailgun
+    Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
 
 });
