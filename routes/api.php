@@ -185,4 +185,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
     Route::get('/lp/report/city', 'LP\ReportsLandingPageController@report_city');
     Route::get('/lp/report/list/cities', 'LP\ReportsLandingPageController@list_cities');
 
+    //Webhooks Mailgun
+    Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
+
 });

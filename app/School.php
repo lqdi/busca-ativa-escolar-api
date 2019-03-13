@@ -21,6 +21,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 
 
+/**
+ * @property int $id
+ *
+ * @property string name
+ * @property string uf
+ * @property int uf_id
+ * @property string region
+ */
 class School extends Model implements Searchable {
 
 	use NonIncrementingIndex;
@@ -69,16 +77,11 @@ class School extends Model implements Searchable {
 		];
 	}
 
-	public function validate($data){
-        return validator($data, [
-//            'school_phone' => 'required|string',
-//            'city_ibge_id' => 'required|string',
-//            'city_id' => 'required|string',
-//            'city_name' => 'required|string',
-//            'id' => 'required|string',
-//            'name' => 'required|string',
-//            'region' => 'required|string'
-        ]);
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function emailJobs(){
+	    return $this->hasMany('BuscaAtivaEscolar\EmailJob', 'school_id');
     }
 
 }
