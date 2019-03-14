@@ -81,7 +81,13 @@ class SchoolsController extends BaseController
         $user = auth()->user(); /* @var $user User */
 
         foreach ($email as $key => $value) {
+
             $school = School::whereSchoolEmail($value['school_email'])->first();
+            if($school->token == null){
+                $school->token = str_random(40);
+                $school->save();
+            }
+
             $job = EmailJob::createFromType(SchoolEducacensoEmail::TYPE, $user, $school);
             Queue::pushOn('emails', new ProcessEmailJob($job));
         }
