@@ -8,22 +8,13 @@ use Illuminate\Notifications\Messages\MailMessage;
 class SchoolNotification extends Mailable
 {
 
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
-    protected $name;
-
-    protected $email;
-
     protected $job_id;
+    protected $school;
 
     public function __construct($school, $job_id)
     {
-        $this->name = $school->name;
-        $this->email = $school->school_email;
         $this->job_id = $job_id;
+        $this->school = $school;
     }
 
     /**
@@ -36,7 +27,7 @@ class SchoolNotification extends Mailable
         $message = (new MailMessage())
             ->success()
             ->subject("[Busca Ativa Escolar] Escolas")
-            ->line($this->name)
+            ->line($this->school->name)
             ->line("Precisamos da sua colaboração!")
             ->line("Por meio da plataforma Busca Ativa Escolar, identificamos crianças que evadiram da escola recentemente, sendo que a última escola que estudaram foi a sua. Necessitamos localizá-las e, para tanto, precisamos da sua colaboração para adicionar informações dos endereços das crianças em destaque.")
             ->line("O procedimento é muito simples. Basta clicar no botão abaixo, acessar o cadastro de cada criança e complementar as informações requeridas.")
@@ -54,6 +45,6 @@ class SchoolNotification extends Mailable
     }
 
     private function getUrlToken (){
-        return env('APP_URL_ESCOLAS')."?email=&token='akjdfkajsdfjaksdfjlkasdjflksd'";
+        return env('APP_URL_ESCOLAS')."/".$this->school->id;
     }
 }
