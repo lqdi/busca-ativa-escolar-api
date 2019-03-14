@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\EmailJob;
 use BuscaAtivaEscolar\EmailTypes\SchoolEducacensoEmail;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Jobs\ProcessEmailJob;
+use BuscaAtivaEscolar\Jobs\ProcessSmsSchool;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
@@ -32,7 +33,6 @@ use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Illuminate\Notifications\Notifiable;
 use Queue;
-
 
 class SchoolsController extends BaseController
 {
@@ -76,13 +76,13 @@ class SchoolsController extends BaseController
      */
     public function sendNotificationSchool(Request $request)
     {
-        $email = $request->request;
+        $schools = $request->request;
 
         $user = auth()->user(); /* @var $user User */
 
-        foreach ($email as $key => $value) {
+        foreach ($schools as $key => $school) {
 
-            $school = School::whereSchoolEmail($value['school_email'])->first();
+            $school = School::whereSchoolEmail($school['school_email'])->first();
             if($school->token == null){
                 $school->token = str_random(40);
                 $school->save();
@@ -90,6 +90,11 @@ class SchoolsController extends BaseController
 
             $job = EmailJob::createFromType(SchoolEducacensoEmail::TYPE, $user, $school);
             Queue::pushOn('emails', new ProcessEmailJob($job));
+
+            if($school->school_cell_phone != null){
+                Queue::pushOn('sms_school', new ProcessSmsSchool($school));
+            }
+
         }
 
         $data['status'] = "ok";
