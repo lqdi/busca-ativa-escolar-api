@@ -82,7 +82,12 @@ class SchoolsController extends BaseController
 
         foreach ($schools as $key => $school) {
 
+            if( $school['school_email'] == null OR $school['school_email'] == "" ){
+                return response()->json($data, 403);
+            }
+
             $school = School::whereSchoolEmail($school['school_email'])->first();
+            
             if($school->token == null){
                 $school->token = str_random(40);
                 $school->save();
@@ -91,7 +96,7 @@ class SchoolsController extends BaseController
             $job = EmailJob::createFromType(SchoolEducacensoEmail::TYPE, $user, $school);
             Queue::pushOn('emails', new ProcessEmailJob($job));
 
-            if($school->school_cell_phone != null){
+            if($school->school_cell_phone != null && $school->school_cell_phone != ""){
                 Queue::pushOn('sms_school', new ProcessSmsSchool($school));
             }
 
