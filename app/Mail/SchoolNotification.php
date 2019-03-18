@@ -30,7 +30,7 @@ class SchoolNotification extends Mailable
             ->line($this->school->name)
             ->line("Precisamos da sua colaboração!")
             ->line("Por meio da plataforma Busca Ativa Escolar, identificamos crianças e/ou adolescentes que evadiram da escola recentemente, sendo que a última escola que estudaram foi a sua. Necessitamos localizá-las e, para tanto, precisamos da sua colaboração para adicionar informações dos endereços das crianças e/ou adolescentes em destaque.")
-            ->line("O procedimento é muito simples. Basta clicar no botão abaixo, acessar o cadastro de cada crianças e/ou adolescentes e complementar as informações requeridas.")
+            ->line("O procedimento é muito simples. Basta clicar no botão abaixo, acessar o cadastro de cada criança e/ou adolescente e complementar as informações requeridas.")
             ->line("Agradecemos imensamente sua disposição em colaborar para a garantia do direito à educação de todas as crianças e/ou adolescentes que residem em nosso município!")
             ->action('Colaborar', $this->getUrlToken());
 
