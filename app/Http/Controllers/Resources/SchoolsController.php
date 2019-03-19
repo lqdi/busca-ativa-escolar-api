@@ -83,6 +83,8 @@ class SchoolsController extends BaseController
         foreach ($schools as $key => $school) {
 
             if( $school['school_email'] == null OR $school['school_email'] == "" ){
+                $data['status'] = "error";
+                $data['message'] = "Email inválido";
                 return response()->json($data, 403);
             }
 
