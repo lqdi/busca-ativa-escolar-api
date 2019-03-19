@@ -154,6 +154,7 @@ return [
 		'alerts.spawn',
 		'preferences',
 		'notifications',
+        'settings.educacenso',
 	],
 
 	BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL => [
