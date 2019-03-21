@@ -83,6 +83,8 @@ class SchoolsController extends BaseController
         foreach ($schools as $key => $school) {
 
             if( $school['school_email'] == null OR $school['school_email'] == "" ){
+                $data['status'] = "error";
+                $data['message'] = "Email inválido";
                 return response()->json($data, 403);
             }
 
@@ -119,7 +121,7 @@ class SchoolsController extends BaseController
         $schools_array_id = Pesquisa::query()
             ->select('school_last_id')
             ->whereHas('child', function ($query_child) {
-                $query_child->where('educacenso_year', '=', 2018);
+                $query_child->where('educacenso_year', '=', request('year_educacenso', 2018));
             })
             ->whereHas('childCase', function ($query_childCase) {
                 $query_childCase->where('current_step_type', '=', 'BuscaAtivaEscolar\CaseSteps\Alerta');
