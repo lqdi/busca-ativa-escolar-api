@@ -45,6 +45,6 @@ class SchoolNotification extends Mailable
     }
 
     private function getUrlToken (){
-        return env('APP_URL_ESCOLAS')."/".$this->school->id;
+        return env('APP_URL_ESCOLAS')."?i=".$this->school->id."&t=".$this->school->token;
     }
 }
