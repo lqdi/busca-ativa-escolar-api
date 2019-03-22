@@ -24,11 +24,13 @@ use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Transformers\SchoolCustomTransformer;
 use BuscaAtivaEscolar\Transformers\SchoolSearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\SchoolTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
 use BuscaAtivaEscolar\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Illuminate\Notifications\Notifiable;
@@ -116,6 +118,10 @@ class SchoolsController extends BaseController
     public function all_educacenso()
     {
 
+        $currentCursor = request('cursor', null);
+        $previousCursor = request('previous', null);
+        $max = request('max', 5);
+
         $tenant_id = $this->currentUser()->tenant->id;
 
         $schools_array_id = Pesquisa::query()
@@ -131,7 +137,7 @@ class SchoolsController extends BaseController
             ->pluck('school_last_id')
             ->toArray();
 
-        //return schools where in $schools_array_id
+
         $query_school = School::query();
         $query_school->whereIn('id', $schools_array_id);
 
@@ -146,6 +152,26 @@ class SchoolsController extends BaseController
             ->serializeWith(new SimpleArraySerializer())
             ->paginateWith(new IlluminatePaginatorAdapter($paginator))
             ->respond();
+
+
+//        $schools = DB::select(
+//            "select ".
+//            "sc.id, sc.name, sc.city_name, sc.school_cell_phone, sc.school_phone, sc.school_email, ".
+//            "count(csp.school_last_id) as count_children, ".
+//            "count(case when csa.place_cep is not null then 0 end) as count_with_cep ".
+//            "from schools as sc ".
+//            "inner join case_steps_pesquisa as csp on sc.id = csp.school_last_id ".
+//            "inner join case_steps_alerta as csa on csp.child_id = csa.child_id ".
+//            "inner join children as ch on ch.id = csa.child_id ".
+//            "where sc.id in (".implode(",",$schools_array_id).") and ch.educacenso_year = ".request('year_educacenso', 2018)." ".
+//            "group by sc.id"
+//        );
+//
+//        return fractal()
+//            ->collection($schools)
+//            ->transformWith(new SchoolCustomTransformer())
+//            ->serializeWith(new SimpleArraySerializer())
+//            ->respond();
 
     }
 
