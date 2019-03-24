@@ -13,7 +13,6 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
-
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\EmailJob;
 use BuscaAtivaEscolar\EmailTypes\SchoolEducacensoEmail;
@@ -113,69 +112,6 @@ class SchoolsController extends BaseController
     }
 
     /**
-     * @return mixed
-     */
-    public function all_educacenso()
-    {
-
-        $currentCursor = request('cursor', null);
-        $previousCursor = request('previous', null);
-        $max = request('max', 5);
-
-        $tenant_id = $this->currentUser()->tenant->id;
-
-        $schools_array_id = Pesquisa::query()
-            ->select('school_last_id')
-            ->whereHas('child', function ($query_child) {
-                $query_child->where('educacenso_year', '=', request('year_educacenso', 2018));
-            })
-            ->whereHas('childCase', function ($query_childCase) {
-                $query_childCase->where('current_step_type', '=', 'BuscaAtivaEscolar\CaseSteps\Alerta');
-            })
-            ->where('tenant_id', $tenant_id)
-            ->groupBy('school_last_id')
-            ->pluck('school_last_id')
-            ->toArray();
-
-
-        $query_school = School::query();
-        $query_school->whereIn('id', $schools_array_id);
-
-        $max = request('max', 5);
-
-        $paginator = $query_school->paginate($max);
-        $collection = $paginator->getCollection();
-
-        return fractal()
-            ->collection($collection)
-            ->transformWith(new SchoolTransformer())
-            ->serializeWith(new SimpleArraySerializer())
-            ->paginateWith(new IlluminatePaginatorAdapter($paginator))
-            ->respond();
-
-
-//        $schools = DB::select(
-//            "select ".
-//            "sc.id, sc.name, sc.city_name, sc.school_cell_phone, sc.school_phone, sc.school_email, ".
-//            "count(csp.school_last_id) as count_children, ".
-//            "count(case when csa.place_cep is not null then 0 end) as count_with_cep ".
-//            "from schools as sc ".
-//            "inner join case_steps_pesquisa as csp on sc.id = csp.school_last_id ".
-//            "inner join case_steps_alerta as csa on csp.child_id = csa.child_id ".
-//            "inner join children as ch on ch.id = csa.child_id ".
-//            "where sc.id in (".implode(",",$schools_array_id).") and ch.educacenso_year = ".request('year_educacenso', 2018)." ".
-//            "group by sc.id"
-//        );
-//
-//        return fractal()
-//            ->collection($schools)
-//            ->transformWith(new SchoolCustomTransformer())
-//            ->serializeWith(new SimpleArraySerializer())
-//            ->respond();
-
-    }
-
-    /**
      * @param School $school
      * @return \Illuminate\Http\JsonResponse
      */
@@ -199,5 +135,102 @@ class SchoolsController extends BaseController
 
     }
 
+
+    /**
+     * @return mixed
+     */
+    public function all_educacenso()
+    {
+
+        $tenant_id = $this->currentUser()->tenant->id;
+
+        $meta = new \stdClass();
+        $pagination = new \stdClass();
+        $pagination->count = (int)request('max', 5);
+        $pagination->per_page = (int)request('max', 5);
+        $pagination->current_page = (int)request('page', 1);
+
+        $schools_array_id = Pesquisa::query()
+            ->select('school_last_id')
+            ->whereHas('child', function ($query_child) {
+                $query_child->where('educacenso_year', '=', request('year_educacenso', 2018));
+            })
+            ->whereHas('childCase', function ($query_childCase) {
+                $query_childCase->where('current_step_type', '=', 'BuscaAtivaEscolar\CaseSteps\Alerta');
+            })
+            ->where('tenant_id', $tenant_id)
+            ->groupBy('school_last_id')
+            ->pluck('school_last_id')
+            ->toArray();
+
+        $qtd_schools = count($schools_array_id);
+
+        if ($qtd_schools == 0){
+            array_push($schools_array_id, 0);
+        }
+
+        $pagination->total = $qtd_schools;
+
+        $total_pages =
+            $pagination->total % $pagination->per_page > 0 ?
+            (int) ($pagination->total / $pagination->per_page + 1) :
+            $pagination->total / $pagination->per_page;
+
+        $pagination->total_pages = $total_pages;
+
+        $meta->pagination = $pagination;
+
+        $cursor = $this->getCursor($pagination->per_page, $qtd_schools, $pagination->current_page);
+
+        $schools = DB::select(
+            "select ".
+            "sc.id, sc.name, sc.city_name, sc.school_cell_phone, sc.school_phone, sc.school_email, ".
+            "count(csp.school_last_id) as count_children, ".
+            "count(case when csa.place_cep is not null then 0 end) as count_with_cep ".
+            "from schools as sc ".
+            "inner join case_steps_pesquisa as csp on sc.id = csp.school_last_id ".
+            "inner join case_steps_alerta as csa on csp.child_id = csa.child_id ".
+            "inner join children as ch on ch.id = csa.child_id ".
+            "where sc.id in (".implode(",",$schools_array_id).") ".
+            "and ch.educacenso_year = ".request('year_educacenso', 2018)." ".
+            "and csa.place_cep is null ".
+            "group by sc.id ".
+            "limit ".$cursor.", ".request('max', 5).""
+        );
+
+        return response()->json(
+            [
+                'data' => $schools,
+                'meta' => $meta,
+            ]
+        );
+
+    }
+
+    public function getCursor($limit, $interval, $point){
+
+        if($interval ==0) return 0;
+
+        $final_array = [];
+        $actual_array = [];
+
+        for($i = 1; $i <= $interval; $i++){
+            if(count($actual_array) <= $limit){
+                array_push($actual_array, $i);
+            }
+            if(count($actual_array) == $limit){
+                array_push($final_array, $actual_array);
+                $actual_array = [];
+            }
+        }
+
+        if(count($actual_array) > 0 AND count($actual_array) < $limit){
+            array_push($final_array, $actual_array);
+        }
+
+        $position = $final_array[$point-1][0];
+
+        return $position;
+    }
 
 }
