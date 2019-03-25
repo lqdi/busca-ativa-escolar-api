@@ -186,7 +186,7 @@ class SchoolsController extends BaseController
             "select ".
             "sc.id, sc.name, sc.city_name, sc.school_cell_phone, sc.school_phone, sc.school_email, ".
             "count(csp.school_last_id) as count_children, ".
-            "count(case when csa.place_cep is not null then 0 end) as count_with_cep ".
+            "count(case when csa.place_address is not null and csa.place_neighborhood is not null then 0 end) as count_with_cep ".
             "from schools as sc ".
             "inner join case_steps_pesquisa as csp on sc.id = csp.school_last_id ".
             "inner join case_steps_alerta as csa on csp.child_id = csa.child_id ".
