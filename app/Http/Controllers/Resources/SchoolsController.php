@@ -195,7 +195,7 @@ class SchoolsController extends BaseController
             "inner join children as ch on ch.id = csa.child_id ".
             "where sc.id in (".implode(",",$schools_array_id).") ".
             "and ch.educacenso_year = ".request('year_educacenso', 2018)." ".
-            "and csa.place_cep is null ".
+            //"and csa.place_cep is null ".
             "group by sc.id ".
             "limit ".$cursor.", ".request('max', 5).""
         );
