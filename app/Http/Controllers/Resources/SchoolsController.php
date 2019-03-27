@@ -144,12 +144,14 @@ class SchoolsController extends BaseController
 
         $tenant_id = $this->currentUser()->tenant->id;
 
+        //create a stdclass to paginate
         $meta = new \stdClass();
         $pagination = new \stdClass();
         $pagination->count = (int)request('max', 5);
         $pagination->per_page = (int)request('max', 5);
         $pagination->current_page = (int)request('page', 1);
 
+        //get a list ids of schools by tenant and educacenso id
         $schools_array_id = Pesquisa::query()
             ->select('school_last_id')
             ->whereHas('child', function ($query_child) {
@@ -197,6 +199,12 @@ class SchoolsController extends BaseController
             "group by sc.id ".
             "limit ".$cursor.", ".request('max', 5).""
         );
+
+        //add a array of emailjobs to each school of the last query
+        array_map(function ($school){
+           $school->emailJob = EmailJob::where('school_id', '=', $school->id)->get()->toArray();
+           return $school;
+        }, $schools);
 
         return response()->json(
             [
