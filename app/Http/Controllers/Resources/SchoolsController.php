@@ -186,7 +186,7 @@ class SchoolsController extends BaseController
 
         $schools = DB::select(
             "select ".
-            "sc.id, sc.name, sc.city_name, sc.school_cell_phone, sc.school_phone, sc.school_email, ".
+            "sc.id, sc.name, sc.city_name, sc.uf, sc.school_cell_phone, sc.school_phone, sc.school_email, ".
             "count(csp.school_last_id) as count_children, ".
             "count(case when csa.place_address is not null and csa.place_neighborhood is not null then 0 end) as count_with_cep ".
             "from schools as sc ".
