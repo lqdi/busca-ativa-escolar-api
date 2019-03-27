@@ -217,12 +217,12 @@ class SchoolsController extends BaseController
 
     public function getCursor($limit, $interval, $point){
 
-        if($interval ==0) return 0;
+        if($interval == 0) return 0;
 
         $final_array = [];
         $actual_array = [];
 
-        for($i = 1; $i <= $interval; $i++){
+        for($i = 0; $i < $interval; $i++){
             if(count($actual_array) <= $limit){
                 array_push($actual_array, $i);
             }
