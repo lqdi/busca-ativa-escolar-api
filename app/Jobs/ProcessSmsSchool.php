@@ -36,6 +36,6 @@ class ProcessSmsSchool
 
     private function getMessage()
     {
-        return "A Busca Ativa Escolar precisa de sua colaboração! Por gentileza, acesse o email ".strtolower($this->school->school_email)." e ajude as crianças fora da escola.";
+        return "Por gentileza, acesse o email ".strtolower($this->school->school_email)." e contribua para localizar as criancas e/ou adolescentes fora da escola.";
     }
 }
