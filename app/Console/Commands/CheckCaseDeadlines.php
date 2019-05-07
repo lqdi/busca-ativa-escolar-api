@@ -38,6 +38,12 @@ class CheckCaseDeadlines extends Command {
 
 			if($step->isLate($today, $stepDeadline)) {
                 $newStatus = 'late';
+
+                //We need this rule because the step GESTAO DO CASO has not a pattern deadline
+                if( $step->getSlug() == "gestao_do_caso"){
+                    $newStatus = 'normal';
+                }
+
             }else{
                 $newStatus = 'normal';
             }
