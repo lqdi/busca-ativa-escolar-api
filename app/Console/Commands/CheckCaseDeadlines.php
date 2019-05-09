@@ -48,9 +48,6 @@ class CheckCaseDeadlines extends Command {
                 $newStatus = 'normal';
             }
 
-			// TODO: maybe cache list of tenants for getDeadlineFor? every call is calling unserialize()
-			if($step->isLate($today, $stepDeadline)) $newStatus = 'late';
-
 			$this->comment("Processing: {$child->id}: {$stepDeadline} days \t {$step->started_at} \t {$currentStatus} -> {$newStatus}");
 
 			if($currentStatus == $newStatus) continue;
