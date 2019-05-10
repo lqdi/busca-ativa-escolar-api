@@ -50,7 +50,7 @@ class CheckCaseDeadlines extends Command {
 
 			$this->comment("Processing: {$child->id}: {$stepDeadline} days \t {$step->started_at} \t {$currentStatus} -> {$newStatus}");
 
-			if($currentStatus == $newStatus) continue;
+			//if($currentStatus == $newStatus) continue;
 
 			// TODO: This may have heavy performance penalty due to each save triggering a Child reindex; refactor when on a larger scale
 
