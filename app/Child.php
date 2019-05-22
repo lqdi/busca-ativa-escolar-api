@@ -453,6 +453,12 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
 			if($this->currentStep->isLate($now, $deadline)){
                 $data['deadline_status'] = "late";
+
+                //We need this rule because the step GESTAO DO CASO has not a pattern deadline
+                if( $this->currentStep->getSlug() === "gestao_do_caso"){
+                    $data['deadline_status'] = "normal";
+                }
+
             }else{
                 $data['deadline_status'] = "normal";
             }
