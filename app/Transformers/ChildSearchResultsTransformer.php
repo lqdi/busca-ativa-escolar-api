@@ -75,7 +75,11 @@ class ChildSearchResultsTransformer extends TransformerAbstract {
 				'index' => $document['_index'] ?? 'unknown_index',
 				'score' => $document['_score'] ?? 'unknown_score',
 				'type' => $document['_type'] ?? 'unknown_type',
-			]
+			],
+
+            'place_address' => $document['_source']['place_address'] ?? null,
+            'place_neighborhood' => $document['_source']['place_neighborhood'] ?? null,
+            'place_cep' => $document['_source']['place_cep'] ?? null
 		];
 	}
 
