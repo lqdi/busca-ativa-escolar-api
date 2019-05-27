@@ -13,12 +13,12 @@
 
 namespace BuscaAtivaEscolar;
 
-
 use BuscaAtivaEscolar\Importers\EducacensoCVSImporter;
 use BuscaAtivaEscolar\Importers\EducacensoXLSChunkImporter;
+use BuscaAtivaEscolar\Importers\XLSFileChildrenImporter;
 use BuscaAtivaEscolar\Importers\EducacensoXLSImporter;
-use BuscaAtivaEscolar\Importers\Importer;
 use BuscaAtivaEscolar\Importers\SchoolCSVImporter;
+use BuscaAtivaEscolar\Importers\Importer;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
@@ -62,11 +62,13 @@ class ImportJob extends Model {
 		'school_csv' => SchoolCSVImporter::class,
 		'inep_educacenso_xls' => EducacensoXLSImporter::class,
         'inep_educacenso_csv' => EducacensoCVSImporter::class,
-        'inep_educacenso_xls_chunck' => EducacensoXLSChunkImporter::class
+        'inep_educacenso_xls_chunck' => EducacensoXLSChunkImporter::class,
+        'xls_file_children' => XLSFileChildrenImporter::class
 	];
 
-	const STATUS_PENDING = "pending";
-	const STATUS_PROCESSING = "processing";
+    const STATUS_PENDING = "pending";
+    const STATUS_VALIDATING = "validating";
+    const STATUS_PROCESSING = "processing";
 	const STATUS_COMPLETED = "completed";
 	const STATUS_FAILED = "failed";
 

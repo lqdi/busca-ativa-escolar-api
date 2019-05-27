@@ -38,13 +38,13 @@ class ProcessImportJob implements ShouldQueue {
 	public function handle() {
 
 		if($this->importJob->status === ImportJob::STATUS_COMPLETED) {
-			Log::debug("ImportJob({$this->importJob->id}) - already completed, skipping!");
+			Log::info("ImportJob({$this->importJob->id}) - already completed, skipping!");
 			return;
 		}
 
 		try {
 
-			Log::debug("ImportJob({$this->importJob->id}) - begin processing");
+			Log::info("ImportJob({$this->importJob->id}) - begin processing");
 
 			$this->importJob->setStatus(ImportJob::STATUS_PROCESSING);
 
@@ -52,7 +52,7 @@ class ProcessImportJob implements ShouldQueue {
 
 			$this->importJob->setStatus(ImportJob::STATUS_COMPLETED);
 
-			Log::debug("ImportJob({$this->importJob->id}) - completed processing");
+			Log::info("ImportJob({$this->importJob->id}) - completed processing");
 
 		} catch (\Exception $ex) {
 
