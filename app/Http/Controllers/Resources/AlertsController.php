@@ -13,7 +13,6 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
-
 use Auth;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Group;
@@ -40,13 +39,20 @@ class AlertsController extends BaseController {
             array_push($where, ['alert_status','=', 'pending']);
         }
 
-
         //filter to name
         if(request()->has('name')) {
             array_push($where, ['name', 'LIKE', request('name').'%']);
         }
 
         $query->where($where);
+
+        if(request()->has('neighborhood')){
+
+            $query->whereHas('alert', function ($query) {
+                $query->where('place_neighborhood', 'like', '%' . request('neighborhood') . '%');
+            });
+
+        }
 
         if(request()->has('sort')) {
             Child::applySorting($query, json_decode(request('sort'), true));
