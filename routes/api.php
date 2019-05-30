@@ -74,7 +74,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Import cases from XLS file
         Route::group(['middleware' => 'can:settings.educacenso'], function () {
-            Route::post('/settings/import/jobs', 'Resources\ImportXLSChildrenController@list_jobs');
+            Route::get('/settings/import/jobs', 'Resources\ImportXLSChildrenController@list_jobs');
             Route::post('/settings/import/xls', 'Resources\ImportXLSChildrenController@import_xls');
         });
 

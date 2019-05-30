@@ -1,22 +1,19 @@
 <?php
 
-
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
-
 
 use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Importers\XLSFileChildrenImporter;
 use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\Jobs\ProcessImportJob;
+use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Transformers\ImportJobTransformer;
 use Exception;
-use Log;
 
 class ImportXLSChildrenController extends BaseController
 {
 
-    public $erro = false;
-    public $msg_erro = "";
 
     const PERMITED_FILES_MIME_TYPES = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -24,8 +21,24 @@ class ImportXLSChildrenController extends BaseController
         'application/octet-stream'
     ];
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function list_jobs() {
-        return "OK";
+
+        $tenant = auth()->user()->tenant;
+
+        if(!$tenant) {
+            return $this->api_failure("user_must_be_bound_to_tenant");
+        }
+
+        $jobs = ImportJob::fetchTenantJobs($tenant->id, XLSFileChildrenImporter::TYPE);
+
+        return fractal($jobs)
+            ->parseIncludes(['user', 'tenant'])
+            ->transformWith(new ImportJobTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->respond();
     }
 
     /**
