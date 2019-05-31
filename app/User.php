@@ -78,6 +78,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	use Sortable;
 
 	const ID_EDUCACENSO_BOT = "b6b720e1-bee4-4cbb-9700-f1651db45094";
+    const ID_IMPORT_XLS_BOT = "xlsimportmunicipio_bot_pass#1";
 
 	// Types of user
 	const TYPE_SUPERUSER = "superuser";
