@@ -45,7 +45,7 @@ class XLSFileChildrenImporter implements Importer
         $this->tenant = $job->tenant;
         $this->file = $job->getAbsolutePath();
 
-        $this->agent = User::find(User::ID_EDUCACENSO_BOT);
+        $this->agent = User::find(User::ID_IMPORT_XLS_BOT);
 
         if(!$this->agent) {
             throw new Exception("Failed to find Educacenso bot user!");
@@ -94,8 +94,8 @@ class XLSFileChildrenImporter implements Importer
             throw new Exception("Arquivo inválido. Não tem a coluna Data de nascimento");
         }
 
-        if(!array_key_exists('nome_da_mae', $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Data de nascimento");
+        if(!array_key_exists('nome_da_mae_ou_responsavel', $row)){
+            throw new Exception("Arquivo inválido. Não tem a coluna Nome da mãe ou responsável");
         }
 
         if(!array_key_exists('nome_do_pai', $row)){
@@ -111,7 +111,7 @@ class XLSFileChildrenImporter implements Importer
         }
 
         if(!array_key_exists('uf' , $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Bairro");
+            throw new Exception("Arquivo inválido. Não tem a coluna UF");
         }
 
         if(!array_key_exists('cidade' , $row)){
@@ -136,7 +136,7 @@ class XLSFileChildrenImporter implements Importer
             throw new Exception("Arquivo inválido. Nome da criança não informado");
         }
 
-        if($row['nome_da_mae'] == null){
+        if($row['nome_da_mae_ou_responsavel'] == null){
             Log::info("Nome da mãe ou responsável pela criança ou adolescente não informado.");
             throw new Exception("Arquivo inválido. Nome da mãe ou responsável pela criança não informado");
         }
@@ -216,7 +216,7 @@ class XLSFileChildrenImporter implements Importer
         $fieldMap = [
             'nome_do_aluno' => 'name',
             'data_de_nascimento' => 'dob',
-            'nome_da_mae' => 'mother_name',
+            'nome_da_mae_ou_responsavel' => 'mother_name',
             'nome_do_pai' => 'father_name',
             'endereco' => 'place_address',
             'bairro' => 'place_neighborhood',
@@ -232,7 +232,7 @@ class XLSFileChildrenImporter implements Importer
             $data[$systemField] = trim((string) $row[$xlsField]);
         }
 
-        $data['alert_cause_id'] = AlertCause::getBySlug('educacenso_inep')->id;
+        $data['alert_cause_id'] = AlertCause::getBySlug('xls_import')->id;
         $data['dob'] = isset($data['dob']) ? Carbon::createFromFormat('d/m/Y', $data['dob'])->format('Y-m-d') : null;
         $data['place_uf'] = $this->tenant->city->uf;
         $data['place_city_id'] = strval($this->tenant->city->id);
@@ -255,10 +255,6 @@ class XLSFileChildrenImporter implements Importer
         Log::info("[xls_import] \t Posting comments...");
 
         Comment::post($child, $this->agent, "Caso importado na planilha personalizada do Município");
-
-        if(isset($row['Etapa de ensino'])) {
-            Comment::post($child, $this->agent, "Última etapa de ensino: "  . $row['Etapa de ensino']);
-        }
 
         Log::info("[xls_import] \t Child spawn complete!");
     }

@@ -35,6 +35,7 @@ class AlertCause extends StaticObject  {
 		150 => ['id' => 150, 'sms_index' => 15, 'slug' => 'violencia_familiar', 'label' => "Violência familiar", "case_cause_ids" => [150]],
 		160 => ['id' => 160, 'sms_index' => 16, 'slug' => 'violencia_escolar', 'label' => "Violência na escola", "case_cause_ids" => [161, 162, 163]],
 		500 => ['id' => 500, 'sms_index' => null, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", "case_cause_ids" => [500], 'hidden' => true, 'blocked' => true],
+        600 => ['id' => 600, 'sms_index' => null, 'slug' => 'xls_import', 'label' => "Evasão e/ou infrequência reportada pela escola ou município", "case_cause_ids" => [600], 'hidden' => true, 'blocked' => true],
         61 => ['id' => 61, 'sms_index' => 17, 'slug' => 'crianca_adolescente_estrangeiro', 'label' => "Crianças ou adolescentes migrantes estrangeiros", "case_cause_ids" => [61]]
     ];
 
@@ -57,6 +58,7 @@ class AlertCause extends StaticObject  {
 			'violencia_familiar' => 150,
 			'violencia_escolar' => 160,
 			'educacenso_inep' => 500,
+            'xls_import' => 600,
 			'crianca_adolescente_estrangeiro' => 61,
 		],
 		'sms_index' => [
