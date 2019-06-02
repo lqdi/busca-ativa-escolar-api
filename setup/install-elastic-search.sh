@@ -12,7 +12,7 @@ echo ">> Adding deb package"
 echo "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list
 
 echo ">> Updating apt"
-add-apt-repository ppa:webupd8team/java
+#add-apt-repository ppa:webupd8team/java
 apt-get update
 
 echo ">> Pre-agreeing to Oracle License"

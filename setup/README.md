@@ -56,7 +56,12 @@ OpenJDK Runtime Environment Corretto-8.212.04.1 (build 1.8.0_212-b04)
 OpenJDK 64-Bit Server VM Corretto-8.212.04.1 (build 25.212-b04, mixed mode)
 
 Instalar elasticsearch 2 manual
-https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-elasticsearch-on-ubuntu-16-04
+wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.1/elasticsearch-2.3.1.deb
+sudo dpkg -i elasticsearch-2.3.1.deb
+sudo systemctl enable elasticsearch.service
+/etc/elasticsearch/elasticsearch.yml
+network.host: 0.0.0.0
+sudo update-rc.d elasticsearch defaults 95 10
 
 Instalar Plugin Kopf
 https://www.elastic.co/guide/en/elasticsearch/plugins/2.4/installation.html
