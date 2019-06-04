@@ -81,429 +81,481 @@ use Log;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
- * 
+ *
  * @property integer $educacenso_year
  */
-class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyMetrics {
-
-	use SoftDeletes;
-	use IndexedByUUID;
-	use TenantScopedModel;
-	use Sortable;
-
-	use AggregatedBySearchDocument;
-
-	const STATUS_OUT_OF_SCHOOL = "out_of_school";
-	const STATUS_OBSERVATION = "in_observation";
-	const STATUS_IN_SCHOOL = "in_school";
-	const STATUS_CANCELLED = "cancelled";
-
-	const ALERT_STATUS_PENDING = "pending";
-	const ALERT_STATUS_ACCEPTED = "accepted";
-	const ALERT_STATUS_REJECTED = "rejected";
-
-	const DEADLINE_STATUS_NORMAL = "normal";
-	const DEADLINE_STATUS_LATE = "late";
-
-	protected $table = "children";
-	protected $fillable = [
-		'name',
-
-		'tenant_id',
-		'city_id',
-
-		'mother_name',
-		'father_name',
-
-		'risk_level',
-		'gender',
-		'age',
-
-		'alert_submitter_id',
-		'alert_status',
-
-		'current_case_id',
-
-		'current_step_type',
-		'current_step_id',
-
-		'deadline_status',
-		'child_status',
-
-		'lat',
-		'lng',
-		'map_region',
-		'map_geocoded_address',
-
-		'educacenso_id',
-		'educacenso_year'
-	];
-
-	protected $sortable = [
-		'created_at',
-	];
-
-	protected $casts = [
-		'map_geocoded_address' => 'array',
-	];
-
-	/**
-	 * The tenant that "owns" this child.
-	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
-	 */
-	public function tenant() {
-		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
-	}
-
-	/**
-	 * This child's origin instance city.
-	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
-	 */
-	public function city() {
-		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
-	}
-
-	/**
-	 * The current case that is dealing with this child.
-	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
-	 */
-	public function currentCase() {
-		return $this->hasOne('BuscaAtivaEscolar\ChildCase', 'id', 'current_case_id');
-	}
-
-	/**
-	 * The alert data that originated the current case
-	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
-	 */
-	public function alert() {
-		// TODO: figure out how to filter this by current case
-		return $this
-			->hasOne('BuscaAtivaEscolar\CaseSteps\Alerta', 'child_id', 'id');
-			//->where('case_id', $this->current_case_id);
-	}
-
-	/**
-	 * The user that submitted the child alert
-	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
-	 */
-	public function submitter() {
-		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'alert_submitter_id');
-	}
-
-	/**
-	 * The current case step this child is at.
-	 * @return \Illuminate\Database\Eloquent\Relations\MorphTo
-	 */
-	public function currentStep() {
-		return $this->morphTo();
-	}
-
-	/**
-	 * Cases belonging to this child
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
-	 */
-	public function cases() {
-		return $this->hasMany('BuscaAtivaEscolar\ChildCase', 'child_id', 'id');
-	}
-
-	/**
-	 * Comments registered on this child's file
-	 * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-	 */
-	public function comments() {
-		return $this->morphMany( 'BuscaAtivaEscolar\Comment', 'content')->ordered();
-	}
-
-	/**
-	 * Attachments uploaded on this child's file
-	 * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-	 */
-	public function attachments() {
-		return $this->morphMany( 'BuscaAtivaEscolar\Attachment', 'content')->ordered();
-	}
-
-	/**
-	 * Activity log entries related to this child's file.
-	 * @return \Illuminate\Database\Eloquent\Relations\MorphMany
-	 */
-	public function activity() {
-		return $this->morphMany('BuscaAtivaEscolar\ActivityLog', 'content')->ordered();
-	}
-
-	// ------------------------------------------------------------------------
-
-	public function scopeAccepted($query) {
-		return $query->where('alert_status', 'accepted');
-	}
-
-	public function scopeRejected($query) {
-		return $query->where('alert_status', 'rejected');
-	}
-
-	public function scopePending($query) {
-		return $query->where('alert_status', 'pending');
-	}
-
-	public function scopeHasCaseInProgress($query) {
-		return $query
-			->where('alert_status', Child::ALERT_STATUS_ACCEPTED)
-			->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION]);
-	}
-
-	// ------------------------------------------------------------------------
-
-	/**
-	 * @param CaseStep|Model $stepClass
-	 * @param int $index
-	 * @return CaseStep|Model|null
-	 */
-	public function getStepInCurrentCase($stepClass, $index = 0) {
-		if(!$this->currentCase) return null;
-
-		return $stepClass->query()
-			->where('case_id', $this->currentCase->id)
-			->skip($index)
-			->first();
-	}
-
-	/**
-	 * Gets the URL for viewing a child
-	 * @return string
-	 */
-	public function getViewURL() {
-		return str_finish(env('APP_PANEL_URL'), '/') . "children/view/{$this->id}";
-	}
-
-	/**
-	 * Gets a shorthand identifier for the child (name, gender and age).
-	 * Used for notifications, etc.
-	 * @return string
-	 */
-	public function getShorthandIdentifier() {
-		return ucwords($this->name)
-			. ($this->gender ?
-				(" / " . trans('child.gender.' . $this->gender)) : ''
-			)
-			. ($this->age ?
-				(" / " . ($this->age != 1 ? "{$this->age} anos" : "1 ano")) : ''
-			);
-	}
-
-	public function toString() {
-		return $this->getShorthandIdentifier();
-	}
-
-	/**
-	 * Sets the child's current status
-	 * @param string $status The child status. See Child::STATUS_*
-	 */
-	public function setStatus($status) {
-		$prevStatus = $this->child_status;
-		$this->child_status = $status;
-		$this->save();
-
-		$this->reindex();
-
-		event(new ChildStatusChanged($this, $prevStatus, $status));
-	}
-
-	/**
-	 * Accepts a child alert, moving it to the list of ongoing cases
-	 * @param array|null $updatedDetails
-	 */
-	public function acceptAlert(array $updatedDetails = []) {
-
-		$prevStatus = $this->alert_status;
-		$this->alert_status = 'accepted';
-		$this->save();
-
-		$this->currentCase->case_status = ChildCase::STATUS_IN_PROGRESS;
-		$this->currentCase->save();
-
-		$alertStep = $this->currentStep; /* @var $alertStep Alerta */
-
-		if(sizeof($updatedDetails) > 0) {
-			$updatedDetails = collect($updatedDetails)
-				->only(['place_address', 'place_neighborhood'])
-				->toArray();
-
-			$alertStep->fill($updatedDetails);
-		}
-
-		$alertStep->alert_status = 'accepted';
-		$alertStep->save();
-
-		$alertStep->complete();
-
-		event(new AlertStatusChanged($this, $prevStatus, 'accepted'));
-		event(new AlertAccepted($this));
-	}
-
-	/**
-	 * Rejects a child alert, moving it to the list of rejected cases
-	 */
-	public function rejectAlert() {
-		$prevStatus = $this->alert_status;
-
-		$this->currentCase->case_status = ChildCase::STATUS_CANCELLED;
-		$this->currentCase->cancel_reason = ChildCase::CANCEL_REASON_REJECTED_ALERT;
-		$this->currentCase->save();
-
-		$this->alert_status = 'rejected';
-		$this->child_status = self::STATUS_CANCELLED;
-		$this->save();
-
-		event(new AlertStatusChanged($this, $prevStatus, 'rejected'));
-		event(new AlertRejected($this));
-	}
-
-	/**
-	 * Recalculates and updates the child's age through their birthday.
-	 * Internally users Carbon for the calculations.
-	 * Emits "age_updated" event.
-	 *
-	 * @param string $birthday The birthday in ISO format (YYYY-MM-DD)
-	 */
-	public function recalculateAgeThroughBirthday(string $birthday) {
-		$this->age = self::calculateAgeThroughBirthday($birthday);
-		$this->save();
-
-		event("child.age_updated", [$this]);
-	}
-
-	/**
-	 * Updates the child's latitude and longitude based on a raw address string
-	 * @param string $rawAddress The full address to geocode
-	 * @return \Geocoder\Model\Address|null The geocoded address, or null if failed
-	 */
-	public function updateCoordinatesThroughGeocoding($rawAddress) {
-		$geocoder = app('geocoder'); /* @var $geocoder Geocoder */
-		$address = null;
-
-		try {
-			$address = $geocoder->geocode($rawAddress)->get()->first(); /* @var $address Address */
-		} catch (\Exception $ex) {
-			return null;
-			//Log::error("Failed to geocode child (id={$this->id}) coords with address '{$rawAddress}': " . $ex->getMessage());
-		}
-
-		$this->update([
-			'lat' => ($address) ? $address->getLatitude() : null,
-			'lng' => ($address) ? $address->getLongitude() : null,
-			'map_region' => ($address) ? $address->getSubLocality() : null,
-			'map_geocoded_address' => ($address) ? $address->toArray() : null,
-		]);
-
-		return $address;
-	}
-
-	// ------------------------------------------------------------------------
-
-	public function getSearchIndex() : string { return config('search.index_prefix') . 'children'; }
-	public function getSearchType() : string { return 'child'; }
-	public function getSearchID() { return $this->id; }
-
-	/**
-	 * Triggers a document reindex for the child.
-	 */
-	public function reindex() {
-		event(new SearchableNeedsReindexing($this->fresh()));
-	}
-
-	/**
-	 * Builds the searchable document for the child.
-	 * @return array
-	 * @throws \Exception
-	 */
-	public function buildSearchDocument() : array {
-
-		if(!$this->exists) return null;
-
-		$data = [];
-
-		if($this->currentCase) {
-			$steps = $this->currentCase->fetchSteps(); /* @var $steps CaseStep[] */
-
-			foreach($steps as $step) {
-				$fields = $step->getFields();
-				$data = array_filter($fields)
-					+ array_filter($data)
-					+ array_fill_keys(array_keys($fields) + array_keys($data),null);
-			}
-		}
-
-		$data = $this->getAttributes() + $data;
-
-
-		if($this->currentStep) {
-			$data['assigned_user_id'] = $this->currentStep->assigned_user_id ?? null;
-
-			$assignedUser = $this->currentStep->assigned_user_id ? // TODO: refactor the way we deal with non-scoped models
-				User::withoutGlobalScope(TenantScope::class)->find($data['assigned_user_id']) : null;
-
-			$data['assigned_user_name'] = $assignedUser->name ?? null;
-			$data['assigned_uf'] = $assignedUser->uf ?? null;
-			$data['assigned_group_name'] = $assignedUser->group->name ?? null;
-
-			$data['step_name'] = $this->currentStep->getName() ?? null;
-			$data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
+class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyMetrics
+{
+
+    use SoftDeletes;
+    use IndexedByUUID;
+    use TenantScopedModel;
+    use Sortable;
+
+    use AggregatedBySearchDocument;
+
+    const STATUS_OUT_OF_SCHOOL = "out_of_school";
+    const STATUS_OBSERVATION = "in_observation";
+    const STATUS_IN_SCHOOL = "in_school";
+    const STATUS_CANCELLED = "cancelled";
+
+    const ALERT_STATUS_PENDING = "pending";
+    const ALERT_STATUS_ACCEPTED = "accepted";
+    const ALERT_STATUS_REJECTED = "rejected";
+
+    const DEADLINE_STATUS_NORMAL = "normal";
+    const DEADLINE_STATUS_LATE = "late";
+
+    protected $table = "children";
+    protected $fillable = [
+        'name',
+
+        'tenant_id',
+        'city_id',
+
+        'mother_name',
+        'father_name',
+
+        'risk_level',
+        'gender',
+        'age',
+
+        'alert_submitter_id',
+        'alert_status',
+
+        'current_case_id',
+
+        'current_step_type',
+        'current_step_id',
+
+        'deadline_status',
+        'child_status',
+
+        'lat',
+        'lng',
+        'map_region',
+        'map_geocoded_address',
+
+        'educacenso_id',
+        'educacenso_year'
+    ];
+
+    protected $sortable = [
+        'created_at',
+    ];
+
+    protected $casts = [
+        'map_geocoded_address' => 'array',
+    ];
+
+    /**
+     * The tenant that "owns" this child.
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function tenant()
+    {
+        return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
+    }
+
+    /**
+     * This child's origin instance city.
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function city()
+    {
+        return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
+    }
+
+    /**
+     * The current case that is dealing with this child.
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function currentCase()
+    {
+        return $this->hasOne('BuscaAtivaEscolar\ChildCase', 'id', 'current_case_id');
+    }
+
+    /**
+     * The alert data that originated the current case
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function alert()
+    {
+        // TODO: figure out how to filter this by current case
+        return $this
+            ->hasOne('BuscaAtivaEscolar\CaseSteps\Alerta', 'child_id', 'id');
+        //->where('case_id', $this->current_case_id);
+    }
+
+    /**
+     * The user that submitted the child alert
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function submitter()
+    {
+        return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'alert_submitter_id');
+    }
+
+    /**
+     * The current case step this child is at.
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function currentStep()
+    {
+        return $this->morphTo();
+    }
+
+    /**
+     * Cases belonging to this child
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cases()
+    {
+        return $this->hasMany('BuscaAtivaEscolar\ChildCase', 'child_id', 'id');
+    }
+
+    /**
+     * Comments registered on this child's file
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function comments()
+    {
+        return $this->morphMany('BuscaAtivaEscolar\Comment', 'content')->ordered();
+    }
+
+    /**
+     * Attachments uploaded on this child's file
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function attachments()
+    {
+        return $this->morphMany('BuscaAtivaEscolar\Attachment', 'content')->ordered();
+    }
+
+    /**
+     * Activity log entries related to this child's file.
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function activity()
+    {
+        return $this->morphMany('BuscaAtivaEscolar\ActivityLog', 'content')->ordered();
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function scopeAccepted($query)
+    {
+        return $query->where('alert_status', 'accepted');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('alert_status', 'rejected');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('alert_status', 'pending');
+    }
+
+    public function scopeHasCaseInProgress($query)
+    {
+        return $query
+            ->where('alert_status', Child::ALERT_STATUS_ACCEPTED)
+            ->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION]);
+    }
+
+    // ------------------------------------------------------------------------
+
+    /**
+     * @param CaseStep|Model $stepClass
+     * @param int $index
+     * @return CaseStep|Model|null
+     */
+    public function getStepInCurrentCase($stepClass, $index = 0)
+    {
+        if (!$this->currentCase) return null;
+
+        return $stepClass->query()
+            ->where('case_id', $this->currentCase->id)
+            ->skip($index)
+            ->first();
+    }
+
+    /**
+     * Gets the URL for viewing a child
+     * @return string
+     */
+    public function getViewURL()
+    {
+        return str_finish(env('APP_PANEL_URL'), '/') . "children/view/{$this->id}";
+    }
+
+    /**
+     * Gets a shorthand identifier for the child (name, gender and age).
+     * Used for notifications, etc.
+     * @return string
+     */
+    public function getShorthandIdentifier()
+    {
+        return ucwords($this->name)
+            . ($this->gender ?
+                (" / " . trans('child.gender.' . $this->gender)) : ''
+            )
+            . ($this->age ?
+                (" / " . ($this->age != 1 ? "{$this->age} anos" : "1 ano")) : ''
+            );
+    }
+
+    public function toString()
+    {
+        return $this->getShorthandIdentifier();
+    }
+
+    /**
+     * Sets the child's current status
+     * @param string $status The child status. See Child::STATUS_*
+     */
+    public function setStatus($status)
+    {
+        $prevStatus = $this->child_status;
+        $this->child_status = $status;
+        $this->save();
+
+        $this->reindex();
+
+        event(new ChildStatusChanged($this, $prevStatus, $status));
+    }
+
+    /**
+     * Accepts a child alert, moving it to the list of ongoing cases
+     * @param array|null $updatedDetails
+     */
+    public function acceptAlert(array $updatedDetails = [])
+    {
+
+        $prevStatus = $this->alert_status;
+        $this->alert_status = 'accepted';
+        $this->save();
+
+        $this->currentCase->case_status = ChildCase::STATUS_IN_PROGRESS;
+        $this->currentCase->save();
+
+        $alertStep = $this->currentStep;
+        /* @var $alertStep Alerta */
+
+        if (sizeof($updatedDetails) > 0) {
+            $updatedDetails = collect($updatedDetails)
+                ->only(['place_address', 'place_neighborhood'])
+                ->toArray();
+
+            $alertStep->fill($updatedDetails);
+        }
+
+        $alertStep->alert_status = 'accepted';
+        $alertStep->save();
+
+        $alertStep->complete();
+
+        event(new AlertStatusChanged($this, $prevStatus, 'accepted'));
+        event(new AlertAccepted($this));
+    }
+
+    /**
+     * Rejects a child alert, moving it to the list of rejected cases
+     */
+    public function rejectAlert()
+    {
+        $prevStatus = $this->alert_status;
+
+        $this->currentCase->case_status = ChildCase::STATUS_CANCELLED;
+        $this->currentCase->cancel_reason = ChildCase::CANCEL_REASON_REJECTED_ALERT;
+        $this->currentCase->save();
+
+        $this->alert_status = 'rejected';
+        $this->child_status = self::STATUS_CANCELLED;
+        $this->save();
+
+        event(new AlertStatusChanged($this, $prevStatus, 'rejected'));
+        event(new AlertRejected($this));
+    }
+
+    /**
+     * Recalculates and updates the child's age through their birthday.
+     * Internally users Carbon for the calculations.
+     * Emits "age_updated" event.
+     *
+     * @param string $birthday The birthday in ISO format (YYYY-MM-DD)
+     */
+    public function recalculateAgeThroughBirthday(string $birthday)
+    {
+        $this->age = self::calculateAgeThroughBirthday($birthday);
+        $this->save();
+
+        event("child.age_updated", [$this]);
+    }
+
+    /**
+     * Updates the child's latitude and longitude based on a raw address string
+     * @param string $rawAddress The full address to geocode
+     * @return \Geocoder\Model\Address|null The geocoded address, or null if failed
+     */
+    public function updateCoordinatesThroughGeocoding($rawAddress)
+    {
+        $geocoder = app('geocoder');
+        /* @var $geocoder Geocoder */
+        $address = null;
+
+        try {
+            $address = $geocoder->geocode($rawAddress)->get()->first();
+            /* @var $address Address */
+        } catch (\Exception $ex) {
+            return null;
+            //Log::error("Failed to geocode child (id={$this->id}) coords with address '{$rawAddress}': " . $ex->getMessage());
+        }
+
+        $this->update([
+            'lat' => ($address) ? $address->getLatitude() : null,
+            'lng' => ($address) ? $address->getLongitude() : null,
+            'map_region' => ($address) ? $address->getSubLocality() : null,
+            'map_geocoded_address' => ($address) ? $address->toArray() : null,
+        ]);
+
+        return $address;
+    }
+
+    // ------------------------------------------------------------------------
+
+    public function getSearchIndex(): string
+    {
+        return config('search.index_prefix') . 'children';
+    }
+
+    public function getSearchType(): string
+    {
+        return 'child';
+    }
+
+    public function getSearchID()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Triggers a document reindex for the child.
+     */
+    public function reindex()
+    {
+        event(new SearchableNeedsReindexing($this->fresh()));
+    }
+
+    /**
+     * Builds the searchable document for the child.
+     * @return array
+     * @throws \Exception
+     */
+    public function buildSearchDocument(): array
+    {
+
+        if (!$this->exists) return null;
+
+        $data = [];
+
+        if ($this->currentCase) {
+            $steps = $this->currentCase->fetchSteps();
+            /* @var $steps CaseStep[] */
+
+            foreach ($steps as $step) {
+                $fields = $step->getFields();
+                $data = array_filter($fields)
+                    + array_filter($data)
+                    + array_fill_keys(array_keys($fields) + array_keys($data), null);
+            }
+        }
+
+        $data = $this->getAttributes() + $data;
+
+
+        if ($this->currentStep) {
+            $data['assigned_user_id'] = $this->currentStep->assigned_user_id ?? null;
+
+            $assignedUser = $this->currentStep->assigned_user_id ? // TODO: refactor the way we deal with non-scoped models
+                User::withoutGlobalScope(TenantScope::class)->find($data['assigned_user_id']) : null;
+
+            $data['assigned_user_name'] = $assignedUser->name ?? null;
+            $data['assigned_uf'] = $assignedUser->uf ?? null;
+            $data['assigned_group_name'] = $assignedUser->group->name ?? null;
+
+            $data['step_name'] = $this->currentStep->getName() ?? null;
+            $data['step_slug'] = str_slug($this->currentStep->getName(), '_') ?? null;
 
             $now = Carbon::now();
-			$deadline = $this->tenant->getDeadlineFor($this->currentStep->getSlug());
+            // O tenant pode ser nulo quando o mesmo foi desativado
+            if (!empty($this->tenant)) {
+                $deadline = $this->tenant->getDeadlineFor($this->currentStep->getSlug());
 
-			if($this->currentStep->isLate($now, $deadline)){
-                $data['deadline_status'] = "late";
+                if ($this->currentStep->isLate($now, $deadline)) {
+                    $data['deadline_status'] = "late";
 
-                //We need this rule because the step GESTAO DO CASO has not a pattern deadline
-                if( $this->currentStep->getSlug() === "gestao_do_caso"){
+                    //We need this rule because the step GESTAO DO CASO has not a pattern deadline
+                    if ($this->currentStep->getSlug() === "gestao_do_caso") {
+                        $data['deadline_status'] = "normal";
+                    }
+
+                } else {
                     $data['deadline_status'] = "normal";
                 }
-
-            }else{
-                $data['deadline_status'] = "normal";
             }
-		}
+        }
 
-		if($this->submitter) {
-			$data['alert_submitter_name'] = $this->submitter->name;
-		}
+        if ($this->submitter) {
+            $data['alert_submitter_name'] = $this->submitter->name;
+        }
 
-		if($this->currentCase) {
-			$data['case_status'] = $this->currentCase->case_status;
+        if ($this->currentCase) {
+            $data['case_status'] = $this->currentCase->case_status;
             $data['cancel_reason'] = $this->currentCase->cancel_reason;
 
-			if($this->currentCase->case_cause_ids) { // TODO: refactor this
-				$data['cause_name'] = join(", ", array_map(function ($cause_id) {
-					return CaseCause::getByID(intval($cause_id))->label ?? '';
-				}, $this->currentCase->case_cause_ids));
-			} else if($this->currentCase->alert_cause_id) {
-				$data['cause_name'] = AlertCause::getByID(intval($this->currentCase->alert_cause_id))->label ?? '';
-			}
+            if ($this->currentCase->case_cause_ids) { // TODO: refactor this
+                $data['cause_name'] = join(", ", array_map(function ($cause_id) {
+                    return CaseCause::getByID(intval($cause_id))->label ?? '';
+                }, $this->currentCase->case_cause_ids));
+            } else if ($this->currentCase->alert_cause_id) {
+                $data['cause_name'] = AlertCause::getByID(intval($this->currentCase->alert_cause_id))->label ?? '';
+            }
 
-		}
+        }
 
-		$data['city_name'] = $this->city->name ?? null;
-		$data['uf'] = $this->city->uf ?? null;
-		$data['country_region'] = $this->city->region ?? null;
+        $data['city_name'] = $this->city->name ?? null;
+        $data['uf'] = $this->city->uf ?? null;
+        $data['country_region'] = $this->city->region ?? null;
 
-		return $data;
+        return $data;
 
-	}
+    }
 
-	// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
-	public function getTimeSeriesIndex() : string { return config('search.index_prefix') . 'children_daily'; }
-	public function getTimeSeriesType(): string { return 'child'; }
+    public function getTimeSeriesIndex(): string
+    {
+        return config('search.index_prefix') . 'children_daily';
+    }
 
-	/**
-	 * Builds a documents with aggregable & filterable metrics for the reporting system
-	 * @return array
-	 * @throws \Exception
-	 */
-	public function buildMetricsDocument(): array {
+    public function getTimeSeriesType(): string
+    {
+        return 'child';
+    }
 
-		return Arr::only($this->buildSearchDocument(), [
-			"id",
+    /**
+     * Builds a documents with aggregable & filterable metrics for the reporting system
+     * @return array
+     * @throws \Exception
+     */
+    public function buildMetricsDocument(): array
+    {
+
+        return Arr::only($this->buildSearchDocument(), [
+            "id",
             "tenant_id",
             "city_id",
             "child_status",
@@ -552,82 +604,85 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             "uf",
             "assigned_uf",
             "country_region",
-		]);
+        ]);
 
-	}
+    }
 
-	// ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
 
-	/**
-	 * Calculates a children's age by their birthday.
-	 * @param string $birthday The birthday in ISO format (YYYY-MM-DD)
-	 * @return int|null The age, in years. Will return null if no/invalid date is given.
-	 */
-	public static function calculateAgeThroughBirthday(string $birthday) {
-		if(!$birthday) return null;
+    /**
+     * Calculates a children's age by their birthday.
+     * @param string $birthday The birthday in ISO format (YYYY-MM-DD)
+     * @return int|null The age, in years. Will return null if no/invalid date is given.
+     */
+    public static function calculateAgeThroughBirthday(string $birthday)
+    {
+        if (!$birthday) return null;
 
-		$dob = Carbon::createFromFormat('Y-m-d', $birthday);
+        $dob = Carbon::createFromFormat('Y-m-d', $birthday);
 
-		if(!$dob) return null;
+        if (!$dob) return null;
 
-		return $dob->diffInYears();
-	}
+        return $dob->diffInYears();
+    }
 
-	/**
-	 * Creates a new Child case chain by data received by an alert.
-	 * This will create a new child, with a new ChildCase and the default CaseStep structure.
-	 *
-	 * @param Tenant $tenant The tenant this child will be attached to
-	 * @param mixed $creatorUserID The ID of the user that created this alert (null if not available)
-	 * @param array $data The data received
-	 * @return Child
-	 */
-	public static function spawnFromAlertData(Tenant $tenant, $creatorUserID = null, array $data) {
+    /**
+     * Creates a new Child case chain by data received by an alert.
+     * This will create a new child, with a new ChildCase and the default CaseStep structure.
+     *
+     * @param Tenant $tenant The tenant this child will be attached to
+     * @param mixed $creatorUserID The ID of the user that created this alert (null if not available)
+     * @param array $data The data received
+     * @return Child
+     */
+    public static function spawnFromAlertData(Tenant $tenant, $creatorUserID = null, array $data)
+    {
 
-		$data['tenant_id'] = $tenant->id;
-		$data['city_id'] = $tenant->city_id;
+        $data['tenant_id'] = $tenant->id;
+        $data['city_id'] = $tenant->city_id;
 
-		$data['created_by_user_id'] = $creatorUserID;
-		$data['alert_submitter_id'] = $creatorUserID;
+        $data['created_by_user_id'] = $creatorUserID;
+        $data['alert_submitter_id'] = $creatorUserID;
 
-		$data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
-		$data['alert_status'] = self::ALERT_STATUS_PENDING;
-		$data['risk_level'] = $tenant->getSettings()->getAlertPriority($data['alert_cause_id']) ?? ChildCase::RISK_LEVEL_MEDIUM;
+        $data['child_status'] = self::STATUS_OUT_OF_SCHOOL;
+        $data['alert_status'] = self::ALERT_STATUS_PENDING;
+        $data['risk_level'] = $tenant->getSettings()->getAlertPriority($data['alert_cause_id']) ?? ChildCase::RISK_LEVEL_MEDIUM;
 
-		$child = self::create($data);
+        $child = self::create($data);
 
-		$case = ChildCase::spawn($child, $data);
-		$alertStep = $case->currentStep;
+        $case = ChildCase::spawn($child, $data);
+        $alertStep = $case->currentStep;
 
-		$child->current_case_id = $case->id;
-		$child->current_step_type = $alertStep->step_type;
-		$child->current_step_id = $alertStep->id;
+        $child->current_case_id = $case->id;
+        $child->current_step_type = $alertStep->step_type;
+        $child->current_step_id = $alertStep->id;
 
-		if(isset($data['dob'])) {
-			$child->age = self::calculateAgeThroughBirthday($data['dob']);
-		}
+        if (isset($data['dob'])) {
+            $child->age = self::calculateAgeThroughBirthday($data['dob']);
+        }
 
-		$child->save();
+        $child->save();
 
-		$alertStep->fill($data);
-		$alertStep->assigned_user_id = $creatorUserID;
-		$alertStep->save();
+        $alertStep->fill($data);
+        $alertStep->assigned_user_id = $creatorUserID;
+        $alertStep->save();
 
-		event(new AlertSpawned($child, $case, $alertStep));
+        event(new AlertSpawned($child, $case, $alertStep));
 
-		return $child;
+        return $child;
 
-	}
+    }
 
-	/**
-	 * Gets all children with active cases
-	 * @return \Illuminate\Database\Eloquent\Collection|static[]
-	 */
-	public static function getAllActive() {
-		return self::query()
-			->with(['tenant', 'currentStep'])
-			->whereIn('child_status', [self::STATUS_OUT_OF_SCHOOL, self::STATUS_OBSERVATION])
-			->where('alert_status', self::ALERT_STATUS_ACCEPTED)
-			->get();
-	}
+    /**
+     * Gets all children with active cases
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
+    public static function getAllActive()
+    {
+        return self::query()
+            ->with(['tenant', 'currentStep'])
+            ->whereIn('child_status', [self::STATUS_OUT_OF_SCHOOL, self::STATUS_OBSERVATION])
+            ->where('alert_status', self::ALERT_STATUS_ACCEPTED)
+            ->get();
+    }
 }
