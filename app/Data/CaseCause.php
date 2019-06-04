@@ -54,6 +54,8 @@ class CaseCause extends StaticObject  {
         180 => ['id' => 180, 'alert_cause_id' => 180, 'slug' => 'violencia_territorio', 'label' => "Violência no território "],
         190 => ['id' => 190, 'alert_cause_id' => 190, 'slug' => 'evasao_infrequencia', 'label' => "Evasão e/ou infrequência reportada pela escola ou município"],
         500 => ['id' => 500, 'alert_cause_id' => 500, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", 'hidden' => true],
+        600 => ['id' => 600, 'alert_cause_id' => 600, 'slug' => 'xls_import', 'label' => "Evasão e/ou infrequência reportada pela escola ou município", 'hidden' => true],
+
     ];
 
     protected static $indexes = [
@@ -90,73 +92,74 @@ class CaseCause extends StaticObject  {
             'violencia_territorio' => 180,
             'evasao_infrequencia' => 190,
             'educacenso_inep' => 500,
+            'xls_import' => 600,
             'crianca_adolescente_estrangeiro' => 61,
         ]
     ];
 
-    /**
-     * @var integer The ID of the case cause
-     */
-    public $id;
+	/**
+	 * @var integer The ID of the case cause
+	 */
+	public $id;
 
-    /**
-     * @var string The slug of the case cause
-     */
-    public $slug;
+	/**
+	 * @var string The slug of the case cause
+	 */
+	public $slug;
 
-    /**
-     * @var string The human-readable name for the case cause
-     */
-    public $label;
+	/**
+	 * @var string The human-readable name for the case cause
+	 */
+	public $label;
 
-    /**
-     * @var integer The ID of the alert cause this case cause relates to
-     */
-    public $alert_cause_id;
+	/**
+	 * @var integer The ID of the alert cause this case cause relates to
+	 */
+	public $alert_cause_id;
 
-    /**
-     * @var bool Does this cause imply the child is handicapped?
-     */
-    public $is_handicapped = false;
+	/**
+	 * @var bool Does this cause imply the child is handicapped?
+	 */
+	public $is_handicapped = false;
 
-    /**
-     * @var bool Is this cause hidden from user selection?
-     */
-    public $hidden = false;
+	/**
+	 * @var bool Is this cause hidden from user selection?
+	 */
+	public $hidden = false;
 
-    /**
-     * Gets an alert cause by it's slug
-     * @param string $slug
-     * @return CaseCause
-     */
-    public static function getBySlug($slug) {
-        return self::getByIndex('slug', $slug);
-    }
+	/**
+	 * Gets an alert cause by it's slug
+	 * @param string $slug
+	 * @return CaseCause
+	 */
+	public static function getBySlug($slug) {
+		return self::getByIndex('slug', $slug);
+	}
 
-    /**
-     * Gets all case cause IDs that indicate handicapped children
-     * @return array
-     */
-    public static function getAllHandicappedIDs() {
-        return collect(self::$data)
-            ->filter(function ($item) {
-                return isset($item['is_handicapped']) && boolval($item['is_handicapped']) === true;
-            })
-            ->pluck('id')
-            ->toArray();
-    }
+	/**
+	 * Gets all case cause IDs that indicate handicapped children
+	 * @return array
+	 */
+	public static function getAllHandicappedIDs() {
+		return collect(self::$data)
+			->filter(function ($item) {
+				return isset($item['is_handicapped']) && boolval($item['is_handicapped']) === true;
+			})
+			->pluck('id')
+			->toArray();
+	}
 
-    /**
-     * Gets all alert causes that are visible for user selection
-     * @return array
-     */
-    public static function getAllVisible() {
-        return collect(self::getAllAsArray())
-            ->filter(function ($cause) {
-                return !isset($cause['hidden']) || !boolval($cause['hidden']);
-            })
-            ->toArray();
-    }
+	/**
+	 * Gets all alert causes that are visible for user selection
+	 * @return array
+	 */
+	public static function getAllVisible() {
+		return collect(self::getAllAsArray())
+			->filter(function ($cause) {
+				return !isset($cause['hidden']) || !boolval($cause['hidden']);
+			})
+			->toArray();
+	}
 
 
 }

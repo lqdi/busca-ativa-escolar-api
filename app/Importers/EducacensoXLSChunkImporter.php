@@ -67,20 +67,20 @@ class EducacensoXLSChunkImporter
             throw new \Exception("Failed to find Educacenso bot user!");
         }
 
-        Log::debug("[educacenso_import] Tenant {$this->tenant->name}, file {$this->file}");
-        Log::debug("[educacenso_import] Loading spreadsheet data into memory ...");
+        Log::info("[educacenso_import] Tenant {$this->tenant->name}, file {$this->file}");
+        Log::info("[educacenso_import] Loading spreadsheet data into memory ...");
 
         Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
             250,
             function ($results) {
                 foreach ($results->toArray() as $rowNumber => $row) {
                     if(!array_key_exists('uf', $row)){
-                        Log::debug("[educacenso_import] \t no 'UF' keyword found");
+                        Log::info("[educacenso_import] \t no 'UF' keyword found");
                         throw new \Exception("Arquivo diferente do padrão fornecido pelo Educacenso");
                     }
-                    Log::debug("[educacenso_import] \t Found UF keyword!");
+                    Log::info("[educacenso_import] \t Found UF keyword!");
                     if($row['uf'] == null){
-                        Log::debug("[educacenso_import] Found empty line in data block, block has closed!");
+                        Log::info("[educacenso_import] Found empty line in data block, block has closed!");
                         break;
                     }
                     if(!$this->isThereChild($row)){
@@ -91,7 +91,7 @@ class EducacensoXLSChunkImporter
             false
         );
 
-        Log::debug("[educacenso_import] Completed parsing all records");
+        Log::info("[educacenso_import] Completed parsing all records");
 
         $this->tenant->educacenso_import_details = [
             'has_imported' => true,
@@ -102,13 +102,13 @@ class EducacensoXLSChunkImporter
 
         $this->tenant->save();
 
-        Log::debug("[educacenso_import] Job completed!");
+        Log::info("[educacenso_import] Job completed!");
 
     }
 
     public function parseChildRow($row) {
 
-        Log::debug("[educacenso_import] Bot Agent User: {$this->agent->id}, {$this->agent->name}");
+        Log::info("[educacenso_import] Bot Agent User: {$this->agent->id}, {$this->agent->name}");
 
         $placeKindMap = [
             'URBANA' => 'urban',
@@ -146,19 +146,19 @@ class EducacensoXLSChunkImporter
         $data['has_been_in_school'] = true;
         $data['educacenso_year'] = $this->educacenso_year;
 
-        Log::debug("[educacenso_import] \t Parsed data: " . print_r($data, true));
+        Log::info("[educacenso_import] \t Parsed data: " . print_r($data, true));
 
         $child = Child::spawnFromAlertData($this->tenant, $this->agent->id, $data);
 
-        Log::debug("[educacenso_import] \t Spawned child with ID: {$child->id}");
+        Log::info("[educacenso_import] \t Spawned child with ID: {$child->id}");
 
         $pesquisa = Pesquisa::fetchWithinCase($child->current_case_id, Pesquisa::class, 20);
 
-        Log::debug("[educacenso_import] \t Found pesquisa: {$pesquisa->id}");
+        Log::info("[educacenso_import] \t Found pesquisa: {$pesquisa->id}");
 
         $pesquisa->setFields($data);
 
-        Log::debug("[educacenso_import] \t Posting comments...");
+        Log::info("[educacenso_import] \t Posting comments...");
 
         Comment::post($child, $this->agent, "Caso importado na planilha do Educacenso");
 
@@ -166,7 +166,7 @@ class EducacensoXLSChunkImporter
             Comment::post($child, $this->agent, "Última etapa de ensino: "  . $row['Etapa de ensino']);
         }
 
-        Log::debug("[educacenso_import] \t Child spawn complete!");
+        Log::info("[educacenso_import] \t Child spawn complete!");
 
     }
 
@@ -176,7 +176,7 @@ class EducacensoXLSChunkImporter
         if($child == null){
             return false;
         }else{
-            Log::debug("Child already exists ".$child->name." | ID: ".$child->id." | ID Educacenso: ".$child->educacenso_id." | Ano: ".$child->educacenso_year);
+            Log::info("Child already exists ".$child->name." | ID: ".$child->id." | ID Educacenso: ".$child->educacenso_id." | Ano: ".$child->educacenso_year);
             return true;
         }
     }

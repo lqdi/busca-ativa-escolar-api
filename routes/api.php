@@ -72,6 +72,11 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 			Route::get('/settings/educacenso/jobs', 'Resources\EducacensoController@list_jobs');
 		});
 
+		// Import cases from XLS file
+        Route::group(['middleware' => 'can:settings.educacenso'], function () {
+            Route::get('/settings/import/jobs', 'Resources\ImportXLSChildrenController@list_jobs');
+            Route::post('/settings/import/xls', 'Resources\ImportXLSChildrenController@import_xls');
+        });
 
 		// Maintenance
 		Route::group(['middleware' => 'can:maintenance'], function() {

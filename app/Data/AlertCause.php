@@ -35,10 +35,11 @@ class AlertCause extends StaticObject  {
 		140 => ['id' => 140, 'sms_index' => 14, 'slug' => 'uso_substancias', 'label' => "Uso, abuso ou dependência de substâncias psicoativas", "case_cause_ids" => [140]],
 		150 => ['id' => 150, 'sms_index' => 15, 'slug' => 'violencia_familiar', 'label' => "Violência familiar", "case_cause_ids" => [150]],
 		160 => ['id' => 160, 'sms_index' => 16, 'slug' => 'violencia_escolar', 'label' => "Violência na escola", "case_cause_ids" => [161, 162, 163, 164, 165, 166, 167]],
-		170 => ['id' => 170, 'sms_index' => 17, 'slug' => 'mudanca_endereco', 'label' => "Mudança de domicílio, viagem ou deslocamentos frequentes", "case_cause_ids" => [170]],
-		180 => ['id' => 180, 'sms_index' => 18, 'slug' => 'violencia_territorio', 'label' => "Violência no território", "case_cause_ids" => [180]],
-		190 => ['id' => 190, 'sms_index' => 19, 'slug' => 'evasao_infrequencia', 'label' => "Evasão e/ou infrequência reportada pela escola ou município*", "case_cause_ids" => [190]],
+		170 => ['id' => 170, 'sms_index' => 18, 'slug' => 'mudanca_endereco', 'label' => "Mudança de domicílio, viagem ou deslocamentos frequentes", "case_cause_ids" => [170]],
+		180 => ['id' => 180, 'sms_index' => 19, 'slug' => 'violencia_territorio', 'label' => "Violência no território", "case_cause_ids" => [180]],
+		190 => ['id' => 190, 'sms_index' => 20, 'slug' => 'evasao_infrequencia', 'label' => "Evasão e/ou infrequência reportada pela escola ou município*", "case_cause_ids" => [190]],
 		500 => ['id' => 500, 'sms_index' => null, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", "case_cause_ids" => [500], 'hidden' => true, 'blocked' => true],
+        600 => ['id' => 600, 'sms_index' => null, 'slug' => 'xls_import', 'label' => "Evasão e/ou infrequência reportada pela escola ou município", "case_cause_ids" => [600], 'hidden' => true, 'blocked' => true],
     ];
 
 	protected static $indexes = [
