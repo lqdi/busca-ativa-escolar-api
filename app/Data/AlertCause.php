@@ -25,7 +25,7 @@ class AlertCause extends StaticObject  {
 		50 => ['id' => 50, 'sms_index' => 5, 'slug' => 'crianca_na_rua', 'label' => "Criança ou adolescente em situação de rua", "case_cause_ids" => [50]],
 		60 => ['id' => 60, 'sms_index' => 6, 'slug' => 'crianca_vitima_abuso', 'label' => "Criança ou adolescente vítima de abuso / violência sexual", "case_cause_ids" => [60]],
         61 => ['id' => 61, 'sms_index' => 17, 'slug' => 'crianca_adolescente_estrangeiro', 'label' => "Crianças ou adolescentes migrantes estrangeiros", "case_cause_ids" => [61]],
-        70 => ['id' => 70, 'sms_index' => 7, 'slug' => 'evasao_desinteresse', 'label' => "Evasão porque sente a escola desinteressante", "case_cause_ids" => [71, 72, 73]],
+        70 => ['id' => 70, 'sms_index' => 7, 'slug' => 'evasao_desinteresse', 'label' => "Evasão porque sente a escola desinteressante", "case_cause_ids" => [71, 72]],
 		80 => ['id' => 80, 'sms_index' => 8, 'slug' => 'falta_documentacao', 'label' => "Falta de documentação da criança ou adolescente", "case_cause_ids" => [80]],
 		90 => ['id' => 90, 'sms_index' => 9, 'slug' => 'falta_infraestrutura', 'label' => "Falta de infraestrutura escolar", "case_cause_ids" => [91, 92]],
 		100 => ['id' => 100, 'sms_index' => 10, 'slug' => 'falta_transporte', 'label' => "Falta de transporte escolar", "case_cause_ids" => [100, 101, 102, 103]],
