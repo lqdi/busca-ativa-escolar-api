@@ -94,7 +94,17 @@ return [
 		'tenants.export',
 		'groups.manage',
         'preferences',
-    ],
+        'cases.view',
+        'cases.step.alerta',
+        'cases.step.pesquisa',
+        'cases.step.analise_tecnica',
+        'cases.step.gestao_do_caso',
+        'cases.step.rematricula',
+        'cases.step.1a_observacao',
+        'cases.step.2a_observacao',
+        'cases.step.3a_observacao',
+        'cases.step.4a_observacao'
+	],
 
 	BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL => [
 		'reports.view',
