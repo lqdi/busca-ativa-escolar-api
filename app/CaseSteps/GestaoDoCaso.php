@@ -31,8 +31,7 @@ class GestaoDoCaso extends CaseStep {
 	public function applyAssignableUsersFilter(Builder $query) {
 		return $query->whereIn('type', [
 			User::TYPE_SUPERVISOR_INSTITUCIONAL,
-			User::TYPE_GESTOR_OPERACIONAL,
-			User::TYPE_SUPERVISOR_ESTADUAL,
+			User::TYPE_GESTOR_OPERACIONAL
 		]);
 	}
 
