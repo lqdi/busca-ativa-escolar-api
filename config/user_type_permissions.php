@@ -79,7 +79,8 @@ return [
 		'tenants.contact_info',
 		'tenants.export',
         'groups.manage',
-	],
+        'preferences',
+    ],
 
 	BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL => [
 		'reports.view',
@@ -92,14 +93,16 @@ return [
 		'tenants.contact_info',
 		'tenants.export',
 		'groups.manage',
-	],
+        'preferences',
+    ],
 
 	BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL => [
 		'reports.view',
 		'cases.map',
 		'tenants.view',
 		'tenants.contact_info',
-	],
+        'preferences',
+    ],
 
 	BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL => [
 		'reports.view',
@@ -182,7 +185,7 @@ return [
 		'tenants.contact_info',
 		//'alerts.pending',
 		//'alerts.spawn',
-		//'preferences',
+		'preferences',
 		'notifications',
 	],
 
