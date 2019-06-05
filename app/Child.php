@@ -442,7 +442,22 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 				User::withoutGlobalScope(TenantScope::class)->find($data['assigned_user_id']) : null;
 
 			$data['assigned_user_name'] = $assignedUser->name ?? null;
-			$data['assigned_uf'] = $assignedUser->uf ?? null;
+
+			//Check if User Assigned to case is restricted to UF. The property assigned_uf there is only in cases assigned to UF
+            if( $assignedUser !== null) {
+
+                if ($assignedUser->isRestrictedToUF()) {
+                    $data['assigned_uf'] = $assignedUser->uf ?? null;
+                } else {
+                    $data['assigned_uf'] = null;
+                }
+
+            }else{
+
+                $data['assigned_uf'] = null;
+
+            }
+
 			$data['assigned_group_name'] = $assignedUser->group->name ?? null;
 
 			$data['step_name'] = $this->currentStep->getName() ?? null;
