@@ -52,7 +52,6 @@ class CaseCause extends StaticObject  {
         167 => ['id' => 167, 'alert_cause_id' => 160, 'slug' => 'violencia_escolar_conf_colaboradores', 'label' => "Violência na escola (conflitos da criança e/ou adolescente com funcionários, docentes ou gestores da escola) "],
         170 => ['id' => 170, 'alert_cause_id' => 170, 'slug' => 'mudanca_endereco', 'label' => "Mudança de domicílio, viagem ou deslocamentos frequentes "],
         180 => ['id' => 180, 'alert_cause_id' => 180, 'slug' => 'violencia_territorio', 'label' => "Violência no território "],
-        190 => ['id' => 190, 'alert_cause_id' => 190, 'slug' => 'evasao_infrequencia', 'label' => "Evasão e/ou infrequência reportada pela escola ou município"],
         500 => ['id' => 500, 'alert_cause_id' => 500, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", 'hidden' => true],
         600 => ['id' => 600, 'alert_cause_id' => 600, 'slug' => 'xls_import', 'label' => "Evasão e/ou infrequência reportada pela escola ou município", 'hidden' => true],
 
@@ -90,7 +89,6 @@ class CaseCause extends StaticObject  {
             'violencia_escolar_religiao' => 163,
             'mudanca_endereco' => 170,
             'violencia_territorio' => 180,
-            'evasao_infrequencia' => 190,
             'educacenso_inep' => 500,
             'xls_import' => 600,
             'crianca_adolescente_estrangeiro' => 61,

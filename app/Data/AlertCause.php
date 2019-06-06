@@ -18,26 +18,26 @@ class AlertCause extends StaticObject  {
 	const ID_EDUCACENSO = 500;
 
 	protected static $data = [
-		10 => ['id' => 10, 'sms_index' => 1, 'slug' => 'adolescente_em_conflito_com_a_lei', 'label' => "Adolescente em conflito com a lei", "case_cause_ids" => [10]],
-		20 => ['id' => 20, 'sms_index' => 2, 'slug' => 'crianca_com_deficiencia', 'label' => "Criança ou adolescente com deficiência(s)", "case_cause_ids" => [21, 22, 23, 24, 25]],
-		30 => ['id' => 30, 'sms_index' => 3, 'slug' => 'crianca_com_doencas', 'label' => "Criança ou adolescente com doença(s) que impeça(m) ou dificulte(m) a frequência à escola", "case_cause_ids" => [30]],
-		40 => ['id' => 40, 'sms_index' => 4, 'slug' => 'crianca_em_abrigo', 'label' => "Criança ou adolescente em abrigo", "case_cause_ids" => [40]],
-		50 => ['id' => 50, 'sms_index' => 5, 'slug' => 'crianca_na_rua', 'label' => "Criança ou adolescente em situação de rua", "case_cause_ids" => [50]],
-		60 => ['id' => 60, 'sms_index' => 6, 'slug' => 'crianca_vitima_abuso', 'label' => "Criança ou adolescente vítima de abuso / violência sexual", "case_cause_ids" => [60]],
-        61 => ['id' => 61, 'sms_index' => 17, 'slug' => 'crianca_adolescente_estrangeiro', 'label' => "Crianças ou adolescentes migrantes estrangeiros", "case_cause_ids" => [61]],
-        70 => ['id' => 70, 'sms_index' => 7, 'slug' => 'evasao_desinteresse', 'label' => "Evasão porque sente a escola desinteressante", "case_cause_ids" => [70, 71, 72]],
-		80 => ['id' => 80, 'sms_index' => 8, 'slug' => 'falta_documentacao', 'label' => "Falta de documentação da criança ou adolescente", "case_cause_ids" => [80]],
-		90 => ['id' => 90, 'sms_index' => 9, 'slug' => 'falta_infraestrutura', 'label' => "Falta de infraestrutura escolar", "case_cause_ids" => [91, 92]],
-		100 => ['id' => 100, 'sms_index' => 10, 'slug' => 'falta_transporte', 'label' => "Falta de transporte escolar", "case_cause_ids" => [100, 101, 102, 103]],
-		110 => ['id' => 110, 'sms_index' => 11, 'slug' => 'gravidez_adolescencia', 'label' => "Gravidez na adolescência", "case_cause_ids" => [110]],
-		120 => ['id' => 120, 'sms_index' => 12, 'slug' => 'preconceito_racial', 'label' => "Preconceito ou discriminação racial", "case_cause_ids" => [120]],
+//		10 => ['id' => 10, 'sms_index' => 1, 'slug' => 'adolescente_em_conflito_com_a_lei', 'label' => "Adolescente em conflito com a lei", "case_cause_ids" => [10]], exemplo
+		10 => ['id' => 10, 'sms_index' => 1, 'slug' => 'adolescente_em_conflito_com_a_lei', 'label' => "Adolescente em conflito com a lei"],
+		20 => ['id' => 20, 'sms_index' => 2, 'slug' => 'crianca_com_deficiencia', 'label' => "Criança ou adolescente com deficiência(s)"],
+		30 => ['id' => 30, 'sms_index' => 3, 'slug' => 'crianca_com_doencas', 'label' => "Criança ou adolescente com doença(s) que impeça(m) ou dificulte(m) a frequência à escola"],
+		40 => ['id' => 40, 'sms_index' => 4, 'slug' => 'crianca_em_abrigo', 'label' => "Criança ou adolescente em abrigo"],
+		50 => ['id' => 50, 'sms_index' => 5, 'slug' => 'crianca_na_rua', 'label' => "Criança ou adolescente em situação de rua"],
+		60 => ['id' => 60, 'sms_index' => 6, 'slug' => 'crianca_vitima_abuso', 'label' => "Criança ou adolescente vítima de abuso / violência sexual"],
+        61 => ['id' => 61, 'sms_index' => 17, 'slug' => 'crianca_adolescente_estrangeiro', 'label' => "Crianças ou adolescentes migrantes estrangeiros"],
+        70 => ['id' => 70, 'sms_index' => 7, 'slug' => 'evasao_desinteresse', 'label' => "Evasão porque sente a escola desinteressante"],
+		80 => ['id' => 80, 'sms_index' => 8, 'slug' => 'falta_documentacao', 'label' => "Falta de documentação da criança ou adolescente"],
+		90 => ['id' => 90, 'sms_index' => 9, 'slug' => 'falta_infraestrutura', 'label' => "Falta de infraestrutura escolar"],
+		100 => ['id' => 100, 'sms_index' => 10, 'slug' => 'falta_transporte', 'label' => "Falta de transporte escolar"],
+		110 => ['id' => 110, 'sms_index' => 11, 'slug' => 'gravidez_adolescencia', 'label' => "Gravidez na adolescência"],
+		120 => ['id' => 120, 'sms_index' => 12, 'slug' => 'preconceito_racial', 'label' => "Preconceito ou discriminação racial"],
 		130 => ['id' => 130, 'sms_index' => 13, 'slug' => 'trabalho_infantil', 'label' => "Trabalho infantil", "case_cause_ids" => [130]],
-		140 => ['id' => 140, 'sms_index' => 14, 'slug' => 'uso_substancias', 'label' => "Uso, abuso ou dependência de substâncias psicoativas", "case_cause_ids" => [140]],
-		150 => ['id' => 150, 'sms_index' => 15, 'slug' => 'violencia_familiar', 'label' => "Violência familiar", "case_cause_ids" => [150]],
-		160 => ['id' => 160, 'sms_index' => 16, 'slug' => 'violencia_escolar', 'label' => "Violência na escola", "case_cause_ids" => [161, 162, 163, 164, 165, 166, 167]],
-		170 => ['id' => 170, 'sms_index' => 18, 'slug' => 'mudanca_endereco', 'label' => "Mudança de domicílio, viagem ou deslocamentos frequentes", "case_cause_ids" => [170]],
-		180 => ['id' => 180, 'sms_index' => 19, 'slug' => 'violencia_territorio', 'label' => "Violência no território", "case_cause_ids" => [180]],
-		190 => ['id' => 190, 'sms_index' => 20, 'slug' => 'evasao_infrequencia', 'label' => "Evasão e/ou infrequência reportada pela escola ou município*", "case_cause_ids" => [190]],
+		140 => ['id' => 140, 'sms_index' => 14, 'slug' => 'uso_substancias', 'label' => "Uso, abuso ou dependência de substâncias psicoativas"],
+		150 => ['id' => 150, 'sms_index' => 15, 'slug' => 'violencia_familiar', 'label' => "Violência familiar"],
+		160 => ['id' => 160, 'sms_index' => 16, 'slug' => 'violencia_escolar', 'label' => "Violência na escola"],
+		170 => ['id' => 170, 'sms_index' => 18, 'slug' => 'mudanca_endereco', 'label' => "Mudança de domicílio, viagem ou deslocamentos frequentes"],
+		180 => ['id' => 180, 'sms_index' => 19, 'slug' => 'violencia_territorio', 'label' => "Violência no território"],
 		500 => ['id' => 500, 'sms_index' => null, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", "case_cause_ids" => [500], 'hidden' => true, 'blocked' => true],
         600 => ['id' => 600, 'sms_index' => null, 'slug' => 'xls_import', 'label' => "Evasão e/ou infrequência reportada pela escola ou município", "case_cause_ids" => [600], 'hidden' => true, 'blocked' => true],
     ];
@@ -63,7 +63,6 @@ class AlertCause extends StaticObject  {
 			'violencia_escolar' => 160,
 			'mudanca_endereco' => 170,
 			'violencia_territorio' => 180,
-			'evasao_infrequencia' => 190,
 			'educacenso_inep' => 500,
 		],
 		'sms_index' => [
@@ -86,7 +85,6 @@ class AlertCause extends StaticObject  {
 			17 => 61,
 			18 => 170,
 			19 => 180,
-			20 => 190,
 		]
 	];
 
