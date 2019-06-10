@@ -172,11 +172,18 @@ class EducacensoXLSChunkImporter
 
     public function isThereChild($row){
         $identificacao_unica = strval($row['identificacao_unica']);
-        $child = Child::where([ ['educacenso_year', '=', $this->educacenso_year], ['educacenso_id', '=', $identificacao_unica] ])->first();
+        $child = Child::where(
+            [
+                ['educacenso_year', '=', $this->educacenso_year],
+                ['educacenso_id', '=', $identificacao_unica],
+                ['city_id', '=', $this->tenant->city_id]
+            ]
+        )->first();
+
         if($child == null){
             return false;
         }else{
-            Log::debug("Child already exists ".$child->name." | ID: ".$child->id." | ID Educacenso: ".$child->educacenso_id." | Ano: ".$child->educacenso_year);
+            Log::info("Child already exists ".$child->name." | ID: ".$child->id." | ID Educacenso: ".$child->educacenso_id." | Ano: ".$child->educacenso_year);
             return true;
         }
     }
