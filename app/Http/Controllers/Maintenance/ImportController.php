@@ -63,8 +63,7 @@ class ImportController extends BaseController {
 			$job->setStatus(ImportJob::STATUS_PROCESSING);
 
 			$job->handle();
-
-			$job->storeError(null);
+			
 			$job->setStatus(ImportJob::STATUS_COMPLETED);
 
 		} catch (\Exception $ex) {
