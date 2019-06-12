@@ -90,7 +90,7 @@ class XLSFileChildrenImporter implements Importer
             throw new Exception("Arquivo inválido. Não tem a coluna Nome do aluno");
         }
 
-        if(!array_key_exists('data_de_nascimento', $row)){
+        if(!array_key_exists('data_de_nascimento_formato_ddmmaaaa', $row)){
             throw new Exception("Arquivo inválido. Não tem a coluna Data de nascimento");
         }
 
@@ -110,7 +110,7 @@ class XLSFileChildrenImporter implements Importer
             throw new Exception("Arquivo inválido. Não tem a coluna Bairro");
         }
 
-        if(!array_key_exists('uf' , $row)){
+        if(!array_key_exists('uf_sigla_do_estado' , $row)){
             throw new Exception("Arquivo inválido. Não tem a coluna UF");
         }
 
@@ -118,11 +118,11 @@ class XLSFileChildrenImporter implements Importer
             throw new Exception("Arquivo inválido. Não tem a coluna Cidade");
         }
 
-        if(!array_key_exists('cep' , $row)){
+        if(!array_key_exists('cep_somente_numeros' , $row)){
             throw new Exception("Arquivo inválido. Não tem a coluna CEP");
         }
 
-        if(!array_key_exists('telefone' , $row)){
+        if(!array_key_exists('telefone_apenas_numeros_com_ddd' , $row)){
             throw new Exception("Arquivo inválido. Não tem a coluna Telefone");
         }
 
@@ -141,7 +141,7 @@ class XLSFileChildrenImporter implements Importer
             throw new Exception("Arquivo inválido. Nome da mãe ou responsável pela criança não informado");
         }
 
-        if($row['uf'] == null){
+        if($row['uf_sigla_do_estado'] == null){
             Log::info("Estado não informado.");
             throw new Exception("Arquivo inválido. Estado não informado");
         }
@@ -164,13 +164,13 @@ class XLSFileChildrenImporter implements Importer
         //Validacoes dos padroes
 
         //valida data de nascimento
-        if ($row['data_de_nascimento'] != null) {
+        if ($row['data_de_nascimento_formato_ddmmaaaa'] != null) {
 
-            if( !preg_match("/[0-9]{2}\/[0-9]{2}\/[0-9]{4}/", trim($row['data_de_nascimento'])) ){
+            if( !preg_match("/[0-9]{2}\/[0-9]{2}\/[0-9]{4}/", trim($row['data_de_nascimento_formato_ddmmaaaa'])) ){
                 Log::info("A data de nascimento não está no padrão XX/XX/XXXX.");
                 throw new Exception("Arquivo inválido. A data de nascimento não está no padrão XX/XX/XXXX - ".$row['nome_do_aluno']);
             }
-            list($dd,$mm,$yyyy) = explode('/', trim($row['data_de_nascimento']));
+            list($dd,$mm,$yyyy) = explode('/', trim($row['data_de_nascimento_formato_ddmmaaaa']));
             if(checkdate($mm,$dd,$yyyy) == false){
                 Log::info("Data de nascimento inválida.");
                 throw new Exception("Arquivo inválido. Data de nascimento inválida - ".$row['nome_do_aluno']);
@@ -178,30 +178,30 @@ class XLSFileChildrenImporter implements Importer
         }
 
         //valida telefone
-        if ($row['telefone'] != null) {
-            if( strlen ( (string) $row['telefone'] ) < 10 ){
+        if ($row['telefone_apenas_numeros_com_ddd'] != null) {
+            if( strlen ( (string) $row['telefone_apenas_numeros_com_ddd'] ) < 10 ){
                 Log::info("Número de telefone incompleto.");
                 throw new Exception("Arquivo inválido. Número de telefone incompleto - ".$row['nome_do_aluno']);
             }
 
-            if( strlen ( (string) $row['telefone'] ) > 11 ){
+            if( strlen ( (string) $row['telefone_apenas_numeros_com_ddd'] ) > 11 ){
                 Log::info("Número de telefone maior que o permitido.");
                 throw new Exception("Arquivo inválido. Número de telefone maior que o permitido - ".$row['nome_do_aluno']);
             }
 
-            if( strpos( (string) $row['telefone'], "(" ) OR strpos( (string) $row['telefone'], ")" ) ){
+            if( strpos( (string) $row['telefone_apenas_numeros_com_ddd'], "(" ) OR strpos( (string) $row['telefone_apenas_numeros_com_ddd'], ")" ) ){
                 Log::info("Número de telefone contém caracteres inválidos.");
                 throw new Exception("Arquivo inválido. Número de telefone contém caracteres inválidos - ".$row['nome_do_aluno']);
             }
         }
 
         //valida cep
-        if ($row['cep'] != null) {
-            if( strlen ( (string) $row['cep'] ) < 8 ){
+        if ($row['cep_somente_numeros'] != null) {
+            if( strlen ( (string) $row['cep_somente_numeros'] ) < 8 ){
                 Log::info("CEP incompleto.");
                 throw new Exception("Arquivo inválido. CEP incompleto - ".$row['nome_do_aluno']);
             }
-            if( strlen ( (string) $row['cep'] ) > 8 ){
+            if( strlen ( (string) $row['cep_somente_numeros'] ) > 8 ){
                 Log::info("CEP maior que o permitido.");
                 throw new Exception("Arquivo inválido. CEP maior que o permitido - ".$row['nome_do_aluno']);
             }
@@ -215,13 +215,13 @@ class XLSFileChildrenImporter implements Importer
 
         $fieldMap = [
             'nome_do_aluno' => 'name',
-            'data_de_nascimento' => 'dob',
+            'data_de_nascimento_formato_ddmmaaaa' => 'dob',
             'nome_da_mae_ou_responsavel' => 'mother_name',
             'nome_do_pai' => 'father_name',
             'endereco' => 'place_address',
             'bairro' => 'place_neighborhood',
-            'cep' => 'place_cep',
-            'telefone' => 'mother_phone',
+            'cep_somente_numeros' => 'place_cep',
+            'telefone_apenas_numeros_com_ddd' => 'mother_phone',
             'observacoes' => 'observation'
         ];
 
