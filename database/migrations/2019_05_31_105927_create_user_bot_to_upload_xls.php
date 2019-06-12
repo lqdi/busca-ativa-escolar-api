@@ -14,7 +14,7 @@ class CreateUserBotToUploadXls extends Migration
     {
         $user = User::create([
             'tenant_id' => 'global',
-            'name' => 'Importação XLS Município',
+            'name' => 'Importação da escola ou município',
             'email' => 'importacao_xls@buscaativaescolar.org.br',
             'password' => str_random(64),
             'type' => 'superuser',
