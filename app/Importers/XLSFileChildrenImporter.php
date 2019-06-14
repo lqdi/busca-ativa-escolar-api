@@ -72,7 +72,11 @@ class XLSFileChildrenImporter implements Importer
             250,
             function ($results) {
                 foreach ($results->toArray() as $rowNumber => $row) {
-                    $this->parseChild($row);
+
+                    if(!$this->isThereChild($row)){
+                        //$this->parseChild($row);
+                    }
+
                 }
             },
             false
@@ -257,6 +261,52 @@ class XLSFileChildrenImporter implements Importer
         Comment::post($child, $this->agent, "Caso importado na planilha personalizada do Município");
 
         Log::info("[xls_import] \t Child spawn complete!");
+    }
+
+    private function isThereChild($row){
+
+        $birthDay = null;
+
+        if($row['data_de_nascimento_formato_ddmmaaaa'] != null){
+            $birthDay = Carbon::createFromFormat('d/m/Y', $row['data_de_nascimento_formato_ddmmaaaa'])->format('Y-m-d');
+        }
+
+        $age = Child::calculateAgeThroughBirthday($birthDay);
+
+        Log::info($age);
+
+        $child = Child::where(
+            [
+                ['name', '=', $row['nome_do_aluno']],
+                ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
+                ['age', '=', $age],
+                ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED],
+                ['child_status', '=', Child::STATUS_OUT_OF_SCHOOL]
+            ]
+        )->orWhere(
+            [
+                ['name', '=', $row['nome_do_aluno']],
+                ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
+                ['age', '=', $age],
+                ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED],
+                ['child_status', '=', Child::STATUS_OBSERVATION]
+            ]
+        )->orWhere(
+            [
+                ['name', '=', $row['nome_do_aluno']],
+                ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
+                ['age', '=', $age],
+                ['alert_status', '=', Child::ALERT_STATUS_PENDING]
+            ]
+        )->first();
+
+        if($child == null){
+            return false;
+        }else{
+            Log::info("Child already exists ".$child->name." | ID: ".$child->id);
+            return true;
+        }
+
     }
 
 }
