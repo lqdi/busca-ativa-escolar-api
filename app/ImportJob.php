@@ -56,6 +56,7 @@ class ImportJob extends Model {
 
 		'offset',
 		'total_records',
+        'observations',
 	];
 
 	const TYPES = [
@@ -88,6 +89,7 @@ class ImportJob extends Model {
 
 		'offset',
 		'total_records',
+        'observations'
 	];
 
 	protected $casts = [
@@ -124,6 +126,10 @@ class ImportJob extends Model {
 	public function setTotalRecords($total_records) {
 		$this->update(['total_records' => $total_records]);
 	}
+
+	public function addObservations($observations){
+	    $this->update(['observations' => $observations]);
+    }
 
 	public function handle() {
 
