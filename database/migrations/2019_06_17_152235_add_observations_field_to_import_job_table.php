@@ -14,7 +14,7 @@ class AddObservationsFieldToImportJobTable extends Migration
     public function up()
     {
         Schema::table('import_jobs', function($table) {
-            $table->text('observations')->nullable();
+            $table->longText('duplicateds')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddObservationsFieldToImportJobTable extends Migration
     public function down()
     {
         Schema::table('import_jobs', function($table) {
-            $table->dropColumn('observations');
+            $table->dropColumn('duplicateds');
         });
     }
 }

@@ -44,16 +44,15 @@ class XLSFileChildrenImporter implements Importer
     private $total_records;
 
     /**
-     * @var string observations about import job
+     * @var array with objects
      */
-    private $observations;
+    private $duplicateds = [];
 
     public function handle(ImportJob $job)
     {
 
         $this->job = $job;
         $this->total_records = 0;
-        $this->observations .= "";
         $this->tenant = $job->tenant;
         $this->file = $job->getAbsolutePath();
 
@@ -95,7 +94,7 @@ class XLSFileChildrenImporter implements Importer
         );
 
         $job->setTotalRecords($this->total_records);
-        $job->addObservations($this->observations);
+        $job->setDuplicateds($this->duplicateds);
 
         Log::info("[educacenso_import] Completed parsing all records");
         Log::info("[educacenso_import] Job completed!");
@@ -324,7 +323,7 @@ class XLSFileChildrenImporter implements Importer
             return false;
         }else{
             Log::info("Child already exists ".$child->name." | ID: ".$child->id);
-            $this->observations .= "| ".$child->name. " [duplicado] - ";
+            array_push($this->duplicateds, $child);
             return true;
         }
 

@@ -56,7 +56,7 @@ class ImportJob extends Model {
 
 		'offset',
 		'total_records',
-        'observations',
+        'duplicateds',
 	];
 
 	const TYPES = [
@@ -89,7 +89,7 @@ class ImportJob extends Model {
 
 		'offset',
 		'total_records',
-        'observations'
+        'duplicateds'
 	];
 
 	protected $casts = [
@@ -97,6 +97,7 @@ class ImportJob extends Model {
 		'total_records' => 'integer',
 		'errors' => 'array',
 		'metadata' => 'object',
+        'duplicateds' => 'object'
 	];
 
 	public function user() {
@@ -127,8 +128,8 @@ class ImportJob extends Model {
 		$this->update(['total_records' => $total_records]);
 	}
 
-	public function addObservations($observations){
-	    $this->update(['observations' => $observations]);
+	public function setDuplicateds($duplicateds){
+	    $this->update(['duplicateds' => $duplicateds]);
     }
 
 	public function handle() {

@@ -40,7 +40,7 @@ class ImportJobTransformer extends TransformerAbstract {
 			'path' => $job->path,
 			'offset' => $job->offset,
 			'total_records' => $job->total_records,
-            'observations' => $job->observations,
+            'duplicateds' => $job->duplicateds,
             'first_child' => $job->first_child,
             'last_child' => $job->last_child,
             'errors' => $job->errors ? $job->errors : []
