@@ -5,7 +5,6 @@ namespace BuscaAtivaEscolar\Importers;
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
-use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
@@ -104,7 +103,7 @@ class XLSFileChildrenImporter implements Importer
     public function validateRow($row){
 
         //Validacoes dos cabecalhos
-        if(!array_key_exists('nome_do_aluno', $row)){
+        if(!array_key_exists('nome_da_crianca_ou_adolescente', $row)){
             throw new Exception("Arquivo inválido. Não tem a coluna Nome do aluno");
         }
 
@@ -149,7 +148,7 @@ class XLSFileChildrenImporter implements Importer
         }
 
         //Validacoes dos campos obrigatórios
-        if($row['nome_do_aluno'] == null){
+        if($row['nome_da_crianca_ou_adolescente'] == null){
             Log::info("Nome da criança ou adolescente não informado.");
             throw new Exception("Arquivo inválido. Nome da criança não informado");
         }
@@ -186,12 +185,12 @@ class XLSFileChildrenImporter implements Importer
 
             if( !preg_match("/[0-9]{2}\/[0-9]{2}\/[0-9]{4}/", trim($row['data_de_nascimento_formato_ddmmaaaa'])) ){
                 Log::info("A data de nascimento não está no padrão XX/XX/XXXX.");
-                throw new Exception("Arquivo inválido. A data de nascimento não está no padrão XX/XX/XXXX - ".$row['nome_do_aluno']);
+                throw new Exception("Arquivo inválido. A data de nascimento não está no padrão XX/XX/XXXX - ".$row['nome_da_crianca_ou_adolescente']);
             }
             list($dd,$mm,$yyyy) = explode('/', trim($row['data_de_nascimento_formato_ddmmaaaa']));
             if(checkdate($mm,$dd,$yyyy) == false){
                 Log::info("Data de nascimento inválida.");
-                throw new Exception("Arquivo inválido. Data de nascimento inválida - ".$row['nome_do_aluno']);
+                throw new Exception("Arquivo inválido. Data de nascimento inválida - ".$row['nome_da_crianca_ou_adolescente']);
             }
         }
 
@@ -199,17 +198,17 @@ class XLSFileChildrenImporter implements Importer
         if ($row['telefone_apenas_numeros_com_ddd'] != null) {
             if( strlen ( (string) $row['telefone_apenas_numeros_com_ddd'] ) < 10 ){
                 Log::info("Número de telefone incompleto.");
-                throw new Exception("Arquivo inválido. Número de telefone incompleto - ".$row['nome_do_aluno']);
+                throw new Exception("Arquivo inválido. Número de telefone incompleto - ".$row['nome_da_crianca_ou_adolescente']);
             }
 
             if( strlen ( (string) $row['telefone_apenas_numeros_com_ddd'] ) > 11 ){
                 Log::info("Número de telefone maior que o permitido.");
-                throw new Exception("Arquivo inválido. Número de telefone maior que o permitido - ".$row['nome_do_aluno']);
+                throw new Exception("Arquivo inválido. Número de telefone maior que o permitido - ".$row['nome_da_crianca_ou_adolescente']);
             }
 
             if( strpos( (string) $row['telefone_apenas_numeros_com_ddd'], "(" ) OR strpos( (string) $row['telefone_apenas_numeros_com_ddd'], ")" ) ){
                 Log::info("Número de telefone contém caracteres inválidos.");
-                throw new Exception("Arquivo inválido. Número de telefone contém caracteres inválidos - ".$row['nome_do_aluno']);
+                throw new Exception("Arquivo inválido. Número de telefone contém caracteres inválidos - ".$row['nome_da_crianca_ou_adolescente']);
             }
         }
 
@@ -217,11 +216,11 @@ class XLSFileChildrenImporter implements Importer
         if ($row['cep_somente_numeros'] != null) {
             if( strlen ( (string) $row['cep_somente_numeros'] ) < 8 ){
                 Log::info("CEP incompleto.");
-                throw new Exception("Arquivo inválido. CEP incompleto - ".$row['nome_do_aluno']);
+                throw new Exception("Arquivo inválido. CEP incompleto - ".$row['nome_da_crianca_ou_adolescente']);
             }
             if( strlen ( (string) $row['cep_somente_numeros'] ) > 8 ){
                 Log::info("CEP maior que o permitido.");
-                throw new Exception("Arquivo inválido. CEP maior que o permitido - ".$row['nome_do_aluno']);
+                throw new Exception("Arquivo inválido. CEP maior que o permitido - ".$row['nome_da_crianca_ou_adolescente']);
             }
         }
 
@@ -232,7 +231,7 @@ class XLSFileChildrenImporter implements Importer
         Log::info("[xls_import] Bot Agent User: {$this->agent->id}, {$this->agent->name}");
 
         $fieldMap = [
-            'nome_do_aluno' => 'name',
+            'nome_da_crianca_ou_adolescente' => 'name',
             'data_de_nascimento_formato_ddmmaaaa' => 'dob',
             'nome_da_mae_ou_responsavel' => 'mother_name',
             'nome_do_pai' => 'father_name',
@@ -293,7 +292,7 @@ class XLSFileChildrenImporter implements Importer
 
         $child = Child::where(
             [
-                ['name', '=', $row['nome_do_aluno']],
+                ['name', '=', $row['nome_da_crianca_ou_adolescente']],
                 ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
                 ['age', '=', $age],
                 ['city_id', '=', $this->tenant->city_id],
@@ -302,7 +301,7 @@ class XLSFileChildrenImporter implements Importer
             ]
         )->orWhere(
             [
-                ['name', '=', $row['nome_do_aluno']],
+                ['name', '=', $row['nome_da_crianca_ou_adolescente']],
                 ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
                 ['age', '=', $age],
                 ['city_id', '=', $this->tenant->city_id],
@@ -311,7 +310,7 @@ class XLSFileChildrenImporter implements Importer
             ]
         )->orWhere(
             [
-                ['name', '=', $row['nome_do_aluno']],
+                ['name', '=', $row['nome_da_crianca_ou_adolescente']],
                 ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
                 ['age', '=', $age],
                 ['city_id', '=', $this->tenant->city_id],
