@@ -5,6 +5,7 @@ namespace BuscaAtivaEscolar\Importers;
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
+use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
@@ -249,7 +250,7 @@ class XLSFileChildrenImporter implements Importer
             $data[$systemField] = trim((string) $row[$xlsField]);
         }
 
-        $data['alert_cause_id'] = 600;
+        $data['alert_cause_id'] = AlertCause::getBySlug('xls_import')->id;
         $data['dob'] = isset($data['dob']) ? Carbon::createFromFormat('d/m/Y', $data['dob'])->format('Y-m-d') : null;
         $data['place_uf'] = $this->tenant->city->uf;
         $data['place_city_id'] = strval($this->tenant->city->id);

@@ -64,6 +64,7 @@ class AlertCause extends StaticObject  {
 			'mudanca_endereco' => 170,
 			'violencia_territorio' => 180,
 			'educacenso_inep' => 500,
+            'xls_import' => 600
 		],
 		'sms_index' => [
 			1 => 10,
