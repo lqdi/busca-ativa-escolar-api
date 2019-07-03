@@ -94,14 +94,17 @@ class ChildrenController extends BaseController  {
 
 			$filters = [
 				'assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id],
-				'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
-				//'alert_cause_id' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledAlertCauses()],
+
+                // Essa regra está sendo desativada, pois não é possível retornar o getHandledCaseCauses dos grupos ...
+                //'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
+				'alert_cause_id' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledAlertCauses()],
 			];
 
 
-			if($group->id === $tenant->primaryGroup->id) {
-				$filters['current_step_type'] = ['type' => 'term', 'search' => 'BuscaAtivaEscolar\\CaseSteps\\Rematricula'];
-			}
+			//Essa regra impossibilita o retorno das outras etapas para Supervisores da educacao
+            //			if($group->id === $tenant->primaryGroup->id) {
+            //				$filters['current_step_type'] = ['type' => 'term', 'search' => 'BuscaAtivaEscolar\\CaseSteps\\Rematricula'];
+            //			}
 
 			$query->filterByOneOf($filters);
 
