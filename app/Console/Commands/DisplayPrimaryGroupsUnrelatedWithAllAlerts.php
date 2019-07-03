@@ -42,6 +42,7 @@ class DisplayPrimaryGroupsUnrelatedWithAllAlerts extends Command
             40 => 'Criança ou adolescente em abrigo',
             50 => 'Criança ou adolescente em situação de rua',
             60 => 'Criança ou adolescente vítima de abuso / violência sexual',
+            61 => 'Crianças ou adolescentes migrantes estrangeiros',
             70 => 'Evasão porque sente a escola desinteressante',
             80 => 'Falta de documentação da criança ou adolescente',
             90 => 'Falta de infraestrutura escolar',
@@ -52,7 +53,8 @@ class DisplayPrimaryGroupsUnrelatedWithAllAlerts extends Command
             140 => 'Uso, abuso ou dependência de substâncias psicoativas',
             150 => 'Violência familiar',
             160 => 'Violência na escola',
-            61 => 'Crianças ou adolescentes migrantes estrangeiros'
+            170 => 'Mudança de domicílio, viagem ou deslocamentos frequentes',
+            180 => 'Violência no território',
         ];
     }
 

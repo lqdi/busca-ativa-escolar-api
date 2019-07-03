@@ -60,6 +60,7 @@ class AddPriorityTenantNewMotive extends Command
             40 => true, // Criança ou adolescente em abrigo
             50 => true, // Criança ou adolescente em situação de rua
             60 => true, // Criança ou adolescente vítima de abuso / violência sexual
+            61 => true, // Crianças ou adolescentes migrantes estrangeiros
             70 => true, // Evasão porque sente a escola desinteressante
             80 => true, // Falta de documentação da criança ou adolescente
             90 => true, // Falta de infraestrutura escolar
@@ -70,8 +71,10 @@ class AddPriorityTenantNewMotive extends Command
             140 => true, // Uso, abuso ou dependência de substâncias psicoativas
             150 => true, // Violência familiar
             160 => true, // Violência na escola
+            170 => true, // Mudança de domicílio, viagem ou deslocamentos frequentes
+            180 => true, // Violência no território
             500 => false, // Importados do Educacenso
-            61 => true, // Crianças ou adolescentes migrantes estrangeiros
+            600 => false, // Evasão e/ou infrequência reportada pela escola ou município
         ];
     }
 
