@@ -37,7 +37,7 @@ class CheckCaseDeadlines extends Command {
 
                 if(!$step || !$child->tenant) continue;
 
-                if(!in_array($child->child_status, [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])) continue;
+                //if(!in_array($child->child_status, [Child::STATUS_OUT_OF_SCHOOL, Child::STATUS_OBSERVATION])) continue;
 
                 if(!$child->alert_status === Child::ALERT_STATUS_ACCEPTED) continue;
 
@@ -50,6 +50,10 @@ class CheckCaseDeadlines extends Command {
 
                     //We need this rule because the step GESTAO DO CASO has not a pattern deadline
                     if( $step->getSlug() === "gestao_do_caso"){
+                        $newStatus = 'normal';
+                    }
+
+                    if( $child->child_status === Child::STATUS_CANCELLED || $child->child_status === Child::STATUS_IN_SCHOOL){
                         $newStatus = 'normal';
                     }
 
