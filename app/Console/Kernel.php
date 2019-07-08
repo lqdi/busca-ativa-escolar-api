@@ -33,7 +33,8 @@ class Kernel extends ConsoleKernel
         Commands\AddAndCheckGroupIntoNewCase::class,
         Commands\AddPriorityTenantNewMotive::class,
         Commands\ForceObligatorinessEducationReason::class,
-        Commands\DisplayPrimaryGroupsUnrelatedWithAllAlerts::class
+        Commands\DisplayPrimaryGroupsUnrelatedWithAllAlerts::class,
+        Commands\ReindexSchoolById::class
     ];
 
     /**
