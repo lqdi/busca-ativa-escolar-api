@@ -26,8 +26,7 @@ class CheckCaseDeadlines extends Command {
 	public function handle() {
 
 
-
-		Child::chunk(200, function($children){
+		Child::chunk(500, function($children){
 
 		    $today = Carbon::today();
 
@@ -53,11 +52,11 @@ class CheckCaseDeadlines extends Command {
                         $newStatus = 'normal';
                     }
 
-                    if( $child->child_status === Child::STATUS_CANCELLED || $child->child_status === Child::STATUS_IN_SCHOOL){
-                        $newStatus = 'normal';
-                    }
-
                 }else{
+                    $newStatus = 'normal';
+                }
+
+                if( $child->child_status === Child::STATUS_CANCELLED || $child->child_status === Child::STATUS_IN_SCHOOL){
                     $newStatus = 'normal';
                 }
 
@@ -68,7 +67,7 @@ class CheckCaseDeadlines extends Command {
 
             }
 
-		    $this->comment("Finalizando grupo de 200 casos");
+		    $this->comment("Finalizando grupo de 500 casos");
 
         });
 
