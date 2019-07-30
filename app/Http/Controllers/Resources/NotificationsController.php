@@ -26,14 +26,18 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class NotificationsController extends BaseController {
 
 	public function getUnread() {
-		$user = Auth::user(); /* @var $user User */
-		$notifications = $user->unreadNotifications;
 
-		return fractal()
-			->collection($notifications)
-			->transformWith(new NotificationTransformer())
-			->serializeWith(new SimpleArraySerializer())
-			->respond();
+        // mudanca temporaria para evitar o envio de notificacoes nao lidas
+	    return response()->json();
+
+	    //		$user = Auth::user(); /* @var $user User */
+//		$notifications = $user->unreadNotifications;
+//
+//		return fractal()
+//			->collection($notifications)
+//			->transformWith(new NotificationTransformer())
+//			->serializeWith(new SimpleArraySerializer())
+//			->respond();
 	}
 
 	public function markAsRead($id) {
