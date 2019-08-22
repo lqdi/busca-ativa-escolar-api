@@ -55,7 +55,7 @@ class CitiesController extends BaseController  {
 			->filterByTerm('uf', false)
 			->getQuery();
 
-		$results = $search->search(new City(), $query, 15);
+		$results = $search->search(new City(), $query, 20);
 
 		return fractal()
 			->item($results)
