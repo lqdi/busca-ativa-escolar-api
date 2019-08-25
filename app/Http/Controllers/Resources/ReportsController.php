@@ -119,6 +119,13 @@ class ReportsController extends BaseController {
 			$ids = $this->extractDimensionIDs($response['report'], $params['view']);
 			$labels = $this->fetchDimensionLabels($params['dimension'], $ids);
 
+            //todo gambi, o correto é remover do elastic search
+            if ($params['dimension'] == 'case_cause_ids') {
+                unset($response['report'][500]);
+                unset($response['report'][600]);
+            }
+
+
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
 		}
