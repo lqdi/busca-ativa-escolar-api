@@ -124,6 +124,9 @@ class ReportsController extends BaseController {
                 unset($response['report'][500]);
                 unset($response['report'][600]);
             }
+            if ($params['dimension'] == 'parents_income') {
+                $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
+            }
 
 
 		} catch (\Exception $ex) {
