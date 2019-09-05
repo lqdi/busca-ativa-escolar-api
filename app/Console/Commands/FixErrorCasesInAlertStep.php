@@ -102,10 +102,10 @@ class FixErrorCasesInAlertStep extends Command
                     $this->comment("CHILD ". $child->name. " - ".$child->id);
 
                     $this->comment("CASE current_step_type ". $case->current_step_type);
-                    $this->comment("CASE current_step_type ". $case->current_step_id);
+                    $this->comment("CASE current_step_id ". $case->current_step_id);
 
                     $this->comment("CHILD current_step_type ". $child->current_step_type);
-                    $this->comment("CHILD current_step_type ". $child->current_step_id);
+                    $this->comment("CHILD current_step_id ". $child->current_step_id);
 
                     $case->current_step_type = $child->current_step_type;
                     $case->current_step_id = $child->current_step_id;
