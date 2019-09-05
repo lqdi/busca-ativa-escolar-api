@@ -14,7 +14,7 @@ class UpdateNisEtspCasePesquisa extends Migration
     public function up()
     {
         \Schema::table('case_steps_pesquisa', function (Blueprint $table) {
-            $table->string('nis');
+            $table->string('nis')->change();
         });
     }
 
