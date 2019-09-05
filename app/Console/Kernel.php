@@ -2,6 +2,7 @@
 
 namespace BuscaAtivaEscolar\Console;
 
+use BuscaAtivaEscolar\Console\Commands\Command;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -34,7 +35,8 @@ class Kernel extends ConsoleKernel
         Commands\AddPriorityTenantNewMotive::class,
         Commands\ForceObligatorinessEducationReason::class,
         Commands\DisplayPrimaryGroupsUnrelatedWithAllAlerts::class,
-        Commands\ReindexSchoolById::class
+        Commands\ReindexSchoolById::class,
+        Commands\FixErrorCasesInAlertStep::class
     ];
 
     /**
