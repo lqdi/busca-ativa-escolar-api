@@ -5,6 +5,7 @@ namespace BuscaAtivaEscolar\Console\Commands;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\ChildCase;
 use function foo\func;
 use Illuminate\Console\Command;
 use Log;
@@ -42,9 +43,12 @@ class FixErrorCasesInAlertStep extends Command
      */
     public function handle()
     {
-        $this->comment("Iniciando correcoes");
+        $this->comment("Iniciando correcoes dos alertas");
+
         $qtd_alerts = Child::where(['current_step_type' => 'BuscaAtivaEscolar\CaseSteps\Alerta', 'alert_status' => 'accepted'])->count();
+
         $children = Child::where(['current_step_type' => 'BuscaAtivaEscolar\CaseSteps\Alerta', 'alert_status' => 'accepted'])->get();
+
         foreach ($children as $child){
             $alerta = Alerta::where('child_id', $child->id)->first();
             $pesquisa = Pesquisa::where('child_id', $child->id)->first();
@@ -61,5 +65,44 @@ class FixErrorCasesInAlertStep extends Command
             $child->save();
         }
         $this->comment("Finalizando correcoes dos ".$qtd_alerts." alertas");
+
+
+        $this->comment("VERIFICANDO CASOS COM ETAPA DIFERENTE:");
+
+        $children_casos_errados = Child::chunk(200, function ($children){
+
+            foreach ( $children as $child ){
+
+                $case = ChildCase::where('child_id', $child->id)->first();
+
+                if( $case != null
+                    AND $child->alert_status != "rejected"
+                    AND $child->alert_status != "pending"
+                    AND (
+                        $child->current_step_type != $case->current_step_type
+                        OR $child->current_step_id != $case->current_step_id) ) {
+
+                    $this->comment("CHILD ". $child->name. " - ".$child->id);
+
+                    $this->comment("CASE current_step_type ". $case->current_step_type);
+                    $this->comment("CASE current_step_type ". $case->current_step_id);
+
+                    $this->comment("CHILD current_step_type ". $child->current_step_type);
+                    $this->comment("CHILD current_step_type ". $child->current_step_id);
+
+                    $case->current_step_type = $child->current_step_type;
+                    $case->current_step_id = $child->current_step_id;
+
+                    $case->save();
+                    $child->save();
+
+                    $this->comment("DIFERENTES!");
+                    $this->comment("--------------------------------------");
+                }
+
+            }
+
+        });
+
     }
 }
