@@ -104,7 +104,7 @@ class IdentityController extends BaseController  {
 			$user = User::whereEmail($email)->first(); /* @var $user User */
 
 			if(!$user) {
-				return $this->api_failure('invalid_email');
+				return $this->api_failure('<br>O email ('.$email.')<br> nao foi encontrado no sistema, <br>entre com o email cadastrado para acessar o sistema e trocar a senha.');
 			}
 
 			$user->sendPasswordResetNotification();

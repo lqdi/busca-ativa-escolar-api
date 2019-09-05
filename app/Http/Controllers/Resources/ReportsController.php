@@ -23,6 +23,8 @@ use BuscaAtivaEscolar\Data\AgeRange;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Data\IncomeRange;
+use BuscaAtivaEscolar\Data\Race;
+use BuscaAtivaEscolar\Data\SchoolingLevel;
 use BuscaAtivaEscolar\Data\WorkActivity;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\IBGE\Region;
@@ -118,6 +120,24 @@ class ReportsController extends BaseController {
 
 			$ids = $this->extractDimensionIDs($response['report'], $params['view']);
 			$labels = $this->fetchDimensionLabels($params['dimension'], $ids);
+
+            //todo gambi, o correto é remover do elastic search
+            if ($params['dimension'] == 'case_cause_ids') {
+                unset($response['report'][500]);
+                unset($response['report'][600]);
+            }
+            if ($params['dimension'] == 'parents_income') {
+                $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
+            }
+            if ($params['dimension'] == 'race') {
+                $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
+            }
+            if ($params['dimension'] == 'work_activity') {
+                $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
+            }
+            if ($params['dimension'] == 'guardian_schooling') {
+                $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
+            }
 
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
@@ -543,7 +563,9 @@ class ReportsController extends BaseController {
 			case 'place_uf': return array_pluck(UF::getAllAsArray(), 'code', 'slug');
 			case 'place_city_id': return $hasIDs ? City::whereIn('id', $ids)->get()->pluck('name', 'id') : []; // TODO: create full_name field that contains UF
 			case 'school_last_id': return $hasIDs ? School::whereIn('id', $ids)->get()->pluck('name', 'id') : [];
-			default: return [];
+            case 'race': return array_pluck(Race::getAllAsArray(), 'label', 'slug');
+            case 'guardian_schooling': return array_pluck(SchoolingLevel::getAllAsArray(), 'label', 'slug');
+            default: return [];
 		}
 
 	}

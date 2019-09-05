@@ -46,37 +46,39 @@ class AlertsController extends BaseController {
 
         $query->where($where);
 
-        if(request()->has('neighborhood')){
+        $stdRequest = null;
 
-            $query->whereHas('alert', function ($query) {
-                $query->where('place_neighborhood', 'like', '%' . request('neighborhood') . '%');
-            });
-
-        }
-
+        //make a filter by json filter (olnly fields from Children)
         if(request()->has('sort')) {
-            Child::applySorting($query, json_decode(request('sort'), true));
+            $stdRequest = json_decode(request('sort'));
+            if(property_exists($stdRequest, 'name')){ $query->orderBy('name', $stdRequest->name); }
+            if(property_exists($stdRequest, 'risk_level')){ $query->orderBy('risk_level', $stdRequest->risk_level); }
+            if(property_exists($stdRequest, 'created_at')){ $query->orderBy('created_at', $stdRequest->created_at); }
         }
 
         if(Auth::user()->type === User::TYPE_SUPERVISOR_INSTITUCIONAL) {
             $group = Auth::user()->group; /* @var $group Group */
-
             if(!$group) $group = Auth::user()->tenant->primary_group;
             if(!$group) $group = new Group();
-
             $query->whereHas('alert', function ($sq) use ($group) {
                 $sq->whereIn('alert_cause_id', $group->getSettings()->getHandledAlertCauses());
             });
         }
 
-        //filter to submitter_name
-        if(request()->has('submitter_name')) {
-            $query->whereHas('submitter', function ($sq) {
-                $sq->where('name', 'LIKE', '%' . request('submitter_name') . '%');
+        if( request()->has('submitter_name') || property_exists($stdRequest, 'agent') ) {
+            $query->whereHas('submitter', function ($sq) use ($stdRequest) {
+                if( request()->has('submitter_name') ) { $sq->where('name', 'LIKE', '%' . request('submitter_name') . '%'); }
+                if( property_exists($stdRequest, 'agent') ) { $sq->orderBy('name', $stdRequest->agent); }
             });
         }
 
-        //define a pagination
+        if( request()->has('neighborhood') || property_exists($stdRequest, 'neighborhood') ){
+            $query->whereHas('alert', function ($sq) use ($stdRequest) {
+                if( request()->has('neighborhood') ) { $sq->where('place_neighborhood', 'like', '%' . request('neighborhood') . '%'); }
+                if( property_exists($stdRequest, 'neighborhood') ) { $sq->orderBy('place_neighborhood', $stdRequest->neighborhood); }
+            });
+        }
+
         $max = request('max', 128);
         if($max > 128) $max = 128;
         if($max < 16) $max = 16;
@@ -91,6 +93,7 @@ class AlertsController extends BaseController {
             ->paginateWith(new IlluminatePaginatorAdapter($paginator))
             ->parseIncludes(request('with'))
             ->respond();
+
 	}
 
 	public function accept(Child $child) {
