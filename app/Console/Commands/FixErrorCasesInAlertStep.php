@@ -43,7 +43,22 @@ class FixErrorCasesInAlertStep extends Command
      */
     public function handle()
     {
-        $this->comment("Iniciando correcoes dos alertas");
+
+        $this->comment("INICIANDO A CORRECAO DO NIS EXISTENTE EM PESQUISA E NAO LOCALIZADO NA ETAPA ALERTA");
+        Pesquisa::chunk(200, function ($pesquisas){
+            foreach ($pesquisas as $pesquisa){
+                if($pesquisa->nis != null OR $pesquisa->nis != ""){
+                    $alerta = Alerta::where('child_id', $pesquisa->child_id)->first();
+                    $this->comment('ATUALIZANDO O NIS DO ALERTA DA CRIANCA '.$alerta->name);
+                    $alerta->nis = $pesquisa->nis;
+                    $alerta->save();
+                }
+            }
+        });
+        $this->comment("FINALIZANDO A CORRECAO DO NIS");
+
+        $this->comment("INICIANDO A CORRECAO DOS ALERTAS");
+        $this->comment("Procurando alertas aprovados que estão travados na etapa Alerta");
 
         $qtd_alerts = Child::where(['current_step_type' => 'BuscaAtivaEscolar\CaseSteps\Alerta', 'alert_status' => 'accepted'])->count();
 
@@ -64,12 +79,14 @@ class FixErrorCasesInAlertStep extends Command
             $pesquisa->save();
             $child->save();
         }
-        $this->comment("Finalizando correcoes dos ".$qtd_alerts." alertas");
+        $this->comment("FINALIZANDO A CORRECAO DOS ".$qtd_alerts." ALERTAS");
 
 
-        $this->comment("VERIFICANDO CASOS COM ETAPA DIFERENTE:");
+        $this->comment("VERIFICANDO CASOS COM ETAPA DIFERENTE");
+        $this->comment("Buscando case_types das criancas que diferem do seus respectivos case_types de CaseStep");
 
-        $children_casos_errados = Child::chunk(200, function ($children){
+
+        Child::chunk(200, function ($children){
 
             foreach ( $children as $child ){
 
@@ -103,6 +120,8 @@ class FixErrorCasesInAlertStep extends Command
             }
 
         });
+
+        $this->comment("FINALIZANDO A VERIFICACAO DOS CASOS COM ETAPA DIFERENTES");
 
     }
 }
