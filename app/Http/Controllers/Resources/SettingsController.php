@@ -18,8 +18,10 @@ use Auth;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Settings\TenantSettings;
+use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\TenantSettingsTransformer;
 use BuscaAtivaEscolar\User;
+use Illuminate\Http\Request;
 
 class SettingsController extends BaseController {
 
@@ -57,5 +59,19 @@ class SettingsController extends BaseController {
 
 		return response()->json(['status' => 'ok']);
 	}
+
+
+    public function get_tenant_settings_of_case($id) {
+
+	    $tenant = \BuscaAtivaEscolar\Tenant::where('id', $id)->first();
+	    $settings = $tenant->getSettings();
+
+        return fractal()
+            ->item($settings)
+            ->transformWith(new TenantSettingsTransformer($tenant))
+            ->serializeWith(new SimpleArraySerializer())
+            ->respond();
+
+    }
 
 }

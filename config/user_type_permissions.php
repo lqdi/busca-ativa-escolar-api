@@ -83,6 +83,8 @@ return [
     ],
 
 	BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL => [
+	    'cases.manage',
+        'cases.assign',
 		'reports.view',
 		'cases.map',
 		'users.view',

@@ -63,6 +63,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
         Route::delete('/groups/{group}', 'Resources\GroupsController@destroy')->middleware('can:groups.manage');
 
         // Tenant Settings
+        Route::get('/settingstenantcase/tenant/{id}', 'Resources\SettingsController@get_tenant_settings_of_case');
 		Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings');//->middleware('can:settings.view');
         Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings')->middleware('can:settings.manage');
 
