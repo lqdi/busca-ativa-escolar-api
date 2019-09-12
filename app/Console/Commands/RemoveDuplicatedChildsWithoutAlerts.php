@@ -82,7 +82,11 @@ class RemoveDuplicatedChildsWithoutAlerts extends Command
 
             if( $this->repetido($child) ){
                 $this->comment("Sim");
-                $child->delete();
+                try {
+                    $child->delete();
+                }catch (Missing404Exception $exception){
+                    $this->comment("Não localizado no Elasticsearch");
+                }
                 $this->comment("Removido");
             }else{
                 $this->comment("Nao" );
