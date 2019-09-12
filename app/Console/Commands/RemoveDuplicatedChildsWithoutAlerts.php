@@ -92,7 +92,8 @@ class RemoveDuplicatedChildsWithoutAlerts extends Command
                 $data['alert_cause_id'] = $cause_id;
                 $data['alert_submitter_id'] = true;
                 Child::spawnFromAlertData($tenant, $child->alert_submitter_id, $data);
-                $child->destroy($child->id);
+                $child->unsetEventDispatcher();
+                $child->delete();
             }
 
             $this->comment("----------------------");
