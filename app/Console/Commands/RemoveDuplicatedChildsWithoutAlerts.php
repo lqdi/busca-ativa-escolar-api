@@ -3,6 +3,7 @@
 namespace BuscaAtivaEscolar\Console\Commands;
 
 use BuscaAtivaEscolar\Child;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Illuminate\Console\Command;
 
 class RemoveDuplicatedChildsWithoutAlerts extends Command
@@ -92,8 +93,11 @@ class RemoveDuplicatedChildsWithoutAlerts extends Command
                 $data['alert_cause_id'] = $cause_id;
                 $data['alert_submitter_id'] = true;
                 Child::spawnFromAlertData($tenant, $child->alert_submitter_id, $data);
-                $child->unsetEventDispatcher();
-                $child->delete();
+                try {
+                    $child->delete();
+                }catch (Missing404Exception $exception){
+                    $this->comment("Não localizado no Elasticsearch");
+                }
             }
 
             $this->comment("----------------------");
