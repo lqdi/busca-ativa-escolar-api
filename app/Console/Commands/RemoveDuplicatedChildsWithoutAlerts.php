@@ -103,7 +103,7 @@ class RemoveDuplicatedChildsWithoutAlerts extends Command
                 }catch (Missing404Exception $exception){
                     $this->comment("Não localizado no Elasticsearch");
                 }
-                
+
             }
 
             $this->comment("----------------------");
