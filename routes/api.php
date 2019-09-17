@@ -146,6 +146,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/reports/state_stats', 'Resources\ReportsController@state_stats');
 		Route::get('/reports/exported/{filename}', 'Resources\ReportsController@download_exported')->name('api.reports.download_exported')->middleware('can:reports.view');
 
+		//Reports Bar
+        Route::get('/reports/city_bar', 'Bar\ReportsBar@city_bar');
+
 	});
 
 	Route::get('/maintenance/test_error_reporting', 'Maintenance\SystemHealthController@test_error_reporting');
