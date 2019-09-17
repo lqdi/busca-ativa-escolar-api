@@ -37,7 +37,8 @@ class Kernel extends ConsoleKernel
         Commands\DisplayPrimaryGroupsUnrelatedWithAllAlerts::class,
         Commands\ReindexSchoolById::class,
         Commands\FixErrorCasesInAlertStep::class,
-        Commands\RemoveDuplicatedChildsWithoutAlerts::class
+        Commands\RemoveDuplicatedChildsWithoutAlerts::class,
+        Commands\FixErrorCasesDisabled::class
     ];
 
     /**
