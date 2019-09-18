@@ -126,7 +126,8 @@ class ReportsBar extends BaseController
             [
                 'tenant_id' => $tenant->id,
                 'alert_status' => Child::ALERT_STATUS_ACCEPTED,
-                'current_step_type' => 'BuscaAtivaEscolar\CaseSteps\Observacao'
+                'current_step_type' => 'BuscaAtivaEscolar\CaseSteps\Observacao',
+                'child_status' => Child::STATUS_OBSERVATION
             ])->get();
 
         foreach ( $children as $child ){
