@@ -91,6 +91,8 @@ class Tenant extends Model  {
 		'map_lng',
 
 		'educacenso_import_details',
+
+        'goal'
 	];
 
 	protected $casts = [

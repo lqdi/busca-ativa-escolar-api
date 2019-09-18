@@ -8,6 +8,7 @@ return [
     	'stats_platform' => 4 * 60, // 4 hours
 	    'uf_tenants' => 60,
 	    'uf_cities' => 60,
+        'status_bar_city' => 60 //24 * 60, //24h
     ],
 
     'stores' => [
