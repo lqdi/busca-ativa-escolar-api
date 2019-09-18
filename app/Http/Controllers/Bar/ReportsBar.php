@@ -3,11 +3,11 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Bar;
 
 use Auth;
-use BuscaAtivaEscolar\CaseSteps\Observacao;
 use BuscaAtivaEscolar\Child;
-use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
-use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\CaseSteps\Alerta;
+use BuscaAtivaEscolar\CaseSteps\Rematricula;
+use Cache;
 
 class ReportsBar extends BaseController
 {
@@ -16,114 +16,145 @@ class ReportsBar extends BaseController
 
         try {
 
-            /** @var Tenant $query */
-            $tenant = Auth::user()->tenant;
+            $report = Cache::remember('city_bar_tenant'.$this->currentUser()->tenant->id, config('cache.timeouts.status_bar_city'), function() {
 
-            $report = [
+                return [
 
-                'bar' => [
+                    'bar' => [
 
-                    'registered_at' => $tenant->registered_at,
+                        'registered_at' => $this->currentUser()->tenant->registered_at,
 
-                    'config' => [
-                        'is_configured' => $tenant->is_setup,
-                        'updated_at' => $tenant->is_setup ? $tenant->updated_at : null
+                        'config' => [
+                            'is_configured' => $this->currentUser()->tenant->is_setup,
+                            'updated_at' => $this->currentUser()->tenant->is_setup ? $this->currentUser()->tenant->updated_at : null
+                        ],
+
+                        'first_alert' =>
+                            Alerta::where(['tenant_id' => $this->currentUser()->tenant->id, 'alert_status' => Child::ALERT_STATUS_ACCEPTED])
+                                ->orderBy('created_at', 'asc')
+                                ->first()->created_at,
+
+                        'first_case' =>
+                            Alerta::where(['tenant_id' => $this->currentUser()->tenant->id, 'alert_status' => Child::ALERT_STATUS_ACCEPTED])
+                                ->orderBy('completed_at', 'asc')
+                                ->first()->completed_at,
+
+                        'first_reinsertion_class' =>
+                            Rematricula::where(['tenant_id' => $this->currentUser()->tenant->id, 'is_completed' => true])
+                                ->orderBy('completed_at', 'asc')
+                                ->first()->completed_at,
                     ],
 
-                    'first_alert' =>
-                        \BuscaAtivaEscolar\CaseSteps\Alerta::where(['tenant_id' => $tenant->id, 'alert_status' => 'accepted'])
-                            ->orderBy('created_at', 'asc')
-                            ->first()->created_at,
+                    'alert_box' => [
 
-                    'first_case' =>
-                        \BuscaAtivaEscolar\CaseSteps\Alerta::where(['tenant_id' => $tenant->id, 'alert_status' => 'accepted'])
-                            ->orderBy('completed_at', 'asc')
-                            ->first()->completed_at,
+                        'alerts_created' =>
+                            Alerta::where(['tenant_id' => $this->currentUser()->tenant->id])->count(),
 
-                    'first_reinsertion_class' =>
-                        \BuscaAtivaEscolar\CaseSteps\Rematricula::where(['tenant_id' => $tenant->id, 'is_completed' => true])
-                            ->orderBy('completed_at', 'asc')
-                            ->first()->completed_at,
-                ],
+                        'alerts_accepted' =>
+                            Alerta::where(
+                                [
+                                    'tenant_id' => $this->currentUser()->tenant->id,
+                                    'alert_status' => Child::ALERT_STATUS_ACCEPTED
+                                ])->count(),
 
-                'alert_box' => [
+                        'alerts_pending' =>
+                            Alerta::where(
+                                [
+                                    'tenant_id' => $this->currentUser()->tenant->id,
+                                    'alert_status' => Child::ALERT_STATUS_PENDING
+                                ])->count(),
 
-                    'alerts_created' =>
-                        \BuscaAtivaEscolar\CaseSteps\Alerta::where(['tenant_id' => $tenant->id])->count(),
+                        'alerts_rejected' =>
+                            Alerta::where(
+                                [
+                                    'tenant_id' => $this->currentUser()->tenant->id,
+                                    'alert_status' => Child::ALERT_STATUS_REJECTED
+                                ])->count(),
 
-                    'alerts_accepted' =>
-                        \BuscaAtivaEscolar\CaseSteps\Alerta::where(
-                            [
-                                'tenant_id' => $tenant->id,
-                                'alert_status' => Child::ALERT_STATUS_ACCEPTED
-                            ])->count(),
+                    ],
 
-                    'alerts_pending' =>
-                        \BuscaAtivaEscolar\CaseSteps\Alerta::where(
-                            [
-                                'tenant_id' => $tenant->id,
-                                'alert_status' => Child::ALERT_STATUS_PENDING
-                            ])->count(),
+                    'cases_box' => [
 
-                    'alerts_rejected' =>
-                        \BuscaAtivaEscolar\CaseSteps\Alerta::where(
-                            [
-                                'tenant_id' => $tenant->id,
-                                'alert_status' => Child::ALERT_STATUS_REJECTED
-                            ])->count(),
+                        'cases_on_time' =>
+                            Child::has('cases')->where(
+                                [
+                                    'tenant_id' => $this->currentUser()->tenant->id,
+                                    'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
+                                    'alert_status' => Child::ALERT_STATUS_ACCEPTED
+                                ])->count(),
 
-                ],
+                        'cases_late' =>
+                            Child::has('cases')->where(
+                                [
+                                    'tenant_id' => $this->currentUser()->tenant->id,
+                                    'deadline_status' => Child::DEADLINE_STATUS_LATE,
+                                    'alert_status' => Child::ALERT_STATUS_ACCEPTED
+                                ])->count(),
 
-                'cases_box' => [
+                    ],
 
-                    'cases_on_time' =>
-                        \BuscaAtivaEscolar\Child::has('cases')->where(
-                            [
-                                'tenant_id' => $tenant->id,
-                                'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
-                                'alert_status' => Child::ALERT_STATUS_ACCEPTED
-                            ])->count(),
+                    'goal_box' => [
 
-                    'cases_late' =>
-                        \BuscaAtivaEscolar\Child::has('cases')->where(
-                            [
-                                'tenant_id' => $tenant->id,
-                                'deadline_status' => Child::DEADLINE_STATUS_LATE,
-                                'alert_status' => Child::ALERT_STATUS_ACCEPTED
-                            ])->count(),
+                        'goal' => $this->currentUser()->tenant->goal,
 
-                ],
+                        'reinsertions_classes' =>
+                            Rematricula::where(['tenant_id' => $this->currentUser()->tenant->id, 'is_completed' => true])
+                                ->orderBy('completed_at', 'asc')
+                                ->count(),
 
-                'goal_box' => [
+                        'observations' => $this->getObseravtionsValues($this->currentUser()->tenant)
+                    ]
+                ];
 
-                    'goal' => $tenant->goal,
-
-                    'reinsertions_class' =>
-                        \BuscaAtivaEscolar\CaseSteps\Rematricula::where(['tenant_id' => $tenant->id, 'is_completed' => true])
-                        ->orderBy('completed_at', 'asc')
-                        ->count(),
-
-                    'in_observation_1' => '',
-
-                    'in_observation_2' => '',
-
-                    'in_observation_3' => '',
-
-                    'in_observation_4' => '',
-                ]
-
-            ];
-
-//            $stats = Cache::remember('city_bar', config('cache.timeouts.status_bar_city'), function() {
-//
-//
-//            });
+            });
 
             return response()->json($report);
 
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
+    }
+
+    private function getObseravtionsValues($tenant)
+    {
+        $qdt_observations_1 = 0;
+        $qdt_observations_2 = 0;
+        $qdt_observations_3 = 0;
+        $qdt_observations_4 = 0;
+
+        $children = Child::has('cases')->where(
+            [
+                'tenant_id' => $tenant->id,
+                'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                'current_step_type' => 'BuscaAtivaEscolar\CaseSteps\Observacao'
+            ])->get();
+
+        foreach ( $children as $child ){
+
+            switch ( $child->currentStep->step_index ) {
+                case 60:
+                    $qdt_observations_1++;
+                    break;
+                case 70:
+                    $qdt_observations_2++;
+                    break;
+                case 80:
+                    $qdt_observations_3++;
+                    break;
+                case 90:
+                    $qdt_observations_4++;
+                    break;
+            }
+
+        }
+
+        return [
+            'qdt_observations_1' => $qdt_observations_1,
+            'qdt_observations_2' => $qdt_observations_2,
+            'qdt_observations_3' => $qdt_observations_3,
+            'qdt_observations_4' => $qdt_observations_4,
+        ];
+
     }
 
 }
