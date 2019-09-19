@@ -25,24 +25,24 @@ class ReportsBar extends BaseController
                         'registered_at' => $this->currentUser()->tenant->registered_at,
 
                         'config' => [
-                            'is_configured' => $this->currentUser()->tenant->is_setup,
-                            'updated_at' => $this->currentUser()->tenant->is_setup ? $this->currentUser()->tenant->updated_at : null
+                            'is_configured' => $this->currentUser()->tenant->settings ? true : false,
+                            'updated_at' => $this->currentUser()->tenant->settings ? $this->currentUser()->tenant->updated_at : null
                         ],
 
                         'first_alert' =>
                             Alerta::where(['tenant_id' => $this->currentUser()->tenant->id, 'alert_status' => Child::ALERT_STATUS_ACCEPTED])
                                 ->orderBy('created_at', 'asc')
-                                ->first()->created_at,
+                                ->first()->created_at ?? null,
 
                         'first_case' =>
                             Alerta::where(['tenant_id' => $this->currentUser()->tenant->id, 'alert_status' => Child::ALERT_STATUS_ACCEPTED])
                                 ->orderBy('completed_at', 'asc')
-                                ->first()->completed_at,
+                                ->first()->completed_at ?? null,
 
                         'first_reinsertion_class' =>
                             Rematricula::where(['tenant_id' => $this->currentUser()->tenant->id, 'is_completed' => true])
                                 ->orderBy('completed_at', 'asc')
-                                ->first()->completed_at,
+                                ->first()->completed_at  ?? null,
                     ],
 
                     'alert_box' => [
