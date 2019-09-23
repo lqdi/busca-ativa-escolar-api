@@ -8,6 +8,7 @@ use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use Cache;
+use DB;
 
 class ReportsBar extends BaseController
 {
@@ -18,7 +19,7 @@ class ReportsBar extends BaseController
 
             $report = Cache::remember('city_bar_tenant'.$this->currentUser()->tenant->id, config('cache.timeouts.status_bar_city'), function() {
 
-                return [
+               return [
 
                     'bar' => [
 
@@ -48,28 +49,31 @@ class ReportsBar extends BaseController
                     'alert_box' => [
 
                         'alerts_created' =>
-                            Alerta::where(['tenant_id' => $this->currentUser()->tenant->id])->count(),
+                            DB::table('children')
+                                ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                                ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
+                                ->count(),
 
                         'alerts_accepted' =>
-                            Alerta::where(
-                                [
-                                    'tenant_id' => $this->currentUser()->tenant->id,
-                                    'alert_status' => Child::ALERT_STATUS_ACCEPTED
-                                ])->count(),
+                            DB::table('children')
+                                ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                                ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
+                                ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                                ->count(),
 
                         'alerts_pending' =>
-                            Alerta::where(
-                                [
-                                    'tenant_id' => $this->currentUser()->tenant->id,
-                                    'alert_status' => Child::ALERT_STATUS_PENDING
-                                ])->count(),
+                            DB::table('children')
+                                ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                                ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
+                                ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_PENDING)
+                                ->count(),
 
                         'alerts_rejected' =>
-                            Alerta::where(
-                                [
-                                    'tenant_id' => $this->currentUser()->tenant->id,
-                                    'alert_status' => Child::ALERT_STATUS_REJECTED
-                                ])->count(),
+                            DB::table('children')
+                                ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                                ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
+                                ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_REJECTED)
+                                ->count(),
 
                     ],
 
@@ -83,6 +87,59 @@ class ReportsBar extends BaseController
                                     'alert_status' => Child::ALERT_STATUS_ACCEPTED
                                 ])->count(),
 
+                        'steps_on_time' => [
+
+                            'pesquisa' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\Pesquisa"
+                                    ])->count(),
+
+                            'analise_tecnica' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\AnaliseTecnica"
+                                    ])->count(),
+
+                            'gestao_do_caso' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\GestaoDoCaso"
+                                    ])->count(),
+
+                            'rematricula' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\Rematricula"
+                                    ])->count(),
+
+                            'observacao' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\Observacao"
+                                    ])->count(),
+                        ],
+
                         'cases_late' =>
                             Child::has('cases')->where(
                                 [
@@ -90,6 +147,58 @@ class ReportsBar extends BaseController
                                     'deadline_status' => Child::DEADLINE_STATUS_LATE,
                                     'alert_status' => Child::ALERT_STATUS_ACCEPTED
                                 ])->count(),
+
+                        'steps_late' => [
+                            'pesquisa' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_LATE,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\Pesquisa"
+                                    ])->count(),
+
+                            'analise_tecnica' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_LATE,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\AnaliseTecnica"
+                                    ])->count(),
+
+                            'gestao_do_caso' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_LATE,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\GestaoDoCaso"
+                                    ])->count(),
+
+                            'rematricula' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_LATE,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\Rematricula"
+                                    ])->count(),
+
+                            'observacao' =>
+
+                                Child::has('cases')->where(
+                                    [
+                                        'tenant_id' => $this->currentUser()->tenant->id,
+                                        'deadline_status' => Child::DEADLINE_STATUS_LATE,
+                                        'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                        'current_step_type' => "BuscaAtivaEscolar\CaseSteps\Observacao"
+                                    ])->count(),
+                        ],
 
                     ],
 
@@ -105,6 +214,7 @@ class ReportsBar extends BaseController
                         'observations' => $this->getObseravtionsValues($this->currentUser()->tenant)
                     ]
                 ];
+
 
             });
 
