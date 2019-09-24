@@ -227,10 +227,10 @@ class ReportsBar extends BaseController
 
     private function getObseravtionsValues($tenant)
     {
-        $qdt_observations_1 = 0;
-        $qdt_observations_2 = 0;
-        $qdt_observations_3 = 0;
-        $qdt_observations_4 = 0;
+        $qtd_observations_1 = 0;
+        $qtd_observations_2 = 0;
+        $qtd_observations_3 = 0;
+        $qtd_observations_4 = 0;
 
         $children = Child::has('cases')->where(
             [
@@ -244,26 +244,26 @@ class ReportsBar extends BaseController
 
             switch ( $child->currentStep->step_index ) {
                 case 60:
-                    $qdt_observations_1++;
+                    $qtd_observations_1++;
                     break;
                 case 70:
-                    $qdt_observations_2++;
+                    $qtd_observations_2++;
                     break;
                 case 80:
-                    $qdt_observations_3++;
+                    $qtd_observations_3++;
                     break;
                 case 90:
-                    $qdt_observations_4++;
+                    $qtd_observations_4++;
                     break;
             }
 
         }
 
         return [
-            'qdt_observations_1' => $qdt_observations_1,
-            'qdt_observations_2' => $qdt_observations_2,
-            'qdt_observations_3' => $qdt_observations_3,
-            'qdt_observations_4' => $qdt_observations_4,
+            'qtd_observations_1' => $qtd_observations_1,
+            'qtd_observations_2' => $qtd_observations_2,
+            'qtd_observations_3' => $qtd_observations_3,
+            'qtd_observations_4' => $qtd_observations_4,
         ];
 
     }
