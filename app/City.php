@@ -82,7 +82,7 @@ class City extends Model implements Searchable {
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function goal() {
-        return $this->hasOne('BuscaAtivaEscolar\Goal', 'id', 'goal_id');
+        return $this->hasOne('BuscaAtivaEscolar\Goal', 'id', 'ibge_city_id');
     }
 
 	// ------------------------------------------------------------------------

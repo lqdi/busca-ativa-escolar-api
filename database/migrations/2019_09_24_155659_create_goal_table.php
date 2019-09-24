@@ -13,7 +13,13 @@ class CreateGoalTable extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('goals', function (Blueprint $table) {
+            $table->integer('id');
+            $table->primary('id');
+            $table->integer('goal');
+            $table->timestamps();
+            $table->softDeletes();
+        });
     }
 
     /**
@@ -23,6 +29,6 @@ class CreateGoalTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('goals');
     }
 }

@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Goal extends Model
 {
     use SoftDeletes;
+    protected $table = "goals";
 
 }
