@@ -31,7 +31,7 @@ class ReportsBar extends BaseController
                        ],
 
                        'first_alert' =>
-                           Alerta::where(['tenant_id' => $this->currentUser()->tenant->id, 'alert_status' => Child::ALERT_STATUS_ACCEPTED])
+                           Alerta::where(['tenant_id' => $this->currentUser()->tenant->id])
                                ->orderBy('created_at', 'asc')
                                ->first()->created_at ?? null,
 
