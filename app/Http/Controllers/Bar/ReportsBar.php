@@ -21,27 +21,47 @@ class ReportsBar extends BaseController
 
                 'bar' => [
 
-                    'registered_at' => $this->currentUser()->tenant->registered_at,
+                    'registered_at' => $this->currentUser()->tenant->registered_at->toDateTimeString(),
 
                     'config' => [
                         'is_configured' => $this->currentUser()->tenant->settings ? true : false,
-                        'updated_at' => $this->currentUser()->tenant->settings ? $this->currentUser()->tenant->updated_at : null
+                        'updated_at' => $this->currentUser()->tenant->settings ? $this->currentUser()->tenant->updated_at->toDateTimeString() : null
                     ],
 
                     'first_alert' =>
-                        Alerta::where(['tenant_id' => $this->currentUser()->tenant->id])
-                            ->orderBy('created_at', 'asc')
+
+                        DB::table('children')
+                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
+                            ->orderBy('case_steps_alerta.created_at', 'asc')
                             ->first()->created_at ?? null,
 
                     'first_case' =>
-                        Alerta::where(['tenant_id' => $this->currentUser()->tenant->id, 'alert_status' => Child::ALERT_STATUS_ACCEPTED])
-                            ->orderBy('completed_at', 'asc')
+
+                        DB::table('children')
+                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->where(
+                                [
+                                    'case_steps_alerta.tenant_id' => $this->currentUser()->tenant->id,
+                                    'case_steps_alerta.is_completed' => true
+                                ]
+                            )
+                            ->orderBy('case_steps_alerta.completed_at', 'asc')
                             ->first()->completed_at ?? null,
 
                     'first_reinsertion_class' =>
-                        Rematricula::where(['tenant_id' => $this->currentUser()->tenant->id, 'is_completed' => true])
-                            ->orderBy('completed_at', 'asc')
-                            ->first()->completed_at  ?? null,
+
+                        DB::table('children')
+                            ->join('case_steps_rematricula', 'children.id', '=', 'case_steps_rematricula.child_id')
+                            ->where(
+                                [
+                                    'case_steps_rematricula.tenant_id' => $this->currentUser()->tenant->id,
+                                    'case_steps_rematricula.is_completed' => true
+                                ]
+                            )
+                            ->orderBy('case_steps_rematricula.completed_at', 'asc')
+                            ->first()->completed_at ?? null,
+
                 ],
 
                 'alert_box' => [
