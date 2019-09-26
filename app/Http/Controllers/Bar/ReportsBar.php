@@ -70,7 +70,7 @@ class ReportsBar extends BaseController
                         DB::table('children')
                             ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
-                            ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_REJECTED)
+                            ->where('children.alert_status', '=', Child::ALERT_STATUS_REJECTED)
                             ->count(),
 
                 ],
