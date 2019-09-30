@@ -87,6 +87,12 @@ class TenantSignup extends Model {
 		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'judged_by')->withTrashed();
 	}
 
+	public function getCitybyId($id){
+	    $cityObj = new \BuscaAtivaEscolar\City;
+	    $city = $cityObj::findByID($id);
+	    return $city;
+    }
+
 	// -----------------------------------------------------------------------------------------------------------------
 
 	public function approve(User $judge) {
