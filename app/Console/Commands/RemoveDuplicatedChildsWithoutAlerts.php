@@ -95,7 +95,6 @@ class RemoveDuplicatedChildsWithoutAlerts extends Command
                 $data['id'] = null;
                 $cause_id = $this->ask("Informe o ID do motivo do alerta: ");
                 $data['alert_cause_id'] = $cause_id;
-                $data['alert_submitter_id'] = true;
                 Child::spawnFromAlertData($tenant, $child->alert_submitter_id, $data);
 
                 try {
