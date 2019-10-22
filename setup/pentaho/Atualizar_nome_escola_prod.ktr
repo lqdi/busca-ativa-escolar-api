@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>Atualizar_nome_escola</name>
+    <name>Atualizar_nome_escola_prod</name>
     <description/>
     <extended_description/>
     <trans_version/>
     <trans_type>Normal</trans_type>
+    <trans_status>0</trans_status>
     <directory>/</directory>
     <parameters>
     </parameters>
@@ -430,20 +431,20 @@
     <created_date>2019/10/16 13:57:15.446</created_date>
     <modified_user>-</modified_user>
     <modified_date>2019/10/16 13:57:15.446</modified_date>
-    <key_for_session_key/>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
     <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
   <connection>
-    <name>Docker Mysql</name>
-    <server>localhost</server>
+    <name>producao</name>
+    <server>138.197.231.135</server>
     <type>MYSQL</type>
     <access>Native</access>
-    <database>homestead</database>
+    <database>plataforma_prod</database>
     <port>3306</port>
-    <username>root</username>
-    <password>Encrypted 2be98afc86aa7f2e4cb79ce10bec3fd89</password>
+    <username>forge</username>
+    <password>Encrypted 62615470d3e9c48001cfb7b2fa2bbe57c9b597d3</password>
     <servername/>
     <data_tablespace/>
     <index_tablespace/>
@@ -502,7 +503,17 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
+      <from>Update</from>
+      <to>Microsoft Excel writer</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
       <from>Stream lookup</from>
+      <to>Replace in string</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Replace in string</from>
       <to>Update</to>
       <enabled>Y</enabled>
     </hop>
@@ -564,7 +575,7 @@
         <group>.</group>
         <length>84</length>
         <precision>-1</precision>
-        <trim_type>both</trim_type>
+        <trim_type>none</trim_type>
       </field>
       <field>
         <name>CO_ORGAO_REGIONAL</name>
@@ -2375,8 +2386,8 @@
     </GUI>
   </step>
   <step>
-    <name>Table input</name>
-    <type>TableInput</type>
+    <name>Microsoft Excel writer</name>
+    <type>TypeExitExcelWriterStep</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -2385,17 +2396,71 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>Docker Mysql</connection>
-    <sql>SELECT
-  id
-, name
-FROM schools where name is null
-</sql>
-    <limit>0</limit>
-    <lookup/>
-    <execute_each_row>N</execute_each_row>
-    <variables_active>N</variables_active>
-    <lazy_conversion_active>N</lazy_conversion_active>
+    <header>Y</header>
+    <footer>N</footer>
+    <makeSheetActive>Y</makeSheetActive>
+    <rowWritingMethod>overwrite</rowWritingMethod>
+    <startingCell>A1</startingCell>
+    <appendOmitHeader>N</appendOmitHeader>
+    <appendOffset>0</appendOffset>
+    <appendEmpty>0</appendEmpty>
+    <rowWritingMethod>overwrite</rowWritingMethod>
+    <forceFormulaRecalculation>N</forceFormulaRecalculation>
+    <leaveExistingStylesUnchanged>N</leaveExistingStylesUnchanged>
+    <appendLines>N</appendLines>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <file>
+      <name>/home/unicef/Desktop/exportacao_producao.xls</name>
+      <extention>xls</extention>
+      <do_not_open_newfile_init>N</do_not_open_newfile_init>
+      <split>N</split>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <sheetname>Sheet1</sheetname>
+      <autosizecolums>N</autosizecolums>
+      <stream_data>N</stream_data>
+      <protect_sheet>N</protect_sheet>
+      <password>Encrypted </password>
+      <protected_by/>
+      <splitevery>0</splitevery>
+      <if_file_exists>new</if_file_exists>
+      <if_sheet_exists>new</if_sheet_exists>
+    </file>
+    <template>
+      <enabled>N</enabled>
+      <sheet_enabled>N</sheet_enabled>
+      <filename>template.xls</filename>
+      <sheetname/>
+      <hidden>N</hidden>
+    </template>
+    <fields>
+      <field>
+        <name>id</name>
+        <type>String</type>
+        <format/>
+        <title>id</title>
+        <titleStyleCell/>
+        <styleCell/>
+        <commentField/>
+        <commentAuthorField/>
+        <formula>N</formula>
+        <hyperlinkField/>
+      </field>
+      <field>
+        <name>NOME_ENTIDADE</name>
+        <type>String</type>
+        <format/>
+        <title>NOME_ENTIDADE</title>
+        <titleStyleCell/>
+        <styleCell/>
+        <commentField/>
+        <commentAuthorField/>
+        <formula>N</formula>
+        <hyperlinkField/>
+      </field>
+    </fields>
     <attributes/>
     <cluster_schema/>
     <remotesteps>
@@ -2405,8 +2470,47 @@ FROM schools where name is null
       </output>
     </remotesteps>
     <GUI>
-      <xloc>128</xloc>
-      <yloc>208</yloc>
+      <xloc>768</xloc>
+      <yloc>160</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Replace in string</name>
+    <type>ReplaceString</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <in_stream_name>NOME_ENTIDADE</in_stream_name>
+        <out_stream_name/>
+        <use_regex>yes</use_regex>
+        <replace_string>[°ª�]</replace_string>
+        <replace_by_string/>
+        <set_empty_string>N</set_empty_string>
+        <replace_field_by_string/>
+        <whole_word>no</whole_word>
+        <case_sensitive>no</case_sensitive>
+        <is_unicode>no</is_unicode>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>160</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -2433,7 +2537,7 @@ FROM schools where name is null
       </key>
       <value>
         <name>NO_ENTIDADE</name>
-        <rename>no_ent</rename>
+        <rename>NOME_ENTIDADE</rename>
         <default/>
         <type>String</type>
       </value>
@@ -2453,8 +2557,8 @@ FROM schools where name is null
     </GUI>
   </step>
   <step>
-    <name>Update</name>
-    <type>Update</type>
+    <name>Table input</name>
+    <type>TableInput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -2463,7 +2567,43 @@ FROM schools where name is null
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>Docker Mysql</connection>
+    <connection>producao</connection>
+    <sql>SELECT
+  id
+, name
+FROM schools where name is null
+</sql>
+    <limit>0</limit>
+    <lookup/>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <lazy_conversion_active>N</lazy_conversion_active>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>208</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Update</name>
+    <type>Update</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>producao</connection>
     <skip_lookup>N</skip_lookup>
     <commit>100</commit>
     <use_batch>N</use_batch>
@@ -2480,7 +2620,7 @@ FROM schools where name is null
       </key>
       <value>
         <name>name</name>
-        <rename>no_ent</rename>
+        <rename>NOME_ENTIDADE</rename>
       </value>
     </lookup>
     <attributes/>
@@ -2492,7 +2632,7 @@ FROM schools where name is null
       </output>
     </remotesteps>
     <GUI>
-      <xloc>416</xloc>
+      <xloc>544</xloc>
       <yloc>160</yloc>
       <draw>Y</draw>
     </GUI>
