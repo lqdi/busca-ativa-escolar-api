@@ -81,8 +81,8 @@ class ReportsLandingPageController extends BaseController
 
                     '_approved' =>
 
-                        \DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where(
                                 [
                                     ['case_steps_alerta.place_uf', $uf],
@@ -95,12 +95,12 @@ class ReportsLandingPageController extends BaseController
 
                     '_pending' =>
 
-                        \DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where(
                                 [
                                     ['case_steps_alerta.place_uf', $uf],
-                                    ['children.alert_status', 'pending'],
+                                    ['case_steps_alerta.alert_status', 'pending'],
                                     ['children.child_status', '<>', 'cancelled']
                                 ]
                             )
@@ -108,8 +108,8 @@ class ReportsLandingPageController extends BaseController
 
                     '_rejected' =>
 
-                        \DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where(
                                 [
                                     ['case_steps_alerta.place_uf', $uf],
@@ -228,8 +228,8 @@ class ReportsLandingPageController extends BaseController
                 'alerts' => [
                     '_approved' =>
 
-                        \DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where(
                                 [
                                     ['case_steps_alerta.place_uf', $uf],
@@ -243,13 +243,13 @@ class ReportsLandingPageController extends BaseController
 
                     '_pending' =>
 
-                        \DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where(
                                 [
                                     ['case_steps_alerta.place_uf', $uf],
                                     ['case_steps_alerta.place_city_name', $city],
-                                    ['children.alert_status', 'pending'],
+                                    ['case_steps_alerta.alert_status', 'pending'],
                                     ['children.child_status', '<>', 'cancelled']
                                 ]
                             )
@@ -257,8 +257,8 @@ class ReportsLandingPageController extends BaseController
 
                     '_rejected' =>
 
-                        \DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where(
                                 [
                                     ['case_steps_alerta.place_uf', $uf],
@@ -272,8 +272,8 @@ class ReportsLandingPageController extends BaseController
                 'cases' => [
                     '_enrollment' =>
 
-                        \DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where(
                                 [
                                     ['case_steps_alerta.place_uf', $uf],
@@ -292,8 +292,8 @@ class ReportsLandingPageController extends BaseController
 
                     '_in_progress' =>
 
-                        \DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where(
                                 [
                                     ['case_steps_alerta.place_uf', $uf],
