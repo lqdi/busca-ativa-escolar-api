@@ -138,12 +138,12 @@ class ReportsController extends BaseController {
             if ($params['dimension'] == 'guardian_schooling') {
                 $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
             }
-            if ($params['dimension'] == 'case_cause_ids') {
-                $total = $response['records_total'];
-                $response['records_total'] = array_sum($response['report']);
-                $semInformacao = $response['records_total'] - $total;
-                $response['report']['Sem informação'] = $semInformacao > 0 ? $semInformacao : 0 ;
-            }
+//            if ($params['dimension'] == 'case_cause_ids') {
+//                $total = $response['records_total'];
+//                $response['records_total'] = array_sum($response['report']);
+//                $semInformacao = $response['records_total'] - $total;
+//                $response['report']['Sem informação'] = $semInformacao > 0 ? $semInformacao : 0 ;
+//            }
 
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
