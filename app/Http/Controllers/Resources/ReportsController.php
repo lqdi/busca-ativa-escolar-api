@@ -141,7 +141,8 @@ class ReportsController extends BaseController {
             if ($params['dimension'] == 'case_cause_ids') {
                 $total = $response['records_total'];
                 $response['records_total'] = array_sum($response['report']);
-                $response['report']['Sem informação'] = $response['records_total'] - $total;
+                $semInformacao = $response['records_total'] - $total;
+                $response['report']['Sem informação'] = $semInformacao > 0 ? $semInformacao : 0 ;
             }
 
 		} catch (\Exception $ex) {
