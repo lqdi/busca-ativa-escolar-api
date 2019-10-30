@@ -36,9 +36,9 @@ class Kernel extends ConsoleKernel
         Commands\ForceObligatorinessEducationReason::class,
         Commands\DisplayPrimaryGroupsUnrelatedWithAllAlerts::class,
         Commands\ReindexSchoolById::class,
-        Commands\FixErrorCasesInAlertStep::class,
         Commands\RemoveDuplicatedChildsWithoutAlerts::class,
-        Commands\FixErrorCasesDisabled::class
+        Commands\FixErrorCasesDisabled::class,
+        Commands\TransferNisToAlert::class
     ];
 
     /**

@@ -219,6 +219,7 @@ class ChildCase extends Model  {
 		$next->start($current);
 
 
+
 		// Update case pointers
 		$this->current_step_type = $next->step_type;
 		$this->current_step_id = $next->id;

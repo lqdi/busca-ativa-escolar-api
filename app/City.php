@@ -77,6 +77,14 @@ class City extends Model implements Searchable {
 		return 'id';
 	}
 
+    /**
+     * The goal this city is associated with
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function goal() {
+        return $this->hasOne('BuscaAtivaEscolar\Goal', 'id', 'ibge_city_id');
+    }
+
 	// ------------------------------------------------------------------------
 
 	/**

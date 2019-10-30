@@ -63,6 +63,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
         Route::delete('/groups/{group}', 'Resources\GroupsController@destroy')->middleware('can:groups.manage');
 
         // Tenant Settings
+        Route::get('/settingstenantcase/tenant/{id}', 'Resources\SettingsController@get_tenant_settings_of_case');
 		Route::get('/settings/tenant', 'Resources\SettingsController@get_tenant_settings');//->middleware('can:settings.view');
         Route::put('/settings/tenant', 'Resources\SettingsController@update_tenant_settings')->middleware('can:settings.manage');
 
@@ -145,6 +146,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/reports/country_stats', 'Resources\ReportsController@country_stats');
 		Route::get('/reports/state_stats', 'Resources\ReportsController@state_stats');
 		Route::get('/reports/exported/{filename}', 'Resources\ReportsController@download_exported')->name('api.reports.download_exported')->middleware('can:reports.view');
+
+		//Reports Bar
+        Route::get('/reports/city_bar', 'Bar\ReportsBar@city_bar');
 
 	});
 
