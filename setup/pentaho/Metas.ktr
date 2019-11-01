@@ -436,11 +436,11 @@
   <notepads>
   </notepads>
   <connection>
-    <name>Mysql</name>
+    <name>homestead_test</name>
     <server>192.168.10.10</server>
     <type>MYSQL</type>
     <access>Native</access>
-    <database>homestead</database>
+    <database>busca_ativa_escolar_test</database>
     <port>3306</port>
     <username>homestead</username>
     <password>Encrypted 2be98afc86aa7f2e4cb79bd75dd80aace</password>
@@ -549,7 +549,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>Mysql</connection>
+    <connection>homestead_test</connection>
     <commit>100</commit>
     <update_bypassed>N</update_bypassed>
     <lookup>

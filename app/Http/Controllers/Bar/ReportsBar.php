@@ -9,6 +9,7 @@ use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use Cache;
 use DB;
+use PhpParser\Builder;
 
 class ReportsBar extends BaseController
 {
@@ -69,21 +70,21 @@ class ReportsBar extends BaseController
                     'alerts_created' =>
                         DB::table('children')
                             ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
-                            ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
+                            ->where('children.tenant_id', '=', $this->currentUser()->tenant->id)
                             ->count(),
 
                     'alerts_accepted' =>
                         DB::table('children')
                             ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
-                            ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                            ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                             ->count(),
 
                     'alerts_pending' =>
                         DB::table('children')
                             ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
-                            ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_PENDING)
+                            ->where('children.alert_status', '=', Child::ALERT_STATUS_PENDING)
                             ->count(),
 
                     'alerts_rejected' =>
@@ -98,18 +99,21 @@ class ReportsBar extends BaseController
                 'cases_box' => [
 
                     'cases_on_time' =>
-                        Child::has('cases')->where(
+                        Child::whereHas('cases', function ($query){
+                            $query->where(['case_status'=> 'in_progress']);
+                        })->where(
                             [
                                 'tenant_id' => $this->currentUser()->tenant->id,
                                 'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
                                 'alert_status' => Child::ALERT_STATUS_ACCEPTED
                             ])->count(),
-
                     'steps_on_time' => [
 
                         'pesquisa' =>
 
-                            Child::has('cases')->where(
+                            Child::whereHas('cases', function ($query){
+                                $query->where(['case_status'=> 'in_progress']);
+                            })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
                                     'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
@@ -119,7 +123,9 @@ class ReportsBar extends BaseController
 
                         'analise_tecnica' =>
 
-                            Child::has('cases')->where(
+                            Child::whereHas('cases', function ($query){
+                                $query->where(['case_status'=> 'in_progress']);
+                            })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
                                     'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
@@ -129,7 +135,9 @@ class ReportsBar extends BaseController
 
                         'gestao_do_caso' =>
 
-                            Child::has('cases')->where(
+                            Child::whereHas('cases', function ($query){
+                                $query->where(['case_status'=> 'in_progress']);
+                            })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
                                     'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
@@ -139,7 +147,9 @@ class ReportsBar extends BaseController
 
                         'rematricula' =>
 
-                            Child::has('cases')->where(
+                            Child::whereHas('cases', function ($query){
+                                $query->where(['case_status'=> 'in_progress']);
+                            })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
                                     'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
@@ -149,7 +159,9 @@ class ReportsBar extends BaseController
 
                         'observacao' =>
 
-                            Child::has('cases')->where(
+                            Child::whereHas('cases', function ($query){
+                                $query->where(['case_status'=> 'in_progress']);
+                            })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
                                     'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
@@ -159,7 +171,9 @@ class ReportsBar extends BaseController
                     ],
 
                     'cases_late' =>
-                        Child::has('cases')->where(
+                        Child::whereHas('cases', function ($query){
+                            $query->where(['case_status'=> 'in_progress']);
+                        })->where(
                             [
                                 'tenant_id' => $this->currentUser()->tenant->id,
                                 'deadline_status' => Child::DEADLINE_STATUS_LATE,
