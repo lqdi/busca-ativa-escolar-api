@@ -147,6 +147,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/reports/state_stats', 'Resources\ReportsController@state_stats');
 		Route::get('/reports/exported/{filename}', 'Resources\ReportsController@download_exported')->name('api.reports.download_exported')->middleware('can:reports.view');
 
+		//Report of all municipalities - Only Superusers
+        Route::get('/reports/export/report_all_cities', 'Resources\ReportsController@all_cities')->middleware('can:maintenance');
+
 		//Reports Bar
         Route::get('/reports/city_bar', 'Bar\ReportsBar@city_bar');
 

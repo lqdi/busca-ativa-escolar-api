@@ -107,6 +107,7 @@ class ReportsBar extends BaseController
                                 'deadline_status' => Child::DEADLINE_STATUS_NORMAL,
                                 'alert_status' => Child::ALERT_STATUS_ACCEPTED
                             ])->count(),
+
                     'steps_on_time' => [
 
                         'pesquisa' =>
