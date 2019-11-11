@@ -1,0 +1,5 @@
+SET SQL_SAFE_UPDATES = 0;
+USE homestead;
+DELETE FROM notifications WHERE created_at < DATE_SUB(NOW(), INTERVAL 6 MONTH);
+DELETE FROM activity_log WHERE created_at < DATE_SUB(NOW(), INTERVAL 6 MONTH);
+SET SQL_SAFE_UPDATES = 1;
