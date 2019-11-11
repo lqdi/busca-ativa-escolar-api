@@ -281,21 +281,21 @@ class XLSFileChildrenImporter implements Importer
 
     private function isThereChild($row){
 
-        $birthDay = null;
+//        $birthDay = null;
+//
+//        if($row['data_de_nascimento_formato_ddmmaaaa'] != null){
+//            $birthDay = Carbon::createFromFormat('d/m/Y', $row['data_de_nascimento_formato_ddmmaaaa'])->format('Y-m-d');
+//        }
+//
+//        $age = Child::calculateAgeThroughBirthday($birthDay);
 
-        if($row['data_de_nascimento_formato_ddmmaaaa'] != null){
-            $birthDay = Carbon::createFromFormat('d/m/Y', $row['data_de_nascimento_formato_ddmmaaaa'])->format('Y-m-d');
-        }
-
-        $age = Child::calculateAgeThroughBirthday($birthDay);
-
-        Log::info($age);
+//        Log::info($age);
 
         $child = Child::where(
             [
                 ['name', '=', $row['nome_da_crianca_ou_adolescente']],
                 ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
-                ['age', '=', $age],
+//                ['age', '=', $age],
                 ['city_id', '=', $this->tenant->city_id],
                 ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED],
                 ['child_status', '=', Child::STATUS_OUT_OF_SCHOOL]
@@ -304,7 +304,7 @@ class XLSFileChildrenImporter implements Importer
             [
                 ['name', '=', $row['nome_da_crianca_ou_adolescente']],
                 ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
-                ['age', '=', $age],
+//                ['age', '=', $age],
                 ['city_id', '=', $this->tenant->city_id],
                 ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED],
                 ['child_status', '=', Child::STATUS_OBSERVATION]
@@ -313,7 +313,7 @@ class XLSFileChildrenImporter implements Importer
             [
                 ['name', '=', $row['nome_da_crianca_ou_adolescente']],
                 ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
-                ['age', '=', $age],
+//                ['age', '=', $age],
                 ['city_id', '=', $this->tenant->city_id],
                 ['alert_status', '=', Child::ALERT_STATUS_PENDING]
             ]
