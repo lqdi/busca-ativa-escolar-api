@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Reports;
 
 
+use BuscaAtivaEscolar\Data\AgeRange;
 use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
 use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
@@ -27,19 +28,69 @@ class Reports {
 		$this->client = $client;
 	}
 
-	public function linear(string $index, string $type, string $dimension, ElasticSearchQuery $query = null) {
+	public function linear(string $index, string $type, string $dimension, ElasticSearchQuery $query = null, $ageRanges = null) {
 
-		$request = [
-			'size' => 0,
-			'aggs' => [
-				'num_entities' => [
-					'terms' => [
-						'size' => 0,
-						'field' => $dimension
-					]
-				]
-			]
-		];
+         /*
+          * Validate of dimension for age!
+          * When there is age dimension, we can't agregate INTEGER and NULL values. Only with number.
+          * The difference of total and elements grouped is calculated in ReportsController
+          */
+         if( $dimension != "age"){
+
+             $request = [
+                 'size' => 0,
+                 'aggs' => [
+                     'num_entities' => [
+                         'terms' => [
+                             'size' => 0,
+                             'field' => $dimension,
+                             'missing' => 'null'
+                         ]
+                     ]
+                 ]
+             ];
+
+         }else{
+
+             if( $ageRanges != null ){
+
+                 $rangeArray = [];
+
+                 foreach ($ageRanges as $ageRange) {
+                     $range = AgeRange::getBySlug($ageRange);
+                     array_push(
+                         $rangeArray,
+                         ['from' => $range->from, 'to' => $range->to]
+                     );
+                 }
+
+                 $request = [
+                     'aggs' => [
+                         'num_entities' => [
+                             'range' => [
+                                 'field' => $dimension,
+                                 'ranges' => $rangeArray
+                             ],
+                         ]
+                     ]
+                 ];
+
+             }else{
+
+                 $request = [
+                     'aggs' => [
+                         'num_entities' => [
+                             'terms' => [
+                                 'size' => 0,
+                                 'field' => $dimension
+                             ]
+                         ]
+                     ]
+                 ];
+
+             }
+         }
+
 
 		if($query !== null) {
 			$request['query'] = $query->getQuery();

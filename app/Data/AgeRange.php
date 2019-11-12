@@ -19,9 +19,9 @@ class AgeRange extends StaticObject {
 		1 => ['id' => 1, 'slug' => '0-3', 'label' => "de 0 a 3 anos", 'from' => 0, 'to' => 3],
 		2 => ['id' => 2, 'slug' => '4-5', 'label' => "de 4 a 5 anos", 'from' => 4, 'to' => 5],
 		3 => ['id' => 3, 'slug' => '6-10', 'label' => "de 6 a 10 anos", 'from' => 6, 'to' => 10],
-		4 => ['id' => 4, 'slug' => '11-14', 'label' => "de 11 a 14 anos", 'from' => 1, 'to' => 14],
-		5 => ['id' => 5, 'slug' => '15-17', 'label' => "de 15 a 17 anos", 'from' => 5, 'to' => 17],
-		6 => ['id' => 6, 'slug' => '18', 'label' => "mais de 18 anos", 'from' => 18, 'to' => 99],
+		4 => ['id' => 4, 'slug' => '11-14', 'label' => "de 11 a 14 anos", 'from' => 11, 'to' => 14],
+		5 => ['id' => 5, 'slug' => '15-17', 'label' => "de 15 a 17 anos", 'from' => 15, 'to' => 17],
+		6 => ['id' => 6, 'slug' => '18', 'label' => "mais de 18 anos", 'from' => 18, 'to' => 5000],
 	];
 
 	protected static $indexes = [
@@ -68,4 +68,5 @@ class AgeRange extends StaticObject {
 	public static function getBySlug($slug) {
 		return self::getByIndex('slug', $slug);
 	}
+
 }

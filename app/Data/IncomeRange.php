@@ -21,7 +21,6 @@ class IncomeRange extends StaticObject {
 		2 => ['id' => 2, 'slug' => 'between_quarter_and_half', 'label' => "Mais de ¼ a ½"],
 		3 => ['id' => 3, 'slug' => 'between_one_and_two', 'label' => "Mais de 1 a 2"],
 		4 => ['id' => 4, 'slug' => 'over_2', 'label' => "Mais de 2"],
-		5 => ['id' => 5, 'slug' => 'no_info', 'label' => "Sem informação"],
 	];
 
 	protected static $indexes = [
@@ -30,7 +29,6 @@ class IncomeRange extends StaticObject {
 			'between_quarter_and_half' => 2,
 			'between_one_and_two' => 3,
 			'over_2' => 4,
-			'no_info' => 5,
 		]
 	];
 

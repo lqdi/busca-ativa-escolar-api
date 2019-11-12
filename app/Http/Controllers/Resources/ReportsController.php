@@ -68,7 +68,6 @@ class ReportsController extends BaseController
         $query = ElasticSearchQuery::withParameters($filters)
             ->filterByTerm('tenant_id', false, 'filter', Auth::user()->isRestrictedToTenant() ? 'must' : 'should')
             ->filterByTerm('uf', false, 'filter', Auth::user()->isRestrictedToUF() ? 'must' : 'should')
-            //->filterByTerms('deadline_status', false)
             ->filterByTerms('case_status', false)
             ->filterByTerms('alert_status', false)
             ->filterByTerm('step_slug', false)
@@ -80,25 +79,12 @@ class ReportsController extends BaseController
             ->filterByTerms('risk_level', $filters['risk_level_null'] ?? false)
             ->filterByTerms('gender', $filters['gender_null'] ?? false)
             ->filterByTerms('place_kind', $filters['place_kind_null'] ?? false);
-        //->filterByTerm('race',$filters['race_null'] ?? false)
-        //->filterByTerm('guardian_schooling',$filters['guardian_schooling_null'] ?? false)
-        //->filterByTerm('parents_income',$filters['parents_income_null'] ?? false)
-        //->filterByRange('age',$filters['age_null'] ?? false);
 
-        if (isset($filters['age_ranges'])) {
-            $rangesQuery = collect($filters['age_ranges'])->map(function ($rangeSlug) {
-                $range = AgeRange::getBySlug($rangeSlug);
-                return ['range' => ['age' => ['from' => $range->from, 'to' => $range->to]]];
-            });
-
-            $ageQuery = ['should' => [$rangesQuery->toArray()]];
-
-            if ($filters['age_null'] ?? false) {
-                array_push($ageQuery['should'], ['missing' => ['field' => 'age']]);
-            }
-
-            $query->appendBoolQuery('filter', ['bool' => $ageQuery]);
-        }
+            //->filterByRange('age',$filters['age_null'] ?? false);
+            //->filterByTerms('deadline_status', false)
+            //->filterByTerm('race',$filters['race_null'] ?? false)
+            //->filterByTerm('guardian_schooling',$filters['guardian_schooling_null'] ?? false)
+            //->filterByTerm('parents_income',$filters['parents_income_null'] ?? false)
 
         if ($params['view'] == "time_series") {
             if (!isset($filters['date'])) $filters['date'] = ['lte' => 'now', 'gte' => 'now-2d'];
@@ -113,38 +99,26 @@ class ReportsController extends BaseController
         $index = ($params['view'] == 'linear') ? $entity->getAggregationIndex() : $entity->getTimeSeriesIndex();
         $type = ($params['view'] == 'linear') ? $entity->getAggregationType() : $entity->getTimeSeriesType();
 
+        $ageRanges = isset($filters['age_ranges']) ? $filters['age_ranges'] : null;
+
 
         try {
             $response = ($params['view'] == 'time_series') ?
                 $reports->timeline($index, $type, $params['dimension'], $query) :
-                $reports->linear($index, $type, $params['dimension'], $query);
+                $reports->linear($index, $type, $params['dimension'], $query, $ageRanges);
 
             $ids = $this->extractDimensionIDs($response['report'], $params['view']);
             $labels = $this->fetchDimensionLabels($params['dimension'], $ids);
 
-            //todo gambi, o correto é remover do elastic search
-            if ($params['dimension'] == 'case_cause_ids') {
-                unset($response['report'][500]);
-                unset($response['report'][600]);
-            }
-            if ($params['dimension'] == 'parents_income') {
-                $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
-            }
-            if ($params['dimension'] == 'race') {
-                $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
-            }
-            if ($params['dimension'] == 'work_activity') {
-                $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
-            }
-            if ($params['dimension'] == 'guardian_schooling') {
-                $response['report']['no_info'] = $response['records_total'] - array_sum($response['report']);
-            }
+//            //todo gambi, o correto é remover do elastic search
 //            if ($params['dimension'] == 'case_cause_ids') {
-//                $total = $response['records_total'];
-//                $response['records_total'] = array_sum($response['report']);
-//                $semInformacao = $response['records_total'] - $total;
-//                $response['report']['Sem informação'] = $semInformacao > 0 ? $semInformacao : 0 ;
+//                unset($response['report'][500]);
+//                unset($response['report'][600]);
 //            }
+
+            if ($params['dimension'] == 'age') {
+                $response['report']['null'] = $response['records_total'] - array_sum($response['report']);
+            }
 
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
@@ -571,21 +545,21 @@ class ReportsController extends BaseController
 
         switch ($dimension) {
             case 'child_status':
-                return trans('child.status');
+                return trans('reports_terms.status');
             case 'step_slug':
-                return trans('case_step.name_by_slug');
+                return trans('reports_terms.name_by_slug');
             case 'age':
-                return ['0' => 'menos de 1 ano']; // TODO: return age ranges
+                return trans('reports_terms.age_ranges');
             case 'gender':
-                return trans('child.gender');
+                return trans('reports_terms.gender');
             case 'parents_income':
-                return array_pluck(IncomeRange::getAllAsArray(), 'label', 'slug');
+                return trans('reports_terms.parents_income');
             case 'place_kind':
-                return trans('child.place_kind');
+                return trans('reports_terms.place_kind');
             case 'work_activity':
-                return array_pluck(WorkActivity::getAllAsArray(), 'label', 'slug');
+                return trans('reports_terms.work_activity');
             case 'case_cause_ids':
-                return array_pluck(CaseCause::getAllAsArray(), 'label', 'id');
+                return trans('reports_terms.case_causes');
             case 'alert_cause_id':
                 return array_pluck(AlertCause::getAllAsArray(), 'label', 'id');
             case 'place_uf':
@@ -597,7 +571,7 @@ class ReportsController extends BaseController
             case 'race':
                 return array_pluck(Race::getAllAsArray(), 'label', 'slug');
             case 'guardian_schooling':
-                return array_pluck(SchoolingLevel::getAllAsArray(), 'label', 'slug');
+                return trans('reports_terms.guardian_schooling');
             default:
                 return [];
         }
