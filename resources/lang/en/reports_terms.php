@@ -62,7 +62,7 @@ return [
         'null' => 'fa-transgender-alt',
     ],
 
-    'race' => [
+    'races' => [
         'indigena' => "Indígena",
         'branca' => "Branca",
         'preta' => "Preta (pretos e pardos)",

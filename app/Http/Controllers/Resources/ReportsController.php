@@ -573,7 +573,7 @@ class ReportsController extends BaseController
             case 'school_last_id':
                 return $hasIDs ? School::whereIn('id', $ids)->get()->pluck('name', 'id') : [];
             case 'race':
-                return array_pluck(Race::getAllAsArray(), 'label', 'slug');
+                return trans('reports_terms.races');
             case 'guardian_schooling':
                 return trans('reports_terms.guardian_schooling');
             default:
