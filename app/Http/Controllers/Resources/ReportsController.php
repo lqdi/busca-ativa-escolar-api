@@ -119,9 +119,9 @@ class ReportsController extends BaseController
             /*
              * Only for age dimensions. It's not possible calculate null values in elasticsearch.
              */
-            if ($params['dimension'] == 'age') {
-                $response['report']['null'] = $response['records_total'] - array_sum($response['report']);
-            }
+//            if ($params['dimension'] == 'age') {
+//                $response['report']['null'] = $response['records_total'] - array_sum($response['report']);
+//            }
 
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
