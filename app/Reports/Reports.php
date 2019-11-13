@@ -72,7 +72,13 @@ class Reports {
                                  'ranges' => $rangeArray
                              ],
                          ]
-                     ]
+                     ],
+
+                     'aggs' => [
+                        'entities_without_age' => [
+                            'missing' => [ "field" => 'age' ]
+                        ]
+                    ]
                  ];
 
              }else{
