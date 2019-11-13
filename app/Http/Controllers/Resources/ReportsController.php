@@ -553,6 +553,8 @@ class ReportsController extends BaseController
         $hasIDs = is_array($ids) && sizeof($ids) > 0;
 
         switch ($dimension) {
+            case 'case_status':
+                return trans('reports_terms.status');
             case 'child_status':
                 return trans('reports_terms.status');
             case 'step_slug':

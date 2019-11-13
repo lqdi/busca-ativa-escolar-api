@@ -8,10 +8,12 @@ return [
     ],
 
     'status' => [
-        "out_of_school" => 'Fora da escola',
-        "in_observation" => 'Em observação',
-        "in_school" => 'Dentro da escola',
-        "cancelled" => 'Cancelado',
+        'out_of_school' => 'Fora da escola',
+        'in_observation' => 'Em observação',
+        'in_school' => 'Dentro da escola',
+        'cancelled' => 'Cancelado',
+        'completed' => 'Completo',
+        'in_progress' => 'Em progresso'
     ],
 
     'name_by_slug' => [
