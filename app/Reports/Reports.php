@@ -28,14 +28,10 @@ class Reports {
 		$this->client = $client;
 	}
 
-	public function linear(string $index, string $type, string $dimension, ElasticSearchQuery $query = null, $ageRanges = null) {
+	public function linear(string $index, string $type, string $dimension, ElasticSearchQuery $query = null, $ageRanges = null, $nullAges = null) {
 
-         /*
-          * Validate of dimension for age!
-          * When there is age dimension, we can't agregate INTEGER and NULL values. Only with number.
-          * The difference of total and elements grouped is calculated in ReportsController
-          */
-         if( $dimension != "age"){
+
+         if( $dimension != "age" ){
 
              $request = [
                  'size' => 0,
@@ -60,20 +56,40 @@ class Reports {
                      $range = AgeRange::getBySlug($ageRange);
                      array_push(
                          $rangeArray,
-                         ['from' => $range->from, 'to' => $range->to]
+                         ['from' => $range->from, 'to' => $range->to+1]
                      );
                  }
 
-                 $request = [
-                     'aggs' => [
-                         'num_entities' => [
-                             'range' => [
-                                 'field' => $dimension,
-                                 'ranges' => $rangeArray
+                 if( $nullAges ){
+
+                     $request = [
+                         'aggs' => [
+                             'num_entities' => [
+                                 'range' => [
+                                     'field' => $dimension,
+                                     'ranges' => $rangeArray,
+                                 ],
                              ],
+                             'num_entities_null' => [
+                                 'missing' => [ 'field' => $dimension ]
+                             ]
                          ]
-                     ]
-                 ];
+                     ];
+
+                 }else{
+
+                     $request = [
+                         'aggs' => [
+                             'num_entities' => [
+                                 'range' => [
+                                     'field' => $dimension,
+                                     'ranges' => $rangeArray,
+                                 ],
+                             ]
+                         ]
+                     ];
+
+                 }
 
              }else{
 
@@ -89,6 +105,8 @@ class Reports {
                  ];
 
              }
+
+
          }
 
 
@@ -102,10 +120,16 @@ class Reports {
 			'body' => $request
 		]);
 
-		return [
-			'records_total' => $response['hits']['total'] ?? 0,
-			'report' => array_pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key')
-		];
+		$report = array_pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
+
+		if ( $dimension == 'age' AND $nullAges ){
+		    array_push($report, $response['aggregations']['num_entities_null']['doc_count']);
+        }
+
+        return [
+            'records_total' => $response['hits']['total'] ?? 0,
+            'report' => $report
+        ];
 
 	}
 

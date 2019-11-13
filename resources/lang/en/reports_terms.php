@@ -27,13 +27,13 @@ return [
     ],
 
     'age_ranges' => [
-        '0.0-3.0' => 'de 0 a 3 anos',
-        '4.0-5.0' => 'de 4 a 5 anos',
-        '6.0-10.0' => 'de 6 a 10 anos',
-        '11.0-14.0' => 'de 11 a 14 anos',
-        '15.0-17.0' => 'de 15 a 17 anos',
-        '18.0-5000.0' => 'mais de 18 anos',
-        'null' => 'Não informado',
+        '0.0-4.0' => 'de 0 a 3 anos',
+        '4.0-6.0' => 'de 4 a 5 anos',
+        '6.0-11.0' => 'de 6 a 10 anos',
+        '11.0-15.0' => 'de 11 a 14 anos',
+        '15.0-18.0' => 'de 15 a 17 anos',
+        '18.0-5001.0' => 'mais de 18 anos',
+        '0' => 'Não informado',
     ],
 
     'parents_income' => [

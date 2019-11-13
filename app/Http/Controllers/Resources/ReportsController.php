@@ -80,7 +80,6 @@ class ReportsController extends BaseController
             ->filterByTerms('gender', $filters['gender_null'] ?? false)
             ->filterByTerms('place_kind', $filters['place_kind_null'] ?? false);
 
-            //->filterByRange('age',$filters['age_null'] ?? false);
             //->filterByTerms('deadline_status', false)
             //->filterByTerm('race',$filters['race_null'] ?? false)
             //->filterByTerm('guardian_schooling',$filters['guardian_schooling_null'] ?? false)
@@ -96,32 +95,38 @@ class ReportsController extends BaseController
             $query->filterByRange('created_at', false);
         }
 
+        //for age ranges:
+        $ageRanges = isset($filters['age_ranges']) ? $filters['age_ranges'] : null;
+        $nullAges = $filters['age_null'] ?? false;
+        //-------
+
+        if($ageRanges != null AND $params['dimension'] != 'age'){
+
+            $rangesQuery = collect($filters['age_ranges'])->map(function ($rangeSlug) {
+                $range = AgeRange::getBySlug($rangeSlug);
+                return ['range' => ['age' => ['from' => $range->from, 'to' => $range->to]]];
+            });
+
+            $ageQuery = ['should' => [$rangesQuery->toArray()]];
+
+            if ($filters['age_null'] ?? false) {
+                array_push($ageQuery['should'], ['missing' => ['field' => 'age']]);
+            }
+
+            $query->appendBoolQuery('filter', ['bool' => $ageQuery]);
+        }
+
         $index = ($params['view'] == 'linear') ? $entity->getAggregationIndex() : $entity->getTimeSeriesIndex();
         $type = ($params['view'] == 'linear') ? $entity->getAggregationType() : $entity->getTimeSeriesType();
-
-        $ageRanges = isset($filters['age_ranges']) ? $filters['age_ranges'] : null;
 
 
         try {
             $response = ($params['view'] == 'time_series') ?
                 $reports->timeline($index, $type, $params['dimension'], $query) :
-                $reports->linear($index, $type, $params['dimension'], $query, $ageRanges);
+                $reports->linear($index, $type, $params['dimension'], $query, $ageRanges, $nullAges);
 
             $ids = $this->extractDimensionIDs($response['report'], $params['view']);
             $labels = $this->fetchDimensionLabels($params['dimension'], $ids);
-
-//            //todo gambi, o correto é remover do elastic search
-//            if ($params['dimension'] == 'case_cause_ids') {
-//                unset($response['report'][500]);
-//                unset($response['report'][600]);
-//            }
-
-            /*
-             * Only for age dimensions. It's not possible calculate null values in elasticsearch.
-             */
-            if ($params['dimension'] == 'age') {
-                $response['report']['null'] = $response['records_total'] - array_sum($response['report']);
-            }
 
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
