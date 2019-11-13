@@ -72,7 +72,6 @@ class ReportsController extends BaseController
             ->filterByTerms('alert_status', false)
             ->filterByTerm('step_slug', false)
             ->filterByTerm('place_uf', $filters['place_uf_null'] ?? false)
-            ->filterByTerm('place_uf', $filters['place_uf_null'] ?? false)
             ->filterByTerm('place_city_id', $filters['place_city_id_null'] ?? false)
             ->filterByTerm('case_cause_ids', false)
             ->filterByTerms('child_status', false)
