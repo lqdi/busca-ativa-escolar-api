@@ -25,7 +25,6 @@ class SchoolingLevel extends StaticObject {
 		6 => ['id' => 6, 'slug' => 'superior_incompleto', 'label' => "Ensino superior incompleto"],
 		7 => ['id' => 7, 'slug' => 'superior_completo', 'label' => "Ensino superior completo"],
 		8 => ['id' => 8, 'slug' => 'posgraduacao', 'label' => "Pós graduação"],
-        9 => ['id' => 9, 'slug' => 'no_info', 'label' => "Sem informação"],
 	];
 
 	protected static $indexes = [
@@ -38,7 +37,6 @@ class SchoolingLevel extends StaticObject {
 			'superior_incompleto' => 7,
 			'superior_completo' => 6,
 			'posgraduacao' => 8,
-			'no_info' => 9,
 		]
 	];
 

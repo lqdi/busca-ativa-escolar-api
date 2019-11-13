@@ -19,7 +19,6 @@ class Gender extends StaticObject {
 	protected static $data = [
 		1 => ['id' => 1, 'slug' => 'male', 'label' => "Masculino"],
 		2 => ['id' => 2, 'slug' => 'female', 'label' => "Feminino"],
-		//3 => ['id' => 3, 'slug' => 'undefined', 'label' => "Indefinido"],
 	];
 
 	protected static $indexes = [
