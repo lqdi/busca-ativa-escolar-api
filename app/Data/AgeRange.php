@@ -68,5 +68,4 @@ class AgeRange extends StaticObject {
 	public static function getBySlug($slug) {
 		return self::getByIndex('slug', $slug);
 	}
-
 }
