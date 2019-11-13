@@ -116,6 +116,9 @@ class ReportsController extends BaseController
 //                unset($response['report'][600]);
 //            }
 
+            /*
+             * Only for age dimensions. It's not possible calculate null values in elasticsearch.
+             */
             if ($params['dimension'] == 'age') {
                 $response['report']['null'] = $response['records_total'] - array_sum($response['report']);
             }
@@ -138,7 +141,7 @@ class ReportsController extends BaseController
                 'query' => $query->getQuery(),
                 'attempted' => $query->getAttemptedQuery(),
                 'response' => $response,
-                'labels' => $labels
+                'labels' => $labels,
             ]
         );
     }
@@ -431,7 +434,8 @@ class ReportsController extends BaseController
                     'num_pending_alerts' => Child::whereHas('alert', function ($query) {
                         $query->where(['alert_status' => 'pending']);
                     })->pending()->count(),
-//todo corrigir consulta pois rejeitado tem que estar no alerta e no child
+
+                    //todo corrigir consulta pois rejeitado tem que estar no alerta e no child
                     'num_rejected_alerts' => Child::whereHas('alert', function ($query) {
                         $query->where(['alert_status' => 'rejected']);
                     })->rejected()->count(),
