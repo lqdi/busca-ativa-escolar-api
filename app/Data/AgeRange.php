@@ -21,7 +21,7 @@ class AgeRange extends StaticObject {
 		3 => ['id' => 3, 'slug' => '6-10', 'label' => "de 6 a 10 anos", 'from' => 6, 'to' => 10],
 		4 => ['id' => 4, 'slug' => '11-14', 'label' => "de 11 a 14 anos", 'from' => 1, 'to' => 14],
 		5 => ['id' => 5, 'slug' => '15-17', 'label' => "de 15 a 17 anos", 'from' => 5, 'to' => 17],
-		6 => ['id' => 6, 'slug' => '18', 'label' => "mais de 18 anos", 'from' => 18, 'to' => 99],
+		6 => ['id' => 6, 'slug' => '18', 'label' => "mais de 18 anos", 'from' => 18, 'to' => 50000],
 	];
 
 	protected static $indexes = [
