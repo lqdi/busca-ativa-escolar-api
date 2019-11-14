@@ -197,6 +197,7 @@ class ReportsLandingPageController extends BaseController
 
         } else {
             $data_city = null;
+            $tenantId = 0;
         }
 
         try {
