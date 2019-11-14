@@ -181,7 +181,6 @@ class ReportsLandingPageController extends BaseController
         $uf = request('uf');
         $tenant = Tenant::where([['name', '=', $uf . ' / ' . $city], ['is_active', '=', 1]])->first();
         $tenantId =  $tenant ? $tenant->id : 0;
-
         if ($tenant != null) {
             $created = $tenant->created_at->format('d/m/Y');
             $now = Carbon::now();
