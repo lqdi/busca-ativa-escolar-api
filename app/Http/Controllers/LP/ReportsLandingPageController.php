@@ -180,9 +180,9 @@ class ReportsLandingPageController extends BaseController
         $city = request('city');
         $uf = request('uf');
         $tenant = Tenant::where([['name', '=', $uf . ' / ' . $city], ['is_active', '=', 1]])->first();
-        if ($tenant != null) {
-            $tenantId = $tenant->id;
+        $tenantId =  $tenant ? $tenant->id : 0;
 
+        if ($tenant != null) {
             $created = $tenant->created_at->format('d/m/Y');
             $now = Carbon::now();
             $last_active_at = $tenant->last_active_at;
@@ -197,7 +197,6 @@ class ReportsLandingPageController extends BaseController
 
         } else {
             $data_city = null;
-            $tenantId = 0;
         }
 
         try {
