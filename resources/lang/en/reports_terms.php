@@ -13,7 +13,7 @@ return [
         'in_school' => 'Dentro da escola',
         'cancelled' => 'Cancelado',
         'completed' => 'Completo',
-        'in_progress' => 'Em progresso',
+        'in_progress' => 'Em andamento',
         'interrupted' => 'Interrompido'
     ],
 
