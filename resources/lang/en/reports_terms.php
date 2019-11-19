@@ -4,7 +4,7 @@ return [
     'gender' => [
         'male' => 'Masculino',
         'female' => 'Feminino',
-        'null' => 'Não disponível',
+        'null' => 'Não informado',
     ],
 
     'status' => [
@@ -70,7 +70,7 @@ return [
         'branca' => "Branca",
         'preta' => "Preta (pretos e pardos)",
         'amarela' => "Amarela",
-        'null' => "Não disponível",
+        'null' => "Não informado",
     ],
 
     'risk_level' => [
@@ -82,13 +82,13 @@ return [
     'place_kind' => [
         'urban' => 'Urbano',
         'rural' => 'Rural',
-        'null' => "Não disponível",
+        'null' => "Não informado",
     ],
 
     'work_activity' => [
         'servico_domestico' => 'Serviço doméstico',
         'negocio_familiar' => 'Negócio familiar',
-        'other', 'label' => 'Outra atividade',
+        'other' => 'Outra atividade',
         'null' => 'Não informado'
     ],
 
