@@ -161,6 +161,8 @@ class ReportsController extends BaseController
 
         if( isset($tenant) ){ $response['tenant'] = $tenant; }
 
+        $teste = $query->getQuery();
+
         return response()->json(
             [
                 'query' => $query->getQuery(),
@@ -594,7 +596,7 @@ class ReportsController extends BaseController
             case 'alert_cause_id':
                 return array_pluck(AlertCause::getAllAsArray(), 'label', 'id');
             case 'place_uf':
-                return array_pluck(UF::getAllAsArray(), 'code', 'slug');
+                return trans('reports_terms.place_uf');
             case 'place_city_id':
                 return $hasIDs ? City::whereIn('id', $ids)->get()->pluck('name', 'id') : []; // TODO: create full_name field that contains UF
             case 'school_last_id':
