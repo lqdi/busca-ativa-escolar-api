@@ -70,7 +70,7 @@ class ReportsController extends BaseController
             unset($filters['place_city_id']);
             unset($filters['place_uf']);
 
-            return $filters['tenant_id'];
+            return $filters['place_city'];
         }
 
         if (Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
