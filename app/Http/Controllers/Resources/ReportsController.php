@@ -53,9 +53,21 @@ class ReportsController extends BaseController
         $filters = request('filters', []);
         $format = request('format', 'json');
 
-        // Scope the query within the tenant
+        // Verifica se usuário está restrito a município
         if (Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
+
+        // Verifica se usuário está restrito a estado
         if (Auth::user()->isRestrictedToUF()) $filters['uf'] = Auth::user()->uf;
+
+        //Verifica se a cidade foi informada no filtro. Neste caso remove o filtro de cidade e cria-se um filtro de tenant
+        if (isset($filters['place_city'])) {
+            $filters['tenant_id'] = $filters['place_city']['tenant']['id'];
+            unset($filters['place_uf']);
+            unset($filters['place_city']);
+            unset($filters['place_city_id']);
+        }
+
+        if (Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
 
         if (isset($filters['place_uf'])) $filters['place_uf'] = Str::lower($filters['place_uf']);
         if (isset($filters['uf'])) $filters['uf'] = Str::lower($filters['uf']);
