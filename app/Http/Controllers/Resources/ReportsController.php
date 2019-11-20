@@ -62,7 +62,6 @@ class ReportsController extends BaseController
         //Verifica se a cidade foi informada no filtro. Neste caso remove o filtro de cidade e cria-se um filtro de tenant
         if (isset($filters['place_city'])) {
             $filters['tenant_id'] = $filters['place_city']['tenant']['id'];
-            unset($filters['place_uf']);
             unset($filters['place_city']);
             unset($filters['place_city_id']);
         }
