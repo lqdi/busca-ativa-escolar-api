@@ -62,15 +62,20 @@ class ReportsController extends BaseController
 
         //Verifica se a cidade foi informada no filtro. Neste caso remove o filtro de cidade e cria-se um filtro de tenant
         if (isset($filters['place_city'])) {
-            $filters['tenant_id'] = $filters['place_city']['tenant']['id'];
+
             $tenant = Tenant::where('city_id', $filters['place_city_id'])->first();
-            $tenant != null ? $tenant = true : $tenant = false;
+
+            if( $tenant != null ) {
+                $filters['tenant_id'] = $tenant->id;
+                $tenant = true;
+            }else{
+                $tenant = false;
+            }
 
             unset($filters['place_city']);
             unset($filters['place_city_id']);
             unset($filters['place_uf']);
 
-            return $filters['place_city'];
         }
 
         if (Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
