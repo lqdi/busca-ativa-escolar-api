@@ -60,6 +60,24 @@ class ReportsController extends BaseController
         // Verifica se usuário está restrito a estado
         if (Auth::user()->isRestrictedToUF()) $filters['uf'] = Auth::user()->uf;
 
+        //Verifica se a cidade foi informada no filtro. Neste caso remove o filtro de cidade e cria-se um filtro de tenant
+        if (isset($filters['place_city'])) {
+
+            $tenant = Tenant::where('city_id', $filters['place_city_id'])->first();
+
+            if( $tenant != null ) {
+                $filters['tenant_id'] = $tenant->id;
+                $tenant = true;
+            }else{
+                $tenant = false;
+            }
+
+            unset($filters['place_city']);
+            unset($filters['place_city_id']);
+            unset($filters['place_uf']);
+
+        }
+
         if (Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
 
         if (isset($filters['place_uf'])) $filters['place_uf'] = Str::lower($filters['place_uf']);
