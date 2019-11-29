@@ -71,7 +71,7 @@ class EducacensoXLSChunkImporter
         Log::info("[educacenso_import] Loading spreadsheet data into memory ...");
 
         Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
-            250,
+            1000,
             function ($results) {
                 foreach ($results->toArray() as $rowNumber => $row) {
                     if(!array_key_exists('uf', $row)){
