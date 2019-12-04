@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\Traits\Data\checkPhases;
 use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -38,5 +39,5 @@ class AnaliseTecnica extends CaseStep {
 	public function applyAssignableUsersFilter(Builder $query) {
 		return $query->whereIn('type', [User::TYPE_TECNICO_VERIFICADOR, User::TYPE_SUPERVISOR_INSTITUCIONAL, User::TYPE_GESTOR_OPERACIONAL]);
 	}
-
+    use checkPhases;
 }

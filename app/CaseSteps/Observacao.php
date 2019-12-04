@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\CaseSteps;
 
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\Traits\Data\checkPhases;
 use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -87,4 +88,5 @@ class Observacao extends CaseStep {
 		]);
 	}
 
+    use checkPhases;
 }

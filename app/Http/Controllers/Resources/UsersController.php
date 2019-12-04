@@ -15,6 +15,11 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use Auth;
+use BuscaAtivaEscolar\CaseSteps\AnaliseTecnica;
+use BuscaAtivaEscolar\CaseSteps\GestaoDoCaso;
+use BuscaAtivaEscolar\CaseSteps\Observacao;
+use BuscaAtivaEscolar\CaseSteps\Pesquisa;
+use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Mailables\StateUserRegistered;
 use BuscaAtivaEscolar\Mailables\UserRegistered;
@@ -275,9 +280,15 @@ class UsersController extends BaseController {
 
 	public function destroy(User $user) {
 
+
 		if(!Auth::user()->canManageUser($user)) {
 			return $this->api_failure('not_enough_permissions');
 		}
+
+		if($this->checkphases($user)){
+		    $check = response()->json($this->checkphases($user));
+            return $check;
+        }
 
 		try {
 			$user->delete(); // Soft-deletes internally
@@ -285,6 +296,19 @@ class UsersController extends BaseController {
 			return $this->api_exception($ex);
 		}
 	}
+
+	private function checkphases ($user){
+        $checkEtapas = new \stdClass();
+        $checkEtapas->pesquisa = Pesquisa::checkIfExists($user->id);
+        $checkEtapas->analise_tecnica = AnaliseTecnica::checkIfExists($user->id);
+        $checkEtapas->gestao_caso = GestaoDoCaso::checkIfExists($user->id);
+        $checkEtapas->rematricula = Rematricula::checkIfExists($user->id);
+        $checkEtapas->observacao = Observacao::checkIfExists($user->id);
+        if(is_null($checkEtapas)){
+            return false;
+        }
+        return $checkEtapas;
+    }
 
 	public function restore($user_id) {
 		try {

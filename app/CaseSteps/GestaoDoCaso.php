@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\CaseSteps;
 
+use BuscaAtivaEscolar\Traits\Data\checkPhases;
 use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -41,4 +42,5 @@ class GestaoDoCaso extends CaseStep {
 		]);
 	}
 
+    use checkPhases;
 }
