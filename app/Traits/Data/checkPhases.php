@@ -15,7 +15,7 @@ namespace BuscaAtivaEscolar\Traits\Data;
 
 trait checkPhases
 {
-    public static function checkIfExists($userId)
+    public static function checkIfExistsUserWithCasesInOpem($userId)
     {
         $query = self::query()
             ->where('assigned_user_id', '=', $userId)
@@ -23,9 +23,10 @@ trait checkPhases
             ->count();
         $result = new \stdClass();
         if ($query > 0) {
-            $result->check = true;
-            $result->count = $query;
+            $result->casos = $query;
+            return $result;
         }
+        $result->casos = 0;
         return $result;
     }
 }
