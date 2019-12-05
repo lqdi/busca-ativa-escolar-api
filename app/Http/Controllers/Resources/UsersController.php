@@ -15,12 +15,14 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use Auth;
+use BuscaAtivaEscolar\ExportUsersJob;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Mailables\StateUserRegistered;
 use BuscaAtivaEscolar\Mailables\UserRegistered;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\UserTransformer;
 use BuscaAtivaEscolar\User;
+use Carbon\Carbon;
 use Excel;
 use Exception;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
@@ -118,7 +120,7 @@ class UsersController extends BaseController {
 
             });
 
-        })->export('xls');
+        })->download('xls');
 
 	}
 
@@ -303,5 +305,44 @@ class UsersController extends BaseController {
 			return $this->api_exception($ex);
 		}
 	}
+
+	public function reports(){
+        $reports = \Storage::allFiles('attachments/users_reports');
+        $finalReports = array_map( function ($file){
+            return [
+                'file' => str_replace("attachments/users_reports/", "", $file),
+                'size' => \Storage::size($file),
+                'last_modification' => \Storage::lastModified($file)
+            ];
+        }, $reports);
+        return response()->json(['status' => 'ok', 'data' => $finalReports]);
+    }
+
+    public function getReport(){
+        $nameFile = request('file');
+        if ( !isset($nameFile) ) {
+            return response()->json(['error' => 'Not authorized.'],403);
+        }
+        $exists = \Storage::exists("attachments/users_reports/".$nameFile);
+        if ( $exists ){
+            return response()->download(storage_path("app/attachments/users_reports/".$nameFile));
+        }else{
+            return response()->json(['error' => 'Arquivo inexistente.'],403);
+        }
+	}
+
+	public function createReport(){
+
+        dispatch((new ExportUsersJob())->onQueue('export_users'));
+
+	    return response()->json(
+            [
+                'msg' => 'Arquivo criado',
+                'date' => Carbon::now()->timestamp
+            ],
+            200
+        );
+
+    }
 
 }
