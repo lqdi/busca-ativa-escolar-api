@@ -15,6 +15,11 @@ namespace BuscaAtivaEscolar\Traits\Data;
 
 trait checkPhases
 {
+    /**
+     * @param $userId
+     * @return \stdClass
+     * Verifica a existencia de casos para o usuario informado
+     */
     public static function checkIfExistsUserWithCasesInOpem($userId)
     {
         $query = self::query()

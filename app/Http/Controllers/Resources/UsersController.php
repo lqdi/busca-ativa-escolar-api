@@ -313,6 +313,7 @@ class UsersController extends BaseController
         $checkPhases->observacao = Observacao::checkIfExistsUserWithCasesInOpem($user->id);
         foreach ($checkPhases as $phase) {
             if ($phase->casos > 0) {
+                $checkPhases->have_data = true;
                 return $checkPhases;
             }
         }
