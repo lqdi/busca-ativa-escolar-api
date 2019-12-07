@@ -2,11 +2,16 @@
 
 namespace BuscaAtivaEscolar\Console\Commands;
 
+use function Aws\map;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\ChildCase;
+use BuscaAtivaEscolar\User;
+use DB;
+use Excel;
 use Illuminate\Console\Command;
+use function PHPSTORM_META\type;
 
 class FixErrorCasesDisabled extends Command
 {
@@ -15,14 +20,14 @@ class FixErrorCasesDisabled extends Command
      *
      * @var string
      */
-    protected $signature = 'correcoes:casos_travados_em_todas_as_etapas';
+    protected $signature = 'fix:to_fix_errors_from_user_disabled';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Localiza casos bloqueados em determinadas etapas e os libera para avançar para a etapa seguinte';
+    protected $description = 'Localiza casos bloqueados devido a desativação de usuários que estavam como responsáveis';
 
     /**
      * Create a new command instance.
@@ -42,70 +47,72 @@ class FixErrorCasesDisabled extends Command
     public function handle()
     {
 
-        Child::chunk(200, function ($children){
+        $this->comment('Gerando arquivos com todos as criancas/ adolescentes que estao com casos sob a supervisao de usuario desativado');
 
-            foreach ($children as $child){
+        $states = [
+                'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES',
+                'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE',
+                'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC',
+                'SE', 'SP', 'TO'
+        ];
 
-                //Se a crianca/ adolescente tem um current case
-                if( $child->currentCase != null ) {
+        foreach ($states as $state){
 
-                    $currentStep = $child->currentStep;
+            $this->comment('------------------------------------------------');
+            $this->comment('Buscando usuários desativados do estado de '.$state);
 
-                    //se a crianca/ adolescente tem o current case completo
-                    if( $currentStep->is_completed ) {
+            $disabledUsersWithTenantsArray = User::onlyTrashed()->has('tenant')->select('id', 'tenant_id')->where('work_uf', '=', $state)->get()->toArray();
 
-                        $tenant = \BuscaAtivaEscolar\Tenant::where('id', $child->tenant_id)->first();
+            $disabledUsers = array_map(function ($d){
+                return $d["id"];
+            }, $disabledUsersWithTenantsArray);
 
-                        $this->comment("Cidade: " . $tenant->name);
+            $disabledTenantsInUsers = array_map(function ($d){
+                return $d["tenant_id"];
+            }, $disabledUsersWithTenantsArray);
 
-                        $this->comment("Crianca: " . $child->name);
+            $children = Child::has('cases')
+                ->whereIn('tenant_id', $disabledTenantsInUsers)
+                ->where('current_step_type', '<>', 'BuscaAtivaEscolar\CaseSteps\Alerta')
+                ->where('child_status', '<>', 'in_school')
+                ->where('child_status', '<>', 'cancelled')
+                ->get();
 
-                        $this->comment("Child | Current step id: " . $child->current_step_id);
-                        $this->comment("Child | Current step type: " . $child->current_step_type);
+            Excel::create('buscaativaescolar_users_'.strtolower($state), function($excel) use ($children, $disabledUsers) {
+                $excel->sheet('users', function($sheet) use ($children, $disabledUsers) {
+                    foreach ($children as $child) {
+                        if( in_array($child->currentStep->assigned_user_id, $disabledUsers) ){
 
-                        $this->comment("Case | Current step id: " . $child->currentCase->current_step_id);
-                        $this->comment("Case | Current step type: " . $child->currentCase->current_step_type);
+                            $childFinal = [
+                                'UF' => $child->tenant->uf,
+                                'Município' => $child->tenant->city->name,
+                                'Crianca/ adolescente' => $child->name,
+                                'etapa' => $child->currentStep->step_type,
+                                'Responsável ID' => $child->currentStep->assigned_user_id,
+                                'Responsável Nome' => $this->returnUser($child->currentStep->assigned_user_id)->name
+                            ];
 
-                        $this->comment("");
-
-                        //se está no alerta precisa avancar para pesquisa
-                        if( $child->current_step_type == "BuscaAtivaEscolar\CaseSteps\Alerta"){
-
-//                            $case = ChildCase::where('child_id', $child->id)->first();
-//                            $alerta = Alerta::where('child_id', $child->id)->first();
-//                            $pesquisa = Pesquisa::where('child_id', $child->id)->first();
-//
-//                            if( $alerta->nis == ""){ $alerta->nis = null; }
-//
-//                            $alerta->is_completed = true;
-//
-//                            $child->current_step_id = $pesquisa->id;
-//                            $child->current_step_type = 'BuscaAtivaEscolar\CaseSteps\Pesquisa';
-//
-//                            $case->current_step_id = $pesquisa->id;
-//                            $case->current_step_type = 'BuscaAtivaEscolar\CaseSteps\Pesquisa';
-//
-//                            $pesquisa->setFields($alerta->toArray());
-//
-//                            $pesquisa->is_completed = false;
-//
-//                            $alerta->save();
-//                            $pesquisa->save();
-//                            $case->save();
-//                            $child->save();
-
-                        } else {
-
-                            $currentStep->is_completed = false;
-                            $currentStep->save();
-
+                            $sheet->appendRow(
+                                $childFinal
+                            );
                         }
-
                     }
+                });
+            })->store('xls', storage_path('app/attachments/users_disabled'));
 
-                }
-            }
+            $this->comment('Salvando arquivo do estado de '.$state);
 
-        });
+            $this->comment('Finalizando a busca dos usuários do estado de '.$state);
+            $this->comment('------------------------------------------------');
+            $this->comment('');
+
+        }
+
+        $this->comment('Final do processo');
+
+    }
+
+    public function returnUser($id){
+        return User::where('id', '=', $id)->withTrashed()->first();
     }
 }
