@@ -23,7 +23,7 @@ class ExportErrorsCasesDisabled extends Command
      */
     protected $description = 'Localiza casos bloqueados devido a desativação de usuários que estavam como responsáveis e salva os nomes na pasta storage\app\attachments\users_disabled';
 
-    public static $number_of_users = 0;
+    public static $number_of_cases = 0;
 
     /**
      * Create a new command instance.
@@ -111,7 +111,7 @@ class ExportErrorsCasesDisabled extends Command
                                 $childFinal
                             );
 
-                            self::$number_of_users++;
+                            self::$number_of_cases++;
                         }
                     }
                 });
@@ -125,7 +125,7 @@ class ExportErrorsCasesDisabled extends Command
 
         }
 
-        $this->comment(self::$number_of_users." casos localizados relacionados a usuários desativados");
+        $this->comment(self::$number_of_cases." casos localizados relacionados a usuários desativados");
         $this->comment('Final do processo');
 
     }
