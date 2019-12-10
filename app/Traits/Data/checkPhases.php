@@ -13,8 +13,6 @@
 
 namespace BuscaAtivaEscolar\Traits\Data;
 
-use BuscaAtivaEscolar\Child;
-
 trait checkPhases
 {
     /**

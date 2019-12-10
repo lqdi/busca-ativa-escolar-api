@@ -97,6 +97,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update')->middleware('can:cases.manage');
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show')->middleware('can:cases.view');
 
+        //Maintenance into system
+		Route::post('/maintenance/{user_id}', 'Resources\MaintenanceController@assignForAdminUser')->middleware('can:cases.manage');
+
 		// Tenant Sign-ups
 		Route::any('/signups/tenants/pending', 'Tenants\TenantSignupController@get_pending');
 		Route::any('/signups/tenants/export', 'Tenants\TenantSignupController@export_signups')->middleware('can:tenants.export_signups');
@@ -148,7 +151,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/reports/exported/{filename}', 'Resources\ReportsController@download_exported')->name('api.reports.download_exported')->middleware('can:reports.view');
 
 		//Reports Bar
-        Route::get('/reports/city_bar', 'Bar\ReportsBar@city_bar');
+        Route::get('/reports/reports', 'Bar\ReportsBar@city_bar');
 
 	});
 
