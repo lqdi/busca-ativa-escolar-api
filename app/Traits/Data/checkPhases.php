@@ -13,6 +13,8 @@
 
 namespace BuscaAtivaEscolar\Traits\Data;
 
+use BuscaAtivaEscolar\Child;
+
 trait checkPhases
 {
     /**
@@ -22,10 +24,13 @@ trait checkPhases
      */
     public static function checkIfExistsUserWithCasesInOpem($userId)
     {
-        $query = self::query()
-            ->where('assigned_user_id', '=', $userId)
+        $query = self::whereHas('child', function ($query) {
+            $query->where('child_status', '<>', 'cancelled');
+        })->where('assigned_user_id', '=', $userId)
             ->where('is_completed', '=', 0)
-            ->count();
+            ->count('id');
+
+
         $result = new \stdClass();
         if ($query > 0) {
             $result->casos = $query;
