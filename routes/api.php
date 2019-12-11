@@ -154,7 +154,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/reports/exported/{filename}', 'Resources\ReportsController@download_exported')->name('api.reports.download_exported')->middleware('can:reports.view');
 
 		//Reports Bar
-        Route::get('/reports/reports', 'Bar\ReportsBar@city_bar');
+        Route::get('/reports/city_bar', 'Bar\ReportsBar@city_bar');
 
 	});
 
