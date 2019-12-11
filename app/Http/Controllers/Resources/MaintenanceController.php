@@ -15,52 +15,34 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
-use BuscaAtivaEscolar\CaseSteps\Observacao;
-use BuscaAtivaEscolar\CaseSteps\Rematricula;
-use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Scopes\TenantScope;
-use BuscaAtivaEscolar\Search\Search;
-use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
-use BuscaAtivaEscolar\Tenant;
-use BuscaAtivaEscolar\Transformers\StepTransformer;
-use BuscaAtivaEscolar\Transformers\UserTransformer;
 use BuscaAtivaEscolar\User;
-use Carbon\Carbon;
 use DB;
 
 
 class MaintenanceController extends BaseController
 {
 
-    public function assignForAdminUser($userId)
+    public function assignForAdminUser($userId, UsersController $usersController)
     {
-        $currentUser = $this->currentUser();
-        $listCases = $this->getCasebyPhases($userId);
+        try {
+            $currentUser = $this->currentUser();
+            $listCases = $this->getCasebyPhases($userId);
 
+            foreach ($listCases as $child) {
+                $step = CaseStep::fetch($child->current_step_type, $child->current_step_id);
+                $step->assignToUser($currentUser);
+            }
 
-        var_dump($listCases);
+            $user = User::withoutGlobalScope(TenantScope::class)->findOrFail($userId);
+            $usersController->destroy($user);
 
+            return response()->json(['status' => 'ok', 'user' => $currentUser]);
 
-//        $query = Child::whereHas('child', function ($query) {
-//            $query->where('child_status', '<>', 'cancelled');
-//        })->where('assigned_user_id', '=', $userId)
-//            ->where('is_completed', '=', 0)
-//            ->get();
-
-//        try {
-////            $user = User::withoutGlobalScope(TenantScope::class)->findOrFail(request('user_id'));
-////            $step = CaseStep::fetch($step_type, $step_id);
-////
-////            $step->assignToUser($user);
-////
-////            // TODO: fix assignment not reindexing
-////
-////            return response()->json(['status' => 'ok', 'user' => fractal()->item($user, new UserTransformer())]);
-//
-//        } catch (\Exception $ex) {
-//            return $this->api_exception($ex);
-//        }
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
     }
 
     private
@@ -74,6 +56,7 @@ class MaintenanceController extends BaseController
             ->join('case_steps_rematricula AS rematricula', 'c.id', '=', 'rematricula.child_id')
             ->join('case_steps_observacao AS observacao', 'c.id', '=', 'observacao.child_id')
             ->where('c.child_status', '<>', 'cancelled')
+            ->where('c.child_status', '<>', 'in_school')
             ->where('observacao.assigned_user_id', '=', $userId)
             ->orWhere('pesquisa.assigned_user_id', '=', $userId)
             ->orWhere('analise.assigned_user_id', '=', $userId)
