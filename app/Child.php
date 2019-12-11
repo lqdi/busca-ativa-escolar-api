@@ -414,7 +414,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
         $address = null;
 
         try {
-            $address = $geocoder->geocode($rawAddress)->get()->first();
+            $address = $geocoder->geocode(str_replace(" ","+", $rawAddress))->get()->first();
             /* @var $address Address */
         } catch (\Exception $ex) {
             return null;

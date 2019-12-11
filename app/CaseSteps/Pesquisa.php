@@ -180,7 +180,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 
 		if($this->place_address && $this->place_city_name && $this->place_uf) {
 			try {
-				$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} - {$this->place_city_name} - {$this->place_uf}");
+				$address = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address},{$this->place_city_name},{$this->place_uf}");
 
 				$this->update([
 					'place_lat' => ($address) ? $address->getLatitude() : null,
