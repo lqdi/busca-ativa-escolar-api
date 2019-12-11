@@ -3,6 +3,7 @@
 namespace BuscaAtivaEscolar\Console;
 
 use BuscaAtivaEscolar\Console\Commands\Command;
+use BuscaAtivaEscolar\Console\Commands\ExportErrorsCasesDisabled;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -37,7 +38,8 @@ class Kernel extends ConsoleKernel
         Commands\DisplayPrimaryGroupsUnrelatedWithAllAlerts::class,
         Commands\ReindexSchoolById::class,
         Commands\RemoveDuplicatedChildsWithoutAlerts::class,
-        Commands\FixErrorCasesDisabled::class,
+        Commands\ExportErrorsCasesDisabled::class,
+        Commands\FixErrorsCasesDisabled::class,
         Commands\TransferNisToAlert::class
     ];
 
