@@ -35,10 +35,11 @@ class MaintenanceController extends BaseController
 
     public function assignForAdminUser($userId)
     {
-            $currentUser = $this->currentUser();
-            $listCases = $this->getCasebyPhases($userId);
+        $currentUser = $this->currentUser();
+        $listCases = $this->getCasebyPhases($userId);
 
-            var_dump($listCases);
+
+        var_dump($listCases);
 
 
 //        $query = Child::whereHas('child', function ($query) {
@@ -62,15 +63,24 @@ class MaintenanceController extends BaseController
 //        }
     }
 
-    private function getCasebyPhases($userId)
+    private
+    function getCasebyPhases($userId)
     {
         $result = DB::table('children AS c')
+            ->select('c.*')
             ->join('case_steps_pesquisa AS pesquisa', 'c.id', '=', 'pesquisa.child_id')
             ->join('case_steps_analise_tecnica AS analise', 'c.id', '=', 'analise.child_id')
             ->join('case_steps_gestao_do_caso AS gestao', 'c.id', '=', 'gestao.child_id')
+            ->join('case_steps_rematricula AS rematricula', 'c.id', '=', 'rematricula.child_id')
             ->join('case_steps_observacao AS observacao', 'c.id', '=', 'observacao.child_id')
-            ->where('pesquisa.assigned_user_id', '=', $userId)
-//            ->where('c.child_status', '<>', 'cancelled')
+            ->where('c.child_status', '<>', 'cancelled')
+            ->where('observacao.assigned_user_id', '=', $userId)
+            ->orWhere('pesquisa.assigned_user_id', '=', $userId)
+            ->orWhere('analise.assigned_user_id', '=', $userId)
+            ->orWhere('gestao.assigned_user_id', '=', $userId)
+            ->orWhere('rematricula.assigned_user_id', '=', $userId)
+            ->orWhere('observacao.assigned_user_id', '=', $userId)
+            ->groupBy('c.id')
             ->get();
         return $result;
     }
