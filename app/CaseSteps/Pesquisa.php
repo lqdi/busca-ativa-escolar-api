@@ -29,6 +29,7 @@ use BuscaAtivaEscolar\Data\WorkActivity;
 use BuscaAtivaEscolar\FormBuilder\CanGenerateForms;
 use BuscaAtivaEscolar\FormBuilder\FormBuilder;
 use BuscaAtivaEscolar\IBGE\UF;
+use BuscaAtivaEscolar\Traits\Data\checkPhases;
 use BuscaAtivaEscolar\User;
 use Illuminate\Database\Eloquent\Builder;
 use Log;
@@ -337,4 +338,5 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 				->field('place_is_quilombola', 'boolean', trans('form_builder.pesquisa.field.place_is_quilombola'));
 			});
 	}
+	use checkPhases;
 }
