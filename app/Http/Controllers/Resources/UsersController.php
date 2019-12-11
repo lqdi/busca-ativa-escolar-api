@@ -15,6 +15,11 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use Auth;
+use BuscaAtivaEscolar\CaseSteps\AnaliseTecnica;
+use BuscaAtivaEscolar\CaseSteps\GestaoDoCaso;
+use BuscaAtivaEscolar\CaseSteps\Observacao;
+use BuscaAtivaEscolar\CaseSteps\Pesquisa;
+use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use BuscaAtivaEscolar\ExportUsersJob;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Mailables\StateUserRegistered;
@@ -28,55 +33,58 @@ use Exception;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Mail;
 
-class UsersController extends BaseController {
+class UsersController extends BaseController
+{
 
-	public function search() {
-		$query = User::with('group');
+    public function search()
+    {
+        $query = User::with('group');
 
-		// If user is global user, they can filter by tenant_id
-		if($this->currentUser()->isGlobal() && request()->has('tenant_id')) {
-			$query->where('tenant_id', request('tenant_id'));
-		} else if($this->currentUser()->isRestrictedToTenant()) {
-			$query->where('tenant_id', '!=', 'global');
-		}
+        // If user is global user, they can filter by tenant_id
+        if ($this->currentUser()->isGlobal() && request()->has('tenant_id')) {
+            $query->where('tenant_id', request('tenant_id'));
+        } else if ($this->currentUser()->isRestrictedToTenant()) {
+            $query->where('tenant_id', '!=', 'global');
+        }
 
-		// If user is global user, they can filter by UF
-		if($this->currentUser()->isGlobal() && request()->has('uf')) {
-			$query->where('uf', request('uf'));
-		} else if($this->currentUser()->isRestrictedToUF()) { // Else, check if they're bound to a UF
-			$query->where('uf', $this->currentUser()->uf);
-			$query->whereIn('type', User::$UF_SCOPED_TYPES);
-		}
+        // If user is global user, they can filter by UF
+        if ($this->currentUser()->isGlobal() && request()->has('uf')) {
+            $query->where('uf', request('uf'));
+        } else if ($this->currentUser()->isRestrictedToUF()) { // Else, check if they're bound to a UF
+            $query->where('uf', $this->currentUser()->uf);
+            $query->whereIn('type', User::$UF_SCOPED_TYPES);
+        }
 
-		if(request()->has('group_id')) $query->where('group_id', request('group_id'));
-		if(request()->has('type')) $query->where('type', request('type'));
-		if(request()->has('email')) $query->where('email', 'LIKE', request('email') . '%');
+        if (request()->has('group_id')) $query->where('group_id', request('group_id'));
+        if (request()->has('type')) $query->where('type', request('type'));
+        if (request()->has('email')) $query->where('email', 'LIKE', request('email') . '%');
 
-		if(request('show_suspended', false)) $query->withTrashed();
+        if (request('show_suspended', false)) $query->withTrashed();
 
-		if(request()->has('sort')) {
-			User::applySorting($query, request('sort', []));
-		}
+        if (request()->has('sort')) {
+            User::applySorting($query, request('sort', []));
+        }
 
-		$max = request('max', 128);
-		if($max > 128) $max = 128;
-		if($max < 16) $max = 16;
+        $max = request('max', 128);
+        if ($max > 128) $max = 128;
+        if ($max < 16) $max = 16;
 
-		$paginator = $query->paginate($max);
-		$collection = $paginator->getCollection();
+        $paginator = $query->paginate($max);
+        $collection = $paginator->getCollection();
 
-		return fractal()
-			->collection($collection)
-			->transformWith(new UserTransformer('short'))
-			->serializeWith(new SimpleArraySerializer())
-			->paginateWith(new IlluminatePaginatorAdapter($paginator))
-			->parseIncludes(request('with'))
-			->respond();
-	}
+        return fractal()
+            ->collection($collection)
+            ->transformWith(new UserTransformer('short'))
+            ->serializeWith(new SimpleArraySerializer())
+            ->paginateWith(new IlluminatePaginatorAdapter($paginator))
+            ->parseIncludes(request('with'))
+            ->respond();
+    }
 
-	public function export() {
+    public function export()
+    {
 
-	    $uf = request('uf');
+        $uf = request('uf');
         $tenant_id = request('tenant_id');
         $type = request('type');
         $email = request('email');
@@ -85,35 +93,36 @@ class UsersController extends BaseController {
 
         $query = User::with('group');
 
-        if($this->currentUser()->isGlobal() && isset($tenant_id) && $tenant_id != null) {
+        if ($this->currentUser()->isGlobal() && isset($tenant_id) && $tenant_id != null) {
             $query->where('tenant_id', $tenant_id);
-        } else if($this->currentUser()->isRestrictedToTenant()) {
+        } else if ($this->currentUser()->isRestrictedToTenant()) {
             $query->where('tenant_id', '!=', 'global');
         }
 
-        if($this->currentUser()->isGlobal() && isset($uf) && $uf != null) {
+        if ($this->currentUser()->isGlobal() && isset($uf) && $uf != null) {
             $query->where('uf', $uf);
-        } else if($this->currentUser()->isRestrictedToUF()) {
+        } else if ($this->currentUser()->isRestrictedToUF()) {
             $query->where('uf', $this->currentUser()->uf);
             $query->whereIn('type', User::$UF_SCOPED_TYPES);
         }
 
-        if(isset($group_id) && $group_id != null) $query->where('group_id', $group_id);
-        if(isset($type) && $type != null) $query->where('type', $type);
-        if(isset($email) && $email != null) $query->where('email0', 'LIKE', $email . '%');
+        if (isset($group_id) && $group_id != null) $query->where('group_id', $group_id);
+        if (isset($type) && $type != null) $query->where('type', $type);
+        if (isset($email) && $email != null) $query->where('email0', 'LIKE', $email . '%');
 
-        if($show_suspended == "true") $query->withTrashed();
+        if ($show_suspended == "true") $query->withTrashed();
 
         $users = $query
             ->get()
-            ->map(function ($user) { /* @var $user User */
+            ->map(function ($user) {
+                /* @var $user User */
                 return $user->toExportArray();
             })
             ->toArray();
 
-        Excel::create('buscaativaescolar_users', function($excel) use ($users) {
+        Excel::create('buscaativaescolar_users', function ($excel) use ($users) {
 
-            $excel->sheet('users', function($sheet) use ($users) {
+            $excel->sheet('users', function ($sheet) use ($users) {
 
                 $sheet->setOrientation('landscape');
                 $sheet->fromArray($users);
@@ -122,189 +131,215 @@ class UsersController extends BaseController {
 
         })->download('xls');
 
-	}
+    }
 
-	public function show(User $user) {
+    public function show(User $user)
+    {
 
-		return fractal()
-			->item($user)
-			->transformWith(new UserTransformer('long'))
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond();
-	}
+        return fractal()
+            ->item($user)
+            ->transformWith(new UserTransformer('long'))
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
+    }
 
-	public function update(User $user) {
-		try {
+    public function update(User $user)
+    {
+        try {
 
-			// Here we check if we have enough permission to edit the target user
-			if (!Auth::user()->canManageUser($user)) {
-				return $this->api_failure('not_enough_permissions');
-			}
+            // Here we check if we have enough permission to edit the target user
+            if (!Auth::user()->canManageUser($user)) {
+                return $this->api_failure('not_enough_permissions');
+            }
 
-			$input = request()->all();
+            $input = request()->all();
 
-			// If user is editing himself, we clear the e-mail so we avoid hitting validation rules (issue #201, #203)
-			// Note: this happens due to user details confirmation flow in tenant setup
-			if ($input['email'] === $user->email) {
-				unset($input['email']);
-			}
+            // If user is editing himself, we clear the e-mail so we avoid hitting validation rules (issue #201, #203)
+            // Note: this happens due to user details confirmation flow in tenant setup
+            if ($input['email'] === $user->email) {
+                unset($input['email']);
+            }
 
-			// Tenant-bound users can ony manage users within their tenant
-			if (Auth::user()->isRestrictedToTenant()) {
-				$input['tenant_id'] = Auth::user()->tenant_id;
-			}
+            // Tenant-bound users can ony manage users within their tenant
+            if (Auth::user()->isRestrictedToTenant()) {
+                $input['tenant_id'] = Auth::user()->tenant_id;
+            }
 
-			// UF-bound users can only manage users within their UF
-			if (Auth::user()->isRestrictedToUF()) {
-				$input['uf'] = Auth::user()->uf;
-			}
+            // UF-bound users can only manage users within their UF
+            if (Auth::user()->isRestrictedToUF()) {
+                $input['uf'] = Auth::user()->uf;
+            }
 
-			// These flags are used for validation (eg: non-tenant-bound users do not require a tenant_id, and so on)
-			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
-			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
+            // These flags are used for validation (eg: non-tenant-bound users do not require a tenant_id, and so on)
+            $isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+            $isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
-			if(isset($input['email']) && User::checkIfExists($input['email'])) {
-				return $this->api_failure('email_already_exists');
-			}
+            if (isset($input['email']) && User::checkIfExists($input['email'])) {
+                return $this->api_failure('email_already_exists');
+            }
 
-			$validation = $user->validate($input, false, $isTenantUser, $isUFUser);
+            $validation = $user->validate($input, false, $isTenantUser, $isUFUser);
 
-			if($validation->fails()) {
-				return $this->api_validation_failed('validation_failed', $validation);
-			}
+            if ($validation->fails()) {
+                return $this->api_validation_failed('validation_failed', $validation);
+            }
 
-			if(isset($input['password'])) {
-				$input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
-			}
+            if (isset($input['password'])) {
+                $input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
+            }
 
-			$user->fill($input);
+            $user->fill($input);
 
-			// Block setting a tenant-scope user without a tenant ID set
-			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
-				throw new Exception("tenant_id_inconsistency");
-			}
+            // Block setting a tenant-scope user without a tenant ID set
+            if (!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
+                throw new Exception("tenant_id_inconsistency");
+            }
 
-			// Here we check if we still have enough permission to set the target user to this new state (maybe type changed?)
-			if(!Auth::user()->canManageUser($user)) {
-				return $this->api_failure('not_enough_permissions');
-			}
+            // Here we check if we still have enough permission to set the target user to this new state (maybe type changed?)
+            if (!Auth::user()->canManageUser($user)) {
+                return $this->api_failure('not_enough_permissions');
+            }
 
-			$user->save();
+            $user->save();
 
-			// Refresh user UF (used for filtering) (maybe parent tenant changed?)
-			if(!$user->uf && $user->tenant_id) {
-				$user->uf = $user->tenant->uf;
-				$user->save();
-			}
+            // Refresh user UF (used for filtering) (maybe parent tenant changed?)
+            if (!$user->uf && $user->tenant_id) {
+                $user->uf = $user->tenant->uf;
+                $user->save();
+            }
 
-			return response()->json(['status' => 'ok', 'updated' => $input]);
+            return response()->json(['status' => 'ok', 'updated' => $input]);
 
-		} catch (\Exception $ex) {
-			return $this->api_exception($ex);
-		}
-	}
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+    }
 
-	public function store() {
-		try {
+    public function store()
+    {
+        try {
 
-			$user = new User();
-			$input = request()->all();
+            $user = new User();
+            $input = request()->all();
 
-			// Tenant-bound users can ony manage users within their tenant
-			if(Auth::user()->isRestrictedToTenant()) {
-				$input['tenant_id'] = Auth::user()->tenant_id;
-			}
+            // Tenant-bound users can ony manage users within their tenant
+            if (Auth::user()->isRestrictedToTenant()) {
+                $input['tenant_id'] = Auth::user()->tenant_id;
+            }
 
-			// UF-bound users can only manage users within their UF
-			if (Auth::user()->isRestrictedToUF()) {
-				$input['uf'] = Auth::user()->uf;
-			}
+            // UF-bound users can only manage users within their UF
+            if (Auth::user()->isRestrictedToUF()) {
+                $input['uf'] = Auth::user()->uf;
+            }
 
-			// These flags are used for validation (eg: non-tenant-bound users do not require a tenant_id, and so on)
-			$isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
-			$isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
+            // These flags are used for validation (eg: non-tenant-bound users do not require a tenant_id, and so on)
+            $isTenantUser = in_array($input['type'] ?? '', User::$TENANT_SCOPED_TYPES);
+            $isUFUser = in_array($input['type'] ?? '', User::$UF_SCOPED_TYPES);
 
-			$validation = $user->validate($input, true, $isTenantUser, $isUFUser);
+            $validation = $user->validate($input, true, $isTenantUser, $isUFUser);
 
-			if($validation->fails()) {
-				return $this->api_validation_failed('validation_failed', $validation);
-			}
+            if ($validation->fails()) {
+                return $this->api_validation_failed('validation_failed', $validation);
+            }
 
-			$email = trim(strtolower($input['email'] ?? ''));
+            $email = trim(strtolower($input['email'] ?? ''));
 
-			if(User::checkIfExists($email)) {
-				return $this->api_failure('email_already_exists');
-			}
+            if (User::checkIfExists($email)) {
+                return $this->api_failure('email_already_exists');
+            }
 
-			// Cache initial password so we can send it as cleartext through e-mail later
-			$initialPassword = $input['password'];
+            // Cache initial password so we can send it as cleartext through e-mail later
+            $initialPassword = $input['password'];
 
-			$input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
+            $input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
 
-			$user->fill($input);
+            $user->fill($input);
 
-			// Block setting a tenant-scope user without a tenant ID set
-			if(!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
-				throw new Exception("tenant_id_inconsistency");
-			}
-			
-			// Check if the resulting user can be created by the current user
-			if(!Auth::user()->canManageUser($user)) {
-				return $this->api_failure('not_enough_permissions');
-			}
+            // Block setting a tenant-scope user without a tenant ID set
+            if (!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
+                throw new Exception("tenant_id_inconsistency");
+            }
 
-			$user->save();
+            // Check if the resulting user can be created by the current user
+            if (!Auth::user()->canManageUser($user)) {
+                return $this->api_failure('not_enough_permissions');
+            }
 
-			// Refresh user UF (used for filtering) (maybe parent tenant changed?)
-			if(!$user->uf && $user->tenant_id) {
-				$user->uf = $user->tenant->uf;
-				$user->save();
-			}
+            $user->save();
 
-			if($user->tenant) {
-				Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
-			} else if($isUFUser) {
-				Mail::to($user->email)->send(new StateUserRegistered($user->uf, $user, $initialPassword));
-			}
+            // Refresh user UF (used for filtering) (maybe parent tenant changed?)
+            if (!$user->uf && $user->tenant_id) {
+                $user->uf = $user->tenant->uf;
+                $user->save();
+            }
 
-			return response()->json(['status' => 'ok', 'id' => $user->id]);
+            if ($user->tenant) {
+                Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
+            } else if ($isUFUser) {
+                Mail::to($user->email)->send(new StateUserRegistered($user->uf, $user, $initialPassword));
+            }
 
-		} catch (\Exception $ex) {
-			return $this->api_exception($ex);
-		}
-	}
+            return response()->json(['status' => 'ok', 'id' => $user->id]);
 
-	public function destroy(User $user) {
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+    }
 
-		if(!Auth::user()->canManageUser($user)) {
-			return $this->api_failure('not_enough_permissions');
-		}
+    public function destroy(User $user)
+    {
 
-		try {
-			$user->delete(); // Soft-deletes internally
-		} catch (\Exception $ex) {
-			return $this->api_exception($ex);
-		}
-	}
+        if (!Auth::user()->canManageUser($user)) {
+            return $this->api_failure('not_enough_permissions');
+        }
 
-	public function restore($user_id) {
-		try {
-			$user = User::withTrashed()->findOrFail($user_id);
+        if ($this->checkphases($user)) {
+            return response()->json($this->checkphases($user));
+        }
 
-			if(User::checkIfExists($user->email)) {
-				return $this->api_failure('email_already_exists');
-			}
+        try {
+            $user->delete(); // Soft-deletes internally
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+    }
 
-			if(!Auth::user()->canManageUser($user)) {
-				return $this->api_failure('not_enough_permissions');
-			}
+    private function checkphases($user)
+    {
+        $checkPhases = new \stdClass();
+        $checkPhases->pesquisa = Pesquisa::checkIfExistsUserWithCasesInOpem($user->id);
+        $checkPhases->analise_tecnica = AnaliseTecnica::checkIfExistsUserWithCasesInOpem($user->id);
+        $checkPhases->gestao_caso = GestaoDoCaso::checkIfExistsUserWithCasesInOpem($user->id);
+        $checkPhases->rematricula = Rematricula::checkIfExistsUserWithCasesInOpem($user->id);
+        $checkPhases->observacao = Observacao::checkIfExistsUserWithCasesInOpem($user->id);
+        foreach ($checkPhases as $phase) {
+            if ($phase->casos > 0) {
+                $checkPhases->have_data = true;
+                return $checkPhases;
+            }
+        }
+        return false;
+    }
 
-			$user->restore();
-		} catch (\Exception $ex) {
-			return $this->api_exception($ex);
-		}
-	}
+    public function restore($user_id)
+    {
+        try {
+            $user = User::withTrashed()->findOrFail($user_id);
+
+            if (User::checkIfExists($user->email)) {
+                return $this->api_failure('email_already_exists');
+            }
+
+            if (!Auth::user()->canManageUser($user)) {
+                return $this->api_failure('not_enough_permissions');
+            }
+
+            $user->restore();
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+    }
 
 	public function reports(){
         $reports = \Storage::allFiles('attachments/users_reports');

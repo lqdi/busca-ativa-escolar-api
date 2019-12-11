@@ -8,4 +8,5 @@ Homestead.yaml
 .buildpath
 .project
 .settings/
+.DS_Store
 getAllBranches.sh
