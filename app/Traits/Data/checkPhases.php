@@ -23,12 +23,12 @@ trait checkPhases
     public static function checkIfExistsUserWithCasesInOpem($userId)
     {
         $query = self::whereHas('child', function ($query) {
-            $query->where('child_status', '<>', 'cancelled');
+            $query->where('current_step_type', '<>', 'BuscaAtivaEscolar\CaseSteps\Alerta')
+                ->where('child_status', '<>', 'cancelled')
+                ->where('child_status', '<>', 'in_school');
         })->where('assigned_user_id', '=', $userId)
             ->where('is_completed', '=', 0)
             ->count('id');
-
-
         $result = new \stdClass();
         if ($query > 0) {
             $result->casos = $query;
