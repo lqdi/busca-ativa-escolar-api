@@ -40,7 +40,8 @@ class Kernel extends ConsoleKernel
         Commands\RemoveDuplicatedChildsWithoutAlerts::class,
         Commands\ExportErrorsCasesDisabled::class,
         Commands\FixErrorsCasesDisabled::class,
-        Commands\TransferNisToAlert::class
+        Commands\TransferNisToAlert::class,
+        Commands\FixMapLocationChild::class
     ];
 
     /**
