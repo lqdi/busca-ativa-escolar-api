@@ -18,6 +18,7 @@ use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
 use Log;
 
@@ -26,35 +27,35 @@ class FixMapLocationChild extends Command
 
     protected $signature = 'maintenance:fix_map_location_child';
     protected $description = 'Set Geo Location in Children';
+    private $chunk = 500;
 
     public function handle()
     {
 
-        Pesquisa::chunk(500, function ($children) {
+        Pesquisa::chunk($this->chunk, function ($children) {
             $today = Carbon::today();
             foreach ($children as $child) {
-                if ($child->place_address && $child->place_city_name && $child->place_uf) {
+                $childObj = Child::where('id', $child->child_id)->first();
+                if (($child->place_address && $child->place_city_name && $child->place_uf) && !$childObj->place_map_geocoded_address) {
                     try {
-                        $address = $child->updateCoordinatesThroughGeocoding("{$child->place_address},{$child->place_city_name},{$child->place_uf}");
-                        $child->update([
+                        $address = $childObj->updateCoordinatesThroughGeocoding("{$child->place_address},{$child->place_city_name},{$child->place_uf}");
+                        $childObj->update([
                             'place_lat' => ($address) ? $address->getLatitude() : null,
                             'place_lng' => ($address) ? $address->getLongitude() : null,
                             'place_map_region' => ($address) ? $address->getSubLocality() : null,
                             'place_map_geocoded_address' => ($address) ? $address->toArray() : null,
                         ]);
-
                     } catch (\Exception $ex) {
                         //Log::debug("[pesquisa.on_update.geocode_addr] ({$this->id}) Failed to geocode address: {$ex->getMessage()}");
                     }
                     Log::info('success update location children_id: ' . $child->id);
-                    $this->comment("Processing: {$child->id}: \t Etapa: {} days \t {} \t {} -> {}");
+                    $this->comment("putting location in: {$child->id}");
                 } else {
                     Log::error('fail set location children_id: ' . $child->id);
-
-                    $this->comment("Endereço incompleto: {$child->id}: \t Etapa: {} days \t {} \t {} -> {}");
+                    $this->comment("Imcomplete address: {$child->id}");
                 }
             }
-            $this->comment("Finalizando grupo de 500 casos");
+            $this->comment("Grupo de {$this->chunk} finalizado");
         });
     }
 }
