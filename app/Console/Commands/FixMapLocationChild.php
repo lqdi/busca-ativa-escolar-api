@@ -31,28 +31,27 @@ class FixMapLocationChild extends Command
 
     public function handle()
     {
-
-        Pesquisa::chunk($this->chunk, function ($children) {
+        Pesquisa::chunk($this->chunk, function ($pesquisas) {
             $today = Carbon::today();
-            foreach ($children as $child) {
-                $childObj = Child::where('id', $child->child_id)->first();
-                if (($child->place_address && $child->place_city_name && $child->place_uf) && !$childObj->place_map_geocoded_address) {
+            foreach ($pesquisas as $pesquisa) {
+                $childObj = Child::where('id', $pesquisa->child_id)->first();
+                if (($pesquisa->place_address && $pesquisa->place_city_name && $pesquisa->place_uf) && !$childObj->map_geocoded_address) {
                     try {
-                        $address = $childObj->updateCoordinatesThroughGeocoding("{$child->place_address},{$child->place_city_name},{$child->place_uf}");
-                        $childObj->update([
+                        $address = $childObj->updateCoordinatesThroughGeocoding("{$pesquisa->place_address},{$pesquisa->place_city_name},{$pesquisa->place_uf}");
+                        $pesquisa->update([
                             'place_lat' => ($address) ? $address->getLatitude() : null,
                             'place_lng' => ($address) ? $address->getLongitude() : null,
                             'place_map_region' => ($address) ? $address->getSubLocality() : null,
                             'place_map_geocoded_address' => ($address) ? $address->toArray() : null,
                         ]);
                     } catch (\Exception $ex) {
-                        //Log::debug("[pesquisa.on_update.geocode_addr] ({$this->id}) Failed to geocode address: {$ex->getMessage()}");
+                        Log::debug("[pesquisa.on_update.geocode_addr] ({$childObj->id}) Failed to geocode address: {$ex->getMessage()}");
                     }
-                    Log::info('success update location children_id: ' . $child->id);
-                    $this->comment("putting location in: {$child->id}");
+                    Log::info('success update location children_id: ' . $childObj->id);
+                    $this->comment("putting location in: {$childObj->id}");
                 } else {
-                    Log::error('fail set location children_id: ' . $child->id);
-                    $this->comment("Imcomplete address: {$child->id}");
+                    Log::error('fail set location children_id: ' . $childObj->id);
+                    $this->comment("Incomplete address or location already used: {$childObj->id}");
                 }
             }
             $this->comment("Grupo de {$this->chunk} finalizado");
