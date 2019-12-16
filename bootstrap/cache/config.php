@@ -67,17 +67,17 @@
       'sqlite' => 
       array (
         'driver' => 'sqlite',
-        'database' => 'base12122019',
+        'database' => 'busca_ativa_escolar_test',
         'prefix' => '',
       ),
       'mysql' => 
       array (
         'driver' => 'mysql',
-        'host' => '172.17.0.2',
+        'host' => '',
         'port' => '3306',
-        'database' => 'base12122019',
-        'username' => 'root',
-        'password' => '123',
+        'database' => 'busca_ativa_escolar_test',
+        'username' => 'homestead',
+        'password' => 'secret',
         'charset' => 'utf8',
         'collation' => 'utf8_unicode_ci',
         'prefix' => '',
@@ -87,11 +87,11 @@
       'pgsql' => 
       array (
         'driver' => 'pgsql',
-        'host' => '172.17.0.2',
+        'host' => '',
         'port' => '3306',
-        'database' => 'base12122019',
-        'username' => 'root',
-        'password' => '123',
+        'database' => 'busca_ativa_escolar_test',
+        'username' => 'homestead',
+        'password' => 'secret',
         'charset' => 'utf8',
         'prefix' => '',
         'schema' => 'public',
