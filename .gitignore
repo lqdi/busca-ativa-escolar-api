@@ -1,6 +1,5 @@
 /node_modules
 /public/storage
-/bootstrap/cache
 /vendor
 /.idea
 Homestead.json
