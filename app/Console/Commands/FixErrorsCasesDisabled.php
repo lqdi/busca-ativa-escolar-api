@@ -37,8 +37,10 @@ class FixErrorsCasesDisabled extends Command
     /**
      * Execute the console command.
      *
-     * Esse comando solicita o ID do tenant do município onde o usuário deseja buscar perfis que estejam desativados e seus respectivos
-     * casos. Após solicitar o ID o sistema exibirá um array de crianças com casos bloqueados e a aurizaçao para edicao dos responsáveis.
+     * Comando armazena todos os IDs dos usuários que pertencem a tenants e estão desabilitados.
+     * De posse desse array, o método busca todos as criancas que possuem casos.
+     * O método foreach percorre essas criancas e para aquelas que possuem responsável igual a um desabilitado
+     * é atribuído o primeiro coordenador registrado.
      *
      * @return mixed
      */
@@ -48,9 +50,7 @@ class FixErrorsCasesDisabled extends Command
         $this->comment('Localizando casos bloqueados devido a exclusão de usuário...');
         $this->comment('------------------------------------------------');$this->comment('');
 
-        $tenantId = $this->ask("Informe o ID do tenant: ");
-
-        $disabledUsersWithTenantsArray = User::onlyTrashed()->has('tenant')->select('id', 'tenant_id')->where('tenant_id', '=', $tenantId)->get()->toArray();
+        $disabledUsersWithTenantsArray = User::onlyTrashed()->has('tenant')->select('id', 'tenant_id')->get()->toArray();
 
         $disabledTenantsInUsers = array_map(function ($d){
             return $d["tenant_id"];
@@ -67,7 +67,7 @@ class FixErrorsCasesDisabled extends Command
             ->where('child_status', '<>', 'cancelled')
             ->get();
 
-        $this->comment('Casos bloqueados no município:');
+        $this->comment('Casos bloqueados:');
 
         foreach ($children as $child) {
 
@@ -86,53 +86,24 @@ class FixErrorsCasesDisabled extends Command
                     'DATA DE DESATIVACAO' => $assigned->deleted_at
                 ];
 
-                var_dump($childFinal);
+                $coordinator = $this->returnLastCoordintor($child->tenant_id);
+
+                if( $coordinator != null){
+                    $child->currentStep->assignToUser($coordinator);
+                    $this->comment($childFinal['MUNICIPIO']." / ".$childFinal['UF']." ".$childFinal['CRIANCA/ ADOLESCENTE']. " atribuída a ".$coordinator->name);
+                }else{
+                    $this->comment($childFinal['MUNICIPIO']." / ".$childFinal['UF']." ".$childFinal['CRIANCA/ ADOLESCENTE']. " sem coordenador ativo.");
+                }
 
                 self::$number_of_cases++;
             }
         }
 
 
-        $this->comment('Foram encontrados '.self::$number_of_cases.' bloqueados devido a exclusao de usuários. Estes são os coordenadores ativos no município:');
+        $this->comment('Foram encontrados '.self::$number_of_cases.' bloqueados devido a exclusao de usuários.');
         $this->comment('------------------------------------------------'); $this->comment("");
 
-        var_dump($this->returnActualCoordintors($tenantId));
 
-        $this->comment('');
-        $this->comment('------------------------------------------------');
-
-        $whantChangeResponsable = $this->ask("Deseja fazer a substituição dos responsáveis por um dos nomes informados acima? 0 -> Não | 1 -> Sim");
-
-
-        if ( $whantChangeResponsable == 1) {
-
-            foreach ($children as $child) {
-
-                if( in_array($child->currentStep->assigned_user_id, $disabledUsers) ){
-
-                    $this->comment("Caso encontrado: ");
-
-                    $childFinal = [
-                        'UF' => $child->tenant->uf,
-                        'MUNICIPIO' => $child->tenant->city->name,
-                        'CRIANCA/ ADOLESCENTE' => $child->name,
-                        'MAE' => $child->mother_name,
-                    ];
-
-                    var_dump($childFinal['UF']." - ".$childFinal["MUNICIPIO"]." - ".$childFinal["CRIANCA/ ADOLESCENTE"]." - MAE: ".$childFinal["MAE"]);
-
-                    $idArrayUser = $this->ask("Informe o ID do array do novo responsável: ");
-
-                    $newUser = User::where('id', $this->returnActualCoordintors($tenantId)[$idArrayUser]['id'])->first();
-
-                    $child->currentStep->assignToUser($newUser);
-
-                    $this->comment("Coordenador ".$newUser->name." atribuído ao caso da crianca/ adolescente ".$childFinal['CRIANCA/ ADOLESCENTE']);
-
-                }
-            }
-
-        }
 
 
         $this->comment('Finalizado');
@@ -145,17 +116,7 @@ class FixErrorsCasesDisabled extends Command
         return User::where('id', '=', $id)->withTrashed()->first();
     }
 
-    public function returnActualCoordintors($tenantId){
-        $coordinators = User::where('tenant_id', $tenantId)->where('type', 'coordenador_operacional')->select('id', 'uf', 'work_city_name', 'name', 'email')->get()->toArray();
-        $coordinatorsArray = array_map(function ($c){
-            return [
-                'id' => $c['id'],
-                'uf' => $c['uf'],
-                'city' => $c['work_city_name'],
-                'name' => $c['name'],
-                'email' => $c['email']
-            ];
-        }, $coordinators);
-        return $coordinatorsArray;
+    public function returnLastCoordintor($tenantId){
+        return User::where('tenant_id', $tenantId)->where('type', 'coordenador_operacional')->withoutTrashed()->orderBy('created_at', 'ASC')->first();
     }
 }
