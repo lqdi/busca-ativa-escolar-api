@@ -52,6 +52,11 @@ class ChildExportResultsTransformer extends TransformerAbstract {
 
 			'Data Criado' => isset($document['_source']['created_at']) ? Carbon::createFromTimestamp(strtotime($document['_source']['created_at']))->toIso8601String() : null,
 			'Data Atualizado' => isset($document['_source']['updated_at']) ? Carbon::createFromTimestamp(strtotime($document['_source']['updated_at']))->toIso8601String() : null,
+
+            'Endereco' => $document['_source']['place_address'] ?? '',
+            'Bairro' => $document['_source']['place_neighborhood'] ?? '',
+            'Referencia' => $document['_source']['place_reference'] ?? '',
+            'CEP' => $document['_source']['place_cep'] ?? '',
 		];
 	}
 
