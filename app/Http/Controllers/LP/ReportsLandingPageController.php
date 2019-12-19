@@ -141,6 +141,27 @@ class ReportsLandingPageController extends BaseController
                             )
                             ->count(),
 
+                    '_in_school' =>
+
+                        \DB::table('children')
+                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->where(
+                                [
+                                    ['case_steps_alerta.place_uf', $uf],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.child_status', 'in_school'],
+                                    ['children.alert_status', 'accepted']
+                                ]
+                            )
+                            ->orWhere(
+                                [
+                                    ['case_steps_alerta.place_uf', $uf],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.child_status', 'out_of_school'],
+                                    ['children.alert_status', 'accepted']
+                                ]
+                            )
+                            ->count(),
                     '_in_progress' =>
 
                         \DB::table('children')
@@ -149,7 +170,49 @@ class ReportsLandingPageController extends BaseController
                                 [
                                     ['case_steps_alerta.place_uf', $uf],
                                     ['case_steps_alerta.alert_status', 'accepted'],
-                                    ['children.child_status', 'in_observation'],
+                                    ['children.child_status', 'in_progress'],
+                                    ['children.alert_status', 'accepted']
+                                ]
+                            )
+                            ->orWhere(
+                                [
+                                    ['case_steps_alerta.place_uf', $uf],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.child_status', 'out_of_school'],
+                                    ['children.alert_status', 'accepted']
+                                ]
+                            )
+                            ->count(),
+                    '_cancelled' =>
+
+                        \DB::table('children')
+                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->where(
+                                [
+                                    ['case_steps_alerta.place_uf', $uf],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.child_status', 'cancelled'],
+                                    ['children.alert_status', 'accepted']
+                                ]
+                            )
+                            ->orWhere(
+                                [
+                                    ['case_steps_alerta.place_uf', $uf],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.child_status', 'out_of_school'],
+                                    ['children.alert_status', 'accepted']
+                                ]
+                            )
+                            ->count(),
+                    '_interrupted' =>
+
+                        \DB::table('children')
+                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->where(
+                                [
+                                    ['case_steps_alerta.place_uf', $uf],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.child_status', 'interrupted'],
                                     ['children.alert_status', 'accepted']
                                 ]
                             )
