@@ -20,8 +20,6 @@ class WorkActivity extends StaticObject {
 		1 => ['id' => 1, 'slug' => 'servico_domestico', 'label' => "Serviço doméstico"],
 		2 => ['id' => 2, 'slug' => 'negocio_familiar', 'label' => "Negócio familiar"],
 		3 => ['id' => 3, 'slug' => 'other', 'label' => "Outra atividade"],
-        4 => ['id' => 4, 'slug' => 'no_info', 'label' => "Sem informação"],
-
     ];
 
 	protected static $indexes = [
@@ -29,7 +27,6 @@ class WorkActivity extends StaticObject {
 			'servico_domestico' => 1,
 			'negocio_familiar' => 2,
 			'other' => 3,
-			'no_info' => 4,
 		]
 	];
 

@@ -16,6 +16,10 @@ class ReportsBar extends BaseController
 
     public function city_bar(){
 
+        if ( $this->currentUser()->tenant == null ){
+            return response()->json([]);
+        }
+
         try {
 
             $report = [
