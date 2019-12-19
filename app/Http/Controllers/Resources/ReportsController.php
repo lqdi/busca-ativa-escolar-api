@@ -657,6 +657,7 @@ class ReportsController extends BaseController
                                 ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                                 ->where('case_steps_alerta.tenant_id', '=', $tenant->id)
                                 ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                                ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                                 ->count(),
 
                         'Rejeitados' =>
@@ -665,6 +666,7 @@ class ReportsController extends BaseController
                                 ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                                 ->where('case_steps_alerta.tenant_id', '=', $tenant->id)
                                 ->where('children.alert_status', '=', Child::ALERT_STATUS_REJECTED)
+                                ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_REJECTED)
                                 ->count(),
 
                         'Pendentes' =>
@@ -672,6 +674,7 @@ class ReportsController extends BaseController
                                 ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                                 ->where('case_steps_alerta.tenant_id', '=', $tenant->id)
                                 ->where('children.alert_status', '=', Child::ALERT_STATUS_PENDING)
+                                ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_PENDING)
                                 ->count(),
 
                         'Pesquisa' =>
