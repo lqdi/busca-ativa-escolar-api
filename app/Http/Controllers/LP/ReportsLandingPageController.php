@@ -152,16 +152,7 @@ class ReportsLandingPageController extends BaseController
                                     ['children.child_status', 'in_school'],
                                     ['children.alert_status', 'accepted']
                                 ]
-                            )
-                            ->orWhere(
-                                [
-                                    ['case_steps_alerta.place_uf', $uf],
-                                    ['case_steps_alerta.alert_status', 'accepted'],
-                                    ['children.child_status', 'out_of_school'],
-                                    ['children.alert_status', 'accepted']
-                                ]
-                            )
-                            ->count(),
+                            )->count(),
                     '_in_progress' =>
 
                         \DB::table('children')
@@ -173,16 +164,7 @@ class ReportsLandingPageController extends BaseController
                                     ['children.child_status', 'in_progress'],
                                     ['children.alert_status', 'accepted']
                                 ]
-                            )
-                            ->orWhere(
-                                [
-                                    ['case_steps_alerta.place_uf', $uf],
-                                    ['case_steps_alerta.alert_status', 'accepted'],
-                                    ['children.child_status', 'out_of_school'],
-                                    ['children.alert_status', 'accepted']
-                                ]
-                            )
-                            ->count(),
+                            )->count(),
                     '_cancelled' =>
 
                         \DB::table('children')
@@ -194,16 +176,7 @@ class ReportsLandingPageController extends BaseController
                                     ['children.child_status', 'cancelled'],
                                     ['children.alert_status', 'accepted']
                                 ]
-                            )
-                            ->orWhere(
-                                [
-                                    ['case_steps_alerta.place_uf', $uf],
-                                    ['case_steps_alerta.alert_status', 'accepted'],
-                                    ['children.child_status', 'out_of_school'],
-                                    ['children.alert_status', 'accepted']
-                                ]
-                            )
-                            ->count(),
+                            )->count(),
                     '_interrupted' =>
 
                         \DB::table('children')
@@ -215,16 +188,7 @@ class ReportsLandingPageController extends BaseController
                                     ['children.child_status', 'interrupted'],
                                     ['children.alert_status', 'accepted']
                                 ]
-                            )
-                            ->orWhere(
-                                [
-                                    ['case_steps_alerta.place_uf', $uf],
-                                    ['case_steps_alerta.alert_status', 'accepted'],
-                                    ['children.child_status', 'out_of_school'],
-                                    ['children.alert_status', 'accepted']
-                                ]
-                            )
-                            ->count(),
+                            )->count(),
                 ],
 
                 'causes' => $causes
