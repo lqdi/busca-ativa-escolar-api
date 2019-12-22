@@ -29,6 +29,7 @@ use BuscaAtivaEscolar\Data\WorkActivity;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\IBGE\Region;
 use BuscaAtivaEscolar\IBGE\UF;
+use BuscaAtivaEscolar\Jobs\ProcessReportSeloJob;
 use BuscaAtivaEscolar\Reports\Reports;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
@@ -616,6 +617,15 @@ class ReportsController extends BaseController
     }
 
     public function createSeloReport(){
+
+        dispatch((new ProcessReportSeloJob())->onQueue('export_users'));
+        return response()->json(
+            [
+                'msg' => 'Arquivo criado',
+                'date' => Carbon::now()->timestamp
+            ],
+            200
+        );
 
     }
 
