@@ -162,7 +162,7 @@ class ProcessReportSeloJob implements ShouldQueue
                                     'alert_status' => Child::ALERT_STATUS_ACCEPTED,
                                     'child_status' => Child::STATUS_IN_SCHOOL
                                 ])->count(),
-                        'CeA na Escola' => '=SUM(O2:R2)',
+                        'CeA na Escola' => '=SUM(P2:S2)',
                         '% Atingimento da Meta' => '',
                     ]
                 );
