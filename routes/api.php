@@ -153,6 +153,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/reports/state_stats', 'Resources\ReportsController@state_stats');
 		Route::get('/reports/exported/{filename}', 'Resources\ReportsController@download_exported')->name('api.reports.download_exported')->middleware('can:reports.view');
 
+        Route::get('/reports/selo', 'Resources\ReportsController@getSeloReports')->middleware('can:cities.selo_reports');
+		Route::get('/reports/selo/download', 'Resources\ReportsController@getSeloReport')->middleware('can:cities.selo_reports');
+        Route::post('/reports/selo/create', 'Resources\ReportsController@createSeloReport')->middleware('can:cities.selo_reports');
+
 		//Reports Bar
         Route::get('/reports/city_bar', 'Bar\ReportsBar@city_bar');
 
