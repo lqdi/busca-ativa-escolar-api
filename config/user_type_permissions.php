@@ -42,6 +42,7 @@ return [
 		'ufs.view',
 		'ufs.manage',
 		'ufs.contact_info',
+        'cities.selo_reports'
 	],
 
 	BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL => [

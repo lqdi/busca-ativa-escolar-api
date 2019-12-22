@@ -615,4 +615,33 @@ class ReportsController extends BaseController
 
     }
 
+    public function createSeloReport(){
+
+    }
+
+    public function getSeloReports(){
+        $reports = \Storage::allFiles('attachments/selo_reports');
+        $finalReports = array_map( function ($file){
+            return [
+                'file' => str_replace("attachments/selo_reports/", "", $file),
+                'size' => \Storage::size($file),
+                'last_modification' => \Storage::lastModified($file)
+            ];
+        }, $reports);
+        return response()->json(['status' => 'ok', 'data' => $finalReports]);
+    }
+
+    public function getSeloReport(){
+        $nameFile = request('file');
+        if ( !isset($nameFile) ) {
+            return response()->json(['error' => 'Not authorized.'],403);
+        }
+        $exists = \Storage::exists("attachments/selo_reports/".$nameFile);
+        if ( $exists ){
+            return response()->download(storage_path("app/attachments/selo_reports/".$nameFile));
+        }else{
+            return response()->json(['error' => 'Arquivo inexistente.'],403);
+        }
+    }
+
 }
