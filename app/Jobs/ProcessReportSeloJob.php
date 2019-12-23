@@ -31,6 +31,45 @@ class ProcessReportSeloJob implements ShouldQueue
             $tenant = Tenant::where('is_registered', true)->where('city_id', $city->id)->first();
 
             if( $tenant != null ){
+
+                $obs1 =
+                    DB::table('children')
+                        ->join('case_steps_observacao','children.current_step_id', '=', 'case_steps_observacao.id')
+                        ->join('children_cases','children.id', '=', 'children_cases.child_id')
+                        ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                        ->where('children.tenant_id', '=', $tenant->id)
+                        ->where('children_cases.case_status', '=', 'in_progress')
+                        ->where('case_steps_observacao.step_index', '=', 60)
+                        ->count();
+                $obs2 =
+                    DB::table('children')
+                        ->join('case_steps_observacao','children.current_step_id', '=', 'case_steps_observacao.id')
+                        ->join('children_cases','children.id', '=', 'children_cases.child_id')
+                        ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                        ->where('children.tenant_id', '=', $tenant->id)
+                        ->where('children_cases.case_status', '=', 'in_progress')
+                        ->where('case_steps_observacao.step_index', '=', 70)
+                        ->count();
+                $obs3 =
+                    DB::table('children')
+                        ->join('case_steps_observacao','children.current_step_id', '=', 'case_steps_observacao.id')
+                        ->join('children_cases','children.id', '=', 'children_cases.child_id')
+                        ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                        ->where('children.tenant_id', '=', $tenant->id)
+                        ->where('children_cases.case_status', '=', 'in_progress')
+                        ->where('case_steps_observacao.step_index', '=', 80)
+                        ->count();
+                $obs4 =
+                    DB::table('children')
+                        ->join('case_steps_observacao','children.current_step_id', '=', 'case_steps_observacao.id')
+                        ->join('children_cases','children.id', '=', 'children_cases.child_id')
+                        ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                        ->where('children.tenant_id', '=', $tenant->id)
+                        ->where('children_cases.case_status', '=', 'in_progress')
+                        ->where('case_steps_observacao.step_index', '=', 90)
+                        ->count();
+                $goal = $tenant->city->goal->goal;
+
                 array_push(
                     $cities,
                     [
@@ -41,7 +80,9 @@ class ProcessReportSeloJob implements ShouldQueue
                         'UF' => $city->uf,
                         'Município' => $city->name,
                         'Não Localizados (2017, INEP/MEC)' => '',
-                        'Meta (20%)' => '',
+
+                        'Meta (20%)' => $goal,
+
                         'Aprovados' =>
                             DB::table('children')
                                 ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
@@ -49,6 +90,7 @@ class ProcessReportSeloJob implements ShouldQueue
                                 ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                                 ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                                 ->count(),
+
                         'Rejeitados' =>
                             DB::table('children')
                                 ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
@@ -99,42 +141,12 @@ class ProcessReportSeloJob implements ShouldQueue
                                     'alert_status' => Child::ALERT_STATUS_ACCEPTED,
                                     'current_step_type' => "BuscaAtivaEscolar\CaseSteps\Rematricula"
                                 ])->count(),
-                        'OBS 1' =>
-                            DB::table('children')
-                                ->join('case_steps_observacao','children.current_step_id', '=', 'case_steps_observacao.id')
-                                ->join('children_cases','children.id', '=', 'children_cases.child_id')
-                                ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
-                                ->where('children.tenant_id', '=', $tenant->id)
-                                ->where('children_cases.case_status', '=', 'in_progress')
-                                ->where('case_steps_observacao.step_index', '=', 60)
-                                ->count(),
-                        'OBS 2' =>
-                            DB::table('children')
-                                ->join('case_steps_observacao','children.current_step_id', '=', 'case_steps_observacao.id')
-                                ->join('children_cases','children.id', '=', 'children_cases.child_id')
-                                ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
-                                ->where('children.tenant_id', '=', $tenant->id)
-                                ->where('children_cases.case_status', '=', 'in_progress')
-                                ->where('case_steps_observacao.step_index', '=', 70)
-                                ->count(),
-                        'OBS 3' =>
-                            DB::table('children')
-                                ->join('case_steps_observacao','children.current_step_id', '=', 'case_steps_observacao.id')
-                                ->join('children_cases','children.id', '=', 'children_cases.child_id')
-                                ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
-                                ->where('children.tenant_id', '=', $tenant->id)
-                                ->where('children_cases.case_status', '=', 'in_progress')
-                                ->where('case_steps_observacao.step_index', '=', 80)
-                                ->count(),
-                        'OBS 4' =>
-                            DB::table('children')
-                                ->join('case_steps_observacao','children.current_step_id', '=', 'case_steps_observacao.id')
-                                ->join('children_cases','children.id', '=', 'children_cases.child_id')
-                                ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
-                                ->where('children.tenant_id', '=', $tenant->id)
-                                ->where('children_cases.case_status', '=', 'in_progress')
-                                ->where('case_steps_observacao.step_index', '=', 90)
-                                ->count(),
+
+                        'OBS 1' => $obs1,
+                        'OBS 2' => $obs2,
+                        'OBS 3' => $obs3,
+                        'OBS 4' => $obs4,
+
                         'Interrompidos' =>
                             Child::whereHas('cases', function ($query){
                                 $query->where(['case_status'=> 'interrupted']);
@@ -163,7 +175,7 @@ class ProcessReportSeloJob implements ShouldQueue
                                     'child_status' => Child::STATUS_IN_SCHOOL
                                 ])->count(),
                         'CeA na Escola' => '=SUM(P2:S2)',
-                        '% Atingimento da Meta' => '',
+                        '% Atingimento da Meta' => (($obs1+$obs2+$obs3+$obs4)*100)/$goal
                     ]
                 );
             }else{
