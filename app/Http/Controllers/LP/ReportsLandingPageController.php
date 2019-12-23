@@ -296,15 +296,21 @@ class ReportsLandingPageController extends BaseController
 
                         \DB::table('case_steps_alerta')
                             ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->join('children_cases', 'children_cases.child_id', '=', 'case_steps_alerta.child_id')
+
                             ->where(
                                 [
                                     ['case_steps_alerta.tenant_id', $tenantId],
-                                    ['children.child_status', 'in_observation']
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.alert_status', 'accepted'],
+                                    ['children.child_status', 'in_observation'],
                                 ]
                             )
                             ->orWhere(
                                 [
                                     ['case_steps_alerta.tenant_id', $tenantId],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.alert_status', 'accepted'],
                                     ['children.child_status', 'in_school']
                                 ]
                             )
@@ -319,19 +325,54 @@ class ReportsLandingPageController extends BaseController
                                 [
                                     ['case_steps_alerta.tenant_id', $tenantId],
                                     ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.alert_status', 'accepted'],
                                     ['children_cases.case_status', 'in_progress'],
-                                    ['children.alert_status', 'accepted']
+                                    ['children.child_status', 'out_of_school']
                                 ]
-                            )
-                            ->orWhere(
+                            )->count(),
+                    '_cancelled' =>
+
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->join('children_cases', 'children_cases.child_id', '=', 'children.id')
+                            ->where(
                                 [
                                     ['case_steps_alerta.tenant_id', $tenantId],
                                     ['case_steps_alerta.alert_status', 'accepted'],
-                                    ['children.child_status', 'out_of_school'],
-                                    ['children.alert_status', 'accepted']
+                                    ['children.alert_status', 'accepted'],
+                                    ['children.child_status', 'cancelled'],
+                                    ['children_cases.case_status', 'cancelled']
                                 ]
-                            )
-                            ->count(),
+                            )->count(),
+
+                    '_in_school' =>
+
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->join('children_cases', 'children_cases.child_id', '=', 'case_steps_alerta.child_id')
+                            ->where(
+                                [
+                                    ['case_steps_alerta.tenant_id', $tenantId],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.alert_status', 'accepted'],
+                                    ['children.child_status', 'in_school'],
+                                    ['children_cases.case_status', 'completed']
+                                ]
+                            )->count(),
+                    '_interrupted' =>
+
+                        \DB::table('children')
+                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->join('children_cases', 'children_cases.child_id', '=', 'case_steps_alerta.child_id')
+                            ->where(
+                                [
+                                    ['case_steps_alerta.tenant_id', $tenantId],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.alert_status', 'accepted'],
+                                    ['children.child_status', 'out_of_school'],
+                                    ['children_cases.case_status', 'interrupted']
+                                ]
+                            )->count(),
                 ],
 
                 'causes' => $causes,
