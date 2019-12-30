@@ -48,6 +48,7 @@ class DisplayPrimaryGroupsUnrelatedWithAllAlerts extends Command
             90 => 'Falta de infraestrutura escolar',
             100 => 'Falta de transporte escolar',
             110 => 'Gravidez na adolescência',
+            111 => 'Infrequência escolar reportada pela gestão escolar ou pela rede de ensino"',
             120 => 'Preconceito ou discriminação racial',
             130 => 'Trabalho infantil',
             140 => 'Uso, abuso ou dependência de substâncias psicoativas',
