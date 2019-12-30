@@ -33,6 +33,7 @@ class TenantSettings extends SerializableObject {
 		90 =>  'medium', // Falta de infraestrutura escolar
 		100 =>  'low', // Falta de transporte escolar
 		110 =>  'medium', // Gravidez na adolescência
+		111 =>  'medium', // Gravidez na adolescência
 		120 =>  'high', // Preconceito ou discriminação racial
 		130 =>  'high', // Trabalho infantil
 		140 =>  'high', // Uso, abuso ou dependência de substâncias psicoativas
