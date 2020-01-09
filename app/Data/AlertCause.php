@@ -18,7 +18,6 @@ class AlertCause extends StaticObject  {
 	const ID_EDUCACENSO = 500;
 
 	protected static $data = [
-//		10 => ['id' => 10, 'sms_index' => 1, 'slug' => 'adolescente_em_conflito_com_a_lei', 'label' => "Adolescente em conflito com a lei", "case_cause_ids" => [10]], exemplo
 		10 => ['id' => 10, 'sms_index' => 1, 'slug' => 'adolescente_em_conflito_com_a_lei', 'label' => "Adolescente em conflito com a lei"],
 		20 => ['id' => 20, 'sms_index' => 2, 'slug' => 'crianca_com_deficiencia', 'label' => "Criança ou adolescente com deficiência(s)"],
 		30 => ['id' => 30, 'sms_index' => 3, 'slug' => 'crianca_com_doencas', 'label' => "Criança ou adolescente com doença(s) que impeça(m) ou dificulte(m) a frequência à escola"],
@@ -31,14 +30,16 @@ class AlertCause extends StaticObject  {
 		90 => ['id' => 90, 'sms_index' => 9, 'slug' => 'falta_infraestrutura', 'label' => "Falta de infraestrutura escolar"],
 		100 => ['id' => 100, 'sms_index' => 10, 'slug' => 'falta_transporte', 'label' => "Falta de transporte escolar"],
 		110 => ['id' => 110, 'sms_index' => 11, 'slug' => 'gravidez_adolescencia', 'label' => "Gravidez na adolescência"],
-		120 => ['id' => 120, 'sms_index' => 12, 'slug' => 'preconceito_racial', 'label' => "Preconceito ou discriminação racial"],
+		111 => ['id' => 111, 'sms_index' => 20, 'slug' => 'infrequencia_escolar', 'label' => "Infrequência escolar reportada pela gestão escolar ou pela rede de ensino"],
+        120 => ['id' => 120, 'sms_index' => 12, 'slug' => 'preconceito_racial', 'label' => "Preconceito ou discriminação racial"],
 		130 => ['id' => 130, 'sms_index' => 13, 'slug' => 'trabalho_infantil', 'label' => "Trabalho infantil", "case_cause_ids" => [130]],
 		140 => ['id' => 140, 'sms_index' => 14, 'slug' => 'uso_substancias', 'label' => "Uso, abuso ou dependência de substâncias psicoativas"],
 		150 => ['id' => 150, 'sms_index' => 15, 'slug' => 'violencia_familiar', 'label' => "Violência familiar"],
 		160 => ['id' => 160, 'sms_index' => 16, 'slug' => 'violencia_escolar', 'label' => "Violência na escola"],
 		170 => ['id' => 170, 'sms_index' => 18, 'slug' => 'mudanca_endereco', 'label' => "Mudança de domicílio, viagem ou deslocamentos frequentes"],
 		180 => ['id' => 180, 'sms_index' => 19, 'slug' => 'violencia_territorio', 'label' => "Violência no território"],
-		500 => ['id' => 500, 'sms_index' => null, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", "case_cause_ids" => [500], 'hidden' => true, 'blocked' => true],
+
+        500 => ['id' => 500, 'sms_index' => null, 'slug' => 'educacenso_inep', 'label' => "Evasão reportada pelo Educacenso/INEP", "case_cause_ids" => [500], 'hidden' => true, 'blocked' => true],
         600 => ['id' => 600, 'sms_index' => null, 'slug' => 'xls_import', 'label' => "Evasão e/ou infrequência reportada pela escola ou município", "case_cause_ids" => [600], 'hidden' => true, 'blocked' => true],
     ];
 

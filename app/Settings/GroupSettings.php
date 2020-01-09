@@ -32,6 +32,7 @@ class GroupSettings extends SerializableObject {
 		90 =>  true, // Falta de infraestrutura escolar
 		100 =>  true, // Falta de transporte escolar
 		110 =>  true, // Gravidez na adolescência
+		111 =>  true, // Gravidez na adolescência
 		120 =>  true, // Preconceito ou discriminação racial
 		130 =>  true, // Trabalho infantil
 		140 =>  true, // Uso, abuso ou dependência de substâncias psicoativas
