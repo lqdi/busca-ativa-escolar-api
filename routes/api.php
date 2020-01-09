@@ -46,6 +46,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		// Users
 		Route::post('/users/search', 'Resources\UsersController@search')->middleware('can:users.view');
 		Route::get('/users/export', 'Resources\UsersController@export')->middleware('can:users.export');
+        Route::get('/users/reports', 'Resources\UsersController@reports')->middleware('can:users.reports');
+        Route::get('/users/reports/download', 'Resources\UsersController@getReport')->middleware('can:users.reports');
+        Route::post('/users/reports/create', 'Resources\UsersController@createReport')->middleware('can:users.reports');
 		Route::get('/users/myself', 'Auth\IdentityController@identity');
 		Route::group(['middleware' => 'can:users.manage'], function() {
 			Route::post('/users/{user_id}/restore', 'Resources\UsersController@restore');
@@ -97,6 +100,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/steps/{step_type}/{step_id}', 'Resources\StepsController@update')->middleware('can:cases.manage');
 		Route::get('/steps/{step_type}/{step_id}', 'Resources\StepsController@show')->middleware('can:cases.view');
 
+        //Maintenance into system
+		Route::post('/maintenance/{user_id}', 'Resources\MaintenanceController@assignForAdminUser')->middleware('can:cases.manage');
+
 		// Tenant Sign-ups
 		Route::any('/signups/tenants/pending', 'Tenants\TenantSignupController@get_pending');
 		Route::any('/signups/tenants/export', 'Tenants\TenantSignupController@export_signups')->middleware('can:tenants.export_signups');
@@ -146,6 +152,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/reports/country_stats', 'Resources\ReportsController@country_stats');
 		Route::get('/reports/state_stats', 'Resources\ReportsController@state_stats');
 		Route::get('/reports/exported/{filename}', 'Resources\ReportsController@download_exported')->name('api.reports.download_exported')->middleware('can:reports.view');
+
+        Route::get('/reports/selo', 'Resources\ReportsController@getSeloReports')->middleware('can:cities.selo_reports');
+		Route::get('/reports/selo/download', 'Resources\ReportsController@getSeloReport')->middleware('can:cities.selo_reports');
+        Route::post('/reports/selo/create', 'Resources\ReportsController@createSeloReport')->middleware('can:cities.selo_reports');
 
 		//Reports Bar
         Route::get('/reports/city_bar', 'Bar\ReportsBar@city_bar');

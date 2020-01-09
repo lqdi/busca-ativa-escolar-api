@@ -17,7 +17,7 @@ class ReportsBar extends BaseController
     public function city_bar(){
 
         if ( $this->currentUser()->tenant == null ){
-            return response()->json([]);
+            return response()->json(['status' => 'no_tenant']);
         }
 
         try {
