@@ -68,6 +68,17 @@ class ProcessReportSeloJob implements ShouldQueue
                         ->where('children_cases.case_status', '=', 'in_progress')
                         ->where('case_steps_observacao.step_index', '=', 90)
                         ->count();
+
+                $concluidos =
+                    Child::whereHas('cases', function ($query){
+                        $query->where(['case_status'=> 'completed']);
+                        })->where(
+                        [
+                            'tenant_id' => $tenant->id,
+                            'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                            'child_status' => Child::STATUS_IN_SCHOOL
+                        ])->count();
+
                 $goal = $tenant->city->goal->goal;
 
                 array_push(
@@ -165,17 +176,11 @@ class ProcessReportSeloJob implements ShouldQueue
                                     'alert_status' => Child::ALERT_STATUS_ACCEPTED,
                                     'child_status' => Child::STATUS_CANCELLED
                                 ])->count(),
-                        'Concluídos' =>
-                            Child::whereHas('cases', function ($query){
-                                $query->where(['case_status'=> 'completed']);
-                            })->where(
-                                [
-                                    'tenant_id' => $tenant->id,
-                                    'alert_status' => Child::ALERT_STATUS_ACCEPTED,
-                                    'child_status' => Child::STATUS_IN_SCHOOL
-                                ])->count(),
-                        'CeA na Escola' => $obs1+$obs2+$obs3+$obs4,
-                        '% Atingimento da Meta' => (($obs1+$obs2+$obs3+$obs4)*100)/$goal
+
+                        'Concluídos' => $concluidos,
+
+                        'CeA na Escola' => $obs1+$obs2+$obs3+$obs4+$concluidos,
+                        '% Atingimento da Meta' => (($obs1+$obs2+$obs3+$obs4+$concluidos)*100)/$goal
                     ]
                 );
             }else{
