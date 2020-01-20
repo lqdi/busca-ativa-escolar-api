@@ -30,7 +30,7 @@ class ProcessReportSeloJob implements ShouldQueue
 
         foreach ($cities_with_goal as $city) {
 
-            $tenant = Tenant::where('is_registered', true)->where('city_id', $city->id)->withTrashed()->first();
+            $tenant = Tenant::where('is_registered', true)->where('city_id', $city->id)->first();
 
             $tenant_signup = TenantSignup::where('city_id', $city->id)->first();
 
