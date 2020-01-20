@@ -178,7 +178,8 @@ class TenantSignup extends Model {
             'Endereço IP' => $this->ip_addr,
 			'Navegador' => $this->user_agent ? Utils::renderUserAgent($this->user_agent) : null,
 			'Instância - ID' => $this->tenant_id ?? null,
-			'Instância - Nome' => $this->tenant->name ?? null
+			'Instância - Nome' => $this->tenant->name ?? null,
+			'Código - IBGE' => $this->tenant->city->ibge_city_id ?? null
 		];
 	}
 
