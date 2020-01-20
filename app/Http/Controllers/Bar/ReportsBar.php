@@ -72,28 +72,28 @@ class ReportsBar extends BaseController
                 'alert_box' => [
 
                     'alerts_created' =>
-                        DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where('children.tenant_id', '=', $this->currentUser()->tenant->id)
                             ->count(),
 
                     'alerts_accepted' =>
-                        DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
                             ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                             ->count(),
 
                     'alerts_pending' =>
-                        DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
                             ->where('children.alert_status', '=', Child::ALERT_STATUS_PENDING)
                             ->count(),
 
                     'alerts_rejected' =>
-                        DB::table('children')
-                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where('case_steps_alerta.tenant_id', '=', $this->currentUser()->tenant->id)
                             ->where('children.alert_status', '=', Child::ALERT_STATUS_REJECTED)
                             ->count(),
