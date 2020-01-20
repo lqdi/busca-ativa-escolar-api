@@ -4,7 +4,9 @@ namespace BuscaAtivaEscolar\Jobs;
 
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\City;
+use BuscaAtivaEscolar\Goal;
 use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\TenantSignup;
 use Carbon\Carbon;
 use DB;
 use Excel;
@@ -28,9 +30,28 @@ class ProcessReportSeloJob implements ShouldQueue
 
         foreach ($cities_with_goal as $city) {
 
-            $tenant = Tenant::where('is_registered', true)->where('city_id', $city->id)->first();
+            $tenant = Tenant::where('is_registered', true)->where('city_id', $city->id)->withTrashed()->first();
 
-            if( $tenant != null ){
+            $tenant_signup = TenantSignup::where('city_id', $city->id)->first();
+
+            if( $tenant != null ) {
+
+                $adesao = 'Sim';
+
+            }else{
+
+                if( $tenant_signup != null ){
+                    $adesao = 'Sim';
+
+                }else{
+                    $adesao = 'Não';
+                }
+            }
+
+            $status = $this->renderStatusTenant($adesao, $tenant_signup, $tenant);
+
+
+            if( $tenant != null AND $tenant->deleted_at == null ){
 
                 $obs1 =
                     DB::table('children')
@@ -70,6 +91,7 @@ class ProcessReportSeloJob implements ShouldQueue
                         ->count();
 
                 $concluidos =
+
                     Child::whereHas('cases', function ($query){
                         $query->where(['case_status'=> 'completed']);
                         })->where(
@@ -79,20 +101,25 @@ class ProcessReportSeloJob implements ShouldQueue
                             'child_status' => Child::STATUS_IN_SCHOOL
                         ])->count();
 
-                $goal = $tenant->city->goal->goal;
 
                 array_push(
                     $cities,
                     [
-                        'Adesão' => 'Sim',
+                        'Adesão' => $adesao,
+
                         'Código IBGE 7 Dígitos' => $city->ibge_city_id,
-                        'Código IBGE 6 Dígitos' => '',
-                        'Código DevInfo' => '',
+
                         'UF' => $city->uf,
+
                         'Município' => $city->name,
+
+                        'Status na plataforma' => $status,
+
+                        'Último acesso' => $tenant->last_active_at->format('d/m/Y'),
+
                         'Não Localizados (2017, INEP/MEC)' => '',
 
-                        'Meta (20%)' => $goal,
+                        'Meta (20%)' => $city->goal->goal,
 
                         'Aprovados' =>
                             DB::table('children')
@@ -180,21 +207,25 @@ class ProcessReportSeloJob implements ShouldQueue
                         'Concluídos' => $concluidos,
 
                         'CeA na Escola' => $obs1+$obs2+$obs3+$obs4+$concluidos,
-                        '% Atingimento da Meta' => (($obs1+$obs2+$obs3+$obs4+$concluidos)*100)/$goal
+                        '% Atingimento da Meta' => (($obs1+$obs2+$obs3+$obs4+$concluidos)*100)/$city->goal->goal,
+
+                        'ID-CIDADE' => $city->id
                     ]
                 );
             }else{
                 array_push(
                     $cities,
                     [
-                        'Adesão' => 'Não',
+                        'Adesão' => $adesao,
                         'Código IBGE 7 Dígitos' => $city->ibge_city_id,
-                        'Código IBGE 6 Dígitos' => '',
-                        'Código DevInfo' => '',
                         'UF' => $city->uf,
                         'Município' => $city->name,
+
+                        'Status na plataforma' => $status,
+                        'Último acesso' => '',
+
                         'Não Localizados (2017, INEP/MEC)' => '',
-                        'Meta (20%)' => '',
+                        'Meta (20%)' => $city->goal->goal,
                         'Aprovados' => '',
                         'Rejeitados' => '',
                         'Pendentes' => '',
@@ -227,4 +258,25 @@ class ProcessReportSeloJob implements ShouldQueue
 
     }
 
+    public function renderStatusTenant($adesao, $tenant_signup, $tenant) {
+
+        if($adesao == "Não"){
+            return "";
+        }
+
+        if($tenant == null AND $tenant_signup != null){
+
+            if(!$tenant_signup->judged_by) return 'pendente';
+            if(!$tenant_signup->is_approved) return 'rejeitado';
+            if(!$tenant_signup->is_provisioned) return 'aguardando configuração';
+
+        }
+
+        if($tenant != null){
+            if($tenant->deleted_at != null) { return 'desativado'; }
+            if($tenant->last_active_at->diffInDays(Carbon::now()) >= 30 ) { return 'inativo'; }
+            if($tenant->last_active_at->diffInDays(Carbon::now()) < 30 ) { return 'ativo'; }
+        }
+
+    }
 }
