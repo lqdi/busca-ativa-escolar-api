@@ -161,6 +161,7 @@ class SchoolsController extends BaseController
                 $query_childCase->where('current_step_type', '=', 'BuscaAtivaEscolar\CaseSteps\Alerta');
             })
             ->where('tenant_id', $tenant_id)
+            ->whereNotNull('school_last_id')
             ->groupBy('school_last_id')
             ->pluck('school_last_id')
             ->toArray();

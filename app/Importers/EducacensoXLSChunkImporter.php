@@ -48,7 +48,7 @@ class EducacensoXLSChunkImporter
     /**
      * @var int The year of Educacenso
      */
-    public $educacenso_year = 2018;
+    public $educacenso_year = 2019;
 
     /**
      * Handles the importing of Educacenso's XLS
