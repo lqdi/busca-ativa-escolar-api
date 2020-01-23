@@ -277,6 +277,19 @@ class ChildCase extends Model  {
 
 		return false;
 	}
+    public function reopen($reason = "") {
+	    var_dump();
+//        $this->case_status = self::STATUS_CANCELLED;
+//        $this->cancel_reason = $reason;
+//        $this->save();
+//
+//        $this->child->setStatus(Child::STATUS_CANCELLED);
+//
+//        event(new ChildCaseCancelled($this->child, $this, $reason));
+//        event(new ChildCaseClosed($this->child, $this));
+
+        return true;
+    }
 
 	/**
 	 * Closes the case due to an interruption (i.e. another evasion by the child).
