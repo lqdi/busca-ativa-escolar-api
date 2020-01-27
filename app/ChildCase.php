@@ -297,41 +297,41 @@ class ChildCase extends Model
         $this->cancel_reason = $reason;
         $this->save();
         $this->child->setStatus(Child::STATUS_INTERRUPTED);
-
-        $tenant = \BuscaAtivaEscolar\Tenant::where('id', $this->tenant_id)->first();
-//        $tenant = \BuscaAtivaEscolar\Child::where('id', $this->tenant_id)->first();
-
-
-        $data‌‌ = $this->getAttributes();
-
         $child = $this->child->getAttributes();
+        $currentUser = \Auth::user();
 
-        $alert = $this->getAlertById();
+        $alert = \BuscaAtivaEscolar\AlertCase::where('child_id', $child['id'])->first();
+        $placeCity = \BuscaAtivaEscolar\City::where('id', $alert['place_city_id'])->first();
 
-//        $alert = \BuscaAtivaEscolar\ChildCase::where('child_id', $child['id'])->first();
+        $alertData = $alert->getAttributes();
 
+        unset($alertData['id']);
 
-//        $child[]['alert_cause_id'] = (int)$this->child->getAttributes()['alert_cause_id'];
-        $alert = new AlertsController();
+        $alertData['place_city'] = $placeCity->getAttributes();
 
-//        Child::spawnFromAlertData($tenant, null, $child);
+        $data = new \stdClass();
+        $data->name = $alertData['name'];
+        $data->place_address = $alertData['place_address'];
+        $data->place_uf = $alertData['place_uf'];
+        $data->place_city = $placeCity->getAttributes();
+        $data->alert_cause_id = $alertData['alert_cause_id'];
+        $data->dob = $alertData['dob'];
+        $data->mother_name = $alertData['mother_name'];
+        $data->place_negighborhood = $alertData['place_neighborhood'];
+        $data->place_city_id = $alertData['place_city_id'];
+        $data->place_city_name = $alertData['place_city_name'];
+        $data = (array)$data;
+        $objChild = Child::spawnFromAlertData($currentUser->tenant, $currentUser->id, $data);
 
+        $objChild->alert_status = 'accepted';
+        $objChild->alert->alert_status = 'accepted';
 
-//        $alert->accept($child);
-
-//        event(new ChildCaseCancelled($this->child, $this, $reason));
-//        event(new ChildCaseClosed($this->child, $this));
+        event(new ChildCaseCancelled($this->child, $this, $reason));
+        event(new ChildCaseClosed($this->child, $this));
 
         return false;
     }
 
-    /**
-     *
-     */
-    private function getAlertById()
-    {
-        return Child::whereHas('alertCase')->first();
-    }
 
     /**
      * Closes the case due to an interruption (i.e. another evasion by the child).
