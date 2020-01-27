@@ -703,4 +703,22 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             ->where('alert_status', self::ALERT_STATUS_ACCEPTED)
             ->get();
     }
+
+    /**
+     * Gets all children of the actual child
+     * @return \Illuminate\Database\Eloquent\Collection|static[]
+     */
+    public function getChild()
+    {
+        return $this->hasOne('BuscaAtivaEscolar\Child', 'father_id');
+    }
+
+    /**
+     * Gets the parent of actual child
+     * @return \BuscaAtivaEscolar\Child
+     */
+    public function getParent()
+    {
+        return $this->belongsTo('BuscaAtivaEscolar\Child', 'father_id');
+    }
 }
