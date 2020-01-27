@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\CaseSteps\Alerta;
+use BuscaAtivaEscolar\AlertCase;
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
@@ -98,6 +99,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     const STATUS_OBSERVATION = "in_observation";
     const STATUS_IN_SCHOOL = "in_school";
     const STATUS_CANCELLED = "cancelled";
+    const STATUS_INTERRUPTED= "interrupted";
 
     const ALERT_STATUS_PENDING = "pending";
     const ALERT_STATUS_ACCEPTED = "accepted";
@@ -182,8 +184,14 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     public function alert()
     {
         // TODO: figure out how to filter this by current case
-        return $this
-            ->hasOne('BuscaAtivaEscolar\CaseSteps\Alerta', 'child_id', 'id');
+        return $this->hasOne('BuscaAtivaEscolar\CaseSteps\Alerta', 'child_id', 'id');
+        //->where('case_id', $this->current_case_id);
+    }
+
+    public function alertCase()
+    {
+        // TODO: figure out how to filter this by current case
+        return $this->hasOne('BuscaAtivaEscolar\CaseSteps\Alerta', 'child_id', 'id');
         //->where('case_id', $this->current_case_id);
     }
 
