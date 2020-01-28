@@ -299,7 +299,20 @@ class ChildCase extends Model
         $this->child->setStatus(Child::STATUS_INTERRUPTED);
         $child = $this->child->getAttributes();
 
-        $pesquisa = $this->child->pesquisa->replicate();
+        $pesquisaArray = $this->child->pesquisa->replicate()->toArray();
+
+        //remove elementos do array e mantém essenciais para atualizacao do novo
+        unset(
+            $pesquisaArray['id'],
+            $pesquisaArray['child_id'],
+            $pesquisaArray['case_id'],
+            $pesquisaArray['is_completed'],
+            $pesquisaArray['assigned_user_id'],
+            $pesquisaArray['assigned_group_id'],
+            $pesquisaArray['is_pending_assignment'],
+            $pesquisaArray['completed_at'],
+            $pesquisaArray['deleted_at']
+        );
 
         $currentUser = \Auth::user();
 
@@ -324,6 +337,10 @@ class ChildCase extends Model
         $data = (array)$data;
 
         $objChild = Child::spawnFromAlertData($currentUser->tenant, $currentUser->id, $data);
+
+        $objChild->pesquisa()->update($pesquisaArray);
+
+        //TODO RELACIONAR OS CASOS!
 
         $newChildObj = Child::where('id', $objChild->id)->first();
 
