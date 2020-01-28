@@ -298,14 +298,15 @@ class ChildCase extends Model
         $this->save();
         $this->child->setStatus(Child::STATUS_INTERRUPTED);
         $child = $this->child->getAttributes();
+
+        $pesquisa = $this->child->pesquisa->replicate();
+
         $currentUser = \Auth::user();
 
         $alert = \BuscaAtivaEscolar\AlertCase::where('child_id', $child['id'])->first();
         $placeCity = \BuscaAtivaEscolar\City::where('id', $alert['place_city_id'])->first();
 
         $alertData = $alert->getAttributes();
-
-        unset($alertData['id']);
 
         $alertData['place_city'] = $placeCity->getAttributes();
 
@@ -321,10 +322,12 @@ class ChildCase extends Model
         $data->place_city_id = $alertData['place_city_id'];
         $data->place_city_name = $alertData['place_city_name'];
         $data = (array)$data;
+
         $objChild = Child::spawnFromAlertData($currentUser->tenant, $currentUser->id, $data);
 
-        $objChild->alert_status = 'accepted';
-        $objChild->alert->alert_status = 'accepted';
+        $newChildObj = Child::where('id', $objChild->id)->first();
+
+        $newChildObj->acceptAlert(['id'=> $objChild->id]);
 
         event(new ChildCaseCancelled($this->child, $this, $reason));
         event(new ChildCaseClosed($this->child, $this));
