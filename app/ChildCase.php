@@ -332,7 +332,7 @@ class ChildCase extends Model
         event(new ChildCaseCancelled($this->child, $this, $reason));
         event(new ChildCaseClosed($this->child, $this));
 
-        return false;
+        return $newChildObj->id;
     }
 
 
