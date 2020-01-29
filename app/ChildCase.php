@@ -309,9 +309,9 @@ class ChildCase extends Model
 
         $objChild = Child::spawnFromAlertData($currentUser->tenant, $currentUser->id, $data);
 
-        //TODO RELACIONAR OS CASOS!
-
         $newChildObj = Child::where('id', $objChild->id)->first();
+
+        $newChildObj->father_id = $child['id'];
 
         $newChildObj->acceptAlert(['id'=> $objChild->id]);
 
