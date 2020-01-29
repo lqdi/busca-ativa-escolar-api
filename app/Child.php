@@ -139,7 +139,9 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
         'map_geocoded_address',
 
         'educacenso_id',
-        'educacenso_year'
+        'educacenso_year',
+
+        'father_id'
     ];
 
     protected $sortable = [
