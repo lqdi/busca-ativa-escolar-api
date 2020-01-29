@@ -187,11 +187,15 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
         return $this->hasOne('BuscaAtivaEscolar\CaseSteps\Alerta', 'child_id', 'id');
         //->where('case_id', $this->current_case_id);
     }
+
+    /**
+     * The pesquisa the current case
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
     public function pesquisa()
     {
         return $this->hasOne('BuscaAtivaEscolar\CaseSteps\Pesquisa', 'child_id', 'id');
     }
-
 
     public function alertCase()
     {
