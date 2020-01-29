@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar;
 
 use BuscaAtivaEscolar\CaseSteps\CaseStep;
 use BuscaAtivaEscolar\AlertCase;
+use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Events\ChildCaseCancelled;
 use BuscaAtivaEscolar\Events\ChildCaseClosed;
 use BuscaAtivaEscolar\Events\ChildCaseCompleted;
@@ -297,54 +298,28 @@ class ChildCase extends Model
         $this->cancel_reason = $reason;
         $this->save();
         $this->child->setStatus(Child::STATUS_INTERRUPTED);
+
         $child = $this->child->getAttributes();
 
-        $pesquisaArray = $this->child->pesquisa->replicate()->toArray();
-
-        //remove elementos do array e mantém essenciais para atualizacao do novo
-        unset(
-            $pesquisaArray['id'],
-            $pesquisaArray['child_id'],
-            $pesquisaArray['case_id'],
-            $pesquisaArray['is_completed'],
-            $pesquisaArray['assigned_user_id'],
-            $pesquisaArray['assigned_group_id'],
-            $pesquisaArray['is_pending_assignment'],
-            $pesquisaArray['completed_at'],
-            $pesquisaArray['deleted_at']
-        );
+        $pesquisaArray = $this->returnPesquisaArray( $this->child->pesquisa->replicate()->toArray() );
 
         $currentUser = \Auth::user();
 
-        $alert = \BuscaAtivaEscolar\AlertCase::where('child_id', $child['id'])->first();
-        $placeCity = \BuscaAtivaEscolar\City::where('id', $alert['place_city_id'])->first();
-
-        $alertData = $alert->getAttributes();
-
-        $alertData['place_city'] = $placeCity->getAttributes();
-
-        $data = new \stdClass();
-        $data->name = $alertData['name'];
-        $data->place_address = $alertData['place_address'];
-        $data->place_uf = $alertData['place_uf'];
-        $data->place_city = $placeCity->getAttributes();
-        $data->alert_cause_id = $alertData['alert_cause_id'];
-        $data->dob = $alertData['dob'];
-        $data->mother_name = $alertData['mother_name'];
-        $data->place_negighborhood = $alertData['place_neighborhood'];
-        $data->place_city_id = $alertData['place_city_id'];
-        $data->place_city_name = $alertData['place_city_name'];
-        $data = (array)$data;
+        $data = $this->returnDataFromChild($child);
 
         $objChild = Child::spawnFromAlertData($currentUser->tenant, $currentUser->id, $data);
-
-        $objChild->pesquisa()->update($pesquisaArray);
 
         //TODO RELACIONAR OS CASOS!
 
         $newChildObj = Child::where('id', $objChild->id)->first();
 
         $newChildObj->acceptAlert(['id'=> $objChild->id]);
+
+        $pesquisaNewChildObj = Pesquisa::where('child_id', $newChildObj->id)->first();
+
+        $pesquisaNewChildObj->fill($pesquisaArray);
+
+        $pesquisaNewChildObj->save();
 
         event(new ChildCaseCancelled($this->child, $this, $reason));
         event(new ChildCaseClosed($this->child, $this));
@@ -438,6 +413,53 @@ class ChildCase extends Model
         $case->save();
 
         return $case;
+    }
+
+    private function returnDataFromChild($child)
+    {
+        $alert = \BuscaAtivaEscolar\AlertCase::where('child_id', $child['id'])->first();
+        $placeCity = \BuscaAtivaEscolar\City::where('id', $alert['place_city_id'])->first();
+
+        $alertData = $alert->getAttributes();
+
+        $alertData['place_city'] = $placeCity->getAttributes();
+
+        $data = new \stdClass();
+        $data->name = $alertData['name'];
+        $data->place_address = $alertData['place_address'];
+        $data->place_uf = $alertData['place_uf'];
+        $data->place_city = $placeCity->getAttributes();
+        $data->alert_cause_id = $alertData['alert_cause_id'];
+        $data->dob = $alertData['dob'];
+        $data->mother_name = $alertData['mother_name'];
+        $data->place_negighborhood = $alertData['place_neighborhood'];
+        $data->place_city_id = $alertData['place_city_id'];
+        $data->place_city_name = $alertData['place_city_name'];
+        $data = (array)$data;
+
+        return $data;
+    }
+
+    private function returnPesquisaArray($toArray)
+    {
+
+        /*
+         * remove elementos do array pesquisa e mantém
+         * essenciais para atualizacao do novo
+         */
+        unset(
+            $toArray['id'],
+            $toArray['child_id'],
+            $toArray['case_id'],
+            $toArray['is_completed'],
+            $toArray['assigned_user_id'],
+            $toArray['assigned_group_id'],
+            $toArray['is_pending_assignment'],
+            $toArray['completed_at'],
+            $toArray['deleted_at']
+        );
+
+        return $toArray;
     }
 
 }
