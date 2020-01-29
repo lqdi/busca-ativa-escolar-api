@@ -25,6 +25,7 @@ class ChildTransformer extends TransformerAbstract {
 		'currentStep',
 		'submitter',
 		'consolidated',
+		'reopenCaseIds',
 	];
 
 	protected $defaultIncludes = [
@@ -67,6 +68,7 @@ class ChildTransformer extends TransformerAbstract {
 
 			'created_at' => $child->created_at ? $child->created_at->toIso8601String() : null,
 			'updated_at' => $child->updated_at ? $child->updated_at->toIso8601String() : null,
+			'reopen_cases_ids' => $child->father_id ? $child->getReopens() : null,
 		];
 	}
 
@@ -97,5 +99,13 @@ class ChildTransformer extends TransformerAbstract {
 			return null;
 		}
 	}
+//    public function includeReopenCases(Child $child) {
+//        try { // TODO: cache this?
+//            $currentStep = $child->submitter;
+//            return $this->item($currentStep, new UserTransformer(), false);
+//        } catch (\Exception $e) {
+//            return null;
+//        }
+//    }
 
 }
