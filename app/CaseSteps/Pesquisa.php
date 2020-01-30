@@ -126,14 +126,20 @@ class Pesquisa extends CaseStep implements CanGenerateForms {
 					->toArray()
 			);
 
-			if(isset($alerta['alert_cause_id'])) {
+			/*
+			 * Desabilitando esse processo
+			 * A funcao aqui é pegar o ID do motivo do alerta para criar o array de motivos prévios
+			 * da Pesquisa. Essa regra foi desabilitada. Cada etapa tem seu motivo.
+			 */
 
-				$caseCauseIDs = AlertCause::getByID(intval($alerta['alert_cause_id']))->case_cause_ids;
-
-				$this->case_cause_ids = $caseCauseIDs;
-				$this->childCase->update(['case_cause_ids' => $caseCauseIDs]);
-
-			}
+//			if(isset($alerta['alert_cause_id'])) {
+//
+//				$caseCauseIDs = AlertCause::getByID(intval($alerta['alert_cause_id']))->case_cause_ids;
+//
+//				$this->case_cause_ids = $caseCauseIDs;
+//				$this->childCase->update(['case_cause_ids' => $caseCauseIDs]);
+//
+//			}
 
 			$this->save();
 		}
