@@ -741,9 +741,13 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
      */
     public function getReopens()
     {
-        $father_id = $this->father_id;
+        $id = $this->father_id;
+        if(empty($id)){
+            $child = Child::where('father_id', $this->id)->first();
+            $id = $child->id;
+        }
         $value = [];
-        $values = $this->searchReopens($father_id, $value);
+        $values = $this->searchReopens($id, $value);
         return $values;
     }
 
@@ -751,7 +755,9 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     {
         if (!empty($id)) {
             $child = Child::where('id', $id)->first();
-            array_push($value, $child->id);
+            $child2 = Child::where('father_id', $id)->first();
+            array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status]);
+            array_push($value, ['id' => $child2->id, 'name' => $child2->name, 'created_at' => $child2->created_at->toIso8601String(), 'child_status' => $child2->child_status]);
             return $this->searchReopens($child->father_id, $value);
         }
         return $value;
