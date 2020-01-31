@@ -741,24 +741,32 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
      */
     public function getReopens()
     {
-        $id = $this->father_id;
-        if(empty($id)){
-            $child = Child::where('father_id', $this->id)->first();
-            $id = $child->id;
-        }
         $value = [];
-        $values = $this->searchReopens($id, $value);
-        return $values;
+        $idForGetFather = $this->father_id;
+        $idForGetSon = $this->id;
+        $sons = $this->getSon($idForGetSon, $value);
+        $fathers = $this->getFather($idForGetFather, $value);
+        return array_merge($fathers, $sons);
     }
 
-    private function searchReopens($id, $value)
+    private function getFather($id, $value)
     {
         if (!empty($id)) {
             $child = Child::where('id', $id)->first();
-            $child2 = Child::where('father_id', $id)->first();
             array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status]);
-            array_push($value, ['id' => $child2->id, 'name' => $child2->name, 'created_at' => $child2->created_at->toIso8601String(), 'child_status' => $child2->child_status]);
-            return $this->searchReopens($child->father_id, $value);
+            return $this->getFather($child->father_id, $value);
+        }
+        return $value;
+    }
+    private function getSon($id, $value)
+    {
+        if (!empty($id)) {
+            $child = Child::where('father_id', $id)->first();
+            if(empty($child)){
+                return $value;
+            }
+            array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status]);
+            return $this->getSon($child->id, $value);
         }
         return $value;
     }
