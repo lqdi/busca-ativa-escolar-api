@@ -295,8 +295,11 @@ class ChildCase extends Model
     public function reopen($reason = "")
     {
         $this->case_status = self::STATUS_INTERRUPTED;
+
         $this->cancel_reason = $reason;
+
         $this->save();
+
         $this->child->setStatus(Child::STATUS_INTERRUPTED);
 
         $child = $this->child->getAttributes();
@@ -325,6 +328,11 @@ class ChildCase extends Model
         event(new ChildCaseClosed($this->child, $this));
 
         return $newChildObj->id;
+    }
+
+    public function requestReopen($reason = "")
+    {
+
     }
 
 
