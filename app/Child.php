@@ -99,7 +99,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     const STATUS_OBSERVATION = "in_observation";
     const STATUS_IN_SCHOOL = "in_school";
     const STATUS_CANCELLED = "cancelled";
-    const STATUS_INTERRUPTED= "interrupted";
+    const STATUS_INTERRUPTED = "interrupted";
 
     const ALERT_STATUS_PENDING = "pending";
     const ALERT_STATUS_ACCEPTED = "accepted";
@@ -198,6 +198,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     {
         return $this->hasOne('BuscaAtivaEscolar\CaseSteps\Pesquisa', 'child_id', 'id');
     }
+
 
     public function alertCase()
     {
@@ -433,7 +434,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
         $address = null;
 
         try {
-            $address = $geocoder->geocode(str_replace(" ","+", $rawAddress))->get()->first();
+            $address = $geocoder->geocode(str_replace(" ", "+", $rawAddress))->get()->first();
             /* @var $address Address */
         } catch (\Exception $ex) {
             return null;
@@ -511,13 +512,13 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             $data['assigned_user_name'] = $assignedUser->name ?? null;
 
             //Check if User Assigned to case is restricted to UF. The property assigned_uf there is only in cases assigned to UF
-            if( $assignedUser !== null) {
+            if ($assignedUser !== null) {
                 if ($assignedUser->isRestrictedToUF()) {
                     $data['assigned_uf'] = $assignedUser->uf ?? null;
                 } else {
                     $data['assigned_uf'] = null;
                 }
-            }else{
+            } else {
                 $data['assigned_uf'] = null;
             }
 
@@ -739,5 +740,40 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     public function getParent()
     {
         return $this->belongsTo('BuscaAtivaEscolar\Child', 'father_id');
+    }
+
+    /**
+     *
+     */
+    public function getReopens()
+    {
+        $value = [];
+        $idForGetFather = $this->father_id;
+        $idForGetSon = $this->id;
+        $sons = $this->getSon($idForGetSon, $value);
+        $fathers = $this->getFather($idForGetFather, $value);
+        return array_merge($fathers, $sons);
+    }
+
+    private function getFather($id, $value)
+    {
+        if (!empty($id)) {
+            $child = Child::where('id', $id)->first();
+            array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status]);
+            return $this->getFather($child->father_id, $value);
+        }
+        return $value;
+    }
+    private function getSon($id, $value)
+    {
+        if (!empty($id)) {
+            $child = Child::where('father_id', $id)->first();
+            if(empty($child)){
+                return $value;
+            }
+            array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status]);
+            return $this->getSon($child->id, $value);
+        }
+        return $value;
     }
 }
