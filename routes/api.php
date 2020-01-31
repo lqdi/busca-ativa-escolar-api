@@ -41,6 +41,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::group(['middleware' => 'can:cases.view'], function() {
 			Route::post('/cases/{case}/cancel', 'Resources\CasesController@cancel');
 			Route::post('/cases/{case}/reopen', 'Resources\CasesController@reopen');
+            Route::post('/cases/{case}/request-reopen', 'Resources\CasesController@request-reopen')->middleware('can:cases.request-reopen');
 			Route::resource('/cases', 'Resources\CasesController');
 		});
 
