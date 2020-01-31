@@ -68,7 +68,7 @@ class ChildTransformer extends TransformerAbstract {
 
 			'created_at' => $child->created_at ? $child->created_at->toIso8601String() : null,
 			'updated_at' => $child->updated_at ? $child->updated_at->toIso8601String() : null,
-			'reopen_cases' => $child->getReopens(),
+			'reopen_cases' => $child->getReopens() ? $child->getReopens() : null,
 		];
 	}
 
