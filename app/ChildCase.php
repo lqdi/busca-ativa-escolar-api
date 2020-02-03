@@ -21,11 +21,13 @@ use BuscaAtivaEscolar\Events\ChildCaseClosed;
 use BuscaAtivaEscolar\Events\ChildCaseCompleted;
 use BuscaAtivaEscolar\Events\ChildCaseInterrupted;
 use BuscaAtivaEscolar\Http\Controllers\Resources\AlertsController;
+use BuscaAtivaEscolar\Mail\ReopenCaseNotification;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * @property int $id
@@ -295,8 +297,11 @@ class ChildCase extends Model
     public function reopen($reason = "")
     {
         $this->case_status = self::STATUS_INTERRUPTED;
+
         $this->cancel_reason = $reason;
+
         $this->save();
+
         $this->child->setStatus(Child::STATUS_INTERRUPTED);
 
         $child = $this->child->getAttributes();
@@ -325,6 +330,63 @@ class ChildCase extends Model
         event(new ChildCaseClosed($this->child, $this));
 
         return $newChildObj->id;
+    }
+
+    public function requestReopen($reason = "")
+    {
+
+        /* @var $tenant Tenant */
+        $tenant = \Auth::user()->tenant;
+
+        /* @var $coodinators Collection */
+        $coodinators = User::where( [
+                ['tenant_id', $tenant->id],
+                ['type', User::TYPE_GESTOR_OPERACIONAL]
+            ])->get();
+
+        if ( $coodinators->count() <= 0 ) {
+            return response()->json(
+                [
+                    'result' => 'Requisição não permitida. Não existem coordenadores ativos no município',
+                    'status' => 'error'
+                ]
+            );
+        }
+
+        try{
+
+            foreach ( $coodinators as $coodinator ) {
+
+                $msg = new ReopenCaseNotification(
+                    $this->child->id,
+                    $this->child->name,
+                    $this->id,
+                    $reason,
+                    $coodinator->name,
+                    \Auth::user()->name
+                );
+
+                Mail::to($coodinator->email)->send($msg);
+
+            }
+
+        }catch (\Exception $exception){
+
+            return response()->json(
+                [
+                    'result' => 'Requisição não permitida. Erro no envio do email.',
+                    'status' => 'error'
+                ]
+            );
+
+        }
+
+        return response()->json(
+            [
+                'result' => 'Requisição realizada com sucesso',
+                'status' => 'success'
+            ]
+        );
     }
 
 

@@ -156,6 +156,7 @@ return [
 		'cases.manage',
 		'cases.cancel',
 		'cases.assign',
+        'cases.request-reopen',
 		'cases.map',
 		'cases.step.alerta',
 		'cases.step.pesquisa',
