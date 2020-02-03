@@ -46,12 +46,13 @@ class ReopenCaseNotification extends Mailable
     {
         $message = (new MailMessage())
             ->success()
-            ->subject("[Busca Ativa Escolar] Reabertura de caso - ".$this->child_name)
             ->line($this->recipient.", ")
             ->line("O usuário ".$this->requester." solicitou sua autorização para reabertura do caso #".$this->child_case_id." - ".$this->child_name)
             ->line("Motivo: ".$this->reason)
             ->line("Para autorizar, clique no botão abaixo.")
             ->action('Autorizar', $this->getUrlToken());
+
+        $this->subject("[Busca Ativa Escolar] Reabertura de caso - ".$this->child_name);
 
         return $this->view('vendor.notifications.email', $message->toArray());
     }
