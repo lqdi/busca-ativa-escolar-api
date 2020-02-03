@@ -70,14 +70,7 @@ class CasesController extends BaseController  {
 
             if (!$reason) return $this->api_failure('reason_required');
 
-            return response()->json(
-
-                [
-
-                    'status' => 'ok'
-                ]
-
-            );
+            return $case->requestReopen($reason);
 
         } catch (\Exception $ex) {
             return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
