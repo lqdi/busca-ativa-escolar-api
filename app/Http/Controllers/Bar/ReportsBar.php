@@ -181,7 +181,7 @@ class ReportsBar extends BaseController
                             [
                                 'tenant_id' => $this->currentUser()->tenant->id,
                                 'deadline_status' => Child::DEADLINE_STATUS_LATE,
-                                'alert_status' => Child::ALERT_STATUS_ACCEPTED
+                                'alert_status' => Child::ALERT_STATUS_ACCEPTED,
                             ])->count(),
 
                     'steps_late' => [
@@ -232,7 +232,8 @@ class ReportsBar extends BaseController
                                     'tenant_id' => $this->currentUser()->tenant->id,
                                     'deadline_status' => Child::DEADLINE_STATUS_LATE,
                                     'alert_status' => Child::ALERT_STATUS_ACCEPTED,
-                                    'current_step_type' => "BuscaAtivaEscolar\CaseSteps\Observacao"
+                                    'current_step_type' => "BuscaAtivaEscolar\CaseSteps\Observacao",
+                                    'child_status' => "in_observation"
                                 ])->count(),
                     ],
 
