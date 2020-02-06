@@ -24,6 +24,7 @@ use BuscaAtivaEscolar\Http\Controllers\Resources\AlertsController;
 use BuscaAtivaEscolar\Mail\ReopenCaseNotification;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -338,48 +339,78 @@ class ChildCase extends Model
         /* @var $tenant Tenant */
         $tenant = \Auth::user()->tenant;
 
-        /* @var $coodinators Collection */
-        $coodinators = User::where( [
-                ['tenant_id', $tenant->id],
-                ['type', User::TYPE_GESTOR_OPERACIONAL]
-            ])->get();
+        /* @var $requesterUser User */
+        $requesterUser = \Auth::user();
 
-        if ( $coodinators->count() <= 0 ) {
-            return response()->json(
-                [
-                    'result' => 'Requisição não permitida. Não existem coordenadores ativos no município',
-                    'status' => 'error'
-                ]
-            );
-        }
+        /* @var $reopeningRequest ReopeningRequests */
+        $reopeningRequest = ReopeningRequests::where('child_id', $this->child->id)->first();
 
-        try{
-
-            foreach ( $coodinators as $coodinator ) {
-
-                $msg = new ReopenCaseNotification(
-                    $this->child->id,
-                    $this->child->name,
-                    $this->id,
-                    $reason,
-                    $coodinator->name,
-                    \Auth::user()->name
+        if( $reopeningRequest != null ){
+            $now = Carbon::now();
+            if( $now->diffInDays( $reopeningRequest->created_at ) < 15 ){
+                return response()->json(
+                    [
+                        'result' => 'O usuário '.$reopeningRequest->requester->name.' já solicitou a reabertura deste caso a menos de 15 dias',
+                        'status' => 'error'
+                    ]
                 );
-
-                Mail::to($coodinator->email)->send($msg);
-
             }
-
-        }catch (\Exception $exception){
-
-            return response()->json(
-                [
-                    'result' => 'Requisição não permitida. Erro no envio do email.',
-                    'status' => 'error'
-                ]
-            );
-
         }
+
+        if( $reopeningRequest == null ){
+            $dataReopeningRequest = [
+                'requester_id' => $requesterUser->id,
+                'recipient_id' => null,
+                'child_id' => $this->child->id,
+                'status' => ReopeningRequests::STATUS_REQUESTED,
+                'interrupt_reason' => $reason
+            ];
+            $reopeningRequest = ReopeningRequests::create($dataReopeningRequest);
+        }
+
+//        /* @var $coodinators Collection */
+//        $coodinators = User::where( [
+//                ['tenant_id', $tenant->id],
+//                ['type', User::TYPE_GESTOR_OPERACIONAL]
+//            ])->get();
+//
+//        if ( $coodinators->count() <= 0 ) {
+//            return response()->json(
+//                [
+//                    'result' => 'Requisição não permitida. Não existem coordenadores ativos no município',
+//                    'status' => 'error'
+//                ]
+//            );
+//        }
+//
+//        try{
+//
+//            foreach ( $coodinators as $coodinator ) {
+//
+//                $msg = new ReopenCaseNotification(
+//                    $this->child->id,
+//                    $this->child->name,
+//                    $this->id,
+//                    $reason,
+//                    $coodinator->name,
+//                    \Auth::user()->name,
+//                    $reopeningRequest->id
+//                );
+//
+//                Mail::to($coodinator->email)->send($msg);
+//
+//            }
+//
+//        } catch (\Exception $exception){
+//
+//            return response()->json(
+//                [
+//                    'result' => 'Requisição não permitida. Erro no envio do email.',
+//                    'status' => 'error'
+//                ]
+//            );
+//
+//        }
 
         return response()->json(
             [
@@ -387,6 +418,7 @@ class ChildCase extends Model
                 'status' => 'success'
             ]
         );
+
     }
 
 

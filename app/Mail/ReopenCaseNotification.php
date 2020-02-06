@@ -16,6 +16,8 @@ class ReopenCaseNotification extends Mailable
     protected $reason;
     protected $recipient;
     protected $requester;
+    protected $reopening_request_id;
+
 
     /**
      * ReopenCaseNotification constructor.
@@ -25,8 +27,9 @@ class ReopenCaseNotification extends Mailable
      * @param $reason
      * @param $recipient
      * @param $requester
+     * @param $reopening_request_id
      */
-    public function __construct($child_id, $child_name, $child_case_id, $reason, $recipient, $requester)
+    public function __construct($child_id, $child_name, $child_case_id, $reason, $recipient, $requester, $reopening_request_id)
     {
         $this->child_id = $child_id;
         $this->child_name = $child_name;
@@ -34,6 +37,7 @@ class ReopenCaseNotification extends Mailable
         $this->reason = $reason;
         $this->recipient = $recipient;
         $this->requester = $requester;
+        $this->reopening_request_id = $reopening_request_id;
     }
 
 
