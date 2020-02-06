@@ -16,7 +16,7 @@ class CreateReopeningRequestsTable extends Migration
         Schema::create('reopening_requests', function (Blueprint $table) {
             $table->uuid('id');
             $table->char('requester_id', 36);
-            $table->char('recipient_id', 36)->nullable();;
+            $table->char('recipient_id', 36)->nullable();
             $table->char('child_id', 36);
             $table->char('status', 50);
             $table->timestamps();

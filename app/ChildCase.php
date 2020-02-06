@@ -309,7 +309,7 @@ class ChildCase extends Model
 
         $this->case_status = self::STATUS_INTERRUPTED;
 
-        $this->cancel_reason = $reason;
+        $this->interrupt_reason = $reason;
 
         $this->save();
 
@@ -336,6 +336,17 @@ class ChildCase extends Model
         $pesquisaNewChildObj->fill($pesquisaArray);
 
         $pesquisaNewChildObj->save();
+
+        /* @var $reopeningRequest ReopeningRequests */
+        $reopeningRequest = ReopeningRequests::where(
+            ['child_id' => $this->child->id],
+            ['status' => ReopeningRequests::STATUS_REQUESTED]
+        )->first();
+
+        if ($reopeningRequest != null){
+            $reopeningRequest->status = ReopeningRequests::STATUS_APPROVED;
+            $reopeningRequest->save();
+        }
 
         event(new ChildCaseCancelled($this->child, $this, $reason));
         event(new ChildCaseClosed($this->child, $this));
@@ -373,20 +384,6 @@ class ChildCase extends Model
             ['status' => ReopeningRequests::STATUS_REQUESTED]
         )->first();
 
-        if( $reopeningRequest == null ){
-
-            $dataReopeningRequest = [
-                'requester_id' => $requesterUser->id,
-                'recipient_id' => null,
-                'child_id' => $this->child->id,
-                'status' => ReopeningRequests::STATUS_REQUESTED,
-                'interrupt_reason' => $reason
-            ];
-
-            $reopeningRequest = ReopeningRequests::create($dataReopeningRequest);
-
-        }
-
         if( $reopeningRequest != null ){
 
             $now = Carbon::now();
@@ -412,6 +409,20 @@ class ChildCase extends Model
                 $reopeningRequest->save();
 
             }
+
+        }
+
+        if( $reopeningRequest == null ){
+
+            $dataReopeningRequest = [
+                'requester_id' => $requesterUser->id,
+                'recipient_id' => null,
+                'child_id' => $this->child->id,
+                'status' => ReopeningRequests::STATUS_REQUESTED,
+                'interrupt_reason' => $reason
+            ];
+
+            $reopeningRequest = ReopeningRequests::create($dataReopeningRequest);
 
         }
 

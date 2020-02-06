@@ -14,7 +14,7 @@ class AddFieldInterruptReasonToReopeningRequests extends Migration
     public function up()
     {
         Schema::table('reopening_requests', function($table) {
-            $table->string('interrupt_reason')->after('status');
+            $table->string('interrupt_reason')->after('status')->nullable();
         });
     }
 
