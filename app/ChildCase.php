@@ -297,6 +297,16 @@ class ChildCase extends Model
 
     public function reopen($reason = "")
     {
+
+        if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
+            return response()->json(
+                [
+                    'result' => 'O caso selecionado já está interrompido',
+                    'status' => 'error'
+                ]
+            );
+        }
+
         $this->case_status = self::STATUS_INTERRUPTED;
 
         $this->cancel_reason = $reason;
@@ -330,11 +340,26 @@ class ChildCase extends Model
         event(new ChildCaseCancelled($this->child, $this, $reason));
         event(new ChildCaseClosed($this->child, $this));
 
-        return $newChildObj->id;
+        return response()->json(
+            [
+                'status' => 'success',
+                'child_id'=> $newChildObj->id,
+                'result' => 'Reabertura realizada com sucesso'
+            ]
+        );
     }
 
     public function requestReopen($reason = "")
     {
+
+        if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
+            return response()->json(
+                [
+                    'result' => 'O caso selecionado já está interrompido',
+                    'status' => 'error'
+                ]
+            );
+        }
 
         /* @var $tenant Tenant */
         $tenant = \Auth::user()->tenant;
@@ -343,21 +368,13 @@ class ChildCase extends Model
         $requesterUser = \Auth::user();
 
         /* @var $reopeningRequest ReopeningRequests */
-        $reopeningRequest = ReopeningRequests::where('child_id', $this->child->id)->first();
-
-        if( $reopeningRequest != null ){
-            $now = Carbon::now();
-            if( $now->diffInDays( $reopeningRequest->created_at ) < 15 ){
-                return response()->json(
-                    [
-                        'result' => 'O usuário '.$reopeningRequest->requester->name.' já solicitou a reabertura deste caso a menos de 15 dias',
-                        'status' => 'error'
-                    ]
-                );
-            }
-        }
+        $reopeningRequest = ReopeningRequests::where(
+            ['child_id' => $this->child->id],
+            ['status' => ReopeningRequests::STATUS_REQUESTED]
+        )->first();
 
         if( $reopeningRequest == null ){
+
             $dataReopeningRequest = [
                 'requester_id' => $requesterUser->id,
                 'recipient_id' => null,
@@ -365,52 +382,82 @@ class ChildCase extends Model
                 'status' => ReopeningRequests::STATUS_REQUESTED,
                 'interrupt_reason' => $reason
             ];
+
             $reopeningRequest = ReopeningRequests::create($dataReopeningRequest);
+
         }
 
-//        /* @var $coodinators Collection */
-//        $coodinators = User::where( [
-//                ['tenant_id', $tenant->id],
-//                ['type', User::TYPE_GESTOR_OPERACIONAL]
-//            ])->get();
-//
-//        if ( $coodinators->count() <= 0 ) {
-//            return response()->json(
-//                [
-//                    'result' => 'Requisição não permitida. Não existem coordenadores ativos no município',
-//                    'status' => 'error'
-//                ]
-//            );
-//        }
-//
-//        try{
-//
-//            foreach ( $coodinators as $coodinator ) {
-//
-//                $msg = new ReopenCaseNotification(
-//                    $this->child->id,
-//                    $this->child->name,
-//                    $this->id,
-//                    $reason,
-//                    $coodinator->name,
-//                    \Auth::user()->name,
-//                    $reopeningRequest->id
-//                );
-//
-//                Mail::to($coodinator->email)->send($msg);
-//
-//            }
-//
-//        } catch (\Exception $exception){
-//
-//            return response()->json(
-//                [
-//                    'result' => 'Requisição não permitida. Erro no envio do email.',
-//                    'status' => 'error'
-//                ]
-//            );
-//
-//        }
+        if( $reopeningRequest != null ){
+
+            $now = Carbon::now();
+
+            if( $now->diffInDays( $reopeningRequest->updated_at ) <= 15 ){
+
+                return response()->json(
+                    [
+                        'result' => 'O usuário '.$reopeningRequest->requester->name.' já solicitou a reabertura deste caso a menos de 15 dias',
+                        'status' => 'error'
+                    ]
+                );
+
+            }else{
+
+                $dataReopeningRequest = [
+                    'requester_id' => $requesterUser->id,
+                    'interrupt_reason' => $reason
+                ];
+
+                $reopeningRequest->fill($dataReopeningRequest);
+
+                $reopeningRequest->save();
+
+            }
+
+        }
+
+        /* @var $coordinators Collection */
+        $coordinators = User::where( [
+                ['tenant_id', $tenant->id],
+                ['type', User::TYPE_GESTOR_OPERACIONAL]
+            ])->get();
+
+        if ( $coordinators->count() <= 0 ) {
+            return response()->json(
+                [
+                    'result' => 'Requisição não permitida. Não existem coordenadores ativos no município',
+                    'status' => 'error'
+                ]
+            );
+        }
+
+        try{
+
+            foreach ( $coordinators as $coordinator ) {
+
+                $msg = new ReopenCaseNotification(
+                    $this->child->id,
+                    $this->child->name,
+                    $this->id,
+                    $reason,
+                    $coordinator->name,
+                    \Auth::user()->name,
+                    $reopeningRequest->id
+                );
+
+                Mail::to($coordinator->email)->send($msg);
+
+            }
+
+        } catch (\Exception $exception){
+
+            return response()->json(
+                [
+                    'result' => 'Requisição não permitida. Erro no envio do email',
+                    'status' => 'error'
+                ]
+            );
+
+        }
 
         return response()->json(
             [
