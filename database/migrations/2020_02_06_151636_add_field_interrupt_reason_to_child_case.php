@@ -14,7 +14,7 @@ class AddFieldInterruptReasonToChildCase extends Migration
     public function up()
     {
         Schema::table('children_cases', function($table) {
-            $table->string('interrupt_reason')->after('cancel_reason');
+            $table->string('interrupt_reason')->after('cancel_reason')->nullable();
         });
     }
 
