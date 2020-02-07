@@ -366,7 +366,7 @@ class ChildCase extends Model
         if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
             return response()->json(
                 [
-                    'result' => 'O caso selecionado já está interrompido',
+                    'result' => 'O caso selecionado já foi reaberto',
                     'status' => 'error'
                 ]
             );
