@@ -62,7 +62,7 @@ class ReopenCaseNotification extends Mailable
     }
 
     private function getUrlToken (){
-        return env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated?reason=".$this->reason;
+        return env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated?id_request=".$this->child_case_id;
     }
 
 }
