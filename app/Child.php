@@ -752,28 +752,42 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
         $idForGetSon = $this->id;
         $sons = $this->getSon($idForGetSon, $value);
         $fathers = $this->getFather($idForGetFather, $value);
-        return array_merge($fathers, $sons);
+        return array_merge($fathers, $sons);;
     }
 
     private function getFather($id, $value)
     {
         if (!empty($id)) {
             $child = Child::where('id', $id)->first();
-            array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status]);
+            array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status, 'reason' => $this->getReason($child->id)]);
             return $this->getFather($child->father_id, $value);
         }
         return $value;
     }
+
     private function getSon($id, $value)
     {
         if (!empty($id)) {
             $child = Child::where('father_id', $id)->first();
-            if(empty($child)){
+            if (empty($child)) {
                 return $value;
             }
             array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status]);
             return $this->getSon($child->id, $value);
         }
         return $value;
+    }
+
+    private function getReason($childId)
+    {
+       $case = ChildCase::where('child_id', $childId)->first();
+       if($case->interrupt_reason == 'request'){
+           /* @var $reopeningRequest ReopeningRequests */
+           $reopeningRequest = ReopeningRequests::where(
+               ['child_id' => $childId]
+           )->first();
+           $case->interrupt_reason = $reopeningRequest->interrupt_reason;
+       }
+       return $case->interrupt_reason;
     }
 }
