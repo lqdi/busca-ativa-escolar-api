@@ -16,6 +16,7 @@ use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
+use Config;
 use Excel;
 use Log;
 
@@ -70,6 +71,7 @@ class EducacensoXLSChunkImporter
         Log::info("[educacenso_import] Tenant {$this->tenant->name}, file {$this->file}");
         Log::info("[educacenso_import] Loading spreadsheet data into memory ...");
 
+        Config::set('excel.import.startRow', 1);
         Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
             1000,
             function ($results) {
