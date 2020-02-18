@@ -41,7 +41,8 @@ class Kernel extends ConsoleKernel
         Commands\ExportErrorsCasesDisabled::class,
         Commands\FixErrorsCasesDisabled::class,
         Commands\TransferNisToAlert::class,
-        Commands\FixMapLocationChild::class
+        Commands\FixMapLocationChild::class,
+        Commands\fixNameChildPesquisa::class
     ];
 
     /**
