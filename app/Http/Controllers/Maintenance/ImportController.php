@@ -20,9 +20,11 @@ use BuscaAtivaEscolar\ImportJob;
 class ImportController extends BaseController {
 
 	public function index() {
-		$jobs = ImportJob::all(ImportJob::PUBLIC_FIELDS);
+        $page = request('page');
+        $per_page = request('per_page');
+		$jobs = ImportJob::with('tenant')->orderBy('created_at','DESC')->paginate(intval($per_page), ['*'], 'page', intval($page));
 
-		return response()->json(['data' => $jobs]);
+		return $jobs;
 	}
 
 	public function upload_file() {
