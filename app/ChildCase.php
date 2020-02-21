@@ -485,7 +485,7 @@ class ChildCase extends Model
 
     }
 
-    public function transfer($reason = "", $child_id, $tenant_recipient_id, $city_id){
+    public function requestTransfer($reason = "", $case_id, $tenant_recipient_id, $city_id){
 
         if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
             return response()->json(
@@ -507,7 +507,7 @@ class ChildCase extends Model
 
         /* @var $reopeningRequest ReopeningRequests */
         $reopeningRequest = ReopeningRequests::where(
-            ['child_id' => $child_id],
+            ['child_id' => $this->child->id],
             ['status' => ReopeningRequests::STATUS_REQUESTED],
             ['type_request' => ReopeningRequests::TYPE_REQUEST_TRANSFER]
         )->first();
@@ -545,7 +545,7 @@ class ChildCase extends Model
             $dataReopeningRequest = [
                 'requester_id' => $requesterUser->id,
                 'recipient_id' => null,
-                'child_id' => $child_id,
+                'child_id' => $this->child->id,
                 'status' => ReopeningRequests::STATUS_REQUESTED,
                 'interrupt_reason' => $reason,
                 'type_request' => ReopeningRequests::TYPE_REQUEST_TRANSFER,
@@ -560,7 +560,7 @@ class ChildCase extends Model
         //Coordenadores do município a ser reportado
         /* @var $coordinators Collection */
         $coordinators = User::where( [
-            ['tenant_id', $tenant_recipient_id],
+            ['tenant_id', $tenant->id],
             ['type', User::TYPE_GESTOR_OPERACIONAL]
         ])->get();
 
