@@ -127,8 +127,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/tenants/export', 'Tenants\TenantsController@export')->middleware('can:tenants.export');
 		Route::post('/tenants/{tenant}/cancel', 'Tenants\TenantsController@cancel')->middleware('can:tenants.manage');
 		Route::get('/tenants/recent_activity', 'Tenants\TenantsController@get_recent_activity');
+        Route::get('/tenants/public/uf', 'Tenants\TenantsController@getUfWithTenant');
 
-		Route::any('/states/all', 'Resources\StatesController@all')->middleware('can:ufs.view');
+
+        Route::any('/states/all', 'Resources\StatesController@all')->middleware('can:ufs.view');
         Route::get('/states/export', 'Resources\StatesController@export');
 
         // Schools comunications
