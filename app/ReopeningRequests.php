@@ -11,16 +11,24 @@ class ReopeningRequests extends Model
 
     const STATUS_APPROVED = "approved";
     const STATUS_REQUESTED = "requested";
+    const STATUS_CANCELLED = "canceled";
+
+    const TYPE_REQUEST_REOPEN = "reopen";
+    const TYPE_REQUEST_TRANSFER = "transfer";
 
     protected $table = "reopening_requests";
 
     protected $fillable = [
-        'requester_id',
-        'recipient_id',
+        'requester_id', //USER REQUESTER
+        'recipient_id', //USER RECIPIENT
         'child_id',
         'status',
-        'interrupt_reason'
+        'interrupt_reason',
 
+        'tenant_requester_id', //TENANT REQUESTER
+        'tenant_recipient_id', //TENANT RECIPIENT
+
+        'type_request'
     ];
 
     /**
@@ -49,6 +57,24 @@ class ReopeningRequests extends Model
     public function child()
     {
         return $this->hasOne('BuscaAtivaEscolar\Child', 'id', 'child_id');
+    }
+
+    /**
+     * The Tenant that requesting the transfer
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function tenantRequester()
+    {
+        return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_requester_id');
+    }
+
+    /**
+     * The Tenant that receiving request
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function tenantRecipient()
+    {
+        return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_recipient_id');
     }
 
 
