@@ -20,6 +20,7 @@ use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
+use BuscaAtivaEscolar\Transformers\TenantBasicTransformer;
 use BuscaAtivaEscolar\Transformers\TenantTransformer;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
@@ -55,6 +56,18 @@ class TenantsController extends BaseController  {
             ->transformWith(new TenantTransformer())
             ->serializeWith(new SimpleArraySerializer())
             ->parseIncludes('city')
+            ->respond();
+    }
+    public function getUfWithTenant() {
+        $uf = request('uf');
+        $tenants = Tenant::query()
+            ->where('uf', '=', $uf)
+            ->orderBy('name', 'ASC')
+            ->get();
+
+        return fractal()
+            ->collection($tenants)
+            ->transformWith(new TenantBasicTransformer())
             ->respond();
     }
 
