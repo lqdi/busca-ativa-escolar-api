@@ -45,6 +45,7 @@ class CasesController extends BaseController  {
 			return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
 		}
 	}
+
     public function reopen(ChildCase $case) {
         try {
 
@@ -76,5 +77,7 @@ class CasesController extends BaseController  {
         }
 
     }
+
+
 
 }

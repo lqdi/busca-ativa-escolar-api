@@ -162,7 +162,11 @@ class ReportsController extends BaseController
 
         if( isset($tenant) ){ $response['tenant'] = $tenant; }
 
-        $teste = $query->getQuery();
+        //remove IDS 500 e 600 dos motivos dos casos
+        if($params['dimension'] == "case_cause_ids"){
+            if( array_key_exists(500, $response['report']) ){ unset($response['report'][500]); }
+            if( array_key_exists(600, $response['report']) ){ unset($response['report'][600]); }
+        }
 
         return response()->json(
             [
