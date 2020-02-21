@@ -78,6 +78,28 @@ class CasesController extends BaseController  {
 
     }
 
+    public function requestTransfer(ChildCase $case){
+
+        try {
+
+            $reason = request('reason');
+            $child_id = request('child_id');
+            $tenant_recipient_id = request('tenant_recipient_id');
+            $city_id = request('city_id');
+
+            if (!$reason) return $this->api_failure('reason_required');
+            if (!$child_id) return $this->api_failure('child_id_required');
+            if (!$tenant_recipient_id) return $this->api_failure('tenant_recipient_id_required');
+            if (!$city_id) return $this->api_failure('city_id_required');
+
+            return $case->transfer($reason, $child_id, $tenant_recipient_id, $city_id);
+
+        } catch (\Exception $ex) {
+            return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
+        }
+
+    }
+
 
 
 }
