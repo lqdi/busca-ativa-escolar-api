@@ -131,6 +131,8 @@ return [
         'cases.cancel',
         'cases.assign',
         'cases.reopen',
+        'cases.request-transfer',
+        'cases.transfer',
         'cases.map',
         'cases.step.alerta',
         'cases.step.pesquisa',

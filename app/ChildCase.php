@@ -381,7 +381,8 @@ class ChildCase extends Model
         /* @var $reopeningRequest ReopeningRequests */
         $reopeningRequest = ReopeningRequests::where(
             ['child_id' => $this->child->id],
-            ['status' => ReopeningRequests::STATUS_REQUESTED]
+            ['status' => ReopeningRequests::STATUS_REQUESTED],
+            ['type_request' => ReopeningRequests::TYPE_REQUEST_REOPEN]
         )->first();
 
         if( $reopeningRequest != null ){
@@ -419,7 +420,9 @@ class ChildCase extends Model
                 'recipient_id' => null,
                 'child_id' => $this->child->id,
                 'status' => ReopeningRequests::STATUS_REQUESTED,
-                'interrupt_reason' => $reason
+                'interrupt_reason' => $reason,
+                'type_request' => ReopeningRequests::TYPE_REQUEST_REOPEN,
+                'tenant_requester_id' => $tenant->id
             ];
 
             $reopeningRequest = ReopeningRequests::create($dataReopeningRequest);
@@ -452,7 +455,139 @@ class ChildCase extends Model
                     $reason,
                     $coordinator->name,
                     \Auth::user()->name,
-                    $reopeningRequest->id
+                    $reopeningRequest->id,
+                    null,
+                    null,
+                    ReopeningRequests::TYPE_REQUEST_REOPEN
+                );
+
+                Mail::to($coordinator->email)->send($msg);
+
+            }
+
+        } catch (\Exception $exception){
+
+            return response()->json(
+                [
+                    'result' => 'Requisição não permitida. Erro no envio do email',
+                    'status' => 'error'
+                ]
+            );
+
+        }
+
+        return response()->json(
+            [
+                'result' => 'Requisição realizada com sucesso',
+                'status' => 'success'
+            ]
+        );
+
+    }
+
+    public function transfer($reason = "", $child_id, $tenant_recipient_id, $city_id){
+
+        if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
+            return response()->json(
+                [
+                    'result' => 'O caso selecionado já está interrompido',
+                    'status' => 'error'
+                ]
+            );
+        }
+
+        /* @var $tenant Tenant */
+        $tenant_recipient = Tenant::where('id', $tenant_recipient_id)->first();
+
+        /* @var $tenant Tenant */
+        $tenant = \Auth::user()->tenant;
+
+        /* @var $requesterUser User */
+        $requesterUser = \Auth::user();
+
+        /* @var $reopeningRequest ReopeningRequests */
+        $reopeningRequest = ReopeningRequests::where(
+            ['child_id' => $child_id],
+            ['status' => ReopeningRequests::STATUS_REQUESTED],
+            ['type_request' => ReopeningRequests::TYPE_REQUEST_TRANSFER]
+        )->first();
+
+        if( $reopeningRequest != null ){
+
+            $now = Carbon::now();
+
+            if( $now->diffInDays( $reopeningRequest->updated_at ) <= 15 ){
+
+                return response()->json(
+                    [
+                        'result' => 'O usuário '.$reopeningRequest->requester->name.' já solicitou a reabertura deste caso a menos de 15 dias',
+                        'status' => 'error'
+                    ]
+                );
+
+            }else{
+
+                $dataReopeningRequest = [
+                    'requester_id' => $requesterUser->id,
+                    'interrupt_reason' => $reason
+                ];
+
+                $reopeningRequest->fill($dataReopeningRequest);
+
+                $reopeningRequest->save();
+
+            }
+
+        }
+
+        if( $reopeningRequest == null ){
+
+            $dataReopeningRequest = [
+                'requester_id' => $requesterUser->id,
+                'recipient_id' => null,
+                'child_id' => $child_id,
+                'status' => ReopeningRequests::STATUS_REQUESTED,
+                'interrupt_reason' => $reason,
+                'type_request' => ReopeningRequests::TYPE_REQUEST_TRANSFER,
+                'tenant_requester_id' => $tenant->id,
+                'tenant_recipient_id' => $tenant_recipient_id
+            ];
+
+            $reopeningRequest = ReopeningRequests::create($dataReopeningRequest);
+
+        }
+
+        //Coordenadores do município a ser reportado
+        /* @var $coordinators Collection */
+        $coordinators = User::where( [
+            ['tenant_id', $tenant_recipient_id],
+            ['type', User::TYPE_GESTOR_OPERACIONAL]
+        ])->get();
+
+        if ( $coordinators->count() <= 0 ) {
+            return response()->json(
+                [
+                    'result' => 'Requisição não permitida. Não existem coordenadores ativos no município a receber a solicitação',
+                    'status' => 'error'
+                ]
+            );
+        }
+
+        try{
+
+            foreach ( $coordinators as $coordinator ) {
+
+                $msg = new ReopenCaseNotification(
+                    $this->child->id,
+                    $this->child->name,
+                    $this->id,
+                    $reason,
+                    $coordinator->name,
+                    \Auth::user()->name,
+                    $reopeningRequest->id,
+                    $tenant,
+                    $tenant_recipient,
+                    ReopeningRequests::TYPE_REQUEST_TRANSFER
                 );
 
                 Mail::to($coordinator->email)->send($msg);
