@@ -558,11 +558,18 @@ class ChildCase extends Model
         }
 
         //Coordenadores do município a ser reportado
+
+        /* */
+        $requesterUser->type = User::TYPE_GESTOR_NACIONAL;
+
         /* @var $coordinators Collection */
         $coordinators = User::where( [
-            ['tenant_id', $tenant->id],
+            ['tenant_id', $tenant_recipient_id],
             ['type', User::TYPE_GESTOR_OPERACIONAL]
         ])->get();
+
+        /* */
+        $requesterUser->type = User::TYPE_GESTOR_OPERACIONAL;
 
         if ( $coordinators->count() <= 0 ) {
             return response()->json(
