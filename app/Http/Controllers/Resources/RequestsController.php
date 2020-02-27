@@ -30,7 +30,7 @@ class RequestsController extends BaseController
             ->where('tenant_recipient_id', $tenant->id)
             ->get();
 
-        return $requests;
+        return response()->json(['data' => $requests]);
 
     }
 
