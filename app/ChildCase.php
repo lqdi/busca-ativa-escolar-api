@@ -422,7 +422,8 @@ class ChildCase extends Model
                 'status' => ReopeningRequests::STATUS_REQUESTED,
                 'interrupt_reason' => $reason,
                 'type_request' => ReopeningRequests::TYPE_REQUEST_REOPEN,
-                'tenant_requester_id' => $tenant->id
+                'tenant_requester_id' => $tenant->id,
+                'tenant_recipient_id' => $tenant->id
             ];
 
             $reopeningRequest = ReopeningRequests::create($dataReopeningRequest);
