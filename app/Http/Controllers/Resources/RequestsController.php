@@ -5,6 +5,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\ReopeningRequests;
 use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\User;
 
 class RequestsController extends BaseController
 {
@@ -14,6 +15,12 @@ class RequestsController extends BaseController
 
         /* @var $tenant Tenant */
         $tenant = \Auth::user()->tenant;
+
+        /* @var $user User */
+        $user = \Auth::user();
+
+        /* */
+        $user->type = User::TYPE_GESTOR_NACIONAL;
 
         $requests = ReopeningRequests::query()
             ->with(
@@ -29,6 +36,9 @@ class RequestsController extends BaseController
             )
             ->where('tenant_recipient_id', $tenant->id)
             ->get();
+
+        /* */
+        $user->type = User::TYPE_GESTOR_OPERACIONAL;
 
         return $requests;
 
