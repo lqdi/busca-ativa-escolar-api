@@ -46,6 +46,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
             Route::resource('/cases', 'Resources\CasesController');
 		});
 
+		// Requests
+        Route::get('/requests/all', 'Resources\RequestsController@all')->middleware('can:requests.view');
+
 		// Users
 		Route::post('/users/search', 'Resources\UsersController@search')->middleware('can:users.view');
 		Route::get('/users/export', 'Resources\UsersController@export')->middleware('can:users.export');

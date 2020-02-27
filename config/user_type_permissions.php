@@ -132,6 +132,7 @@ return [
         'cases.assign',
         'cases.reopen',
         'cases.request-transfer',
+        'requests.view',
         'cases.transfer',
         'cases.map',
         'cases.step.alerta',
