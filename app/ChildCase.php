@@ -486,6 +486,78 @@ class ChildCase extends Model
 
     }
 
+    public function transfer(){
+
+        if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
+            return response()->json(
+                [
+                    'result' => 'O caso selecionado já está interrompido',
+                    'status' => 'error'
+                ]
+            );
+        }
+
+        /* @var $reopeningRequest ReopeningRequests */
+        $reopeningRequest = ReopeningRequests::where(
+            ['child_id' => $this->child->id],
+            ['status' => ReopeningRequests::STATUS_REQUESTED],
+            ['type_request' => ReopeningRequests::TYPE_REQUEST_TRANSFER]
+        )->first();
+
+        if( $reopeningRequest->count() <= 0 ){
+            return response()->json(
+                [
+                    'result' => 'Não existe uma solicitação de transferência para o caso informado',
+                    'status' => 'error'
+                ]
+            );
+        }
+
+        $this->case_status = self::STATUS_INTERRUPTED;
+
+        $this->interrupt_reason = $reopeningRequest->interrupt_reason;
+
+        $this->save();
+
+        $this->child->setStatus(Child::STATUS_INTERRUPTED);
+
+        $child = $this->child->getAttributes();
+
+        $pesquisaArray = $this->returnPesquisaArray( $this->child->pesquisa->replicate()->toArray() );
+
+        $data = $this->returnDataFromChild($child);
+
+        $objChild = Child::spawnFromAlertData(\Auth::user()->tenant, \Auth::user()->id, $data);
+
+        $newChildObj = Child::where('id', $objChild->id)->first();
+
+        $newChildObj->father_id = $child['id'];
+
+        $newChildObj->acceptAlert(['id'=> $objChild->id]);
+
+        $pesquisaNewChildObj = Pesquisa::where('child_id', $newChildObj->id)->first();
+
+        $pesquisaNewChildObj->fill($pesquisaArray);
+
+        $pesquisaNewChildObj->save();
+
+        $reopeningRequest->status = ReopeningRequests::STATUS_APPROVED;
+
+        $reopeningRequest->save();
+
+        event(new ChildCaseCancelled($this->child, $this, $reopeningRequest->interrupt_reason));
+        event(new ChildCaseClosed($this->child, $this));
+
+        return response()->json(
+            [
+                'status' => 'success',
+                'child_id'=> $newChildObj->id,
+                'result' => 'Transferência realizada com sucesso'
+            ]
+        );
+
+    }
+
     public function requestTransfer($reason = "", $case_id, $tenant_recipient_id, $city_id){
 
         if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
@@ -521,7 +593,7 @@ class ChildCase extends Model
 
                 return response()->json(
                     [
-                        'result' => 'O usuário '.$reopeningRequest->requester->name.' já solicitou a reabertura deste caso a menos de 15 dias',
+                        'result' => 'O usuário '.$reopeningRequest->requester->name.' já solicitou a transferência deste caso a menos de 15 dias',
                         'status' => 'error'
                     ]
                 );
@@ -744,6 +816,7 @@ class ChildCase extends Model
          */
         unset(
             $toArray['id'],
+            $toArray['tenant_id'],
             $toArray['child_id'],
             $toArray['case_id'],
             $toArray['is_completed'],

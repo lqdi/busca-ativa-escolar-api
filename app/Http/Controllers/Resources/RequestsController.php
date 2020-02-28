@@ -2,6 +2,7 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
+use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\ReopeningRequests;
 use BuscaAtivaEscolar\Tenant;
