@@ -14,10 +14,12 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
+use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Transformers\CaseTransformer;
+use BuscaAtivaEscolar\User;
 
 class CasesController extends BaseController  {
 
@@ -71,6 +73,21 @@ class CasesController extends BaseController  {
             if (!$reason) return $this->api_failure('reason_required');
 
             return $case->requestReopen($reason);
+
+        } catch (\Exception $ex) {
+            return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
+        }
+
+    }
+
+    public function transfer(ChildCase $case){
+
+        try {
+
+            /* @var $user User */
+            \Auth::user()->type = User::TYPE_GESTOR_NACIONAL;
+
+            return $case->transfer();
 
         } catch (\Exception $ex) {
             return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
