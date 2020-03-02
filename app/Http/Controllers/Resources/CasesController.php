@@ -59,7 +59,7 @@ class CasesController extends BaseController  {
 
 
         } catch (\Exception $ex) {
-            return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
+            return response()->json(['status' => 'error', 'result' => $ex->getMessage()]);
         }
     }
 
@@ -74,7 +74,7 @@ class CasesController extends BaseController  {
             return $case->requestReopen($reason);
 
         } catch (\Exception $ex) {
-            return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
+            return response()->json(['status' => 'error', 'result' => $ex->getMessage()]);
         }
 
     }
@@ -89,7 +89,7 @@ class CasesController extends BaseController  {
             return $case->transfer();
 
         } catch (\Exception $ex) {
-            return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
+            return response()->json(['status' => 'error', 'result' => $ex->getMessage()]);
         }
 
     }
@@ -111,7 +111,7 @@ class CasesController extends BaseController  {
             return $case->requestTransfer($reason, $case_id, $tenant_recipient_id, $city_id);
 
         } catch (\Exception $ex) {
-            return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
+            return response()->json(['status' => 'error', 'result' => $ex->getMessage()]);
         }
 
     }
