@@ -757,6 +757,15 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
     private function getFather($id, $value)
     {
+
+        //TODO Solucao para essa liberacao
+
+        /* @var $user User */
+        $user = \Auth::user();
+
+        /* */
+        $user->type = User::TYPE_GESTOR_NACIONAL;
+
         if (!empty($id)) {
             $child = Child::where('id', $id)->first();
             array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status, 'reason' => $this->getReason($child->id)]);
