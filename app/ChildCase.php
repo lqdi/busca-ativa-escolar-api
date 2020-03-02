@@ -438,8 +438,8 @@ class ChildCase extends Model
         /* @var $coordinators Collection */
         $coordinators = User::where(
             [
-                'tenant_id', $tenant->id,
-                'type', User::TYPE_GESTOR_OPERACIONAL
+                'tenant_id' => $tenant->id,
+                'type' => User::TYPE_GESTOR_OPERACIONAL
             ]
         )->get();
 
@@ -647,10 +647,11 @@ class ChildCase extends Model
         $requesterUser->type = User::TYPE_GESTOR_NACIONAL;
 
         /* @var $coordinators Collection */
-        $coordinators = User::where( [
-            ['tenant_id', $tenant_recipient_id],
-            ['type', User::TYPE_GESTOR_OPERACIONAL]
-        ])->get();
+        $coordinators = User::where([
+                'tenant_id' => $tenant_recipient_id,
+                'type' => User::TYPE_GESTOR_OPERACIONAL
+            ]
+        )->get();
 
         /* */
         $requesterUser->type = User::TYPE_GESTOR_OPERACIONAL;
