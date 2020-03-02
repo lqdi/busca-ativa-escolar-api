@@ -54,7 +54,7 @@ class RequestsController extends BaseController
         $user->type = User::TYPE_GESTOR_NACIONAL;
 
         if( $request == null){
-            return response()->json(['status' => 'error', 'reason' => 'Solicitação não localizada']);
+            return response()->json(['status' => 'error', 'result' => 'Solicitação não localizada']);
         }
 
         $request->status = ReopeningRequests::STATUS_CANCELLED;
@@ -64,7 +64,7 @@ class RequestsController extends BaseController
         /* */
         $user->type = User::TYPE_GESTOR_OPERACIONAL;
 
-        return response()->json(['status' => 'success', 'reason' => 'Solicitação rejeitada com sucesso']);
+        return response()->json(['status' => 'success', 'result' => 'Solicitação rejeitada com sucesso']);
 
     }
 
