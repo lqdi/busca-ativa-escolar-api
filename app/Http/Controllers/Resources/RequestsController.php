@@ -37,6 +37,7 @@ class RequestsController extends BaseController
             ->where('tenant_recipient_id', $tenant->id)
             ->get();
 
+        return response()->json(['data' => $requests]);
         /* */
         $user->type = User::TYPE_GESTOR_OPERACIONAL;
 
