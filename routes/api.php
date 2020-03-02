@@ -49,6 +49,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		// Requests
         Route::get('/requests/all', 'Resources\RequestsController@all')->middleware('can:requests.view');
+        Route::put('/requests/{request}/reject', 'Resources\RequestsController@reject')->middleware('can:requests.reject');
 
 		// Users
 		Route::post('/users/search', 'Resources\UsersController@search')->middleware('can:users.view');

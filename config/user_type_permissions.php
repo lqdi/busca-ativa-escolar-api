@@ -133,6 +133,7 @@ return [
         'cases.reopen',
         'cases.request-transfer',
         'requests.view',
+        'requests.reject',
         'cases.transfer',
         'cases.map',
         'cases.step.alerta',

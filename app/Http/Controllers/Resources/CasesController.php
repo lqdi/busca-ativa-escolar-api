@@ -63,7 +63,6 @@ class CasesController extends BaseController  {
         }
     }
 
-
     public function requestReopen(ChildCase $case) {
 
         try {

@@ -65,7 +65,7 @@ class ReopenCaseNotification extends Mailable
                 ->line("O usuário ".$this->requester." solicitou sua autorização para reabertura do caso #".$this->child_case_id." - ".$this->child_name)
                 ->line("Motivo: ".$this->reason)
                 ->line("Para autorizar, clique no botão abaixo.")
-                ->action('Autorizar', $this->getUrlReopenToken());
+                ->action('Visualizar solicitações', $this->getUrlReopenToken());
 
             $this->subject("[Busca Ativa Escolar] Reabertura de caso - ".$this->child_name);
 
@@ -90,11 +90,11 @@ class ReopenCaseNotification extends Mailable
     }
 
     private function getUrlTransferToken (){
-        return env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated?id_request=".$this->child_case_id;
+        return env('APP_PANEL_URL')."/checks";
     }
 
     private function getUrlReopenToken (){
-        return env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated?id_request=".$this->child_case_id;
+        return env('APP_PANEL_URL')."/checks";
     }
 
 }
