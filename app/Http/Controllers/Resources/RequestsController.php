@@ -2,7 +2,6 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
-use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\ReopeningRequests;
 use BuscaAtivaEscolar\Tenant;
@@ -42,6 +41,29 @@ class RequestsController extends BaseController
         $user->type = User::TYPE_GESTOR_OPERACIONAL;
 
         return $requests;
+
+    }
+
+    public function reject(ReopeningRequests $request){
+
+        /* @var $user User */
+        $user = \Auth::user();
+
+        /* */
+        $user->type = User::TYPE_GESTOR_NACIONAL;
+
+        if( $request == null){
+            return response()->json(['status' => 'error', 'reason' => 'Solicitação não localizada']);
+        }
+
+        $request->status = ReopeningRequests::STATUS_CANCELLED;
+
+        $request->save();
+
+        /* */
+        $user->type = User::TYPE_GESTOR_OPERACIONAL;
+
+        return response()->json(['status' => 'success', 'reason' => 'Solicitação rejeitada com sucesso']);
 
     }
 

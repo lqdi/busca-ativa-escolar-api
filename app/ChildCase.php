@@ -339,8 +339,11 @@ class ChildCase extends Model
 
         /* @var $reopeningRequest ReopeningRequests */
         $reopeningRequest = ReopeningRequests::where(
-            ['child_id' => $this->child->id],
-            ['status' => ReopeningRequests::STATUS_REQUESTED]
+            [
+                'child_id' => $this->child->id,
+                'status' => ReopeningRequests::STATUS_REQUESTED,
+                'type_request' => ReopeningRequests::TYPE_REQUEST_REOPEN
+            ]
         )->first();
 
         if ($reopeningRequest != null){
@@ -380,9 +383,11 @@ class ChildCase extends Model
 
         /* @var $reopeningRequest ReopeningRequests */
         $reopeningRequest = ReopeningRequests::where(
-            ['child_id' => $this->child->id],
-            ['status' => ReopeningRequests::STATUS_REQUESTED],
-            ['type_request' => ReopeningRequests::TYPE_REQUEST_REOPEN]
+            [
+                'child_id' => $this->child->id,
+                'status' => ReopeningRequests::STATUS_REQUESTED,
+                'type_request' => ReopeningRequests::TYPE_REQUEST_REOPEN
+            ]
         )->first();
 
         if( $reopeningRequest != null ){
@@ -431,16 +436,18 @@ class ChildCase extends Model
         }
 
         /* @var $coordinators Collection */
-        $coordinators = User::where( [
-                ['tenant_id', $tenant->id],
-                ['type', User::TYPE_GESTOR_OPERACIONAL]
-            ])->get();
+        $coordinators = User::where(
+            [
+                'tenant_id', $tenant->id,
+                'type', User::TYPE_GESTOR_OPERACIONAL
+            ]
+        )->get();
 
         if ( $coordinators->count() <= 0 ) {
             return response()->json(
                 [
-                    'result' => 'Requisição não permitida. Não existem coordenadores ativos no município',
-                    'status' => 'error'
+                    'result' => 'Solicitação realizada com sucesso, porém não existem coordenadores ativos no município',
+                    'status' => 'success'
                 ]
             );
         }
@@ -470,8 +477,8 @@ class ChildCase extends Model
 
             return response()->json(
                 [
-                    'result' => 'Requisição não permitida. Erro no envio do email',
-                    'status' => 'error'
+                    'result' => 'Solicitação realizada com sucesso. Já está disponível para o outro município',
+                    'status' => 'success'
                 ]
             );
 
@@ -499,9 +506,11 @@ class ChildCase extends Model
 
         /* @var $reopeningRequest ReopeningRequests */
         $reopeningRequest = ReopeningRequests::where(
-            ['child_id' => $this->child->id],
-            ['status' => ReopeningRequests::STATUS_REQUESTED],
-            ['type_request' => ReopeningRequests::TYPE_REQUEST_TRANSFER]
+            [
+                'child_id' => $this->child->id,
+                'status' => ReopeningRequests::STATUS_REQUESTED,
+                'type_request' => ReopeningRequests::TYPE_REQUEST_TRANSFER
+            ]
         )->first();
 
         if( $reopeningRequest->count() <= 0 ){
@@ -580,9 +589,11 @@ class ChildCase extends Model
 
         /* @var $reopeningRequest ReopeningRequests */
         $reopeningRequest = ReopeningRequests::where(
-            ['child_id' => $this->child->id],
-            ['status' => ReopeningRequests::STATUS_REQUESTED],
-            ['type_request' => ReopeningRequests::TYPE_REQUEST_TRANSFER]
+            [
+                'child_id' => $this->child->id,
+                'status' => ReopeningRequests::STATUS_REQUESTED,
+                'type_request' => ReopeningRequests::TYPE_REQUEST_TRANSFER
+            ]
         )->first();
 
         if( $reopeningRequest != null ){
@@ -647,8 +658,8 @@ class ChildCase extends Model
         if ( $coordinators->count() <= 0 ) {
             return response()->json(
                 [
-                    'result' => 'Requisição não permitida. Não existem coordenadores ativos no município a receber a solicitação',
-                    'status' => 'error'
+                    'result' => 'Solicitação realizada com sucesso, porém não existem coordendores ativos no município',
+                    'status' => 'success'
                 ]
             );
         }
@@ -678,8 +689,8 @@ class ChildCase extends Model
 
             return response()->json(
                 [
-                    'result' => 'Requisição não permitida. Erro no envio do email',
-                    'status' => 'error'
+                    'result' => 'Solicitação realizada com sucesso. Já está disponível para o outro município' ,
+                    'status' => 'success'
                 ]
             );
 
@@ -687,7 +698,7 @@ class ChildCase extends Model
 
         return response()->json(
             [
-                'result' => 'Requisição realizada com sucesso',
+                'result' => 'Solicitação realizada com sucesso. Já está disponível para o outro município',
                 'status' => 'success'
             ]
         );
