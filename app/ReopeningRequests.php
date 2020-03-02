@@ -11,7 +11,7 @@ class ReopeningRequests extends Model
 
     const STATUS_APPROVED = "approved";
     const STATUS_REQUESTED = "requested";
-    const STATUS_CANCELLED = "canceled";
+    const STATUS_CANCELLED = "cancelled";
 
     const TYPE_REQUEST_REOPEN = "reopen";
     const TYPE_REQUEST_TRANSFER = "transfer";
