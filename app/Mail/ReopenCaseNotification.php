@@ -7,6 +7,7 @@ namespace BuscaAtivaEscolar\Mail;
 use BuscaAtivaEscolar\ReopeningRequests;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\HtmlString;
 
 class ReopenCaseNotification extends Mailable
 {
@@ -62,7 +63,7 @@ class ReopenCaseNotification extends Mailable
             $message = (new MailMessage())
                 ->success()
                 ->line($this->recipient.", ")
-                ->line("O usuário ".$this->requester." solicitou sua autorização para reabertura do caso #".$this->child_case_id." - ".$this->child_name)
+                ->line( new HtmlString( "<p>O usuário ".$this->requester." solicitou sua autorização para reabertura do caso - <a href=\"". env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated\" target=\"_blank\">".$this->child_name."</a></p>" ))
                 ->line("Motivo: ".$this->reason)
                 ->line("Para autorizar, clique no botão abaixo.")
                 ->action('Visualizar solicitações', $this->getUrlReopenToken());
@@ -77,7 +78,7 @@ class ReopenCaseNotification extends Mailable
             $message = (new MailMessage())
                 ->success()
                 ->line($this->recipient.", ")
-                ->line("O usuário ".$this->requester." do município de ".$this->tenant_requester->name." solicitou sua autorização para transferência do caso #".$this->child_case_id." - ".$this->child_name)
+                ->line( new HtmlString( "<p>O usuário ".$this->requester." do município de ".$this->tenant_requester->name." solicitou sua autorização para transferência do caso - <a href=\"". env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated\" target=\"_blank\">".$this->child_name."</a></p>" ))
                 ->line("Motivo: ".$this->reason)
                 ->line("Para visualizar as solicitações, clique no botão abaixo.")
                 ->action('Visualizar solicitações', $this->getUrlTransferToken());
