@@ -63,7 +63,6 @@ class ReopenCaseNotification extends Mailable
             $message = (new MailMessage())
                 ->success()
                 ->line($this->recipient.", ")
-                ->line(new Html)
                 ->line( new HtmlString( "O usuário ".$this->requester." solicitou sua autorização para reabertura do caso - <a href=\"". env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated\" target=\"_blank\">".$this->child_name."</a>" ))
                 ->line("Motivo: ".$this->reason)
                 ->line("Para autorizar, clique no botão abaixo.")
