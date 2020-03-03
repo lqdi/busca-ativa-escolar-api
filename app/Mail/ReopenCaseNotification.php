@@ -71,7 +71,7 @@ class ReopenCaseNotification extends Mailable
 
             $this->subject("[Busca Ativa Escolar] Reabertura de caso - ".$this->child_name);
 
-            return $this->view('vendor.solicitacao.email', $message->toArray());
+            return $this->view('vendor.solicitacao', $message->toArray());
         }
 
         if ( $this->type_request == ReopeningRequests::TYPE_REQUEST_TRANSFER) {
@@ -86,7 +86,7 @@ class ReopenCaseNotification extends Mailable
 
             $this->subject("[Busca Ativa Escolar] Solicitação de transferência de caso - ".$this->child_name);
 
-            return $this->view('vendor.solicitacao.email', $message->toArray());
+            return $this->view('vendor.solicitacao', $message->toArray());
         }
 
     }
