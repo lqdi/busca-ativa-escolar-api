@@ -63,14 +63,15 @@ class ReopenCaseNotification extends Mailable
             $message = (new MailMessage())
                 ->success()
                 ->line($this->recipient.", ")
-                ->line( new HtmlString( "O usuário ".$this->requester." solicitou sua autorização para reabertura do caso - <a href=\"". env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated\" target=\"_blank\">".$this->child_name."</a>" ))
+                ->line( "O usuário ".$this->requester." solicitou sua autorização para reabertura do caso abaixo: ")
+                ->line( new HtmlString( env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated" ) )
                 ->line("Motivo: ".$this->reason)
-                ->line("Para autorizar, clique no botão abaixo.")
+                ->line("Para visualizar todas as solicitações de reabertura e transferência de casos, clique no botão abaixo.")
                 ->action('Visualizar solicitações', $this->getUrlReopenToken());
 
             $this->subject("[Busca Ativa Escolar] Reabertura de caso - ".$this->child_name);
 
-            return $this->view('vendor.solicitacao', $message->toArray());
+            return $this->view('vendor.notifications.email', $message->toArray());
         }
 
         if ( $this->type_request == ReopeningRequests::TYPE_REQUEST_TRANSFER) {
@@ -78,14 +79,15 @@ class ReopenCaseNotification extends Mailable
             $message = (new MailMessage())
                 ->success()
                 ->line($this->recipient.", ")
-                ->line( new HtmlString( "O usuário ".$this->requester." do município de ".$this->tenant_requester->name." solicitou sua autorização para transferência do caso - <a href=\"". env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated\" target=\"_blank\">".$this->child_name."</a>" ))
+                ->line("O usuário ".$this->requester." do município de ".$this->tenant_requester->name." solicitou sua autorização para a transferência de município do caso abaixo: ")
+                ->line( new HtmlString( env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated" ) )
                 ->line("Motivo: ".$this->reason)
                 ->line("Para visualizar as solicitações, clique no botão abaixo.")
                 ->action('Visualizar solicitações', $this->getUrlTransferToken());
 
             $this->subject("[Busca Ativa Escolar] Solicitação de transferência de caso - ".$this->child_name);
 
-            return $this->view('vendor.solicitacao', $message->toArray());
+            return $this->view('vendor.notifications.email', $message->toArray());
         }
 
     }
