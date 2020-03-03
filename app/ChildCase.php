@@ -347,8 +347,28 @@ class ChildCase extends Model
         )->first();
 
         if ($reopeningRequest != null){
+
             $reopeningRequest->status = ReopeningRequests::STATUS_APPROVED;
             $reopeningRequest->save();
+
+            if( $reopeningRequest->requester != null) {
+
+                $msg = new ReopenCaseNotification(
+                    $this->child->id,
+                    $this->child->name,
+                    $this->id,
+                    null,
+                    $reopeningRequest->requester->name,
+                    \Auth::user()->name,
+                    $reopeningRequest->id,
+                    null,
+                    null,
+                    ReopenCaseNotification::TYPE_ACCEPT_REOPEN
+                );
+
+                Mail::to( $reopeningRequest->requester->email )->send($msg);
+            }
+
         }
 
         event(new ChildCaseCancelled($this->child, $this, $reason));
@@ -466,7 +486,7 @@ class ChildCase extends Model
                     $reopeningRequest->id,
                     null,
                     null,
-                    ReopeningRequests::TYPE_REQUEST_REOPEN
+                    ReopenCaseNotification::TYPE_REOPEN
                 );
 
                 Mail::to($coordinator->email)->send($msg);
@@ -679,7 +699,7 @@ class ChildCase extends Model
                     $reopeningRequest->id,
                     $tenant,
                     $tenant_recipient,
-                    ReopeningRequests::TYPE_REQUEST_TRANSFER
+                    ReopenCaseNotification::TYPE_TRANSFER
                 );
 
                 Mail::to($coordinator->email)->send($msg);
