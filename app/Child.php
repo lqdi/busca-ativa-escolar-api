@@ -750,20 +750,30 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
         $value = [];
         $idForGetFather = $this->father_id;
         $idForGetSon = $this->id;
+
+
+        $reopeningRequestFather = ReopeningRequests::where(
+            ['child_id' => $idForGetFather]
+        )->first();
+
+        $reopeningRequestSon = ReopeningRequests::where(
+            ['child_id' => $idForGetSon]
+        )->first();
+
+        if ($reopeningRequestFather || $reopeningRequestSon) {
+            /* @var $user User */
+            $user = \Auth::user();
+            $user->type = User::TYPE_GESTOR_NACIONAL;
+        }
+
         $sons = $this->getSon($idForGetSon, $value);
         $fathers = $this->getFather($idForGetFather, $value);
         return array_merge($fathers, $sons);;
+
     }
 
     private function getFather($id, $value)
     {
-
-        //TODO Solucao para essa liberacao
-
-        /* @var $user User */
-        $user = \Auth::user();
-        $user->type = User::TYPE_GESTOR_NACIONAL;
-
         if (!empty($id)) {
             $child = Child::where('id', $id)->first();
             array_push($value, ['id' => $child->id, 'name' => $child->name, 'created_at' => $child->created_at->toIso8601String(), 'child_status' => $child->child_status, 'reason' => $this->getReason($child->id)]);
@@ -787,14 +797,14 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
     private function getReason($childId)
     {
-       $case = ChildCase::where('child_id', $childId)->first();
-       if($case->interrupt_reason == 'request'){
-           /* @var $reopeningRequest ReopeningRequests */
-           $reopeningRequest = ReopeningRequests::where(
-               ['child_id' => $childId]
-           )->first();
-           $case->interrupt_reason = $reopeningRequest->interrupt_reason;
-       }
-       return $case->interrupt_reason;
+        $case = ChildCase::where('child_id', $childId)->first();
+        if ($case->interrupt_reason == 'request') {
+            /* @var $reopeningRequest ReopeningRequests */
+            $reopeningRequest = ReopeningRequests::where(
+                ['child_id' => $childId]
+            )->first();
+            $case->interrupt_reason = $reopeningRequest->interrupt_reason;
+        }
+        return $case->interrupt_reason;
     }
 }
