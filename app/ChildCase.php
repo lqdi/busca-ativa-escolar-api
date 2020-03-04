@@ -363,7 +363,7 @@ class ChildCase extends Model
                     $reopeningRequest->id,
                     null,
                     null,
-                    $reopeningRequest->type_request
+                    ReopenCaseNotification::TYPE_ACCEPT_REOPEN
                 );
 
                 Mail::to( $reopeningRequest->requester->email )->send($msg);
@@ -582,7 +582,7 @@ class ChildCase extends Model
                 $reopeningRequest->id,
                 $reopeningRequest->tenantRequester,
                 $reopeningRequest->tenantRecipient,
-                $reopeningRequest->type_request
+                ReopenCaseNotification::TYPE_ACCEPT_TRANSFER
             );
 
             Mail::to( $reopeningRequest->requester->email )->send($msg);
