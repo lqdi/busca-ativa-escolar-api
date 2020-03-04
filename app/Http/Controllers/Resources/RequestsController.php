@@ -61,6 +61,14 @@ class RequestsController extends BaseController
 
         $request->status = ReopeningRequests::STATUS_CANCELLED;
 
+        if ($request->type_request == ReopeningRequests::TYPE_REQUEST_TRANSFER) {
+            $type_answer = ReopenCaseNotification::TYPE_REJECT_TRANSFER;
+        }
+
+        if ($request->type_request == ReopeningRequests::TYPE_REQUEST_REOPEN) {
+            $type_answer = ReopenCaseNotification::TYPE_REJECT_REOPEN;
+        }
+
         $request->save();
 
         if( $request->requester != null) {
@@ -75,7 +83,7 @@ class RequestsController extends BaseController
                 $request->id,
                 $request->tenantRequester,
                 $request->tenantRecipient,
-                $request->type_request
+                $type_answer
             );
 
             Mail::to( $request->requester->email )->send($msg);
