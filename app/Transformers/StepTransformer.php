@@ -32,7 +32,6 @@ class StepTransformer extends TransformerAbstract {
 	];
 
 	public function transform(CaseStep $step) {
-	    var_dump($step);
 		$data = [
 			'id' => $step->id,
 			'child_id' => $step->child_id,
