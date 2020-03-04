@@ -748,8 +748,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     public function getReopens()
     {
         $value = [];
-        $idForGetFather = $this->father_id;
-        $idForGetSon = $this->id;
+        $idForGetFather = $this->father_id ? $this->father_id : 0;
+        $idForGetSon = $this->id ? $this->id : 0;
 
 
         $reopeningRequestFather = ReopeningRequests::where(
