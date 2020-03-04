@@ -363,7 +363,7 @@ class ChildCase extends Model
                     $reopeningRequest->id,
                     null,
                     null,
-                    ReopenCaseNotification::TYPE_ACCEPT_REOPEN
+                    $reopeningRequest->type_request
                 );
 
                 Mail::to( $reopeningRequest->requester->email )->send($msg);
@@ -569,6 +569,24 @@ class ChildCase extends Model
         $pesquisaNewChildObj->fill($pesquisaArray);
 
         $pesquisaNewChildObj->save();
+
+        if( $reopeningRequest->requester != null) {
+
+            $msg = new ReopenCaseNotification(
+                $this->child->id,
+                $this->child->name,
+                $this->id,
+                null,
+                $reopeningRequest->requester->name,
+                \Auth::user()->name,
+                $reopeningRequest->id,
+                $reopeningRequest->tenantRequester,
+                $reopeningRequest->tenantRecipient,
+                $reopeningRequest->type_request
+            );
+
+            Mail::to( $reopeningRequest->requester->email )->send($msg);
+        }
 
         $reopeningRequest->status = ReopeningRequests::STATUS_APPROVED;
 

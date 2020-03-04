@@ -118,7 +118,7 @@ class ReopenCaseNotification extends Mailable
                 ->line("O usuário(a) ".$this->requester." aprovou a sua solicitação para reabertura do caso - ".$this->child_name.". Para acessar o caso interrompido e o novo caso em andamento clique no link abaixo:")
                 ->line( new HtmlString( env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated" ) );
 
-            $this->subject("[Busca Ativa Escolar] Solicitação de reabertura de caso - ".$this->child_name);
+            $this->subject("RE: [Busca Ativa Escolar] Solicitação de reabertura de caso - ".$this->child_name);
 
             return $this->view('vendor.notifications.email', $message->toArray());
         }
@@ -131,7 +131,33 @@ class ReopenCaseNotification extends Mailable
                 ->line("O usuário(a) ".$this->requester." não aprovou a sua solicitação para reabertura do caso - ".$this->child_name.". Para acessar o caso clique no link abaixo:")
                 ->line( new HtmlString( env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated" ) );
 
-            $this->subject("[Busca Ativa Escolar] Solicitação de reabertura de caso - ".$this->child_name);
+            $this->subject("RE: [Busca Ativa Escolar] Solicitação de reabertura de caso - ".$this->child_name);
+
+            return $this->view('vendor.notifications.email', $message->toArray());
+        }
+
+        if ( $this->type_request == ReopenCaseNotification::TYPE_ACCEPT_TRANSFER) {
+
+            $message = (new MailMessage())
+                ->success()
+                ->line($this->recipient.", ")
+                ->line("O usuário(a) ".$this->requester." do município de ".$this->tenant_recipient->name." aprovou a sua solicitação para transferência do caso - ".$this->child_name.". Para acessar o caso interrompido e o novo caso em andamento clique no link abaixo:")
+                ->line( new HtmlString( env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated" ) );
+
+            $this->subject("RE: [Busca Ativa Escolar] Solicitação de transferência de caso - ".$this->child_name);
+
+            return $this->view('vendor.notifications.email', $message->toArray());
+        }
+
+        if ( $this->type_request == ReopenCaseNotification::TYPE_REJECT_TRANSFER) {
+
+            $message = (new MailMessage())
+                ->success()
+                ->line($this->recipient.", ")
+                ->line("O usuário(a) ".$this->requester." do município de ".$this->tenant_recipient->name." não aprovou a sua solicitação para transferência do caso - ".$this->child_name.". Para acessar o caso em andamento clique no link abaixo:")
+                ->line( new HtmlString( env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated" ) );
+
+            $this->subject("RE: [Busca Ativa Escolar] Solicitação de transferência de caso - ".$this->child_name);
 
             return $this->view('vendor.notifications.email', $message->toArray());
         }
