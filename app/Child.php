@@ -762,8 +762,6 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
         /* @var $user User */
         $user = \Auth::user();
-
-        /* */
         $user->type = User::TYPE_GESTOR_NACIONAL;
 
         if (!empty($id)) {

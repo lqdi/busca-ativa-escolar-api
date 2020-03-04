@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\CaseSteps\Observacao;
 use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\ReopeningRequests;
 use BuscaAtivaEscolar\Scopes\TenantScope;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
@@ -32,15 +33,26 @@ class StepsController extends BaseController {
 
 	public function show($step_type, $step_id) {
 
-		try {
+        /* @var $user User */
+        $user = \Auth::user();
+        $user->type = User::TYPE_GESTOR_NACIONAL;
+
+
+        try {
 			$step = CaseStep::fetch($step_type, $step_id);
 
-			return fractal()
-				->item($step)
-				->transformWith(new StepTransformer())
-				->serializeWith(new SimpleArraySerializer())
-				->parseIncludes(request('with'))
-				->respond();
+            $reopeningRequest = ReopeningRequests::where(
+                ['child_id' => $step->child_id]
+            )->first();
+
+            if(($step['tenant_id'] == $user['tenant_id']) || ($user['tenant_id'] == $reopeningRequest['tenant_recipient_id'])) {
+                return fractal()
+                    ->item($step)
+                    ->transformWith(new StepTransformer())
+                    ->serializeWith(new SimpleArraySerializer())
+                    ->parseIncludes(request('with'))
+                    ->respond();
+            }
 
 		} catch (\Exception $ex) {
 			return response()->json(['status' => 'error', 'reason' => $ex->getMessage()]);
