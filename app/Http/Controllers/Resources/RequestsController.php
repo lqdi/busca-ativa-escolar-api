@@ -73,9 +73,9 @@ class RequestsController extends BaseController
                 $request->requester->name,
                 \Auth::user()->name,
                 $request->id,
-                null,
-                null,
-                ReopenCaseNotification::TYPE_REJECT_REOPEN
+                $request->tenantRequester,
+                $request->tenantRecipient,
+                $request->type_request
             );
 
             Mail::to( $request->requester->email )->send($msg);
