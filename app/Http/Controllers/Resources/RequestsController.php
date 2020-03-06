@@ -35,6 +35,7 @@ class RequestsController extends BaseController
                 ]
             )
             ->where('tenant_recipient_id', $tenant->id)
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json(['data' => $requests]);
