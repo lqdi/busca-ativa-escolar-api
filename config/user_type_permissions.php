@@ -166,6 +166,7 @@ return [
         'cases.request-reopen',
         'cases.map',
         'cases.step.alerta',
+        'requests.view',
         'cases.step.pesquisa',
         'cases.step.analise_tecnica',
         'cases.step.gestao_do_caso',
