@@ -21,14 +21,26 @@ class RequestsController extends BaseController
         /* @var $user User */
         $user = \Auth::user();
 
+        $userType = $user->type;
+
         /* */
         $user->type = User::TYPE_GESTOR_NACIONAL;
+
+
+        if ($userType == 'supervisor_institucional') {
+            $column = 'requester_id';
+            $param = $user->id;
+        } else {
+            $column = 'tenant_recipient_id';
+            $param = $tenant->id;
+        }
+
 
         $requests = ReopeningRequests::query()
             ->with(
                 [
-                    'child' => function ($q){
-                        $q->with (
+                    'child' => function ($q) {
+                        $q->with(
                             ['alert']
                         );
                     },
@@ -36,19 +48,15 @@ class RequestsController extends BaseController
                     'recipient'
                 ]
             )
-            ->where('tenant_recipient_id', $tenant->id)
+            ->where($column, $param)
             ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json(['data' => $requests]);
-        /* */
-        $user->type = User::TYPE_GESTOR_OPERACIONAL;
-
-        return $requests;
-
     }
 
-    public function reject(ReopeningRequests $request){
+    public function reject(ReopeningRequests $request)
+    {
 
         /* @var $user User */
         $user = \Auth::user();
@@ -56,7 +64,7 @@ class RequestsController extends BaseController
         /* */
         $user->type = User::TYPE_GESTOR_NACIONAL;
 
-        if( $request == null){
+        if ($request == null) {
             return response()->json(['status' => 'error', 'result' => 'Solicitação não localizada']);
         }
 
@@ -72,7 +80,7 @@ class RequestsController extends BaseController
 
         $request->save();
 
-        if( $request->requester != null) {
+        if ($request->requester != null) {
 
             $msg = new ReopenCaseNotification(
                 $request->child->id,
@@ -87,7 +95,7 @@ class RequestsController extends BaseController
                 $type_answer
             );
 
-            Mail::to( $request->requester->email )->send($msg);
+            Mail::to($request->requester->email)->send($msg);
         }
 
         /* */
