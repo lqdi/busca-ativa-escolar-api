@@ -24,6 +24,7 @@ class ReopeningRequests extends Model
         'child_id',
         'status',
         'interrupt_reason',
+        'reject_reason',
 
         'tenant_requester_id', //TENANT REQUESTER
         'tenant_recipient_id', //TENANT RECIPIENT

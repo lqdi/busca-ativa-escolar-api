@@ -58,6 +58,9 @@ class RequestsController extends BaseController
     public function reject(ReopeningRequests $request)
     {
 
+        $rejectReason = request('reject_reason');
+
+
         /* @var $user User */
         $user = \Auth::user();
 
@@ -67,6 +70,11 @@ class RequestsController extends BaseController
         if ($request == null) {
             return response()->json(['status' => 'error', 'result' => 'Solicitação não localizada']);
         }
+        if ($rejectReason == null) {
+            return response()->json(['status' => 'error', 'result' => 'Por favor informe o motivo da rejeição!']);
+        }
+
+        $request->reject_reason = $rejectReason;
 
         $request->status = ReopeningRequests::STATUS_CANCELLED;
 
