@@ -100,7 +100,8 @@ class RequestsController extends BaseController
                 $request->id,
                 $request->tenantRequester,
                 $request->tenantRecipient,
-                $type_answer
+                $type_answer,
+                $rejectReason
             );
 
             Mail::to($request->requester->email)->send($msg);
