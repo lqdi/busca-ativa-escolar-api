@@ -19,6 +19,7 @@ class ReopenCaseNotification extends Mailable
     protected $recipient;
     protected $requester;
     protected $reopening_request_id;
+    protected $reject_reason;
 
     protected $tenant_requester;
     protected $tenant_recipient;
@@ -32,19 +33,6 @@ class ReopenCaseNotification extends Mailable
     const TYPE_REJECT_TRANSFER = "reject_transfer";
 
 
-    /**
-     * ReopenCaseNotification constructor.
-     * @param $child_id
-     * @param $child_name
-     * @param $child_case_id
-     * @param null $reason
-     * @param $recipient
-     * @param $requester
-     * @param $reopening_request_id
-     * @param null $tenant_requester
-     * @param null $tenant_recipient
-     * @param $type_notification
-     */
     public function __construct(
         $child_id,
         $child_name,
@@ -55,7 +43,8 @@ class ReopenCaseNotification extends Mailable
         $reopening_request_id,
         $tenant_requester = null,
         $tenant_recipient = null,
-        $type_notification)
+        $type_notification,
+        $reject_reason = null)
     {
         $this->child_id = $child_id;
         $this->child_name = $child_name;
@@ -67,6 +56,7 @@ class ReopenCaseNotification extends Mailable
         $this->tenant_requester = $tenant_requester;
         $this->tenant_recipient = $tenant_recipient;
         $this->type_request = $type_notification;
+        $this->reject_reason = $reject_reason;
     }
 
 
@@ -129,6 +119,7 @@ class ReopenCaseNotification extends Mailable
                 ->success()
                 ->line($this->recipient.", ")
                 ->line("O usuário(a) ".$this->requester." não aprovou a sua solicitação para reabertura do caso - ".$this->child_name.". Para acessar o caso clique no link abaixo:")
+                ->line("Motivo: ".$this->reject_reason)
                 ->line( new HtmlString( env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated" ) );
 
             $this->subject("RE: [Busca Ativa Escolar] Solicitação de reabertura de caso - ".$this->child_name);
@@ -155,6 +146,7 @@ class ReopenCaseNotification extends Mailable
                 ->success()
                 ->line($this->recipient.", ")
                 ->line("O usuário(a) ".$this->requester." do município de ".$this->tenant_recipient->name." não aprovou a sua solicitação para transferência do caso - ".$this->child_name.". Para acessar o caso em andamento clique no link abaixo:")
+                ->line("Motivo: ".$this->reject_reason)
                 ->line( new HtmlString( env('APP_PANEL_URL')."/children/view/".$this->child_id."/consolidated" ) );
 
             $this->subject("RE: [Busca Ativa Escolar] Solicitação de transferência de caso - ".$this->child_name);
