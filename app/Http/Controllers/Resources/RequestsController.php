@@ -60,6 +60,13 @@ class RequestsController extends BaseController
 
         $rejectReason = request('reject_reason');
 
+        if($request->status == ReopeningRequests::STATUS_CANCELLED){
+            return response()->json(['status' => 'error', 'result' => 'Solicitação já rejeitada']);
+        }
+
+        if($request->status == ReopeningRequests::STATUS_APPROVED){
+            return response()->json(['status' => 'error', 'result' => 'Solicitação já aprovada']);
+        }
 
         /* @var $user User */
         $user = \Auth::user();
@@ -90,21 +97,27 @@ class RequestsController extends BaseController
 
         if ($request->requester != null) {
 
-            $msg = new ReopenCaseNotification(
-                $request->child->id,
-                $request->child->name,
-                $request->child->current_case_id,
-                null,
-                $request->requester->name,
-                \Auth::user()->name,
-                $request->id,
-                $request->tenantRequester,
-                $request->tenantRecipient,
-                $type_answer,
-                $rejectReason
-            );
+            try{
 
-            Mail::to($request->requester->email)->send($msg);
+                $msg = new ReopenCaseNotification(
+                    $request->child->id,
+                    $request->child->name,
+                    $request->child->current_case_id,
+                    null,
+                    $request->requester->name,
+                    \Auth::user()->name,
+                    $request->id,
+                    $request->tenantRequester,
+                    $request->tenantRecipient,
+                    $type_answer,
+                    $rejectReason
+                );
+
+                Mail::to($request->requester->email)->send($msg);
+
+            }catch (\Exception $e){
+                //TODO Erro de envio de email
+            }
         }
 
         /* */

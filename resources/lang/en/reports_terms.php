@@ -14,7 +14,8 @@ return [
         'cancelled' => 'Cancelado',
         'completed' => 'Completo',
         'in_progress' => 'Em andamento',
-        'interrupted' => 'Interrompido'
+        'interrupted' => 'Interrompido',
+        'transferred' => 'Transferido'
     ],
 
     'name_by_slug' => [
