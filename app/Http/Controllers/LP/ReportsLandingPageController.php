@@ -372,8 +372,22 @@ class ReportsLandingPageController extends BaseController
                                     ['case_steps_alerta.tenant_id', $tenantId],
                                     ['case_steps_alerta.alert_status', 'accepted'],
                                     ['children.alert_status', 'accepted'],
-                                    ['children.child_status', 'out_of_school'],
+                                    ['children.child_status', 'interrupted'],
                                     ['children_cases.case_status', 'interrupted']
+                                ]
+                            )->count(),
+                    '_transferred' =>
+
+                        \DB::table('children')
+                            ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->join('children_cases', 'children_cases.child_id', '=', 'case_steps_alerta.child_id')
+                            ->where(
+                                [
+                                    ['case_steps_alerta.tenant_id', $tenantId],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.alert_status', 'accepted'],
+                                    ['children.child_status', 'transferred'],
+                                    ['children_cases.case_status', 'transferred']
                                 ]
                             )->count(),
                 ],

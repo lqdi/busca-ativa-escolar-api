@@ -73,6 +73,7 @@ class ChildCase extends Model
     const STATUS_IN_PROGRESS = "in_progress";
     const STATUS_INTERRUPTED = "interrupted";
     const STATUS_COMPLETED = "completed";
+    const STATUS_TRANSFERRED = "transferred";
 
     // Case risk levels
     const RISK_LEVEL_HIGH = "high";
@@ -298,7 +299,7 @@ class ChildCase extends Model
     public function reopen($reason = "")
     {
 
-        if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
+        if( $this->case_status == ChildCase::STATUS_INTERRUPTED OR $this->case_status == ChildCase::STATUS_TRANSFERRED){
             return response()->json(
                 [
                     'result' => 'O caso selecionado já está interrompido',
@@ -353,20 +354,26 @@ class ChildCase extends Model
 
             if( $reopeningRequest->requester != null) {
 
-                $msg = new ReopenCaseNotification(
-                    $this->child->id,
-                    $this->child->name,
-                    $this->id,
-                    null,
-                    $reopeningRequest->requester->name,
-                    \Auth::user()->name,
-                    $reopeningRequest->id,
-                    null,
-                    null,
-                    ReopenCaseNotification::TYPE_ACCEPT_REOPEN
-                );
+                try{
 
-                Mail::to( $reopeningRequest->requester->email )->send($msg);
+                        $msg = new ReopenCaseNotification(
+                        $this->child->id,
+                        $this->child->name,
+                        $this->id,
+                        null,
+                        $reopeningRequest->requester->name,
+                        \Auth::user()->name,
+                        $reopeningRequest->id,
+                        null,
+                        null,
+                        ReopenCaseNotification::TYPE_ACCEPT_REOPEN
+                    );
+
+                    Mail::to( $reopeningRequest->requester->email )->send($msg);
+
+                }catch (\Exception $e){
+
+                }
             }
 
         }
@@ -386,7 +393,7 @@ class ChildCase extends Model
     public function requestReopen($reason = "")
     {
 
-        if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
+        if( $this->case_status == ChildCase::STATUS_INTERRUPTED OR $this->case_status == ChildCase::STATUS_TRANSFERRED){
             return response()->json(
                 [
                     'result' => 'O caso selecionado já foi reaberto',
@@ -515,7 +522,7 @@ class ChildCase extends Model
 
     public function transfer(){
 
-        if( $this->case_status == ChildCase::STATUS_INTERRUPTED ){
+        if( $this->case_status == ChildCase::STATUS_INTERRUPTED OR $this->case_status == ChildCase::STATUS_TRANSFERRED){
             return response()->json(
                 [
                     'result' => 'O caso selecionado já está interrompido',
@@ -542,13 +549,13 @@ class ChildCase extends Model
             );
         }
 
-        $this->case_status = self::STATUS_INTERRUPTED;
+        $this->case_status = self::STATUS_TRANSFERRED;
 
         $this->interrupt_reason = $reopeningRequest->interrupt_reason;
 
         $this->save();
 
-        $this->child->setStatus(Child::STATUS_INTERRUPTED);
+        $this->child->setStatus(Child::STATUS_TRANSFERRED);
 
         $child = $this->child->getAttributes();
 
@@ -572,20 +579,26 @@ class ChildCase extends Model
 
         if( $reopeningRequest->requester != null) {
 
-            $msg = new ReopenCaseNotification(
-                $this->child->id,
-                $this->child->name,
-                $this->id,
-                null,
-                $reopeningRequest->requester->name,
-                \Auth::user()->name,
-                $reopeningRequest->id,
-                $reopeningRequest->tenantRequester,
-                $reopeningRequest->tenantRecipient,
-                ReopenCaseNotification::TYPE_ACCEPT_TRANSFER
-            );
+            try{
 
-            Mail::to( $reopeningRequest->requester->email )->send($msg);
+                $msg = new ReopenCaseNotification(
+                    $this->child->id,
+                    $this->child->name,
+                    $this->id,
+                    null,
+                    $reopeningRequest->requester->name,
+                    \Auth::user()->name,
+                    $reopeningRequest->id,
+                    $reopeningRequest->tenantRequester,
+                    $reopeningRequest->tenantRecipient,
+                    ReopenCaseNotification::TYPE_ACCEPT_TRANSFER
+                );
+
+                Mail::to( $reopeningRequest->requester->email )->send($msg);
+
+            } catch (\Exception $exception){
+                //TODO em caso de erro de envio de email?
+            }
         }
 
         $reopeningRequest->status = ReopeningRequests::STATUS_APPROVED;

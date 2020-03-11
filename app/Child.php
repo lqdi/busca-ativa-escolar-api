@@ -100,6 +100,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     const STATUS_IN_SCHOOL = "in_school";
     const STATUS_CANCELLED = "cancelled";
     const STATUS_INTERRUPTED = "interrupted";
+    const STATUS_TRANSFERRED = "transferred";
 
     const ALERT_STATUS_PENDING = "pending";
     const ALERT_STATUS_ACCEPTED = "accepted";
