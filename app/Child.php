@@ -441,12 +441,21 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             //Log::error("Failed to geocode child (id={$this->id}) coords with address '{$rawAddress}': " . $ex->getMessage());
         }
 
-        $this->update([
-            'lat' => ($address) ? $address->getLatitude() : null,
-            'lng' => ($address) ? $address->getLongitude() : null,
-            'map_region' => ($address) ? $address->getSubLocality() : null,
-            'map_geocoded_address' => ($address) ? $address->toArray() : null,
-        ]);
+        if ($address->getCountry() == 'Brasil') {
+            $this->update([
+                'lat' => ($address) ? $address->getLatitude() : null,
+                'lng' => ($address) ? $address->getLongitude() : null,
+                'map_region' => ($address) ? $address->getSubLocality() : null,
+                'map_geocoded_address' => ($address) ? $address->toArray() : null,
+            ]);
+        } else {
+            $this->update([
+                'lat' => null,
+                'lng' => null,
+                'map_region' => null,
+                'map_geocoded_address' => null,
+            ]);
+        }
 
         return $address;
     }
