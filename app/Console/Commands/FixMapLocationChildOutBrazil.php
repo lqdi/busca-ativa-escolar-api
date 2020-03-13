@@ -1,14 +1,14 @@
 <?php
 /**
  * busca-ativa-escolar-api
- * CheckCaseDeadlines.php
  *
- * Copyright (c) LQDI Digital
- * www.lqdi.net - 2017
  *
- * @author Aryel Tupinambá <aryel.tupinamba@lqdi.net>
+ * Copyright (c) UNICEF
  *
- * Created at: 16/02/2017, 19:15
+ * @author Sandy Santos <ssantos@unicef.org>
+ *
+ * Created at: 12/03/2020
+ * Verifica se a referência geográfica está dentro do Brasil e corrige caso não esteja.
  */
 
 namespace BuscaAtivaEscolar\Console\Commands;
