@@ -228,6 +228,16 @@ return [
         'alerts.spawn',
     ],
 
+    BuscaAtivaEscolar\User::TYPE_PARCEIRO => [
+        'reports.view',
+        'reports.ufs',
+        'reports.tenants',
+        'reports.signups',
+        'cases.map',
+        'tenants.view',
+        'tenants.contact_info'
+    ],
+
     'can_manage_types' => [ // Which users can set/change/create which user types
         BuscaAtivaEscolar\User::TYPE_SUPERUSER => [
             BuscaAtivaEscolar\User::TYPE_SUPERUSER,
@@ -242,6 +252,7 @@ return [
             BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
             BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
             BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_PARCEIRO
         ],
         BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
             BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL,
@@ -255,6 +266,7 @@ return [
             BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
             BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
             BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_PARCEIRO,
         ],
         BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
             BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
@@ -306,6 +318,7 @@ return [
             BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
             BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
             BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_PARCEIRO
         ],
         BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
             BuscaAtivaEscolar\User::TYPE_SUPERUSER,
@@ -320,6 +333,7 @@ return [
             BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
             BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
             BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_PARCEIRO
         ],
         BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
             BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,

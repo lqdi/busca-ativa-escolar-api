@@ -13,5 +13,6 @@ return [
 		"supervisor_institucional" => 'Supervisor Institucional',
 		"tecnico_verificador" => 'Técnico Verificador',
 		"agente_comunitario" => 'Agente Comunitário',
+        "parceiro_implementador" => 'Parceiro implementador',
 	],
 ];

@@ -93,6 +93,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	const TYPE_SUPERVISOR_ESTADUAL = "supervisor_estadual";
 	const TYPE_TECNICO_VERIFICADOR = "tecnico_verificador";
 	const TYPE_AGENTE_COMUNITARIO = "agente_comunitario";
+    const TYPE_PARCEIRO = "parceiro_implementador";
 
 	// Which user types are allowed to be assigned
 	static $ALLOWED_TYPES = [
@@ -104,6 +105,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		self::TYPE_GESTOR_ESTADUAL,
 		self::TYPE_COORDENADOR_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
+        self::TYPE_PARCEIRO
 	];
 
 	public static $TENANT_SCOPED_TYPES = [
@@ -119,6 +121,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		self::TYPE_COMITE_ESTADUAL,
 		self::TYPE_COORDENADOR_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
+        self::TYPE_PARCEIRO
 	];
 
 	public static $GLOBAL_SCOPED_TYPES = [
