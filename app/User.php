@@ -486,6 +486,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 			'Posição' => $this->position,
 			'Cadastro' => $this->deleted_at ? 'Desativado' : 'Ativo',
             'Data de desativacao' => $this->deleted_at ? $this->deleted_at : '',
+            'Meta Selo UNICEF' => $this->tenant->city->goal->goal ?? '',
 		];
 	}
 
