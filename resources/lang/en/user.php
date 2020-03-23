@@ -13,6 +13,14 @@ return [
 		"supervisor_institucional" => 'Supervisor Institucional',
 		"tecnico_verificador" => 'Técnico Verificador',
 		"agente_comunitario" => 'Agente Comunitário',
-        "parceiro_implementador" => 'Parceiro implementador',
+
+        "visitante_nacional_1" => 'Visitante Nacional (Permissoes)',
+        "visitante_nacional_2" => 'Visitante Nacional  (Permissoes)',
+        "visitante_nacional_3" => 'Visitante Nacional  (Permissoes)',
+
+        "visitante_estadual_1" => 'Visitante Estadual (Permissoes)',
+        "visitante_estadual_2" => 'Visitante Estadual (Permissoes)',
+        "visitante_estadual_3" => 'Visitante Estadual (Permissoes)'
+
 	],
 ];

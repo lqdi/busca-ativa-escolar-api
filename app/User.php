@@ -93,7 +93,24 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	const TYPE_SUPERVISOR_ESTADUAL = "supervisor_estadual";
 	const TYPE_TECNICO_VERIFICADOR = "tecnico_verificador";
 	const TYPE_AGENTE_COMUNITARIO = "agente_comunitario";
-    const TYPE_PARCEIRO = "parceiro_implementador";
+
+	//perfis para visitantes
+    const TYPE_VISITANTE_NACIONAL_UM = "visitante_nacional_1";
+    const TYPE_VISITANTE_NACIONAL_DOIS = "visitante_nacional_2";
+    const TYPE_VISITANTE_NACIONAL_TRES = "visitante_nacional_3";
+
+    const TYPE_VISITANTE_ESTADUAL_UM = "visitante_estadual_1";
+    const TYPE_VISITANTE_ESTADUAL_DOIS = "visitante_estadual_2";
+    const TYPE_VISITANTE_ESTADUAL_TRES = "visitante_estadual_3";
+
+    static $ALLOWED_TYPES_VISITANTES = [
+        self::TYPE_VISITANTE_NACIONAL_UM,
+        self::TYPE_VISITANTE_NACIONAL_DOIS,
+        self::TYPE_VISITANTE_NACIONAL_TRES,
+        self::TYPE_VISITANTE_ESTADUAL_UM,
+        self::TYPE_VISITANTE_ESTADUAL_DOIS,
+        self::TYPE_VISITANTE_ESTADUAL_TRES,
+    ];
 
 	// Which user types are allowed to be assigned
 	static $ALLOWED_TYPES = [
@@ -105,7 +122,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		self::TYPE_GESTOR_ESTADUAL,
 		self::TYPE_COORDENADOR_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
-        self::TYPE_PARCEIRO
 	];
 
 	public static $TENANT_SCOPED_TYPES = [
@@ -121,13 +137,20 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		self::TYPE_COMITE_ESTADUAL,
 		self::TYPE_COORDENADOR_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
-        self::TYPE_PARCEIRO
+
+        self::TYPE_VISITANTE_ESTADUAL_UM,
+        self::TYPE_VISITANTE_ESTADUAL_DOIS,
+        self::TYPE_VISITANTE_ESTADUAL_TRES,
 	];
 
 	public static $GLOBAL_SCOPED_TYPES = [
 		self::TYPE_SUPERUSER,
 		self::TYPE_GESTOR_NACIONAL,
 		self::TYPE_COMITE_NACIONAL,
+
+        self::TYPE_VISITANTE_NACIONAL_UM,
+        self::TYPE_VISITANTE_NACIONAL_DOIS,
+        self::TYPE_VISITANTE_NACIONAL_TRES
 	];
 
     protected $fillable = [

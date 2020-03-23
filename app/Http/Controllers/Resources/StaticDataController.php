@@ -43,6 +43,7 @@ class StaticDataController extends BaseController {
 				'SchoolingLevel' => \BuscaAtivaEscolar\Data\SchoolingLevel::getAllAsArray(),
 				'WorkActivity' => \BuscaAtivaEscolar\Data\WorkActivity::getAllAsArray(),
 				'UserType' => \BuscaAtivaEscolar\User::$ALLOWED_TYPES,
+                'UserTypeVisitantes' => \BuscaAtivaEscolar\User::$ALLOWED_TYPES_VISITANTES,
 				'CaseStepSlugs' => \BuscaAtivaEscolar\CaseSteps\CaseStep::SLUGS,
 				'UFs' => \BuscaAtivaEscolar\IBGE\UF::getAllAsArray(),
 				'UFsByCode' => \BuscaAtivaEscolar\IBGE\UF::getAllByCode(),
