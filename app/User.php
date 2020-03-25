@@ -95,22 +95,45 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	const TYPE_AGENTE_COMUNITARIO = "agente_comunitario";
 
 	//perfis para visitantes
+
+    const TYPE_VISITANTE = "perfil_visitante";              // apenas para filtro dos perfis abaixo
+    const TYPE_VISITANTE_NACIONAL = "visitante_nacional";   // apenas para filtro dos perfis abaixo
+    const TYPE_VISITANTE_ESTADUAL = "visitante_estadual";   // apenas para filtro dos perfis abaixo
+
     const TYPE_VISITANTE_NACIONAL_UM = "visitante_nacional_1";
     const TYPE_VISITANTE_NACIONAL_DOIS = "visitante_nacional_2";
     const TYPE_VISITANTE_NACIONAL_TRES = "visitante_nacional_3";
+    const TYPE_VISITANTE_NACIONAL_QUATRO = "visitante_nacional_4";
 
     const TYPE_VISITANTE_ESTADUAL_UM = "visitante_estadual_1";
     const TYPE_VISITANTE_ESTADUAL_DOIS = "visitante_estadual_2";
     const TYPE_VISITANTE_ESTADUAL_TRES = "visitante_estadual_3";
+    const TYPE_VISITANTE_ESTADUAL_QUATRO = "visitante_estadual_4";
 
     static $ALLOWED_TYPES_VISITANTES = [
         self::TYPE_VISITANTE_NACIONAL_UM,
         self::TYPE_VISITANTE_NACIONAL_DOIS,
         self::TYPE_VISITANTE_NACIONAL_TRES,
+        self::TYPE_VISITANTE_NACIONAL_QUATRO,
         self::TYPE_VISITANTE_ESTADUAL_UM,
         self::TYPE_VISITANTE_ESTADUAL_DOIS,
         self::TYPE_VISITANTE_ESTADUAL_TRES,
+        self::TYPE_VISITANTE_ESTADUAL_QUATRO,
     ];
+
+    //dados estáticos para mapear permissoes de visitantes no front
+    static $PERMISSIONS_FORM_FOR_VISITANTE = [
+        "visitante_nacional_1" => ['relatorios', 'usuarios', 'casos'],
+        "visitante_nacional_2" => ['relatorios', 'usuarios'],
+        "visitante_nacional_3" => ['relatorios'],
+        "visitante_nacional_4" => ['relatorios', 'casos'],
+        "visitante_estadual_1" => ['relatorios', 'usuarios', 'casos'],
+        "visitante_estadual_2" => ['relatorios', 'usuarios'],
+        "visitante_estadual_3" => ['relatorios'],
+        "visitante_estadual_4" => ['relatorios', 'casos'],
+    ];
+
+    //--------------------------
 
 	// Which user types are allowed to be assigned
 	static $ALLOWED_TYPES = [
@@ -122,6 +145,17 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		self::TYPE_GESTOR_ESTADUAL,
 		self::TYPE_COORDENADOR_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
+
+        self::TYPE_VISITANTE,
+
+        self::TYPE_VISITANTE_NACIONAL_UM,
+        self::TYPE_VISITANTE_NACIONAL_DOIS,
+        self::TYPE_VISITANTE_NACIONAL_TRES,
+        self::TYPE_VISITANTE_NACIONAL_QUATRO,
+        self::TYPE_VISITANTE_ESTADUAL_UM,
+        self::TYPE_VISITANTE_ESTADUAL_DOIS,
+        self::TYPE_VISITANTE_ESTADUAL_TRES,
+        self::TYPE_VISITANTE_ESTADUAL_QUATRO,
 	];
 
 	public static $TENANT_SCOPED_TYPES = [
@@ -141,6 +175,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         self::TYPE_VISITANTE_ESTADUAL_UM,
         self::TYPE_VISITANTE_ESTADUAL_DOIS,
         self::TYPE_VISITANTE_ESTADUAL_TRES,
+        self::TYPE_VISITANTE_ESTADUAL_QUATRO,
 	];
 
 	public static $GLOBAL_SCOPED_TYPES = [
@@ -150,7 +185,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
         self::TYPE_VISITANTE_NACIONAL_UM,
         self::TYPE_VISITANTE_NACIONAL_DOIS,
-        self::TYPE_VISITANTE_NACIONAL_TRES
+        self::TYPE_VISITANTE_NACIONAL_TRES,
+        self::TYPE_VISITANTE_NACIONAL_QUATRO
+
 	];
 
     protected $fillable = [
@@ -460,6 +497,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	 */
 	public function validate($data, $isCreating = false, $needsTenantID = true, $needsUF = false) {
 
+	    $users_allowed_joined = join(",", self::$ALLOWED_TYPES);
+        $users_visitantes_allowed_joined = join(",", self::$ALLOWED_TYPES_VISITANTES);
+
 		return validator($data, [
 			'name' => 'required|string',
 			'email' => ($isCreating ? 'required' : 'nullable') . '|email',
@@ -471,7 +511,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
 			'uf' => ($needsUF) ? 'required' : 'nullable',
 
-			'type' => 'required:in:' . join(",", self::$ALLOWED_TYPES),
+			'type' => 'required:in:' . $users_allowed_joined . "," .$users_visitantes_allowed_joined,
 
 			'dob' => 'required|date',
 			'cpf' => 'required|alpha_dash',
