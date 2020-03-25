@@ -44,6 +44,7 @@ class StaticDataController extends BaseController {
 				'WorkActivity' => \BuscaAtivaEscolar\Data\WorkActivity::getAllAsArray(),
 				'UserType' => \BuscaAtivaEscolar\User::$ALLOWED_TYPES,
                 'UserTypeVisitantes' => \BuscaAtivaEscolar\User::$ALLOWED_TYPES_VISITANTES,
+                'PermissionsFormForVisitante' => \BuscaAtivaEscolar\User::$PERMISSIONS_FORM_FOR_VISITANTE,
 				'CaseStepSlugs' => \BuscaAtivaEscolar\CaseSteps\CaseStep::SLUGS,
 				'UFs' => \BuscaAtivaEscolar\IBGE\UF::getAllAsArray(),
 				'UFsByCode' => \BuscaAtivaEscolar\IBGE\UF::getAllByCode(),

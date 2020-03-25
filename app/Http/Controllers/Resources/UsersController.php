@@ -56,7 +56,37 @@ class UsersController extends BaseController
         }
 
         if (request()->has('group_id')) $query->where('group_id', request('group_id'));
-        if (request()->has('type')) $query->where('type', request('type'));
+
+        //filter for visitantes nacionais e estaduais
+
+        if ( request()->has('type') ) {
+
+            if( request('type') == User::TYPE_VISITANTE_NACIONAL )
+            {
+                $query->where('type', [
+                    User::TYPE_VISITANTE_NACIONAL_UM,
+                    User::TYPE_VISITANTE_NACIONAL_DOIS,
+                    User::TYPE_VISITANTE_NACIONAL_TRES,
+                    User::TYPE_VISITANTE_NACIONAL_QUATRO
+                ] );
+            }
+
+            elseif ( request('type') == User::TYPE_VISITANTE_ESTADUAL )
+            {
+                $query->where('type', [
+                    User::TYPE_VISITANTE_ESTADUAL_UM,
+                    User::TYPE_VISITANTE_ESTADUAL_DOIS,
+                    User::TYPE_VISITANTE_ESTADUAL_TRES,
+                    User::TYPE_VISITANTE_ESTADUAL_QUATRO
+                ] );
+            }
+
+            else{
+                $query->where('type', request('type'));
+            }
+
+        }
+
         if (request()->has('email')) $query->where('email', 'LIKE', request('email') . '%');
 
         if (request('show_suspended', false)) $query->withTrashed();
