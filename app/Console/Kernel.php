@@ -43,6 +43,7 @@ class Kernel extends ConsoleKernel
         Commands\TransferNisToAlert::class,
         Commands\FixMapLocationChild::class,
         Commands\ReindexOneChild::class,
+        Commands\FixMapLocationChildOutBrazil::class,
         Commands\fixNameChildPesquisa::class
     ];
 
