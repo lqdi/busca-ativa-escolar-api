@@ -25,6 +25,7 @@ use BuscaAtivaEscolar\Events\CaseStepUpdated;
 use BuscaAtivaEscolar\Events\ChildCaseCancelled;
 use BuscaAtivaEscolar\Events\ChildCaseCompleted;
 use BuscaAtivaEscolar\Events\ChildCaseInterrupted;
+use Lang;
 use Log;
 
 class ChildActivityLogger {
@@ -174,7 +175,7 @@ class ChildActivityLogger {
 			'child_name' => $event->child->name,
 			'child_id' => $event->child->id,
 			'reason' => $event->reason,
-			'reason_description' => trans('child_case.cancel_reason.' . $event->reason),
+			'reason_description' => $this->langHas( 'child_case.cancel_reason.' . $event->reason, 'en' ) ? trans('child_case.cancel_reason.' . $event->reason) : $event->reason,
 		], [
 			'source' => get_class(),
 			'child' => $event->child,
@@ -194,5 +195,15 @@ class ChildActivityLogger {
 		$events->listen(ChildCaseInterrupted::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onCaseInterrupted');
 		$events->listen(ChildCaseCancelled::class, 'BuscaAtivaEscolar\Listeners\ChildActivityLogger@onCaseCancelled');
 	}
+
+	//Funcao para verificar se existe traducao para o termo: default sempre en
+    function langHas($phrase, $lang, $default = 'en')
+    {
+        if(Lang::has($phrase, $lang) == false ){
+            return false;
+        }
+
+        return true;
+    }
 
 }
