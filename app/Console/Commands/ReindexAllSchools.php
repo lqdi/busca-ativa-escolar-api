@@ -27,6 +27,8 @@ class ReindexAllSchools extends Command {
 
 	public function handle(Search $search) {
 
+        ini_set('memory_limit', '1G');
+
 		$pdo = DB::getPDO();
 		$mock = new School();
 
