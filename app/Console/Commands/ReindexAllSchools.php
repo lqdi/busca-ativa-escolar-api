@@ -50,7 +50,7 @@ class ReindexAllSchools extends Command {
 
 
 			$progress = "[ " . sprintf("%.3f", (($indexed / $total) * 100)) . " % ] \t";
-			$memory_usage = "\t mem=" . sprintf("%.2f", (memory_get_usage() / 1024) / 1024) . " MB \t peak=" . sprintf("%.2f", (memory_get_peak_usage() / 1024) / 1024) .' MB';
+			$memory_usage = "\t mem=" . sprintf("%.2f", (memory_get_usage() / 512) / 512) . " MB \t peak=" . sprintf("%.2f", (memory_get_peak_usage() / 512) / 512) .' MB';
 			$short_name = str_pad(Str::limit($mock->name, 16), 20, " ");
 			$this->comment("{$progress} Reindexed: {$mock->id} -> {$mock->uf} / {$short_name} \t {$memory_usage}");
 		}
