@@ -62,8 +62,16 @@ class Rematricula extends CaseStep {
             User::TYPE_COORDENADOR_ESTADUAL
 		]);
 	}
+    /**
+     * Cases belonging to this child
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cases()
+    {
+        return $this->hasMany('BuscaAtivaEscolar\ChildCase', 'child_id', 'child_id');
+    }
 
-	public function validate($data, $isCompletingStep = false) {
+    public function validate($data, $isCompletingStep = false) {
 		$data['is_completing_step'] = $isCompletingStep;
 
 		return validator($data, [

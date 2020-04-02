@@ -30,10 +30,10 @@ class ExportUsersJob implements ShouldQueue
 
                 //All columns are defined in class User -> toExportArray
                 $sheet->appendRow(array(
-                    'UF','Município','Nome interno','Data de adesão','Data de cadastro','Nome do usuário','E-mail','Telefone Institucional','Celular Institucional','Celular Pessoal','Data de nascimento','Tipo','Grupo','Instituição','Posição','Cadastro','Data de desativacao'
+                    'UF','Município','Nome interno','Data de adesão','Data de cadastro','Nome do usuário','E-mail','Telefone Institucional','Celular Institucional','Celular Pessoal','Data de nascimento','Tipo','Grupo','Instituição','Posição','Cadastro','Data de desativacao', 'Meta Selo UNICEF'
                 ));
 
-                $query->chunk(1000, function ($rows) use ($sheet) {
+                $query->chunk(500, function ($rows) use ($sheet) {
                     foreach ($rows as $row) {
                         $sheet->appendRow(
                             $row->toExportArray()
