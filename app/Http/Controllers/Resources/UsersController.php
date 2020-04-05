@@ -63,22 +63,18 @@ class UsersController extends BaseController
 
             if( request('type') == User::TYPE_VISITANTE_NACIONAL )
             {
-                $query->where('type', [
-                    User::TYPE_VISITANTE_NACIONAL_UM,
-                    User::TYPE_VISITANTE_NACIONAL_DOIS,
-                    User::TYPE_VISITANTE_NACIONAL_TRES,
-                    User::TYPE_VISITANTE_NACIONAL_QUATRO
-                ] );
+                $query->where('type', '=', USER::TYPE_VISITANTE_NACIONAL_UM);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_DOIS);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_TRES);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_QUATRO);
             }
 
             elseif ( request('type') == User::TYPE_VISITANTE_ESTADUAL )
             {
-                $query->where('type', [
-                    User::TYPE_VISITANTE_ESTADUAL_UM,
-                    User::TYPE_VISITANTE_ESTADUAL_DOIS,
-                    User::TYPE_VISITANTE_ESTADUAL_TRES,
-                    User::TYPE_VISITANTE_ESTADUAL_QUATRO
-                ] );
+                $query->where('type', '=', USER::TYPE_VISITANTE_ESTADUAL_UM);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_DOIS);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_TRES);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_QUATRO);
             }
 
             else{
