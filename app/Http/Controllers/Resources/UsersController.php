@@ -64,17 +64,17 @@ class UsersController extends BaseController
             if( request('type') == User::TYPE_VISITANTE_NACIONAL )
             {
                 $query->where('type', '=', USER::TYPE_VISITANTE_NACIONAL_UM);
-                $query->where('type', '=', USER::TYPE_VISITANTE_NACIONAL_DOIS);
-                $query->where('type', '=', USER::TYPE_VISITANTE_NACIONAL_TRES);
-                $query->where('type', '=', USER::TYPE_VISITANTE_NACIONAL_QUATRO);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_DOIS);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_TRES);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_QUATRO);
             }
 
             elseif ( request('type') == User::TYPE_VISITANTE_ESTADUAL )
             {
                 $query->where('type', '=', USER::TYPE_VISITANTE_ESTADUAL_UM);
-                $query->where('type', '=', USER::TYPE_VISITANTE_ESTADUAL_DOIS);
-                $query->where('type', '=', USER::TYPE_VISITANTE_ESTADUAL_TRES);
-                $query->where('type', '=', USER::TYPE_VISITANTE_ESTADUAL_QUATRO);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_DOIS);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_TRES);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_QUATRO);
             }
 
             else{
