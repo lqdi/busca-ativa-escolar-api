@@ -18,15 +18,26 @@ return [
 //        'transferred' => 'Transferido'
 //    ],
 
+//    'status' => [
+//        'out_of_school' => 'Caso em andamento: de pesquisa até (re)matrícula',
+//        'in_observation' => 'Dentro da escola e em observação: de 1ª a 4ª observação',
+//        'in_school' => 'Casos concluídos: caso finalizado com sucesso após a 4ª observação',
+//        'cancelled' => 'Caso cancelado: em qualquer etapa do processo',
+//        'completed' => 'Completo',
+//        'in_progress' => 'Em andamento',
+//        'interrupted' => 'Casos interrompidos: criança ou adolescente que evadiu durante as etapas de observação e cujo caso não foi reaberto',
+//        'transferred' => 'Transferido'
+//    ],
+
     'status' => [
-        'out_of_school' => 'Caso em andamento: de pesquisa até (re)matrícula',
-        'in_observation' => 'Dentro da escola e em observação: de 1ª a 4ª observação',
-        'in_school' => 'Casos concluídos: caso finalizado com sucesso após a 4ª observação',
-        'cancelled' => 'Caso cancelado: em qualquer etapa do processo',
-        'completed' => 'Completo',
+        'out_of_school' => 'Casos em andamento',
+        'in_observation' => 'Dentro da escola',
+        'in_school' => 'Casos concluídos',
+        'cancelled' => 'Casos cancelados',
+        'completed' => 'Completos',
         'in_progress' => 'Em andamento',
-        'interrupted' => 'Casos interrompidos: criança ou adolescente que evadiu durante as etapas de observação e cujo caso não foi reaberto',
-        'transferred' => 'Transferido'
+        'interrupted' => 'Casos interrompidos',
+        'transferred' => 'Transferidos'
     ],
 
     'name_by_slug' => [
