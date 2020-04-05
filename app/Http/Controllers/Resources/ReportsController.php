@@ -616,7 +616,9 @@ class ReportsController extends BaseController
                 return trans('reports_terms.guardian_schooling');
             case 'country_region':
                 return trans('reports_terms.country_region');
-            default:
+            case 'school_last_grade':
+                return trans('reports_terms.school_last_grade');
+                default:
                 return [];
         }
 

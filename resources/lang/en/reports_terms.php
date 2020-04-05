@@ -135,6 +135,27 @@ return [
         'su' => 'Sul',
     ],
 
+    'school_last_grade' => [
+        'preescola_4anos' => 'Pré-escola (4 anos)',
+        'preescola_5anos' => 'Pré-escola (5 anos)',
+        'ef_1ano' => 'Ensino Fundamental - Anos iniciais (1º ano)',
+        'ef_2ano' => 'Ensino Fundamental - Anos iniciais (2º ano)',
+        'ef_3ano' => 'Ensino Fundamental - Anos iniciais (3º ano)',
+        'ef_4ano' => 'Ensino Fundamental - Anos iniciais (4º ano)',
+        'ef_5ano' => 'Ensino Fundamental - Anos iniciais (5º ano)',
+        'ef_6ano' => 'Ensino Fundamental - Anos iniciais (6º ano)',
+        'ef_7ano' => 'Ensino Fundamental - Anos iniciais (7º ano)',
+        'ef_8ano' => 'Ensino Fundamental - Anos iniciais (8º ano)',
+        'ef_9ano' => 'Ensino Fundamental - Anos iniciais (9º ano)',
+        'em_1ano' => 'Ensino Médio - 1º ano',
+        'em_2ano' => 'Ensino Médio - 2º ano',
+        'em_3ano' => 'Ensino Médio - 3º ano',
+        'eja_finais' => 'EJA (ensino fundamental anos finais)',
+        'eja_iniciais' => 'EJA (ensino fundamental anos iniciais)',
+        'eja_alfabetizado' => 'EJA (Alfabetizado)',
+        'null' => 'Não informado'
+    ],
+
     'case_causes' =>
     [
         '10' => 'Adolescente em conflito com a lei',
