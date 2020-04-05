@@ -127,6 +127,14 @@ return [
         'null' => 'Não informado'
     ],
 
+    'country_region' => [
+        'se' => 'Sudeste',
+        'ne' => 'Nordeste',
+        'no' => 'Norte',
+        'co' => 'Centro-Oeste',
+        'su' => 'Sul',
+    ],
+
     'case_causes' =>
     [
         '10' => 'Adolescente em conflito com a lei',
