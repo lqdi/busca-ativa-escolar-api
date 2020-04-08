@@ -31,12 +31,13 @@ return [
 
     'status' => [
         'out_of_school' => 'Casos em andamento',
+        'cancelled' => 'Casos cancelados',
         'in_observation' => 'Dentro da escola',
         'in_school' => 'Casos concluídos',
-        'cancelled' => 'Casos cancelados',
+        'interrupted' => 'Casos interrompidos',
+
         'completed' => 'Completos',
         'in_progress' => 'Em andamento',
-        'interrupted' => 'Casos interrompidos',
         'transferred' => 'Transferidos'
     ],
 
