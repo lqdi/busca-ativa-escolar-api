@@ -292,6 +292,7 @@ class ReportsLandingPageController extends BaseController
                 ],
 
                 'cases' => [
+
                     '_enrollment' =>
 
                         \DB::table('case_steps_alerta')
@@ -333,6 +334,7 @@ class ReportsLandingPageController extends BaseController
                                     ['children.child_status', '<>', 'interrupted']
                                 ]
                             )->count(),
+
                     '_cancelled' =>
 
                         \DB::table('case_steps_alerta')
@@ -362,6 +364,7 @@ class ReportsLandingPageController extends BaseController
                                     ['children_cases.case_status', 'completed']
                                 ]
                             )->count(),
+
                     '_interrupted' =>
 
                         \DB::table('children')
@@ -376,6 +379,7 @@ class ReportsLandingPageController extends BaseController
                                     ['children_cases.case_status', 'interrupted']
                                 ]
                             )->count(),
+
                     '_transferred' =>
 
                         \DB::table('children')
@@ -390,6 +394,22 @@ class ReportsLandingPageController extends BaseController
                                     ['children_cases.case_status', 'transferred']
                                 ]
                             )->count(),
+
+                    '_in_observation' =>
+
+                        \DB::table('case_steps_alerta')
+                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
+                            ->join('children_cases', 'children_cases.child_id', '=', 'case_steps_alerta.child_id')
+                            ->where(
+                                [
+                                    ['case_steps_alerta.tenant_id', $tenantId],
+                                    ['case_steps_alerta.alert_status', 'accepted'],
+                                    ['children.alert_status', 'accepted'],
+                                    ['children.child_status', 'in_observation'],
+                                    ['children_cases.case_status', 'in_progress']
+                                ]
+                            )->count(),
+
                 ],
 
                 'causes' => $causes,
