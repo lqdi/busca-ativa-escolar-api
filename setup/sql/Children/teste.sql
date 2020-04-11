@@ -16,7 +16,8 @@ use base_prod_2;
 -- JOIN children_cases cc ON cc.child_id = c.id 
 -- where c.child_status = @child_status and cc.case_status = @cases_status group by csa.alert_status, c.alert_status;
 
-SELECT *
+SELECT c.id
 FROM children c
 JOIN case_steps_alerta csa ON csa.child_id = c.id 
+JOIN children_cases cc ON cc.child_id = c.id
 where c.alert_status <> csa.alert_status
