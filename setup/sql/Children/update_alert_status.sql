@@ -6,7 +6,7 @@
 -- interrupted      | interrupted
 -- transferred      | transferred
 -- Crianca cancelada e caso em progresso = caso recebe o status cancelado
-use base05042020prod;
+use base_prod_2;
 SET @status_update='accepted' COLLATE utf8_unicode_ci;
 
 UPDATE children_cases cc
