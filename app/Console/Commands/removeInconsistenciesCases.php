@@ -45,16 +45,24 @@ class removeInconsistenciesCases extends Command
                     FROM children c
                     JOIN case_steps_alerta csa ON csa.child_id = c.id
                     where c.alert_status <> csa.alert_status";
-
         $queryChildrenInconsistencies = DB::select($sql);
         $resultArrayQueryChildrenInconsistencies = json_decode(json_encode($queryChildrenInconsistencies), true);
         //Contagem
         $totalCriancaInconsistentes = count($resultArrayQueryChildrenInconsistencies);
 
-        //Consulta crianças sem alerta
-        $queryCriancaSemAlerta = Child::doesntHave('alert')->get();
+        //Consulta crianças alguma valor no conjunto de tabelas
+        $sql = "SELECT * FROM children c WHERE 
+                c.id NOT IN (SELECT child_id FROM case_steps_alerta) || 
+                c.id NOT IN (SELECT child_id FROM case_steps_analise_tecnica) ||
+                c.id NOT IN (SELECT child_id FROM case_steps_gestao_do_caso) || 
+                c.id NOT IN (SELECT child_id FROM case_steps_observacao) ||
+                c.id NOT IN (SELECT child_id FROM case_steps_pesquisa) ||
+                c.id NOT IN (SELECT child_id FROM case_steps_rematricula) ||
+                c.id NOT IN (SELECT child_id FROM children_cases)";
+        $queryCriancaSemAlerta = DB::select($sql);
+        $resultArrayQueryCriancaSemAlerta = json_decode(json_encode($queryCriancaSemAlerta), true);
         //Contagem
-        $totalCriancaSemAlerta = Child::doesntHave('alert')->count();
+        $totalCriancaSemAlerta = count($resultArrayQueryCriancaSemAlerta);
 
         if(($totalCriancaSemAlerta == 0) && ($totalCriancaInconsistentes == 0)){
             $this->comment('Banco de dados consistente!');
@@ -64,21 +72,33 @@ class removeInconsistenciesCases extends Command
         $resposta = $this->ask("Essa ação removera $totalCriancaSemAlerta crianças sem alerta e $totalCriancaInconsistentes criancas inconsistencias no banco de dados\n faça um backup antes pois as mudanças não poderão ser desfeitas.\n Deseja continuar? sim ou não.");
 
         if ($resposta == 'sim') {
-
-            foreach ($queryCriancaSemAlerta as $child) {
-                $this->comment('Crianca sem alerta id: ' . $child->id . ' excluido!');
-                $sql = "DELETE c FROM children c where c.id = '$child->id'";
-                DB::select($sql);
-                Log::info('Criança sem alerta exluída id: ' . $child->id);
+            foreach ($resultArrayQueryCriancaSemAlerta as $child) {
+                $id = $child['id'];
+                $this->comment('Crianca sem alerta id: ' . $id . ' excluido!');
+                DB::table('children')->where('id', $id)->delete();
+                DB::table('children_cases')->where('child_id', $id)->delete();
+                DB::table('case_steps_alerta')->where('child_id', $id)->delete();
+                DB::table('case_steps_analise_tecnica')->where('child_id', $id)->delete();
+                DB::table('case_steps_gestao_do_caso')->where('child_id', $id)->delete();
+                DB::table('case_steps_observacao')->where('child_id', $id)->delete();
+                DB::table('case_steps_pesquisa')->where('child_id', $id)->delete();
+                DB::table('case_steps_rematricula')->where('child_id', $id)->delete();
+                Log::info('Criança sem alerta exluída id: ' . $id);
 
             }
 
             foreach ($resultArrayQueryChildrenInconsistencies as $child) {
                 $id = $child['id'];
                 $this->comment('inconsistencia id: ' . $id . ' excluído!');
-                $sql = "DELETE c FROM children c where c.id = '$id'";
-                DB::select($sql);
-                Log::info('Criança inconsistente exluída id: ' . $id);
+                DB::table('children')->where('id', $id)->delete();
+                DB::table('children_cases')->where('child_id', $id)->delete();
+                DB::table('case_steps_alerta')->where('child_id', $id)->delete();
+                DB::table('case_steps_analise_tecnica')->where('child_id', $id)->delete();
+                DB::table('case_steps_gestao_do_caso')->where('child_id', $id)->delete();
+                DB::table('case_steps_observacao')->where('child_id', $id)->delete();
+                DB::table('case_steps_pesquisa')->where('child_id', $id)->delete();
+                DB::table('case_steps_rematricula')->where('child_id', $id)->delete();
+                Log::info('Caso inconsistente exluída id: ' . $id);
             }
         }
         $this->comment('Concluído! ' . $totalCriancaSemAlerta . ' Crianças sem alerta, ' . $totalCriancaInconsistentes . ' Inconsistências');
