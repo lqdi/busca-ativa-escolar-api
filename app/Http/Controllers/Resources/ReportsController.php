@@ -494,21 +494,37 @@ class ReportsController extends BaseController
                     //new options
 
                     'num_children_in_school' => Child::query()
-                        ->whereIn('child_status', [Child::STATUS_IN_SCHOOL])
+                        ->where('child_status', '=',Child::STATUS_IN_SCHOOL)
                         ->count(),
 
                     'num_children_in_observation' => Child::query()
-                        ->whereIn('child_status', [Child::STATUS_OBSERVATION])
+                        ->where('child_status', '=',Child::STATUS_OBSERVATION)
                         ->count(),
 
                     'num_children_out_of_school' => Child::query()
-                        ->where('alert_status', Child::ALERT_STATUS_ACCEPTED)
-                        ->whereIn('child_status', [Child::STATUS_OUT_OF_SCHOOL])
+                        ->where([
+                            ['child_status', '=', Child::STATUS_OUT_OF_SCHOOL],
+                            ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
+                        ])
                         ->count(),
 
                     'num_children_cancelled' => Child::query()
-                        ->where('alert_status', Child::ALERT_STATUS_ACCEPTED)
-                        ->whereIn('child_status', [Child::STATUS_CANCELLED])
+                        ->where([
+                            ['child_status', '=', Child::STATUS_CANCELLED],
+                            ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
+                        ])
+                        ->count(),
+
+                    'num_children_transferred' => Child::query()
+                        ->where([
+                            ['child_status', '=', Child::STATUS_TRANSFERRED]
+                        ])
+                        ->count(),
+
+                    'num_children_interrupted' => Child::query()
+                        ->where([
+                            ['child_status', '=', Child::STATUS_INTERRUPTED],
+                        ])
                         ->count(),
 
                 ];
