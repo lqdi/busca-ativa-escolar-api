@@ -14,9 +14,10 @@ use PhpParser\Builder;
 class ReportsBar extends BaseController
 {
 
-    public function city_bar(){
+    public function city_bar()
+    {
 
-        if ( $this->currentUser()->tenant == null ){
+        if ($this->currentUser()->tenant == null) {
             return response()->json(['status' => 'no_tenant']);
         }
 
@@ -103,8 +104,8 @@ class ReportsBar extends BaseController
                 'cases_box' => [
 
                     'cases_on_time' =>
-                        Child::whereHas('cases', function ($query){
-                            $query->where(['case_status'=> 'in_progress']);
+                        Child::whereHas('cases', function ($query) {
+                            $query->where(['case_status' => 'in_progress']);
                         })->where(
                             [
                                 'tenant_id' => $this->currentUser()->tenant->id,
@@ -115,8 +116,8 @@ class ReportsBar extends BaseController
 
                         'pesquisa' =>
 
-                            Child::whereHas('cases', function ($query){
-                                $query->where(['case_status'=> 'in_progress']);
+                            Child::whereHas('cases', function ($query) {
+                                $query->where(['case_status' => 'in_progress']);
                             })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
@@ -127,8 +128,8 @@ class ReportsBar extends BaseController
 
                         'analise_tecnica' =>
 
-                            Child::whereHas('cases', function ($query){
-                                $query->where(['case_status'=> 'in_progress']);
+                            Child::whereHas('cases', function ($query) {
+                                $query->where(['case_status' => 'in_progress']);
                             })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
@@ -139,8 +140,8 @@ class ReportsBar extends BaseController
 
                         'gestao_do_caso' =>
 
-                            Child::whereHas('cases', function ($query){
-                                $query->where(['case_status'=> 'in_progress']);
+                            Child::whereHas('cases', function ($query) {
+                                $query->where(['case_status' => 'in_progress']);
                             })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
@@ -151,8 +152,8 @@ class ReportsBar extends BaseController
 
                         'rematricula' =>
 
-                            Child::whereHas('cases', function ($query){
-                                $query->where(['case_status'=> 'in_progress']);
+                            Child::whereHas('cases', function ($query) {
+                                $query->where(['case_status' => 'in_progress']);
                             })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
@@ -163,8 +164,8 @@ class ReportsBar extends BaseController
 
                         'observacao' =>
 
-                            Child::whereHas('cases', function ($query){
-                                $query->where(['case_status'=> 'in_progress']);
+                            Child::whereHas('cases', function ($query) {
+                                $query->where(['case_status' => 'in_progress']);
                             })->where(
                                 [
                                     'tenant_id' => $this->currentUser()->tenant->id,
@@ -175,8 +176,8 @@ class ReportsBar extends BaseController
                     ],
 
                     'cases_late' =>
-                        Child::whereHas('cases', function ($query){
-                            $query->where(['case_status'=> 'in_progress']);
+                        Child::whereHas('cases', function ($query) {
+                            $query->where(['case_status' => 'in_progress']);
                         })->where(
                             [
                                 'tenant_id' => $this->currentUser()->tenant->id,
@@ -242,9 +243,25 @@ class ReportsBar extends BaseController
                 'goal_box' => [
 
                     'goal' => $this->currentUser()->tenant->city->goal ? $this->currentUser()->tenant->city->goal->goal : null,
+//
+//                    Child::whereHas('cases', function ($query) {
+//                        $query->where(['case_status' => 'in_progress']);
+//                    })->where(
+//                        [
+//                            'tenant_id' => $this->currentUser()->tenant->id,
+//                            'deadline_status' => Child::DEADLINE_STATUS_LATE,
+//                            'alert_status' => Child::ALERT_STATUS_ACCEPTED
+//                        ])->count(),
 
                     'reinsertions_classes' =>
-                        Rematricula::where(['tenant_id' => $this->currentUser()->tenant->id, 'is_completed' => true])
+                        Rematricula::whereHas('cases', function ($query) {
+                            $query->where(['case_status' => 'in_progress'])->orWhere(['case_status' => 'completed']);
+                        })->where(
+                            [
+                                'tenant_id' => $this->currentUser()->tenant->id,
+                                'is_completed' => true
+                            ]
+                        )
                             ->orderBy('completed_at', 'asc')
                             ->count(),
 
@@ -280,9 +297,9 @@ class ReportsBar extends BaseController
                 'child_status' => Child::STATUS_OBSERVATION
             ])->get();
 
-        foreach ( $children as $child ){
+        foreach ($children as $child) {
 
-            switch ( $child->currentStep->step_index ) {
+            switch ($child->currentStep->step_index) {
                 case 60:
                     $qtd_observations_1++;
                     break;

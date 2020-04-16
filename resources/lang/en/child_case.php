@@ -11,6 +11,7 @@ return [
 		 'in_progress' => 'Em andamento',
 		 'interrupted' => 'Interrompido',
 		 'completed' => 'Concluído',
+         'transferred' => 'Transferido',
 	],
 
 	'cancel_reason' => [
