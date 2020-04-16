@@ -35,9 +35,11 @@ class FixMapLocationChild extends Command
             $today = Carbon::today();
             foreach ($pesquisas as $pesquisa) {
                 $childObj = Child::where('id', $pesquisa->child_id)->first();
-                if (($pesquisa->place_address && $pesquisa->place_city_name && $pesquisa->place_uf) && !$childObj->map_geocoded_address) {
+                if ((($pesquisa->place_address && $pesquisa->place_city_name && $pesquisa->place_uf) && !$childObj->map_geocoded_address) || (($childObj->map_geocoded_address['country'] != NULL) && ($childObj->map_geocoded_address['country'] != 'Brasil'))) {
+                    var_dump($childObj->map_geocoded_address['country']);
                     try {
-                        $address = $childObj->updateCoordinatesThroughGeocoding("{$pesquisa->place_address},{$pesquisa->place_city_name},{$pesquisa->place_uf}");
+                        $placeAdress = rtrim($pesquisa->place_address, ',');
+                        $address = $childObj->updateCoordinatesThroughGeocoding("{$pesquisa->place_city_name},'{$placeAdress}',{$pesquisa->place_uf}");
                         $pesquisa->update([
                             'place_lat' => ($address) ? $address->getLatitude() : null,
                             'place_lng' => ($address) ? $address->getLongitude() : null,
