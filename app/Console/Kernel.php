@@ -44,7 +44,8 @@ class Kernel extends ConsoleKernel
         Commands\FixMapLocationChild::class,
         Commands\ReindexOneChild::class,
         Commands\FixMapLocationChildOutBrazil::class,
-        Commands\fixNameChildPesquisa::class
+        Commands\fixNameChildPesquisa::class,
+        Commands\removeInconsistenciesCases::class
     ];
 
     /**
