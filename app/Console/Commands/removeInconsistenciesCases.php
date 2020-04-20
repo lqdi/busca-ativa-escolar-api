@@ -41,17 +41,16 @@ class removeInconsistenciesCases extends Command
     public function handle()
     {
         //Consulta casos inconsistêntes
-        $sql = "SELECT c.id
+        $sqlCasosInconsistentes = "SELECT c.id
                     FROM children c
                     JOIN case_steps_alerta csa ON csa.child_id = c.id
                     where c.alert_status <> csa.alert_status";
-        $queryChildrenInconsistencies = DB::select($sql);
-        $resultArrayQueryChildrenInconsistencies = json_decode(json_encode($queryChildrenInconsistencies), true);
-        //Contagem
-        $totalCriancaInconsistentes = count($resultArrayQueryChildrenInconsistencies);
 
-        //Consulta crianças alguma valor no conjunto de tabelas
-        $sql = "SELECT * FROM children c WHERE 
+        $casosInconsistentes = $this->queryObject($sqlCasosInconsistentes);
+
+
+        //Consulta crianças sem valor no conjunto de tabelas relacionadas
+        $sqlCasosCriancasSemAlerta = "SELECT c.id FROM children c WHERE 
                 c.id NOT IN (SELECT child_id FROM case_steps_alerta) || 
                 c.id NOT IN (SELECT child_id FROM case_steps_analise_tecnica) ||
                 c.id NOT IN (SELECT child_id FROM case_steps_gestao_do_caso) || 
@@ -59,50 +58,117 @@ class removeInconsistenciesCases extends Command
                 c.id NOT IN (SELECT child_id FROM case_steps_pesquisa) ||
                 c.id NOT IN (SELECT child_id FROM case_steps_rematricula) ||
                 c.id NOT IN (SELECT child_id FROM children_cases)";
-        $queryCriancaSemAlerta = DB::select($sql);
-        $resultArrayQueryCriancaSemAlerta = json_decode(json_encode($queryCriancaSemAlerta), true);
-        //Contagem
-        $totalCriancaSemAlerta = count($resultArrayQueryCriancaSemAlerta);
 
-        if(($totalCriancaSemAlerta == 0) && ($totalCriancaInconsistentes == 0)){
+        $casosCriancasSemAlerta = $this->queryObject($sqlCasosCriancasSemAlerta);
+
+
+        //Consulta crianças sem ids relacionados importantes
+        $sqlCasosCriancasSemIdsRelacionados = "SELECT c.id FROM children c 
+                join case_steps_alerta csa ON csa.child_id = c.id
+                join children_cases cc ON cc.child_id = c.id
+                where c.current_case_id is null || c.current_step_id is null || c.current_step_type is null";
+
+        $casosCriancasSemIdsRelacionados = $this->queryObject($sqlCasosCriancasSemIdsRelacionados);
+
+
+        if (($casosInconsistentes->total == 0) && ($casosCriancasSemAlerta->total == 0) && ($casosCriancasSemIdsRelacionados->total == 0)) {
             $this->comment('Banco de dados consistente!');
             return;
         }
 
-        $resposta = $this->ask("Essa ação removera $totalCriancaSemAlerta crianças sem alerta e $totalCriancaInconsistentes criancas inconsistencias no banco de dados\n faça um backup antes pois as mudanças não poderão ser desfeitas.\n Deseja continuar? sim ou não.");
+        $resposta = $this->ask("Essa ação removera $casosInconsistentes->total crianças sem alerta, $casosCriancasSemAlerta->total criancas inconsistencias e $casosCriancasSemIdsRelacionados->total crianças sem ids relacionados no banco de dados\n faça um backup antes pois as mudanças não poderão ser desfeitas.\n Deseja continuar? sim ou não.");
 
         if ($resposta == 'sim') {
-            foreach ($resultArrayQueryCriancaSemAlerta as $child) {
-                $id = $child['id'];
-                $this->comment('Crianca sem alerta id: ' . $id . ' excluido!');
-                DB::table('children')->where('id', $id)->delete();
-                DB::table('children_cases')->where('child_id', $id)->delete();
-                DB::table('case_steps_alerta')->where('child_id', $id)->delete();
-                DB::table('case_steps_analise_tecnica')->where('child_id', $id)->delete();
-                DB::table('case_steps_gestao_do_caso')->where('child_id', $id)->delete();
-                DB::table('case_steps_observacao')->where('child_id', $id)->delete();
-                DB::table('case_steps_pesquisa')->where('child_id', $id)->delete();
-                DB::table('case_steps_rematricula')->where('child_id', $id)->delete();
-                Log::info('Criança sem alerta exluída id: ' . $id);
 
-            }
+            $totalCasosInconsistentes = 0;
+            if ($casosInconsistentes->total > 0):
+                foreach ($casosInconsistentes->values as $child) {
+                    $id = $child['id'];
+                    $result = $this->excluirCasos($id);
+                    if ($result) {
+                        $this->comment('Criança inconsistente id: ' . $id . ' excluído!');
+                        Log::info('Caso inconsistente exluída id: ' . $id);
+                    } else {
+                        $this->comment('Criança inconsistente id: ' . $id . ' problema ao excluír!');
+                        Log::info('Caso inconsistente problema ao exluir id: ' . $id);
+                    }
+                    $totalCasosInconsistentes++;
+                }
+            endif;
 
-            foreach ($resultArrayQueryChildrenInconsistencies as $child) {
-                $id = $child['id'];
-                $this->comment('inconsistencia id: ' . $id . ' excluído!');
-                DB::table('children')->where('id', $id)->delete();
-                DB::table('children_cases')->where('child_id', $id)->delete();
-                DB::table('case_steps_alerta')->where('child_id', $id)->delete();
-                DB::table('case_steps_analise_tecnica')->where('child_id', $id)->delete();
-                DB::table('case_steps_gestao_do_caso')->where('child_id', $id)->delete();
-                DB::table('case_steps_observacao')->where('child_id', $id)->delete();
-                DB::table('case_steps_pesquisa')->where('child_id', $id)->delete();
-                DB::table('case_steps_rematricula')->where('child_id', $id)->delete();
-                Log::info('Caso inconsistente exluída id: ' . $id);
-            }
+            $totalCasosCriancasSemAlerta = 0;
+            if ($casosCriancasSemAlerta->total > 0):
+                $casosCriancasSemAlertaInto = $this->queryObject($sqlCasosCriancasSemAlerta);
+                foreach ($casosCriancasSemAlertaInto->values as $child) {
+                    $id = $child['id'];
+                    $result = $this->excluirCasos($id);
+                    if ($result) {
+                        $this->comment('Criança sem alerta id: ' . $id . ' excluído!');
+                        Log::info('Caso sem alerta exluída id: ' . $id);
+                    } else {
+                        $this->comment('Criança sem alerta id: ' . $id . ' problema ao excluír!');
+                        Log::info('Caso sem alerta problema ao exluir id: ' . $id);
+                    }
+                    $totalCasosCriancasSemAlerta++;
+                }
+            endif;
+
+            $totalCasosCriancasSemIdsRelacionados = 0;
+            if ($casosCriancasSemIdsRelacionados->total > 0):
+                $casosCriancasSemIdsRelacionadosInto = $this->queryObject($sqlCasosCriancasSemIdsRelacionados);
+                foreach ($casosCriancasSemIdsRelacionadosInto->values as $child) {
+                    $id = $child['id'];
+                    $result = $this->excluirCasos($id);
+                    if ($result) {
+                        $this->comment('Criança sem ids relacionados id: ' . $id . ' excluído!');
+                        Log::info('Caso inconsistente exluída id: ' . $id);
+                    } else {
+                        $this->comment('Criança sem ids relacionados id: ' . $id . ' problema ao excluír!');
+                        Log::info('Caso inconsistente problema ao exluir id: ' . $id);
+                    }
+                    $totalCasosCriancasSemIdsRelacionados++;
+                }
+            endif;
+
+            $this->comment('Concluído! ' . $totalCasosInconsistentes . ' Crianças sem alerta, ' . $totalCasosCriancasSemAlerta . ' Inconsistências ' . $totalCasosCriancasSemIdsRelacionados . ' Crianças sem ids relacionados foram excluídas do banco de dados');
+            Log::info('Processo finalizado: ' . $totalCasosInconsistentes . ' Crianças sem alerta' . $totalCasosCriancasSemAlerta . ' Inconsistências' . $totalCasosCriancasSemIdsRelacionados . 'Crianças sem ids relacionados foram excluídas do banco de dados');
+
+        } else {
+            $this->comment('Ação Cancelada! ');
         }
-        $this->comment('Concluído! ' . $totalCriancaSemAlerta . ' Crianças sem alerta, ' . $totalCriancaInconsistentes . ' Inconsistências');
-        Log::info('Processo finalizado: ' . $totalCriancaSemAlerta . ' Crianças sem alerta' . $totalCriancaInconsistentes . ' Inconsistências');
+    }
 
+    private function excluirCasos($id)
+    {
+        try {
+            DB::table('children')->where('id', $id)->delete();
+            DB::table('children_cases')->where('child_id', $id)->delete();
+            DB::table('case_steps_alerta')->where('child_id', $id)->delete();
+            DB::table('case_steps_analise_tecnica')->where('child_id', $id)->delete();
+            DB::table('case_steps_gestao_do_caso')->where('child_id', $id)->delete();
+            DB::table('case_steps_observacao')->where('child_id', $id)->delete();
+            DB::table('case_steps_pesquisa')->where('child_id', $id)->delete();
+            DB::table('case_steps_rematricula')->where('child_id', $id)->delete();
+            return true;
+
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    private function queryObject($sql)
+    {
+        //consulta
+        $queryChildrenInconsistencies = DB::select($sql);
+        $resultArrayQueryChildrenInconsistencies = json_decode(json_encode($queryChildrenInconsistencies), true);
+
+        //Contagem
+        $totalCriancaInconsistentes = count($resultArrayQueryChildrenInconsistencies);
+
+        $obj = new \stdClass();
+        $obj->values = $resultArrayQueryChildrenInconsistencies;
+        $obj->total = $totalCriancaInconsistentes;
+
+        return $obj;
     }
 }
