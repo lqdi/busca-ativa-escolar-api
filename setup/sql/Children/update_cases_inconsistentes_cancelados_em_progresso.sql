@@ -5,13 +5,13 @@
 -- cancelled        | cancelled
 -- interrupted      | interrupted
 -- transferred      | transferred
-
+-- Crianca cancelada e caso em progresso = caso recebe o status cancelado
 use base05042020prod;
 SET @child_status='cancelled' COLLATE utf8_unicode_ci; 
 SET @cases_status='in_progress' COLLATE utf8_unicode_ci; 
+SET @status_update='cancelled' COLLATE utf8_unicode_ci;
 
-SELECT  c.child_status, count(c.child_status), cc.case_status, count(cc.case_status)
-FROM children c
-JOIN case_steps_alerta csa ON csa.child_id = c.id 
-JOIN children_cases cc ON cc.child_id = c.id 
-where c.child_status = @child_status group by cc.case_status
+UPDATE children_cases cc
+JOIN children c ON cc.child_id = c.id 
+SET cc.case_status = @status_update
+where c.child_status = @child_status and cc.case_status = @cases_status

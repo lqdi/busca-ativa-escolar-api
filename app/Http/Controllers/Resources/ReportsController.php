@@ -490,6 +490,43 @@ class ReportsController extends BaseController
                     'num_pending_state_signups' => StateSignup::query()
                         ->whereNull('judged_by')
                         ->count(),
+
+                    //new options
+
+                    'num_children_in_school' => Child::query()
+                        ->where('child_status', '=',Child::STATUS_IN_SCHOOL)
+                        ->count(),
+
+                    'num_children_in_observation' => Child::query()
+                        ->where('child_status', '=',Child::STATUS_OBSERVATION)
+                        ->count(),
+
+                    'num_children_out_of_school' => Child::query()
+                        ->where([
+                            ['child_status', '=', Child::STATUS_OUT_OF_SCHOOL],
+                            ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
+                        ])
+                        ->count(),
+
+                    'num_children_cancelled' => Child::query()
+                        ->where([
+                            ['child_status', '=', Child::STATUS_CANCELLED],
+                            ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
+                        ])
+                        ->count(),
+
+                    'num_children_transferred' => Child::query()
+                        ->where([
+                            ['child_status', '=', Child::STATUS_TRANSFERRED]
+                        ])
+                        ->count(),
+
+                    'num_children_interrupted' => Child::query()
+                        ->where([
+                            ['child_status', '=', Child::STATUS_INTERRUPTED],
+                        ])
+                        ->count(),
+
                 ];
             });
 
@@ -614,7 +651,11 @@ class ReportsController extends BaseController
                 return trans('reports_terms.races');
             case 'guardian_schooling':
                 return trans('reports_terms.guardian_schooling');
-            default:
+            case 'country_region':
+                return trans('reports_terms.country_region');
+            case 'school_last_grade':
+                return trans('reports_terms.school_last_grade');
+                default:
                 return [];
         }
 
