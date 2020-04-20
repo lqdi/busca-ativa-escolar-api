@@ -594,8 +594,9 @@ class ReportsController extends BaseController
                         ->whereIn('tenant_id', $tenantIDs)
                         ->count(),
 
-                    'num_approved_alerts' => Alerta::query()
+                    'num_accepted_alerts' => Alerta::query()
                         ->whereIn('tenant_id', $tenantIDs)
+                        ->where('alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                         ->count(),
 
                     'num_pending_alerts' => Alerta::query()
