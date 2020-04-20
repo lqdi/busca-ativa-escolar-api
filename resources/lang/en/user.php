@@ -13,6 +13,20 @@ return [
 		"supervisor_institucional" => 'Supervisor Institucional',
 		"tecnico_verificador" => 'Técnico Verificador',
 		"agente_comunitario" => 'Agente Comunitário',
-        "parceiro_implementador" => 'Parceiro implementador',
+
+        "perfil_visitante" => 'Visitante',
+        "visitante_nacional" => 'Visitante Nacional',
+        "visitante_estadual" => 'Visitante Estadual',
+
+        "visitante_nacional_1" => 'Visitante Nacional',
+        "visitante_nacional_2" => 'Visitante Nacional',
+        "visitante_nacional_3" => 'Visitante Nacional',
+        "visitante_nacional_4" => 'Visitante Nacional',
+
+        "visitante_estadual_1" => 'Visitante Estadual',
+        "visitante_estadual_2" => 'Visitante Estadual',
+        "visitante_estadual_3" => 'Visitante Estadual',
+        "visitante_estadual_4" => 'Visitante Estadual'
+
 	],
 ];

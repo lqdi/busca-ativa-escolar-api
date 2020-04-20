@@ -7,15 +7,38 @@ return [
         'null' => 'Não informado',
     ],
 
+//    'status' => [
+//        'out_of_school' => 'Fora da escola',
+//        'in_observation' => 'Em observação',
+//        'in_school' => 'Dentro da escola',
+//        'cancelled' => 'Cancelado',
+//        'completed' => 'Completo',
+//        'in_progress' => 'Em andamento',
+//        'interrupted' => 'Interrompido',
+//        'transferred' => 'Transferido'
+//    ],
+
+//    'status' => [
+//        'out_of_school' => 'Caso em andamento: de pesquisa até (re)matrícula',
+//        'in_observation' => 'Dentro da escola e em observação: de 1ª a 4ª observação',
+//        'in_school' => 'Casos concluídos: caso finalizado com sucesso após a 4ª observação',
+//        'cancelled' => 'Caso cancelado: em qualquer etapa do processo',
+//        'completed' => 'Completo',
+//        'in_progress' => 'Em andamento',
+//        'interrupted' => 'Casos interrompidos: criança ou adolescente que evadiu durante as etapas de observação e cujo caso não foi reaberto',
+//        'transferred' => 'Transferido'
+//    ],
+
     'status' => [
-        'out_of_school' => 'Fora da escola',
-        'in_observation' => 'Em observação',
-        'in_school' => 'Dentro da escola',
-        'cancelled' => 'Cancelado',
-        'completed' => 'Completo',
+        'out_of_school' => 'Em andamento/ Fora da escola',
+        'cancelled' => 'Casos cancelados',
+        'in_observation' => 'Em andamento/ Em observação',
+        'in_school' => 'Casos concluídos',
+        'interrupted' => 'Casos interrompidos',
+
+        'completed' => 'Completos',
         'in_progress' => 'Em andamento',
-        'interrupted' => 'Interrompido',
-        'transferred' => 'Transferido'
+        'transferred' => 'Transferidos'
     ],
 
     'name_by_slug' => [
@@ -102,6 +125,35 @@ return [
         'superior_incompleto' => 'Ensino superior incompleto',
         'superior_completo' => 'Ensino superior completo',
         'posgraduacao' => 'Pós graduação',
+        'null' => 'Não informado'
+    ],
+
+    'country_region' => [
+        'se' => 'Sudeste',
+        'ne' => 'Nordeste',
+        'no' => 'Norte',
+        'co' => 'Centro-Oeste',
+        'su' => 'Sul',
+    ],
+
+    'school_last_grade' => [
+        'preescola_4anos' => 'Pré-escola (4 anos)',
+        'preescola_5anos' => 'Pré-escola (5 anos)',
+        'ef_1ano' => 'Ensino Fundamental - Anos iniciais (1º ano)',
+        'ef_2ano' => 'Ensino Fundamental - Anos iniciais (2º ano)',
+        'ef_3ano' => 'Ensino Fundamental - Anos iniciais (3º ano)',
+        'ef_4ano' => 'Ensino Fundamental - Anos iniciais (4º ano)',
+        'ef_5ano' => 'Ensino Fundamental - Anos iniciais (5º ano)',
+        'ef_6ano' => 'Ensino Fundamental - Anos iniciais (6º ano)',
+        'ef_7ano' => 'Ensino Fundamental - Anos iniciais (7º ano)',
+        'ef_8ano' => 'Ensino Fundamental - Anos iniciais (8º ano)',
+        'ef_9ano' => 'Ensino Fundamental - Anos iniciais (9º ano)',
+        'em_1ano' => 'Ensino Médio - 1º ano',
+        'em_2ano' => 'Ensino Médio - 2º ano',
+        'em_3ano' => 'Ensino Médio - 3º ano',
+        'eja_finais' => 'EJA (ensino fundamental anos finais)',
+        'eja_iniciais' => 'EJA (ensino fundamental anos iniciais)',
+        'eja_alfabetizado' => 'EJA (Alfabetizado)',
         'null' => 'Não informado'
     ],
 
