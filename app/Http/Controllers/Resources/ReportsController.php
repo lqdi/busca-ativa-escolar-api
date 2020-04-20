@@ -616,9 +616,12 @@ class ReportsController extends BaseController
 
                     'num_children_out_of_school' => Child::query()
                         ->whereIn('tenant_id', $tenantIDs)
-                        ->where('child_status', '=',Child::STATUS_OUT_OF_SCHOOL)
+                        ->where([
+                            ['child_status', '=', Child::STATUS_OUT_OF_SCHOOL],
+                            ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
+                        ])
                         ->count(),
-
+                    
                     'num_children_in_observation' => Child::query()
                         ->whereIn('tenant_id', $tenantIDs)
                         ->where('child_status', '=',Child::STATUS_OBSERVATION)
