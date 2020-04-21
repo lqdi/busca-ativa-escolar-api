@@ -130,8 +130,8 @@ class removeInconsistenciesCases extends Command
                 }
             endif;
 
-            $this->comment('Concluído! ' . $totalCasosInconsistentes . ' Crianças sem alerta, ' . $totalCasosCriancasSemAlerta . ' Inconsistências ' . $totalCasosCriancasSemIdsRelacionados . ' Crianças sem ids relacionados foram excluídas do banco de dados');
-            Log::info('Processo finalizado: ' . $totalCasosInconsistentes . ' Crianças sem alerta' . $totalCasosCriancasSemAlerta . ' Inconsistências' . $totalCasosCriancasSemIdsRelacionados . 'Crianças sem ids relacionados foram excluídas do banco de dados');
+            $this->comment('Concluído! ' . $totalCasosCriancasSemAlerta . ' Crianças sem alerta, ' .  $totalCasosInconsistentes. ' Inconsistências ' . $totalCasosCriancasSemIdsRelacionados . ' Crianças sem ids relacionados foram excluídas do banco de dados');
+            Log::info('Processo finalizado: ' . $totalCasosCriancasSemAlerta . ' Crianças sem alerta' . $totalCasosInconsistentes . ' Inconsistências' . $totalCasosCriancasSemIdsRelacionados . 'Crianças sem ids relacionados foram excluídas do banco de dados');
 
         } else {
             $this->comment('Ação Cancelada! ');
