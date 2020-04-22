@@ -61,7 +61,11 @@ sudo dpkg -i elasticsearch-2.3.1.deb
 sudo systemctl enable elasticsearch.service
 /etc/elasticsearch/elasticsearch.yml
 network.host: 0.0.0.0
+
+#Comando para ligar o auto-start do elastic 2
 sudo update-rc.d elasticsearch defaults 95 10
+#Talvez seja necessaŕio rodar o comando abaixo
+sudo systemctl enable elasticsearch.service
 
 Instalar Plugin Kopf
 https://www.elastic.co/guide/en/elasticsearch/plugins/2.4/installation.html
