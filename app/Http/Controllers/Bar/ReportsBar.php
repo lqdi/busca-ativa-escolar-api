@@ -255,7 +255,13 @@ class ReportsBar extends BaseController
 
                     'reinsertions_classes' =>
                         Rematricula::whereHas('cases', function ($query) {
-                            $query->where(['case_status' => 'in_progress'])->orWhere(['case_status' => 'completed']);
+                            $query->where(['case_status' => 'in_progress'])
+                                ->orWhere(['cancel_reason' => 'city_transfer'])
+                                ->orWhere(['cancel_reason' => 'death'])
+                                ->orWhere(['cancel_reason' => 'not_found'])
+                                ->orWhere(['case_status' => 'completed'])
+                                ->orWhere(['case_status' => 'interrupted'])
+                                ->orWhere(['case_status' => 'transferred']);
                         })->where(
                             [
                                 'tenant_id' => $this->currentUser()->tenant->id,
