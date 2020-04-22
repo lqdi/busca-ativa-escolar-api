@@ -259,7 +259,9 @@ class ReportsBar extends BaseController
                                 ->orWhere(['cancel_reason' => 'city_transfer'])
                                 ->orWhere(['cancel_reason' => 'death'])
                                 ->orWhere(['cancel_reason' => 'not_found'])
-                                ->orWhere(['case_status' => 'completed']);
+                                ->orWhere(['case_status' => 'completed'])
+                                ->orWhere(['case_status' => 'interrupted'])
+                                ->orWhere(['case_status' => 'transferred']);
                         })->where(
                             [
                                 'tenant_id' => $this->currentUser()->tenant->id,
