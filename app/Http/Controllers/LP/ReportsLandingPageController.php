@@ -8,6 +8,7 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers\LP;
 
+use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\City;
@@ -293,30 +294,22 @@ class ReportsLandingPageController extends BaseController
 
                 'cases' => [
                     '_enrollment' =>
-
-                        \DB::table('case_steps_alerta')
-                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
-                            ->join('children_cases', 'children_cases.child_id', '=', 'case_steps_alerta.child_id')
-                            ->where(
-                                [
-                                    ['case_steps_alerta.tenant_id', $tenantId],
-                                    ['case_steps_alerta.alert_status', 'accepted'],
-                                    ['children.alert_status', 'accepted'],
-                                    ['children.child_status', 'in_school'],
-                                    ['children.child_status', '<>', 'cancelled'],
-                                    ['children.child_status', '<>', 'interrupted']
-                                ]
-                            )->orWhere(
-                                [
-                                    ['case_steps_alerta.tenant_id', $tenantId],
-                                    ['case_steps_alerta.alert_status', 'accepted'],
-                                    ['children.alert_status', 'accepted'],
-                                    ['children.child_status', 'in_observation'],
-                                    ['children.child_status', '<>', 'cancelled'],
-                                    ['children.child_status', '<>', 'interrupted']
-                                ]
-                            )->count(),
-
+                        Rematricula::whereHas('cases', function ($query) {
+                            $query->where(['case_status' => 'in_progress'])
+                                ->orWhere(['cancel_reason' => 'city_transfer'])
+                                ->orWhere(['cancel_reason' => 'death'])
+                                ->orWhere(['cancel_reason' => 'not_found'])
+                                ->orWhere(['case_status' => 'completed'])
+                                ->orWhere(['case_status' => 'interrupted'])
+                                ->orWhere(['case_status' => 'transferred']);
+                        })->where(
+                            [
+                                'tenant_id' => $tenantId,
+                                'is_completed' => true
+                            ]
+                        )
+                            ->orderBy('completed_at', 'asc')
+                            ->count(),
                     '_in_progress' =>
 
                         \DB::table('case_steps_alerta')
