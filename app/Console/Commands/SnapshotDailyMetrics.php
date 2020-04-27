@@ -16,6 +16,9 @@ namespace BuscaAtivaEscolar\Console\Commands;
 
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Reports\Reports;
+use DateInterval;
+use DatePeriod;
+use DateTime;
 
 class SnapshotDailyMetrics extends Command {
 
@@ -25,17 +28,27 @@ class SnapshotDailyMetrics extends Command {
 
     public function handle(Reports $reports) {
         $this->rel = $reports;
-        Child::with(['currentCase','currentStep','submitter','city'])->chunk(500, function($children){
-            $today = $this->argument('date') ?? date('Y-m-d');
 
-            $this->info("[index] Building children index: {$today}...");
+        $begin = new DateTime('2019-01-01');
+        $end = new DateTime('2019-12-31');
 
-            foreach($children as $child) {
-                $this->comment("[index:{$today}] Child #{$child->id} - {$child->name}");
-                $this->rel->buildSnapshot($child, $today);
-            }
-        });
+        $interval = DateInterval::createFromDateString('1 day');
+        $period = new DatePeriod($begin, $interval, $end);
 
+        foreach ($period as $dt) {
+
+            Child::with(['currentCase', 'currentStep', 'submitter', 'city'])->chunk(500, function ($children) {
+                $today = $this->argument('date') ?? date('Y-m-d');
+
+                $this->info("[index] Building children index: {$today}...");
+
+                foreach ($children as $child) {
+                    $this->comment("[index:{$today}] Child #{$child->id} - {$child->name}");
+                    $this->rel->buildSnapshot($child, $today);
+                }
+            });
+
+        }
 
         $this->info("[index] Index built!");
 
