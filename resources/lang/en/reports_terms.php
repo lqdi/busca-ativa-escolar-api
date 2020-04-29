@@ -32,7 +32,7 @@ return [
     'status' => [
         'out_of_school' => 'Em andamento/ Fora da escola',
         'cancelled' => 'Casos cancelados',
-        'in_observation' => 'Em andamento/ Em observação',
+        'in_observation' => 'Em andamento/ Dentro da escola',
         'in_school' => 'Casos concluídos',
         'interrupted' => 'Casos interrompidos',
 
