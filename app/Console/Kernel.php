@@ -46,7 +46,8 @@ class Kernel extends ConsoleKernel
         Commands\FixMapLocationChildOutBrazil::class,
         Commands\fixNameChildPesquisa::class,
         Commands\removeInconsistenciesCases::class,
-        Commands\SnapshotDailyMetricsConsolidated::class
+        Commands\SnapshotDailyMetricsConsolidated::class,
+        Commands\SnapshotDailyMetricsFullMySQL::class
     ];
 
     /**
@@ -61,6 +62,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('workflow:check_case_deadlines')->dailyAt('23:00');
         $schedule->command('snapshot:daily_metrics')->dailyAt('01:00');
         $schedule->command('snapshot:daily_metrics_consolidated')->dailyAt('03:00');
+        $schedule->command('snapshot:daily_metrics_full_mysql')->dailyAt('05:00');
     }
 
     /**
