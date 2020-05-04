@@ -45,7 +45,7 @@ class Kernel extends ConsoleKernel
         Commands\ReindexOneChild::class,
         Commands\FixMapLocationChildOutBrazil::class,
         Commands\fixNameChildPesquisa::class,
-        Commands\SnapshotDailyMetricsRematriculas::class
+        Commands\SnapshotDailyMetricsConsolidated::class
     ];
 
     /**

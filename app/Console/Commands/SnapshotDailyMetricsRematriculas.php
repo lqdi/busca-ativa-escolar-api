@@ -7,7 +7,7 @@ use BuscaAtivaEscolar\DailyMetricRematricula;
 use BuscaAtivaEscolar\Tenant;
 use Illuminate\Console\Command;
 
-class SnapshotDailyMetricsRematriculas extends Command
+class SnapshotDailyMetricsConsolidated extends Command
 {
 
     /**
@@ -50,8 +50,19 @@ class SnapshotDailyMetricsRematriculas extends Command
 
             foreach($t as $tenant) {
 
-                //Faz a soma relativa ao dia:
-                $count = Rematricula::whereHas('cases', function ($query) {
+
+
+
+
+                $in_observation = 0;
+                $out_of_school = 0;
+                $cancelled = 0;
+                $in_school = 0;
+                $interrupted = 0;
+                $transferred = 0;
+
+
+                $enrollment = Rematricula::whereHas('cases', function ($query) {
                     $query->where(['case_status' => 'in_progress'])
                         ->orWhere(['cancel_reason' => 'city_transfer'])
                         ->orWhere(['cancel_reason' => 'death'])
@@ -65,10 +76,10 @@ class SnapshotDailyMetricsRematriculas extends Command
                         'is_completed' => true
                     ]
                 )
-                    ->orderBy('completed_at', 'asc')
-                    ->count();
+                ->orderBy('completed_at', 'asc')
+                ->count();
 
-                $this->comment("[index:{$today}] Tenant #{$tenant->id} - {$tenant->name} - {$count}");
+                $this->comment("[index:{$today}] Tenant #{$tenant->id} - {$tenant->name} - {$enrollment}");
 
                 $dailyMetric = new DailyMetricRematricula(
                     [
@@ -77,7 +88,15 @@ class SnapshotDailyMetricsRematriculas extends Command
                         'region' => $tenant->city->region,
                         'state' => $tenant->city->uf,
                         'city' => $tenant->city->name,
-                        'count' => $count,
+
+                        'in_observation' => $in_observation,
+                        'out_of_school' => $out_of_school,
+                        'cancelled' => $cancelled,
+                        'in_school' => $in_school,
+                        'interrupted' => $interrupted,
+                        'transferred' => $transferred,
+
+                        'enrollment' => $enrollment,
                         'data' => null,
                     ]
                 );
