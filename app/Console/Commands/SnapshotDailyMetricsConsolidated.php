@@ -3,7 +3,8 @@
 namespace BuscaAtivaEscolar\Console\Commands;
 
 use BuscaAtivaEscolar\CaseSteps\Rematricula;
-use BuscaAtivaEscolar\DailyMetricRematricula;
+use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\DailyMetricsConsolidated;
 use BuscaAtivaEscolar\Tenant;
 use Illuminate\Console\Command;
 
@@ -15,14 +16,14 @@ class SnapshotDailyMetricsConsolidated extends Command
      *
      * @var string
      */
-    protected $signature = 'snapshot:daily_metrics_rematriculas';
+    protected $signature = 'snapshot:daily_metrics_consolidated';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Cria o snapshot do número de rematriculas diariamente';
+    protected $description = 'Cria o snapshot do número de rematriculas diariamente e demais status por cidade, estado e pais';
 
     /**
      * Create a new command instance.
@@ -50,17 +51,49 @@ class SnapshotDailyMetricsConsolidated extends Command
 
             foreach($t as $tenant) {
 
+                $in_observation = Child::query()
+                ->where([
+                        ['tenant_id', '=', $tenant->id],
+                        ['child_status', '=',Child::STATUS_OBSERVATION]
+                    ])
+                    ->count();
 
+                $out_of_school = Child::query()
+                ->where([
+                    ['tenant_id', '=', $tenant->id],
+                    ['child_status', '=', Child::STATUS_OUT_OF_SCHOOL],
+                    ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
+                ])
+                ->count();
 
+                $cancelled = Child::query()
+                ->where([
+                    ['tenant_id', '=', $tenant->id],
+                    ['child_status', '=', Child::STATUS_CANCELLED],
+                    ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
+                ])
+                ->count();
 
+                $in_school = Child::query()
+                ->where([
+                    ['tenant_id', '=', $tenant->id],
+                    ['child_status', '=',Child::STATUS_IN_SCHOOL]
+                ])
+                ->count();
 
-                $in_observation = 0;
-                $out_of_school = 0;
-                $cancelled = 0;
-                $in_school = 0;
-                $interrupted = 0;
-                $transferred = 0;
+                $interrupted = Child::query()
+                ->where([
+                    ['tenant_id', '=', $tenant->id],
+                    ['child_status', '=', Child::STATUS_INTERRUPTED],
+                ])
+                ->count();
 
+                $transferred = Child::query()
+                ->where([
+                    ['tenant_id', '=', $tenant->id],
+                    ['child_status', '=', Child::STATUS_TRANSFERRED]
+                ])
+                ->count();
 
                 $enrollment = Rematricula::whereHas('cases', function ($query) {
                     $query->where(['case_status' => 'in_progress'])
@@ -81,7 +114,7 @@ class SnapshotDailyMetricsConsolidated extends Command
 
                 $this->comment("[index:{$today}] Tenant #{$tenant->id} - {$tenant->name} - {$enrollment}");
 
-                $dailyMetric = new DailyMetricRematricula(
+                $dailyMetric = new DailyMetricsConsolidated(
                     [
                         'tenant_id' => $tenant->id,
                         'date' => $today,
