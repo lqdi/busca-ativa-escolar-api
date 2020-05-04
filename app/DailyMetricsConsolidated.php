@@ -5,9 +5,9 @@ namespace BuscaAtivaEscolar;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DailyMetricRematricula extends Model
+class DailyMetricsConsolidated extends Model
 {
-    protected $table = "daily_metrics";
+    protected $table = "daily_metrics_consolidated";
 
     public $timestamps = false;
 
@@ -17,7 +17,13 @@ class DailyMetricRematricula extends Model
         'region',
         'state',
         'city',
-        'count',
+        'in_observation',
+        'out_of_school',
+        'cancelled',
+        'in_school',
+        'interrupted',
+        'transferred',
+        'enrollment',
         'data',
     ];
 
