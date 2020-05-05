@@ -2,6 +2,10 @@
 
 namespace BuscaAtivaEscolar\Console\Commands;
 
+use BuscaAtivaEscolar\CaseSteps\Rematricula;
+use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\DailyMetrics;
+use BuscaAtivaEscolar\DailyMetricsConsolidated;
 use Illuminate\Console\Command;
 
 class SnapshotDailyMetricsFullMySQL extends Command
@@ -37,6 +41,39 @@ class SnapshotDailyMetricsFullMySQL extends Command
      */
     public function handle()
     {
-        //
+        Child::with(['currentCase','currentStep','submitter','city'])->chunk(500, function($children){
+
+            $today = date('Y-m-d');
+
+            $this->info("[index] Building children index: {$today}...");
+
+            foreach($children as $child) {
+
+                $reinsertion_grade = null;
+                $rematricula = Rematricula::where('child_id', '=', $child->id)->first();
+                $reinsertion_grade = $rematricula->reinsertion_grade;
+
+                $this->comment("[index:{$today}] Child #{$child->id} - {$child->name}");
+
+                $dailyMetrics = new DailyMetrics(
+                    [
+                        'tenant_id' => $child->tenant_id,
+                        'child_id' => $child->id,
+                        'child_status' =>$child->child_status,
+                        'alert_status' =>$child->alert_status,
+                        'deadline_status' =>$child->deadline_status,
+                        'date' => $today,
+                        'case_status' => $child->currentCase->case_status,
+                        'step_slug' => str_slug($child->currentCase->currentStep->getName(), '_'),
+                        'city_id' => $child->tenant->city->id,
+                        'uf' => $child->tenant->city->uf,
+                        'cancel_reason' => $child->currentCase->cancel_reason,
+                        'reinsertion_grade' => $reinsertion_grade
+                    ]
+                );
+
+                $dailyMetrics->save();
+            }
+        });
     }
 }
