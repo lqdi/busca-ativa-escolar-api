@@ -15,6 +15,8 @@ class DailyMetrics extends Model
         'tenant_id',
         'child_id',
         'child_status',
+        'alert_status',
+        'deadline_status',
         'date',
         'case_status',
         'step_slug',
