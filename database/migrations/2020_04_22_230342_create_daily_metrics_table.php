@@ -28,6 +28,7 @@ class CreateDailyMetricsTable extends Migration
             $table->integer('transferred');
 
             $table->integer('justified_cancelled');
+            $table->boolean('selo')->default(false);
             $table->json('data')->nullable();
         });
 

@@ -24,6 +24,7 @@ class DailyMetricsConsolidated extends Model
         'interrupted',
         'transferred',
         'justified_cancelled',
+        'selo',
         'data',
     ];
 
