@@ -76,7 +76,7 @@ class removeInconsistenciesCases extends Command
             return;
         }
 
-        $resposta = $this->ask("Essa ação removera $casosInconsistentes->total crianças sem alerta, $casosCriancasSemAlerta->total criancas inconsistencias e $casosCriancasSemIdsRelacionados->total crianças sem ids relacionados no banco de dados\n faça um backup antes pois as mudanças não poderão ser desfeitas.\n Deseja continuar? sim ou não.");
+        $resposta = $this->ask("Essa ação removera $casosCriancasSemAlerta->total crianças sem alerta, $casosInconsistentes->total  criancas inconsistencias e $casosCriancasSemIdsRelacionados->total crianças sem ids relacionados no banco de dados\n faça um backup antes pois as mudanças não poderão ser desfeitas.\n Deseja continuar? sim ou não.");
 
         if ($resposta == 'sim') {
 
