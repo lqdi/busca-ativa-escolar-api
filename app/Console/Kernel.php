@@ -65,6 +65,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('snapshot:daily_metrics_full_mysql')->dailyAt('05:00');
     }
 
+
     /**
      * Register the Closure based commands for the application.
      *

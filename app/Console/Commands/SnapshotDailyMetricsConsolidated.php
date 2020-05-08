@@ -95,9 +95,8 @@ class SnapshotDailyMetricsConsolidated extends Command
                 ])
                 ->count();
 
-                $enrollment = Rematricula::whereHas('cases', function ($query) {
-                    $query->where(['case_status' => 'in_progress'])
-                        ->orWhere(['cancel_reason' => 'city_transfer'])
+                $justified_cancelled = Rematricula::whereHas('cases', function ($query) {
+                    $query->where(['cancel_reason' => 'city_transfer'])
                         ->orWhere(['cancel_reason' => 'death'])
                         ->orWhere(['cancel_reason' => 'not_found'])
                         ->orWhere(['case_status' => 'completed'])
@@ -112,7 +111,7 @@ class SnapshotDailyMetricsConsolidated extends Command
                 ->orderBy('completed_at', 'asc')
                 ->count();
 
-                $this->comment("[index:{$today}] Tenant #{$tenant->id} - {$tenant->name} - {$enrollment}");
+                $this->comment("[index:{$today}] Tenant #{$tenant->id} - {$tenant->name}");
 
                 $dailyMetric = new DailyMetricsConsolidated(
                     [
@@ -129,7 +128,7 @@ class SnapshotDailyMetricsConsolidated extends Command
                         'interrupted' => $interrupted,
                         'transferred' => $transferred,
 
-                        'enrollment' => $enrollment,
+                        'justified_cancelled' => $justified_cancelled,
                         'data' => null,
                     ]
                 );

@@ -27,7 +27,7 @@ class CreateDailyMetricsTable extends Migration
             $table->integer('interrupted');
             $table->integer('transferred');
 
-            $table->integer('enrollment');
+            $table->integer('justified_cancelled');
             $table->json('data')->nullable();
         });
 
