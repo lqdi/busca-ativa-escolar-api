@@ -23,11 +23,14 @@ class DailyMetricsConsolidated extends Model
         'in_school',
         'interrupted',
         'transferred',
-        'enrollment',
+        'justified_cancelled',
+        'selo',
         'data',
     ];
 
     protected $casts = [
         'data' => 'array',
+        'date' => 'datetime:Y-m-d',
     ];
+
 }
