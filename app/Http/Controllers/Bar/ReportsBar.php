@@ -341,7 +341,8 @@ class ReportsBar extends BaseController
 
         $uf = $request->input('uf') ?? null;
         $tenantId = $request->input('tenant_id') ?? null;
-        
+        $selo = $request->input('selo') ?? null;
+
 
         //cancelamentos -----------------------------------------------
 
@@ -356,6 +357,8 @@ class ReportsBar extends BaseController
         if(Auth::user()->isRestrictedToUF()) { $daily_justified->where('state', '=', Auth::user()->uf); }
 
         if($uf != null AND $uf != "null") { $daily_justified->where('state', '=', $uf); }
+
+        if($selo == "true"){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
 
         $daily_justified_final = $daily_justified->get()->toArray();
 
@@ -381,6 +384,8 @@ class ReportsBar extends BaseController
         if(Auth::user()->isRestrictedToUF()) { $daily_enrollment->where('state', '=', Auth::user()->uf); }
 
         if($uf != null AND $uf != "null") { $daily_enrollment->where('state', '=', $uf); }
+
+        if($selo == "true"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 1);}); }
 
         $daily_enrollment_final = $daily_enrollment->get()->toArray();
 
@@ -443,7 +448,8 @@ class ReportsBar extends BaseController
         return response()->json(
             [
                 'goal' => $goal_final,
-                'data' => array_merge($daily_enrollment_final, $daily_justified_final)
+                'data' => array_merge($daily_enrollment_final, $daily_justified_final),
+                'selo' => $selo
             ]
         );
 
