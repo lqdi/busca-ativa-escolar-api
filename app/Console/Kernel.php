@@ -48,7 +48,8 @@ class Kernel extends ConsoleKernel
         Commands\removeInconsistenciesCases::class,
         Commands\SnapshotDailyMetricsConsolidated::class,
         Commands\SnapshotDailyMetricsFullMySQL::class,
-        Commands\InsertCancelReasonDailyMetrics::class
+        Commands\InsertCancelReasonDailyMetrics::class,
+        Commands\PopulateDailyMetricsConsolidated::class
     ];
 
     /**
