@@ -57,7 +57,9 @@ WHERE
         || dm.step_slug = '3a_observacao'
         || dm.step_slug = '4a_observacao')
         AND (cc.cancel_reason <> 'wrongful_insertion'
-        && cc.cancel_reason <> 'duplicate') group by cc.child_id, cc.cancel_reason;";
+        AND cc.cancel_reason <> 'rejected_alert'
+        AND cc.cancel_reason <> 'duplicate') 
+        group by cc.child_id, cc.cancel_reason;";
 
         $casos = DB::select($sqlCasos);
 
@@ -75,7 +77,7 @@ WHERE
     {
         try {
             $sql = "UPDATE daily_metrics SET cancel_reason='$caso->cancel_reason' 
-            WHERE case_status = 'cancelled' AND child_id='$caso->child_id'";
+            WHERE case_status = 'cancelled' AND child_id='$caso->child_id' AND cancel_reason is null";
             $res = DB::update($sql);
             $this->comment('Id: ' . $caso->child_id . ' atualizado');
             Log::info('Id: ' . $caso->child_id);
