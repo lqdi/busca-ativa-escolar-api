@@ -14,6 +14,7 @@ use BuscaAtivaEscolar\User;
 use Cache;
 use DateTime;
 use DB;
+use Illuminate\Http\Request;
 use PhpParser\Builder;
 
 class ReportsBar extends BaseController
@@ -336,13 +337,12 @@ class ReportsBar extends BaseController
 
     }
 
-    public function getDataRematriculaDaily(){
+    public function getDataRematriculaDaily(Request $request){
 
-        //$firstDayOfYear =  $params['first_day'] ?? new DateTime('1st January');
-        //$lastDayOfYear =  $params['last_day'] ?? new DateTime('31th December');
+        $uf = $request->input('uf') ?? null;
+        $tenantId = $request->input('tenant_id') ?? null;
+        $selo = $request->input('selo') ?? null;
 
-        //$state = $params['state'] ?? null;
-        //$tenantId = $params['tenant_id'] ?? null;
 
         //cancelamentos -----------------------------------------------
 
@@ -352,7 +352,13 @@ class ReportsBar extends BaseController
 
         if(Auth::user()->isRestrictedToTenant()) { $daily_justified->where('tenant_id', '=', Auth::user()->tenant->id); }
 
+        if($tenantId != null AND $tenantId != "null") { $daily_justified->where('tenant_id', '=', $tenantId); }
+
         if(Auth::user()->isRestrictedToUF()) { $daily_justified->where('state', '=', Auth::user()->uf); }
+
+        if($uf != null AND $uf != "null") { $daily_justified->where('state', '=', $uf); }
+
+        if($selo == "true"){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
 
         $daily_justified_final = $daily_justified->get()->toArray();
 
@@ -363,6 +369,8 @@ class ReportsBar extends BaseController
 
         //cancelamentos -----------------------------------------------
 
+
+
         //(re)matricula -----------------------------------------------
 
         $daily_enrollment = DB::table('daily_metrics_consolidated')
@@ -371,7 +379,13 @@ class ReportsBar extends BaseController
 
         if(Auth::user()->isRestrictedToTenant()) { $daily_enrollment->where('tenant_id', '=', Auth::user()->tenant->id); }
 
+        if($tenantId != null AND $tenantId != "null") { $daily_enrollment->where('tenant_id', '=', $tenantId); }
+
         if(Auth::user()->isRestrictedToUF()) { $daily_enrollment->where('state', '=', Auth::user()->uf); }
+
+        if($uf != null AND $uf != "null") { $daily_enrollment->where('state', '=', $uf); }
+
+        if($selo == "true"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 1);}); }
 
         $daily_enrollment_final = $daily_enrollment->get()->toArray();
 
@@ -382,23 +396,60 @@ class ReportsBar extends BaseController
 
         //(re)matricula -----------------------------------------------
 
+
+
         //meta --------------------------------------------------------
 
-        if(Auth::user()->isRestrictedToTenant()) { $goal = Auth::user()->tenant->city->goal ? $this->currentUser()->tenant->city->goal->goal : 0; }
+        if(Auth::user()->isRestrictedToTenant()) { $goal_final = Auth::user()->tenant->city->goal ? $this->currentUser()->tenant->city->goal->goal : 0; }
 
         if(Auth::user()->isRestrictedToUF()) {
+
             $goal = Goal::selectRaw('sum(goal) as goals')
                 ->join('cities', 'cities.ibge_city_id', '=', 'goals.id')
-                ->where('cities.uf', Auth::user()->uf)
-                ->count();
+                ->join('tenants', 'tenants.city_id', '=', 'cities.id')
+                ->where([
+                    ['cities.uf','=', Auth::user()->uf]
+                ]);
+
+            if($tenantId != null AND $tenantId != "null"){
+                $goal->where([
+                    ['cities.uf','=', Auth::user()->uf],
+                    ['tenants.id','=', $tenantId]
+                ]);
+            }
+
+            $goal_final = $goal->get()->toArray()[0]['goals'];
+
         }
 
-        if(Auth::user()->isGlobal()) { $goal = Goal::get()->sum('goal'); }
+        if(Auth::user()->isGlobal()) {
+
+            $goal = Goal::selectRaw('sum(goal) as goals')
+                ->join('cities', 'cities.ibge_city_id', '=', 'goals.id')
+                ->join('tenants', 'tenants.city_id', '=', 'cities.id');
+
+            if($uf != null AND $uf != "null"){
+                $goal->where([
+                    ['cities.uf','=',$uf]
+                ]);
+            }
+
+            if($tenantId != null AND $tenantId != "null"){
+                $goal->where([
+                    ['cities.uf','=', $uf],
+                    ['tenants.id','=', $tenantId]
+                ]);
+            }
+
+            $goal_final = $goal->get()->toArray()[0]['goals'];
+
+        }
 
         return response()->json(
             [
-                'goal' => $goal,
-                'data' => array_merge($daily_enrollment_final, $daily_justified_final)
+                'goal' => $goal_final,
+                'data' => array_merge($daily_enrollment_final, $daily_justified_final),
+                'selo' => $selo
             ]
         );
 
