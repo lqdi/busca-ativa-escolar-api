@@ -111,7 +111,9 @@ class SnapshotDailyMetricsConsolidated extends Command
                 ->orderBy('completed_at', 'asc')
                 ->count();
 
-                $this->comment("[index:{$today}] Tenant #{$tenant->id} - {$tenant->name}");
+                $goal = $tenant->city->goal != null ? 1 : 0;
+
+                $this->comment("[index:{$today}] Tenant #{$tenant->id} - {$tenant->name} - {$goal}");
 
                 $dailyMetric = new DailyMetricsConsolidated(
                     [
@@ -127,6 +129,8 @@ class SnapshotDailyMetricsConsolidated extends Command
                         'in_school' => $in_school,
                         'interrupted' => $interrupted,
                         'transferred' => $transferred,
+
+                        'selo' => $goal,
 
                         'justified_cancelled' => $justified_cancelled,
                         'data' => null,
