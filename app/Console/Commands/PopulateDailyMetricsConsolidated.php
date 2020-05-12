@@ -52,7 +52,7 @@ class PopulateDailyMetricsConsolidated extends Command
             $this->comment('Processo '. $tenant->id .' | '. $tenant->name .' iniciado!');
 
             if (!$this->verificaSeExites($tenant->id)) {
-                $dadosTenant = $this->buscarDadosTenant($tenant);
+                $dadosTenant = $this->buscarDadosTenant($tenant->id);
                 $this->inserirDados($dadosTenant);
             }
             $this->comment('Processo '. $tenant->id .'finalizado!');
@@ -74,7 +74,8 @@ class PopulateDailyMetricsConsolidated extends Command
     private function insereDados($dados)
     {
         $json = json_encode($dados);
-        $sql = "INSERT into daily_metrics_consolidated (tenant_id, date, region,state, city, in_observation, out_of_school, cancelled, in_school, interrupted, transferred, justified_cancelled, selo, data) values ('$dados->tenant_id', '$dados->date', '$dados->region', '$dados->state', '$dados->city', '$dados->in_observation', '$dados->out_of_school','$dados->cancelled', '$dados->in_school', '$dados->interrupted', '$dados->transferred', '$dados->cancelled', '$dados->justified_cancelled','$json')";
+        $sql = "INSERT into daily_metrics_consolidated (tenant_id, date, region,state, city, in_observation, out_of_school, cancelled, in_school, interrupted, transferred, justified_cancelled, selo, data) 
+values ('$dados->tenant_id', '$dados->date', '$dados->region', '$dados->state', '$dados->city', '$dados->in_observation', '$dados->out_of_school','$dados->cancelled', '$dados->in_school', '$dados->interrupted', '$dados->transferred', '$dados->justified_cancelled', '$dados->selo','$json')";
         try {
             DB::insert($sql);
             $this->comment($dados->tenant_id . ' atualizado ');
@@ -95,7 +96,7 @@ class PopulateDailyMetricsConsolidated extends Command
         return false;
     }
 
-    private function buscarDadosTenant($tenant)
+    private function buscarDadosTenant($tenantId)
     {
         $sql = "SELECT dm.tenant_id, dm.date, dm.city_id, dm.uf as state, c.region, c.name as city, goal,
 COUNT(CASE WHEN dm.child_status = 'in_observation' THEN dm.child_status END) AS 'in_observation',
@@ -104,12 +105,12 @@ COUNT(CASE WHEN dm.child_status = 'in_school' THEN dm.child_status END) AS 'in_s
 COUNT(CASE WHEN dm.child_status = 'interrupted' THEN dm.child_status END) AS 'interrupted',
 COUNT(CASE WHEN dm.child_status = 'transferred' THEN dm.child_status END) AS 'transferred',
 COUNT(CASE WHEN dm.child_status = 'cancelled' THEN dm.child_status END) AS 'cancelled',
-COUNT(CASE WHEN (dm.cancel_reason <> 'duplicate' || dm.cancel_reason <> 'wrongful_insertion') THEN dm.cancel_reason END) AS 'justified_cancelled',
+COUNT(CASE WHEN (dm.cancel_reason <> 'duplicate' || dm.cancel_reason <> 'wrongful_insertion' || dm.cancel_reason <> 'rejected_alert') THEN dm.cancel_reason END) AS 'justified_cancelled',
 (CASE WHEN g.goal IS NOT NULL THEN true ELSE false END) AS selo
 FROM daily_metrics dm 
 JOIN cities c ON dm.city_id = c.id
 left join goals g ON c.ibge_city_id = g.id
-where dm.alert_status = 'accepted' AND dm.tenant_id = '$tenant->id'
+where dm.alert_status = 'accepted' AND dm.tenant_id = '$tenantId'
 GROUP BY dm.date, dm.city_id, dm.uf, c.region, c.name, goal";
         return DB::select($sql);
 
