@@ -40,6 +40,11 @@ class InsertCancelReasonDailyMetrics extends Command
      */
     public function handle()
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '2G');
+
+        $this->comment('Processo de atualização iniciado!');
+
         //Consulta casos com motivos de cancelamento elegiveis de contagem
         $sqlCasos = "SELECT 
     cc.child_id, cc.cancel_reason
@@ -70,7 +75,7 @@ WHERE
             $count++;
 
         }
-        $this->comment('Total de atualizados: ' . $count);
+        $this->comment('Processo de atualização finalizado total de atualizados: ' . $count);
     }
 
     private function atualizaCasosDailyMetrics($caso)
