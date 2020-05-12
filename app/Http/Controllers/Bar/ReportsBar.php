@@ -352,11 +352,11 @@ class ReportsBar extends BaseController
 
         if(Auth::user()->isRestrictedToTenant()) { $daily_justified->where('tenant_id', '=', Auth::user()->tenant->id); }
 
-        if($tenantId != null AND $tenantId != "null") { $daily_justified->where('tenant_id', '=', $tenantId); }
-
         if(Auth::user()->isRestrictedToUF()) { $daily_justified->where('state', '=', Auth::user()->uf); }
 
         if($uf != null AND $uf != "null") { $daily_justified->where('state', '=', $uf); }
+
+        if($tenantId != null AND $tenantId != "null") { $daily_justified->where('tenant_id', '=', $tenantId); }
 
         if($selo == "true"){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
 
@@ -379,11 +379,11 @@ class ReportsBar extends BaseController
 
         if(Auth::user()->isRestrictedToTenant()) { $daily_enrollment->where('tenant_id', '=', Auth::user()->tenant->id); }
 
-        if($tenantId != null AND $tenantId != "null") { $daily_enrollment->where('tenant_id', '=', $tenantId); }
-
         if(Auth::user()->isRestrictedToUF()) { $daily_enrollment->where('state', '=', Auth::user()->uf); }
 
         if($uf != null AND $uf != "null") { $daily_enrollment->where('state', '=', $uf); }
+
+        if($tenantId != null AND $tenantId != "null") { $daily_enrollment->where('tenant_id', '=', $tenantId); }
 
         if($selo == "true"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 1);}); }
 
