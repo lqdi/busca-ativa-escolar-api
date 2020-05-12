@@ -40,16 +40,26 @@ class PopulateDailyMetricsConsolidated extends Command
      */
     public function handle()
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '2G');
+
         $this->comment('Processo de carga iniciado!');
 
         $tentants = $this->buscaTenants();
 
         foreach ($tentants as $tenant) {
-//            if (!$this->verificaSeExites($tenant->id)) {
+
+            $this->comment('Processo '. $tenant->id .' | '. $tenant->name .' iniciado!');
+
+            if (!$this->verificaSeExites($tenant->id)) {
                 $dadosTenant = $this->buscarDadosTenant($tenant);
                 $this->inserirDados($dadosTenant);
-//            }
+            }
+            $this->comment('Processo '. $tenant->id .'finalizado!');
         }
+
+        $this->comment('Inserção de dados consolidados finalizado!');
+
 
     }
 
@@ -77,7 +87,7 @@ class PopulateDailyMetricsConsolidated extends Command
 
     private function verificaSeExites($tenantId)
     {
-        $sqlTenants = "SELECT dm.id FROM daily_metrics dm where dm.tenant_id='$tenantId'";
+        $sqlTenants = "SELECT dmc.id FROM daily_metrics_consolidated dmc where dmc.tenant_id='$tenantId'";
         $response = DB::select($sqlTenants);
         if (!empty($response)) {
             return true;
@@ -107,7 +117,7 @@ GROUP BY dm.date, dm.city_id, dm.uf, c.region, c.name, goal";
 
     private function buscaTenants()
     {
-        $sqlTenants = "SELECT t.id FROM tenants t
+        $sqlTenants = "SELECT t.id, t.name FROM tenants t
 join case_steps_alerta csa ON csa.tenant_id = t.id
 where t.is_registered = 1 and t.is_active = 1 and csa.alert_status = 'accepted' group by t.id";
         return DB::select($sqlTenants);
