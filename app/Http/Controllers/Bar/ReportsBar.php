@@ -358,7 +358,7 @@ class ReportsBar extends BaseController
 
         if($tenantId != null AND $tenantId != "null") { $daily_justified->where('tenant_id', '=', $tenantId); }
 
-        if($selo == "SOMENTE SELO"){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
+        if($selo == "SOMENTE O SELO"){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
 
         if($selo == "SEM O SELO"){ $daily_justified->where(function($q){$q->where('selo', '=', 0);}); }
 
