@@ -15,21 +15,21 @@ class CreateDailyMetricsTable extends Migration
     {
         Schema::create('daily_metrics_consolidated', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->char('tenant_id', 36);
-            $table->date('date');
-            $table->char('region', 15);
-            $table->char('state', 2);
-            $table->string('city');
+            $table->char('tenant_id', 36)->index();
+            $table->date('date')->index();
+            $table->char('region', 15)->index();
+            $table->char('state', 2)->index();
+            $table->string('city')->index();
 
-            $table->integer('in_observation');
-            $table->integer('out_of_school');
-            $table->integer('cancelled');
-            $table->integer('in_school');
-            $table->integer('interrupted');
-            $table->integer('transferred');
+            $table->integer('in_observation')->index();
+            $table->integer('out_of_school')->index();
+            $table->integer('cancelled')->index();
+            $table->integer('in_school')->index();
+            $table->integer('interrupted')->index();
+            $table->integer('transferred')->index();
 
-            $table->integer('justified_cancelled');
-            $table->boolean('selo')->default(false);
+            $table->integer('justified_cancelled')->index();
+            $table->boolean('selo')->index()->default(false);
             $table->json('data')->nullable();
         });
 
