@@ -21,8 +21,8 @@ class CreateDailyMetricsFullMysqlTable extends Migration
             $table->date('date');
             $table->string('alert_status', 100);
             $table->string('deadline_status', 100);
-            $table->string('case_status', 100);
-            $table->string('step_slug', 100);
+            $table->string('case_status', 100)->nullable();
+            $table->string('step_slug', 100)->nullable();
             $table->char('city_id', 36);
             $table->char('uf', 2);
             $table->string('cancel_reason', 100)->nullable();

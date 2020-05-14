@@ -515,7 +515,7 @@
     <include_filename>N</include_filename>
     <separator>,</separator>
     <enclosure>"</enclosure>
-    <header>N</header>
+    <header>Y</header>
     <buffer_size>50000</buffer_size>
     <lazy_conversion>Y</lazy_conversion>
     <add_filename_result>N</add_filename_result>
@@ -1290,6 +1290,10 @@
         <column_name>alert_status</column_name>
         <stream_name>Field_006</stream_name>
       </field>
+      <field>
+        <column_name>deadline_status</column_name>
+        <stream_name>Field_008</stream_name>
+      </field>
     </fields>
     <attributes/>
     <cluster_schema/>
@@ -1300,7 +1304,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>304</xloc>
+      <xloc>496</xloc>
       <yloc>176</yloc>
       <draw>Y</draw>
     </GUI>

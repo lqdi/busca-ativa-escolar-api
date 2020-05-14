@@ -14,6 +14,7 @@ class CreateDailyMetricsTable extends Migration
     public function up()
     {
         Schema::create('daily_metrics_consolidated', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->char('tenant_id', 36);
             $table->date('date');
             $table->char('region', 15);
