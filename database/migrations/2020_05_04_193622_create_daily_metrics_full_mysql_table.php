@@ -15,18 +15,18 @@ class CreateDailyMetricsFullMysqlTable extends Migration
     {
         Schema::create('daily_metrics', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->char('tenant_id', 36);
-            $table->char('child_id', 36);
-            $table->string('child_status', 100);
-            $table->date('date');
-            $table->string('alert_status', 100);
-            $table->string('deadline_status', 100);
-            $table->string('case_status', 100)->nullable();
-            $table->string('step_slug', 100)->nullable();
-            $table->char('city_id', 36);
-            $table->char('uf', 2);
-            $table->string('cancel_reason', 100)->nullable();
-            $table->string('reinsertion_grade', 100)->nullable();
+            $table->char('tenant_id', 36)->index();
+            $table->char('child_id', 36)->index();
+            $table->string('child_status', 100)->index();
+            $table->date('date')->index();;
+            $table->string('alert_status', 100)->index();
+            $table->string('deadline_status', 100)->index();
+            $table->string('case_status', 100)->index()->nullable();
+            $table->string('step_slug', 100)->index()->nullable();
+            $table->char('city_id', 36)->index();
+            $table->char('uf', 2)->index();
+            $table->string('cancel_reason', 100)->index()->nullable();
+            $table->string('reinsertion_grade', 100)->index()->nullable();
         });
     }
 
