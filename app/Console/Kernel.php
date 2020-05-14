@@ -49,7 +49,8 @@ class Kernel extends ConsoleKernel
         Commands\SnapshotDailyMetricsConsolidated::class,
         Commands\SnapshotDailyMetricsFullMySQL::class,
         Commands\InsertCancelReasonDailyMetrics::class,
-        Commands\PopulateDailyMetricsConsolidated::class
+        Commands\PopulateDailyMetricsConsolidated::class,
+        Commands\InserirDiaAusenteGraficoRematriculas::class
     ];
 
     /**
