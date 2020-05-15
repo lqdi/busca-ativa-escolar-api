@@ -55,6 +55,15 @@ class ChildrenController extends BaseController  {
 			$params['assigned_uf'] = Auth::user()->uf;
 		}
 
+		// Scope the query to visitantes estaduais
+        if( Auth::user()->type == User::TYPE_VISITANTE_ESTADUAL_UM
+            OR Auth::user()->type == User::TYPE_VISITANTE_ESTADUAL_DOIS
+            OR Auth::user()->type == User::TYPE_VISITANTE_ESTADUAL_TRES
+            OR Auth::user()->type == User::TYPE_VISITANTE_ESTADUAL_QUATRO) {
+            unset($params['assigned_uf']);
+            $params['uf'] = Auth::user()->uf;
+        }
+
 		if(isset($params['uf'])) $params['uf'] = Str::lower($params['uf']);
 		if(isset($params['assigned_uf'])) $params['assigned_uf'] = Str::lower($params['assigned_uf']);
 

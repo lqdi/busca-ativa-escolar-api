@@ -52,11 +52,43 @@ class UsersController extends BaseController
             $query->where('uf', request('uf'));
         } else if ($this->currentUser()->isRestrictedToUF()) { // Else, check if they're bound to a UF
             $query->where('uf', $this->currentUser()->uf);
-            $query->whereIn('type', User::$UF_SCOPED_TYPES);
+
+            if( in_array( $this->currentUser()->type, User::$TYPES_VISITANTES_UFS) ){
+                $query->whereIn('type', User::$UF_VISITANTES_SCOPED_TYPES);
+            }else{
+                $query->whereIn('type', User::$UF_SCOPED_TYPES);
+            }
+            
         }
 
         if (request()->has('group_id')) $query->where('group_id', request('group_id'));
-        if (request()->has('type')) $query->where('type', request('type'));
+
+        //filter for visitantes nacionais e estaduais
+
+        if ( request()->has('type') ) {
+
+            if( request('type') == User::TYPE_VISITANTE_NACIONAL )
+            {
+                $query->where('type', '=', USER::TYPE_VISITANTE_NACIONAL_UM);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_DOIS);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_TRES);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_QUATRO);
+            }
+
+            elseif ( request('type') == User::TYPE_VISITANTE_ESTADUAL )
+            {
+                $query->where('type', '=', USER::TYPE_VISITANTE_ESTADUAL_UM);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_DOIS);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_TRES);
+                $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_QUATRO);
+            }
+
+            else{
+                $query->where('type', request('type'));
+            }
+
+        }
+
         if (request()->has('email')) $query->where('email', 'LIKE', request('email') . '%');
 
         if (request('show_suspended', false)) $query->withTrashed();
