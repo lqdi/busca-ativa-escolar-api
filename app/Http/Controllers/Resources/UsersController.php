@@ -52,7 +52,13 @@ class UsersController extends BaseController
             $query->where('uf', request('uf'));
         } else if ($this->currentUser()->isRestrictedToUF()) { // Else, check if they're bound to a UF
             $query->where('uf', $this->currentUser()->uf);
-            $query->whereIn('type', User::$UF_SCOPED_TYPES);
+
+            if( in_array( $this->currentUser()->type, User::$TYPES_VISITANTES_UFS) ){
+                $query->whereIn('type', User::$UF_VISITANTES_SCOPED_TYPES);
+            }else{
+                $query->whereIn('type', User::$UF_SCOPED_TYPES);
+            }
+            
         }
 
         if (request()->has('group_id')) $query->where('group_id', request('group_id'));
