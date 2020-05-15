@@ -3,12 +3,18 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Bar;
 
 use Auth;
+use function Aws\map;
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\Goal;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\CaseSteps\Rematricula;
+use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\User;
 use Cache;
+use DateTime;
 use DB;
+use Illuminate\Http\Request;
 use PhpParser\Builder;
 
 class ReportsBar extends BaseController
@@ -331,4 +337,125 @@ class ReportsBar extends BaseController
 
     }
 
+    public function getDataRematriculaDaily(Request $request){
+
+        $uf = $request->input('uf') ?? null;
+        $tenantId = $request->input('tenant_id') ?? null;
+        $selo = $request->input('selo') ?? null;
+
+
+        //cancelamentos -----------------------------------------------
+
+        $daily_justified = DB::table('daily_metrics_consolidated')
+            ->select(DB::raw("DATE_FORMAT(date, '%Y-%m-%d') as date, sum(justified_cancelled) as value"))
+            ->groupBy('date');
+
+        if(Auth::user()->isRestrictedToTenant()) { $daily_justified->where('tenant_id', '=', Auth::user()->tenant->id); }
+
+        if(Auth::user()->isRestrictedToUF()) { $daily_justified->where('state', '=', Auth::user()->uf); }
+
+        if($uf != null AND $uf != "null") { $daily_justified->where('state', '=', $uf); }
+
+        if($tenantId != null AND $tenantId != "null") { $daily_justified->where('tenant_id', '=', $tenantId); }
+
+        if($selo == "COM SELO"){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
+
+        if($selo == "SEM SELO"){ $daily_justified->where(function($q){$q->where('selo', '=', 0);}); }
+
+        $daily_justified_final = $daily_justified->get()->toArray();
+
+        $daily_justified_final = array_map( function($e){
+            $e->tipo = "Cancelamento";
+            return $e;
+        },$daily_justified_final);
+
+        //cancelamentos -----------------------------------------------
+
+
+
+        //(re)matricula -----------------------------------------------
+
+        $daily_enrollment = DB::table('daily_metrics_consolidated')
+            ->select(DB::raw("DATE_FORMAT(date, '%Y-%m-%d') as date, sum(in_observation)+sum(in_school) as value"))
+            ->groupBy('date');
+
+        if(Auth::user()->isRestrictedToTenant()) { $daily_enrollment->where('tenant_id', '=', Auth::user()->tenant->id); }
+
+        if(Auth::user()->isRestrictedToUF()) { $daily_enrollment->where('state', '=', Auth::user()->uf); }
+
+        if($uf != null AND $uf != "null") { $daily_enrollment->where('state', '=', $uf); }
+
+        if($tenantId != null AND $tenantId != "null") { $daily_enrollment->where('tenant_id', '=', $tenantId); }
+
+        if($selo == "COM SELO"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 1);}); }
+
+        if($selo == "SEM SELO"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 0);}); }
+
+        $daily_enrollment_final = $daily_enrollment->get()->toArray();
+
+        $daily_enrollment_final = array_map( function($e){
+            $e->tipo = "(Re)matrícula";
+            return $e;
+        },$daily_enrollment_final);
+
+        //(re)matricula -----------------------------------------------
+
+
+
+        //meta --------------------------------------------------------
+
+        if(Auth::user()->isRestrictedToTenant()) { $goal_final = Auth::user()->tenant->city->goal ? $this->currentUser()->tenant->city->goal->goal : 0; }
+
+        if(Auth::user()->isRestrictedToUF()) {
+
+            $goal = Goal::selectRaw('sum(goal) as goals')
+                ->join('cities', 'cities.ibge_city_id', '=', 'goals.id')
+                ->join('tenants', 'tenants.city_id', '=', 'cities.id')
+                ->where([
+                    ['cities.uf','=', Auth::user()->uf]
+                ]);
+
+            if($tenantId != null AND $tenantId != "null"){
+                $goal->where([
+                    ['cities.uf','=', Auth::user()->uf],
+                    ['tenants.id','=', $tenantId]
+                ]);
+            }
+
+            $goal_final = $goal->get()->toArray()[0]['goals'];
+
+        }
+
+        if(Auth::user()->isGlobal()) {
+
+            $goal = Goal::selectRaw('sum(goal) as goals')
+                ->join('cities', 'cities.ibge_city_id', '=', 'goals.id')
+                ->join('tenants', 'tenants.city_id', '=', 'cities.id');
+
+            if($uf != null AND $uf != "null"){
+                $goal->where([
+                    ['cities.uf','=',$uf]
+                ]);
+            }
+
+            if($tenantId != null AND $tenantId != "null"){
+                $goal->where([
+                    ['cities.uf','=', $uf],
+                    ['tenants.id','=', $tenantId]
+                ]);
+            }
+
+            $goal_final = $goal->get()->toArray()[0]['goals'];
+
+        }
+
+        return response()->json(
+            [
+                'goal' => $goal_final,
+                'data' => array_merge($daily_enrollment_final, $daily_justified_final),
+                'selo' => $selo
+            ]
+        );
+
+    }
 }

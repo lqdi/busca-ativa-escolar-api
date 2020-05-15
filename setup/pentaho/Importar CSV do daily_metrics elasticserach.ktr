@@ -437,7 +437,7 @@
   <notepads>
   </notepads>
   <connection>
-    <name>Docker Mysql</name>
+    <name>Docker Mysql 19042020</name>
     <server>localhost</server>
     <type>MYSQL</type>
     <access>Native</access>
@@ -515,7 +515,7 @@
     <include_filename>N</include_filename>
     <separator>,</separator>
     <enclosure>"</enclosure>
-    <header>N</header>
+    <header>Y</header>
     <buffer_size>50000</buffer_size>
     <lazy_conversion>Y</lazy_conversion>
     <add_filename_result>N</add_filename_result>
@@ -1232,7 +1232,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>Docker Mysql</connection>
+    <connection>Docker Mysql 19042020</connection>
     <schema/>
     <table>daily_metrics</table>
     <commit>1000</commit>
@@ -1304,7 +1304,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>304</xloc>
+      <xloc>496</xloc>
       <yloc>176</yloc>
       <draw>Y</draw>
     </GUI>
