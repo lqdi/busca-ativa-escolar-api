@@ -166,6 +166,20 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 		self::TYPE_AGENTE_COMUNITARIO,
 	];
 
+    public static $TYPES_VISITANTES_UFS = [
+        self::TYPE_VISITANTE_ESTADUAL_UM,
+        self::TYPE_VISITANTE_ESTADUAL_DOIS,
+        self::TYPE_VISITANTE_ESTADUAL_TRES,
+        self::TYPE_VISITANTE_ESTADUAL_QUATRO,
+    ];
+
+    public static $UF_VISITANTES_SCOPED_TYPES = [
+        self::TYPE_GESTOR_ESTADUAL,
+        self::TYPE_COORDENADOR_ESTADUAL,
+        self::TYPE_GESTOR_POLITICO,
+        self::TYPE_GESTOR_OPERACIONAL
+    ];
+
 	public static $UF_SCOPED_TYPES = [
 		self::TYPE_GESTOR_ESTADUAL,
 		self::TYPE_COMITE_ESTADUAL,
@@ -186,7 +200,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         self::TYPE_VISITANTE_NACIONAL_UM,
         self::TYPE_VISITANTE_NACIONAL_DOIS,
         self::TYPE_VISITANTE_NACIONAL_TRES,
-        self::TYPE_VISITANTE_NACIONAL_QUATRO
+        self::TYPE_VISITANTE_NACIONAL_QUATRO,
 
 	];
 

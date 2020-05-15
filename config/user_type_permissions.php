@@ -228,22 +228,6 @@ return [
         'alerts.spawn',
     ],
 
-    BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL_UM => [
-        'reports.view',
-        'reports.ufs',
-        'users.view',
-        'cases.view',
-
-        'cases.step.alerta',
-        'cases.step.pesquisa',
-        'cases.step.analise_tecnica',
-        'cases.step.gestao_do_caso',
-        'cases.step.rematricula',
-        'cases.step.1a_observacao',
-        'cases.step.2a_observacao',
-        'cases.step.3a_observacao',
-        'cases.step.4a_observacao'
-    ],
 
     BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL_UM => [
         'reports.view',
@@ -313,21 +297,22 @@ return [
         'cases.step.4a_observacao'
     ],
 
+
     BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_UM => [
         'reports.view',
         'reports.ufs',
         'users.view',
-        'cases.view',
-
-        'cases.step.alerta',
-        'cases.step.pesquisa',
-        'cases.step.analise_tecnica',
-        'cases.step.gestao_do_caso',
-        'cases.step.rematricula',
-        'cases.step.1a_observacao',
-        'cases.step.2a_observacao',
-        'cases.step.3a_observacao',
-        'cases.step.4a_observacao'
+//        'cases.view',
+//
+//        'cases.step.alerta',
+//        'cases.step.pesquisa',
+//        'cases.step.analise_tecnica',
+//        'cases.step.gestao_do_caso',
+//        'cases.step.rematricula',
+//        'cases.step.1a_observacao',
+//        'cases.step.2a_observacao',
+//        'cases.step.3a_observacao',
+//        'cases.step.4a_observacao'
     ],
 
     BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_DOIS => [
@@ -350,7 +335,7 @@ return [
     BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_TRES => [
         'reports.view',
         'reports.ufs',
-//        'users.view',
+        'users.view',
 //        'cases.view',
 //
 //        'cases.step.alerta',
@@ -367,18 +352,18 @@ return [
     BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_QUATRO => [
         'reports.view',
 //        'reports.ufs',
-//        'users.view',
-        'cases.view',
-
-        'cases.step.alerta',
-        'cases.step.pesquisa',
-        'cases.step.analise_tecnica',
-        'cases.step.gestao_do_caso',
-        'cases.step.rematricula',
-        'cases.step.1a_observacao',
-        'cases.step.2a_observacao',
-        'cases.step.3a_observacao',
-        'cases.step.4a_observacao'
+        'users.view',
+//        'cases.view',
+//
+//        'cases.step.alerta',
+//        'cases.step.pesquisa',
+//        'cases.step.analise_tecnica',
+//        'cases.step.gestao_do_caso',
+//        'cases.step.rematricula',
+//        'cases.step.1a_observacao',
+//        'cases.step.2a_observacao',
+//        'cases.step.3a_observacao',
+//        'cases.step.4a_observacao'
     ],
 
     'can_manage_types' => [ // Which users can set/change/create which user types
@@ -550,76 +535,63 @@ return [
         BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO => [],
 
         BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL_UM => [
-            BuscaAtivaEscolar\User::TYPE_SUPERUSER,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
-            BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
-            BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
-            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
             BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
             BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
-            BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
-            BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
-
-            BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL
         ],
 
         BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL_DOIS => [
-            BuscaAtivaEscolar\User::TYPE_SUPERUSER,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
-            BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
-            BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
-            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
             BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
             BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
-            BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
-            BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
-
-            BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL
         ],
 
         BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL_TRES => [
-            BuscaAtivaEscolar\User::TYPE_SUPERUSER,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
-            BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
-            BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
-            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
             BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
             BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
-            BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
-            BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
-
-            BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL
         ],
 
         BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL_QUATRO => [
-            BuscaAtivaEscolar\User::TYPE_SUPERUSER,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,
-            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
-            BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
-            BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
-            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
             BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
             BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
-            BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL,
-            BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL
+        ],
 
-            BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL,
-            BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL,
-        ]
+
+        BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_UM => [
+            BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL
+        ],
+
+        BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_DOIS => [
+            BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL
+        ],
+
+        BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_TRES => [
+            BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL
+        ],
+
+        BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_QUATRO => [
+            BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
+            BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL
+        ],
+
+
     ]
 
 ];
