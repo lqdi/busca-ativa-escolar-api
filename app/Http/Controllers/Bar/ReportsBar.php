@@ -408,7 +408,7 @@ class ReportsBar extends BaseController
 
         if(Auth::user()->isRestrictedToUF()) {
 
-            $goal = Goal::selectRaw('sum(goal) as goals')
+            $goal = Goal::selectRaw('sum(goals.goal) as goals')
                 ->join('cities', 'cities.ibge_city_id', '=', 'goals.id')
                 ->join('tenants', 'tenants.city_id', '=', 'cities.id')
                 ->where([
@@ -428,7 +428,7 @@ class ReportsBar extends BaseController
 
         if(Auth::user()->isGlobal()) {
 
-            $goal = Goal::selectRaw('sum(goal) as goals')
+            $goal = Goal::selectRaw('sum(goals.goal) as goals')
                 ->join('cities', 'cities.ibge_city_id', '=', 'goals.id')
                 ->join('tenants', 'tenants.city_id', '=', 'cities.id');
 
