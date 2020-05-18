@@ -358,9 +358,9 @@ class ReportsBar extends BaseController
 
         if($tenantId != null AND $tenantId != "null") { $daily_justified->where('tenant_id', '=', $tenantId); }
 
-        if($selo == "COM SELO"){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
+        if($selo == "PARTICIPA DO SELO"){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
 
-        if($selo == "SEM SELO"){ $daily_justified->where(function($q){$q->where('selo', '=', 0);}); }
+        if($selo == "NÃO PARTICIPA DO SELO"){ $daily_justified->where(function($q){$q->where('selo', '=', 0);}); }
 
         $daily_justified_final = $daily_justified->get()->toArray();
 
@@ -387,9 +387,9 @@ class ReportsBar extends BaseController
 
         if($tenantId != null AND $tenantId != "null") { $daily_enrollment->where('tenant_id', '=', $tenantId); }
 
-        if($selo == "COM SELO"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 1);}); }
+        if($selo == "PARTICIPA DO SELO"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 1);}); }
 
-        if($selo == "SEM SELO"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 0);}); }
+        if($selo == "NÃO PARTICIPA DO SELO"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 0);}); }
 
         $daily_enrollment_final = $daily_enrollment->get()->toArray();
 
