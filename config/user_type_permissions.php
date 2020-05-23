@@ -302,6 +302,7 @@ return [
         'reports.view',
         'reports.ufs',
         'users.view',
+        'users.export',
 //        'cases.view',
 //
 //        'cases.step.alerta',
@@ -319,6 +320,7 @@ return [
         'reports.view',
         'reports.ufs',
         'users.view',
+        'users.export',
 //        'cases.view',
 //
 //        'cases.step.alerta',
@@ -336,6 +338,7 @@ return [
         'reports.view',
         'reports.ufs',
         'users.view',
+        'users.export',
 //        'cases.view',
 //
 //        'cases.step.alerta',
@@ -353,6 +356,7 @@ return [
         'reports.view',
 //        'reports.ufs',
         'users.view',
+        'users.export',
 //        'cases.view',
 //
 //        'cases.step.alerta',
