@@ -99,7 +99,6 @@ class SnapshotDailyMetricsConsolidated extends Command
                     $query->where(['cancel_reason' => 'city_transfer'])
                         ->orWhere(['cancel_reason' => 'death'])
                         ->orWhere(['cancel_reason' => 'not_found'])
-                        ->orWhere(['case_status' => 'completed'])
                         ->orWhere(['case_status' => 'interrupted'])
                         ->orWhere(['case_status' => 'transferred']);
                 })->where(
@@ -108,38 +107,41 @@ class SnapshotDailyMetricsConsolidated extends Command
                         'is_completed' => true
                     ]
                 )
-                ->orderBy('completed_at', 'asc')
                 ->count();
 
                 $goal = $tenant->city->goal != null ? 1 : 0;
 
                 $this->comment("[index:{$today}] Tenant #{$tenant->id} - {$tenant->name} - {$goal}");
 
-                $dailyMetric = new DailyMetricsConsolidated(
-                    [
-                        'tenant_id' => $tenant->id,
-                        'date' => $today,
-                        'region' => $tenant->city->region,
-                        'state' => $tenant->city->uf,
-                        'city' => $tenant->city->name,
+                $saved_daily = DailyMetricsConsolidated::where([ ['date', '=', $today], ['tenant_id', '=', $tenant->id] ] )->first();
 
-                        'in_observation' => $in_observation,
-                        'out_of_school' => $out_of_school,
-                        'cancelled' => $cancelled,
-                        'in_school' => $in_school,
-                        'interrupted' => $interrupted,
-                        'transferred' => $transferred,
+                if ($saved_daily == null){
 
-                        'selo' => $goal,
+                    $dailyMetric = new DailyMetricsConsolidated(
+                        [
+                            'tenant_id' => $tenant->id,
+                            'date' => $today,
+                            'region' => $tenant->city->region,
+                            'state' => $tenant->city->uf,
+                            'city' => $tenant->city->name,
 
-                        'justified_cancelled' => $justified_cancelled,
-                        'data' => null,
-                    ]
-                );
+                            'in_observation' => $in_observation,
+                            'out_of_school' => $out_of_school,
+                            'cancelled' => $cancelled,
+                            'in_school' => $in_school,
+                            'interrupted' => $interrupted,
+                            'transferred' => $transferred,
 
-                $dailyMetric->save();
+                            'selo' => $goal,
 
+                            'justified_cancelled' => $justified_cancelled,
+                            'data' => null,
+                        ]
+                    );
 
+                    $dailyMetric->save();
+                }
+                
             }
 
         });
