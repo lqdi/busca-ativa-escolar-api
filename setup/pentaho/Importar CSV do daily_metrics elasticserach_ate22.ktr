@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <transformation>
   <info>
-    <name>Importar CSV do daily_metrics elasticserach</name>
+    <name>Importar CSV do daily_metrics elasticserach_ate22</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -509,7 +509,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>/home/unicef/Downloads/elasticdata/elastic_children_daily.csv</filename>
+    <filename>/home/unicef/Downloads/Daily producao/daily_metrics_ate_22_maio.csv</filename>
     <filename_field/>
     <rownum_field/>
     <include_filename>N</include_filename>
@@ -1216,7 +1216,7 @@
       </output>
     </remotesteps>
     <GUI>
-      <xloc>176</xloc>
+      <xloc>160</xloc>
       <yloc>176</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1236,7 +1236,7 @@
     <schema/>
     <table>daily_metrics</table>
     <commit>1000</commit>
-    <truncate>Y</truncate>
+    <truncate>N</truncate>
     <ignore_errors>N</ignore_errors>
     <use_batch>Y</use_batch>
     <specify_fields>Y</specify_fields>
@@ -1252,7 +1252,7 @@
     <fields>
       <field>
         <column_name>child_id</column_name>
-        <stream_name>Field_016</stream_name>
+        <stream_name>Field_007</stream_name>
       </field>
       <field>
         <column_name>child_status</column_name>
@@ -1268,11 +1268,11 @@
       </field>
       <field>
         <column_name>tenant_id</column_name>
-        <stream_name>Field_038</stream_name>
+        <stream_name>Field_039</stream_name>
       </field>
       <field>
         <column_name>step_slug</column_name>
-        <stream_name>Field_042</stream_name>
+        <stream_name>Field_043</stream_name>
       </field>
       <field>
         <column_name>city_id</column_name>
@@ -1280,7 +1280,7 @@
       </field>
       <field>
         <column_name>uf</column_name>
-        <stream_name>Field_048</stream_name>
+        <stream_name>Field_049</stream_name>
       </field>
       <field>
         <column_name>reinsertion_grade</column_name>
@@ -1292,7 +1292,7 @@
       </field>
       <field>
         <column_name>deadline_status</column_name>
-        <stream_name>Field_008</stream_name>
+        <stream_name>Field_019</stream_name>
       </field>
     </fields>
     <attributes/>
