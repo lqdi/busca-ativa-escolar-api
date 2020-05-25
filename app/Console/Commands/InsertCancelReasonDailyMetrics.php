@@ -51,7 +51,7 @@ class InsertCancelReasonDailyMetrics extends Command
 FROM
     children_cases cc
         LEFT JOIN
-    daily_metrics dm ON dm.child_id = cc.child_id
+    daily_metrics dm ON dm.child_id COLLATE utf8_unicode_ci = cc.child_id
 WHERE
     dm.child_status = 'cancelled'
         AND cc.cancel_reason IS NOT NULL
