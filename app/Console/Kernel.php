@@ -64,8 +64,8 @@ class Kernel extends ConsoleKernel
     	//$schedule->command('debug:test_scheduling_system')->everyMinute();
         $schedule->command('workflow:check_case_deadlines')->dailyAt('23:00');
         $schedule->command('snapshot:daily_metrics')->dailyAt('01:00');
-        $schedule->command('snapshot:daily_metrics_consolidated')->dailyAt('03:00');
-        $schedule->command('snapshot:daily_metrics_full_mysql')->dailyAt('05:00');
+        $schedule->command('snapshot:daily_metrics_consolidated')->dailyAt('02:00');
+        //$schedule->command('snapshot:daily_metrics_full_mysql')->dailyAt('05:00');
     }
 
 
