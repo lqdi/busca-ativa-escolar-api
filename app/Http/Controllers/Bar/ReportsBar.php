@@ -5,6 +5,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Bar;
 use Auth;
 use function Aws\map;
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Goal;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
@@ -19,6 +20,10 @@ use PhpParser\Builder;
 
 class ReportsBar extends BaseController
 {
+
+    const SELO_UNICEF_PARTICIPA = "PARTICIPA DO SELO UNICEF";
+    const SELO_UNICEF_NAO_PARTICIPA = "NÃO PARTICIPA DO SELO UNICEF";
+    const SELO_UNICEF_TODOS = "TODOS";
 
     public function city_bar()
     {
@@ -358,14 +363,14 @@ class ReportsBar extends BaseController
 
         if($tenantId != null AND $tenantId != "null") { $daily_justified->where('tenant_id', '=', $tenantId); }
 
-        if($selo == "PARTICIPA DO SELO UNICEF"){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
+        if($selo == self::SELO_UNICEF_PARTICIPA){ $daily_justified->where(function($q){$q->where('selo', '=', 1);}); }
 
-        if($selo == "NÃO PARTICIPA DO SELO UNICEF"){ $daily_justified->where(function($q){$q->where('selo', '=', 0);}); }
+        if($selo == self::SELO_UNICEF_NAO_PARTICIPA){ $daily_justified->where(function($q){$q->where('selo', '=', 0);}); }
 
         $daily_justified_final = $daily_justified->get()->toArray();
 
         $daily_justified_final = array_map( function($e){
-            $e->tipo = "Cancelamento";
+            $e->tipo = "Cancelamento após (re)matrícula";
             return $e;
         },$daily_justified_final);
 
@@ -387,9 +392,9 @@ class ReportsBar extends BaseController
 
         if($tenantId != null AND $tenantId != "null") { $daily_enrollment->where('tenant_id', '=', $tenantId); }
 
-        if($selo == "PARTICIPA DO SELO UNICEF"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 1);}); }
+        if($selo == self::SELO_UNICEF_PARTICIPA){ $daily_enrollment->where(function($q){$q->where('selo', '=', 1);}); }
 
-        if($selo == "NÃO PARTICIPA DO SELO UNICEF"){ $daily_enrollment->where(function($q){$q->where('selo', '=', 0);}); }
+        if($selo == self::SELO_UNICEF_NAO_PARTICIPA){ $daily_enrollment->where(function($q){$q->where('selo', '=', 0);}); }
 
         $daily_enrollment_final = $daily_enrollment->get()->toArray();
 
@@ -458,4 +463,65 @@ class ReportsBar extends BaseController
         );
 
     }
+
+    public function ufsBySelo(){
+
+        $selo = request('selo');
+
+        if($selo == self::SELO_UNICEF_PARTICIPA){
+            $ufs = City::select('uf')->has('goal')->orderBy('uf', 'asc')->groupBy('uf')->get();
+        }
+
+        if($selo == self::SELO_UNICEF_NAO_PARTICIPA){
+            $ufs_all = Tenant::select('uf')->orderBy('uf', 'asc')->groupBy('uf')->get()->toArray();
+            $ufs_with_goals = City::select('uf')->has('goal')->orderBy('uf', 'asc')->groupBy('uf')->get()->toArray();
+
+            $ufs_all = array_map(function ($el){ return $el['uf']; }, $ufs_all);
+            $ufs_with_goals = array_map(function ($el){ return $el['uf']; }, $ufs_with_goals);
+
+            $ufs = array_map(function ($el){ return ['uf'=>$el]; }, array_values(array_diff($ufs_all, $ufs_with_goals)));
+        }
+
+        if($selo == self::SELO_UNICEF_TODOS){
+            $ufs = Tenant::select('uf')->orderBy('uf', 'asc')->groupBy('uf')->get();
+        }
+
+        $data = [
+            'selo' => $selo,
+            'data' => $ufs,
+        ];
+
+        return response()->json($data);
+    }
+
+    public function tenantsBySelo(){
+
+        $selo = request('selo');
+        $uf = request('uf');
+
+        if($selo == self::SELO_UNICEF_PARTICIPA){
+            $tenants = Tenant::whereHas('city', function ($q){
+                $q->whereHas('goal');
+            })->where('uf', '=', $uf)->orderBy('name', 'asc')->get();
+        }
+
+        if($selo == self::SELO_UNICEF_NAO_PARTICIPA){
+            $tenants = Tenant::whereHas('city', function ($q){
+                $q->doesntHave('goal');
+            })->where('uf', '=', $uf)->orderBy('name', 'asc')->get();
+        }
+
+        if($selo == self::SELO_UNICEF_TODOS){
+            $tenants = Tenant::where('uf', '=', $uf)->orderBy('name', 'asc')->get();
+        }
+
+        $data = [
+            'selo' => $selo,
+            'data' => $tenants
+        ];
+
+        return response()->json($data);
+
+    }
+
 }
