@@ -51,9 +51,11 @@ class PopulateDailyMetricsConsolidated extends Command
 
             $this->comment('Processo '. $tenant->id .' | '. $tenant->name .' iniciado!');
 
-            if (!$this->verificaSeExites($tenant->id)) {
-                $dadosTenant = $this->buscarDadosTenant($tenant->id);
-                $this->inserirDados($dadosTenant);
+            if($this->verificaSeExiteRematricula($tenant->id)) {
+                if (!$this->verificaSeExites($tenant->id)) {
+                    $dadosTenant = $this->buscarDadosTenant($tenant->id);
+                    $this->inserirDados($dadosTenant);
+                }
             }
             $this->comment('Processo '. $tenant->id .'finalizado!');
         }
@@ -110,7 +112,7 @@ COUNT(CASE WHEN (dm.cancel_reason <> 'duplicate' || dm.cancel_reason <> 'wrongfu
 FROM daily_metrics dm 
 JOIN cities c ON dm.city_id = c.id
 left join goals g ON c.ibge_city_id = g.id
-where dm.alert_status = 'accepted' AND dm.tenant_id = '$tenantId'
+where dm.alert_status = 'accepted' AND dm.child_status <> 'out_of_school' AND dm.tenant_id = '$tenantId'
 GROUP BY dm.date, dm.city_id, dm.uf, c.region, c.name, goal";
         return DB::select($sql);
 
@@ -122,6 +124,16 @@ GROUP BY dm.date, dm.city_id, dm.uf, c.region, c.name, goal";
 join case_steps_alerta csa ON csa.tenant_id = t.id
 where t.is_registered = 1 and t.is_active = 1 and csa.alert_status = 'accepted' group by t.id";
         return DB::select($sqlTenants);
+    }
+
+    private function verificaSeExiteRematricula($tenantId)
+    {
+        $sqlTenants = "SELECT count(dm.id) as qtd FROM daily_metrics dm where (child_status = 'in_observation' OR child_status = 'in_scholl') AND tenant_id ='$tenantId'";
+        $response = DB::select($sqlTenants);
+        if ($response[0]->qtd > 0) {
+            return true;
+        }
+        return false;
     }
 
 

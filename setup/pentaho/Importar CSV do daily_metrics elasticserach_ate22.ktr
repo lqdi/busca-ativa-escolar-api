@@ -437,11 +437,11 @@
   <notepads>
   </notepads>
   <connection>
-    <name>Docker Mysql 19042020</name>
+    <name>Docker Mysql 23052020</name>
     <server>localhost</server>
     <type>MYSQL</type>
     <access>Native</access>
-    <database>base19042020prod</database>
+    <database>base23052020prod</database>
     <port>3306</port>
     <username>root</username>
     <password>Encrypted 2be98afc86aa7f2e4cb79ce10bec3fd89</password>
@@ -1217,7 +1217,7 @@
     </remotesteps>
     <GUI>
       <xloc>160</xloc>
-      <yloc>176</yloc>
+      <yloc>160</yloc>
       <draw>Y</draw>
     </GUI>
   </step>
@@ -1232,7 +1232,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <connection>Docker Mysql 19042020</connection>
+    <connection>Docker Mysql 23052020</connection>
     <schema/>
     <table>daily_metrics</table>
     <commit>1000</commit>
