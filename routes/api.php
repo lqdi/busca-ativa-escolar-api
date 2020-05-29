@@ -170,7 +170,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		//Reports Bar
         Route::get('/reports/city_bar', 'Bar\ReportsBar@city_bar');
         Route::get('/reports/data_rematricula_daily', 'Bar\ReportsBar@getDataRematriculaDaily');
-
+        Route::get('/reports/ufs_by_selo', 'Bar\ReportsBar@ufsBySelo');
+        Route::get('/reports/tenants_by_selo', 'Bar\ReportsBar@tenantsBySelo');
 
 	});
 
