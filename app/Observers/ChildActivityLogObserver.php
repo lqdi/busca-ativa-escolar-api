@@ -22,10 +22,10 @@ class ChildActivityLogObserver {
 	public function created(Child $child) {
 		ActivityLog::writeEntry($child, 'created', ['child_name' => $child->name, 'child' => $child, 'request' => request()->all()], ['source' => get_class()]);
 	}
-
-	public function updated(Child $child) {
-		ActivityLog::writeEntry($child, 'updated', ['child_name' => $child->name, 'child' => $child, 'request' => request()->all()], ['source' => get_class()]);
-	}
+//Todo vericar a necessidade desse update
+//	public function updated(Child $child) {
+//		ActivityLog::writeEntry($child, 'updated', ['child_name' => $child->name, 'child' => $child, 'request' => request()->all()], ['source' => get_class()]);
+//	}
 
 	public function deleted(Child $child) {
 		ActivityLog::writeEntry($child, 'deleted', ['child_name' => $child->name, 'child' => $child, 'request' => request()->all()], ['source' => get_class()]);
