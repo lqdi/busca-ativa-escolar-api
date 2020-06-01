@@ -473,13 +473,16 @@ class ReportsBar extends BaseController
         }
 
         if($selo == self::SELO_UNICEF_NAO_PARTICIPA){
-            $ufs_all = Tenant::select('uf')->orderBy('uf', 'asc')->groupBy('uf')->get()->toArray();
-            $ufs_with_goals = City::select('uf')->has('goal')->orderBy('uf', 'asc')->groupBy('uf')->get()->toArray();
 
-            $ufs_all = array_map(function ($el){ return $el['uf']; }, $ufs_all);
-            $ufs_with_goals = array_map(function ($el){ return $el['uf']; }, $ufs_with_goals);
+            $cities_selo_array = City::select('id')->has('goal')->get()->toArray();
+            $ufs = Tenant::select('uf')->whereNotIn('city_id', $cities_selo_array)->orderBy('uf', 'asc')->groupBy('uf')->get();
 
-            $ufs = array_map(function ($el){ return ['uf'=>$el]; }, array_values(array_diff($ufs_all, $ufs_with_goals)));
+//            APENAS UFS QUE NAO TEM NENHUM MUNICIPIO DO SELO UNICEF
+//            $ufs_all = Tenant::select('uf')->orderBy('uf', 'asc')->groupBy('uf')->get()->toArray();
+//            $ufs_with_goals = City::select('uf')->has('goal')->orderBy('uf', 'asc')->groupBy('uf')->get()->toArray();
+//            $ufs_all = array_map(function ($el){ return $el['uf']; }, $ufs_all);
+//            $ufs_with_goals = array_map(function ($el){ return $el['uf']; }, $ufs_with_goals);
+//            $ufs = array_map(function ($el){ return ['uf'=>$el]; }, array_values(array_diff($ufs_all, $ufs_with_goals)));
         }
 
         if($selo == self::SELO_UNICEF_TODOS){
