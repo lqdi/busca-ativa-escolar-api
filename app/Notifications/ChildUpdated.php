@@ -76,4 +76,5 @@ class ChildUpdated extends Notification implements ShouldQueue {
             ]
         ];
     }
+
 }
