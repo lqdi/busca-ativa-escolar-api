@@ -25,7 +25,8 @@ class ActivityLog extends Model {
 	use SoftDeletes;
 	use IndexedByUUID;
 	use TenantScopedModel;
-
+// Conexão externa para a tabela activity log
+    protected $connection = 'mysql2';
 	protected $table = "activity_log";
 	protected $fillable = [
 		'tenant_id',
@@ -118,6 +119,8 @@ class ActivityLog extends Model {
 	 */
 	public static function writeEntry(Model $content, $action, $parameters = [], $metadata = []) {
 		$entry = new ActivityLog();
+//        $entry->setConnection('mysql2');
+
 		$entry->tenant_id = $content->tenant_id ?? null;
 		$entry->content_type= get_class($content);
 		$entry->content_id = $content->id;
