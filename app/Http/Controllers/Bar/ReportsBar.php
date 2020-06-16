@@ -527,4 +527,107 @@ class ReportsBar extends BaseController
 
     }
 
+    public function getDataMapFusionChart(Request $request){
+
+        $uf = request('uf');
+
+        if($uf != null AND $uf != "null") {
+
+            $data = DB::table('case_steps_alerta')
+                ->select(DB::raw("cities.ibge_city_id as id, count(case_steps_alerta.alert_status) as value, cities.name as name_city"))
+                ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                ->where('case_steps_alerta.place_uf', '=', $uf)
+                ->whereNotNull('case_steps_alerta.place_city_id')
+                ->join('cities', 'cities.id', '=', 'case_steps_alerta.place_city_id')
+                ->groupBy(['cities.name', 'cities.ibge_city_id'])
+                ->get()->toArray();
+
+            $data = array_map( function ($e) {
+                $e->showLabel = 0;
+                return $e;
+            }, $data);
+
+            $all_values = [];
+
+            foreach ( $data as $d ){
+                array_push($all_values, $d->value);
+            }
+
+        }else{
+
+            $data = DB::table('case_steps_alerta')
+                ->select(DB::raw("place_uf, count(alert_status) as value"))
+                ->where('alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                ->whereNotNull('place_uf')
+                ->groupBy('place_uf')
+                ->orderBy('value', 'DESC')
+                ->get()->toArray();
+
+            $data = array_map( function ($e) {
+                $e->id = $this->getDataUfBySiglaUf($e->place_uf)[0];
+                $e->displayValue = $e->place_uf;
+                $e->showLabel = 1;
+                $e->simple_name = strtolower(str_replace(" ", "", $this->getDataUfBySiglaUf($e->place_uf)[1]));
+                return $e;
+            }, $data);
+
+            $all_values = [];
+
+            foreach ( $data as $d ){
+                array_push($all_values, $d->value);
+            }
+        }
+
+        $final_data = [
+            'colors' => [
+                [
+                   "maxvalue" => max($all_values),
+                   "code" => "#e44a00"
+                ],
+                [
+                    "maxvalue" => max($all_values)/2,
+                    "code" => "#f8bd19"
+                ]
+            ],
+            'data' => $data
+        ];
+
+        return response()->json($final_data);
+
+    }
+
+    protected function getDataUfBySiglaUf($nameUf){
+        $states = [
+            'AC' => ['001', 'Acre'],
+            'AL' => ['002', 'Alagoas'],
+            'AP' => ['003', 'Amapa'],
+            'AM' => ['004', 'Amazonas'],
+            'BA' => ['005', 'Bahia'],
+            'CE' => ['006', 'Ceara'],
+            'DF' => ['007', 'Distrito Federal'],
+            'ES' => ['008', 'Espirito Santo'],
+            'GO' => ['009', 'Goias'],
+            'MA' => ['010', 'Maranhao'],
+            'MT' => ['011', 'Mato Grosso'],
+            'MS' => ['012', 'Mato Grosso do Sul'],
+            'MG' => ['013', 'Minas Gerais'],
+            'PA' => ['014', 'Para'],
+            'PB' => ['015', 'Paraiba'],
+            'PR' => ['016', 'Parana'],
+            'PE' => ['017', 'Pernambuco'],
+            'PI' => ['018', 'Piaui'],
+            'RJ' => ['019', 'Rio de Janeiro'],
+            'RN' => ['020', 'Rio Grande do Norte'],
+            'RS' => ['021', 'Rio Grande do Sul'],
+            'RO' => ['022', 'Rondonia'],
+            'RR' => ['023', 'Roraima'],
+            'SC' => ['024', 'Santa Catarina'],
+            'SP' => ['025', 'Sao Paulo'],
+            'SE' => ['026', 'Sergipe'],
+            'TO' => ['027', 'Tocantins']
+        ];
+        if($nameUf == null) return null;
+        return $states[$nameUf];
+    }
+
 }
