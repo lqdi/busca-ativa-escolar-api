@@ -430,24 +430,24 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
      */
     public function updateCoordinatesThroughGeocoding($rawAddress)
     {
-        $geocoder = app('geocoder');
-        /* @var $geocoder Geocoder */
+//        $geocoder = app('geocoder');
+//        /* @var $geocoder Geocoder */
         $address = null;
+        $endPoint = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
+        $key = 'cVhEI2VX0p26k_Rdz_NpbL-zV1eo5rDkTe2BoeJcE9U';
+        $client = new \GuzzleHttp\Client();
+        $url = $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key;
 
-        try {
-            $address = $geocoder->geocode(str_replace(" ", "+", $rawAddress))->get()->first();
-            /* @var $address Address */
-        } catch (\Exception $ex) {
-            return null;
-            //Log::error("Failed to geocode child (id={$this->id}) coords with address '{$rawAddress}': " . $ex->getMessage());
-        }
+        $request = $client->request('GET', $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key);
+        $stream = json_decode($request->getBody()->getContents());
+        $location = $stream->Response->View[0]->Result[0]->Location;
 
-        if ($address->getCountry() == 'Brasil') {
+        if ($location->Address->Country == 'BRA') {
             $this->update([
-                'lat' => ($address) ? $address->getLatitude() : null,
-                'lng' => ($address) ? $address->getLongitude() : null,
-                'map_region' => ($address) ? $address->getSubLocality() : null,
-                'map_geocoded_address' => ($address) ? $address->toArray() : null,
+                'lat' => ($location->DisplayPosition) ? $location->DisplayPosition->Latitude : null,
+                'lng' => ($location->DisplayPosition) ? $location->DisplayPosition->Longitude : null,
+                'map_region' => ($location->Address) ? $location->Address->District : null,
+                'map_geocoded_address' => ($location) ? $location : null,
             ]);
         } else {
             $this->update([
@@ -458,7 +458,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
             ]);
         }
 
-        return $address;
+        return $location;
     }
 
     // ------------------------------------------------------------------------
