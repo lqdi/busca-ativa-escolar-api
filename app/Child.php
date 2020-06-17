@@ -434,7 +434,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 //        /* @var $geocoder Geocoder */
         $address = null;
         $endPoint = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
-        $key = 'cVhEI2VX0p26k_Rdz_NpbL-zV1eo5rDkTe2BoeJcE9U';
+        $key = env('HERE_API_KEY');
         $client = new \GuzzleHttp\Client();
         $url = $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key;
 
@@ -444,8 +444,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
         if ($location->Address->Country == 'BRA') {
             $this->update([
-                'lat' => ($location->DisplayPosition) ? $location->DisplayPosition->Latitude : null,
-                'lng' => ($location->DisplayPosition) ? $location->DisplayPosition->Longitude : null,
+                'lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
+                'lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null,
                 'map_region' => ($location->Address) ? $location->Address->District : null,
                 'map_geocoded_address' => ($location) ? $location : null,
             ]);
@@ -494,7 +494,9 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     public function buildSearchDocument(): array
     {
 
-        if (!$this->exists) return null;
+        if (!$this->exists){
+            return 'null';
+        }
 
         $data = [];
 

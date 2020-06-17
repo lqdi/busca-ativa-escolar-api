@@ -190,16 +190,21 @@ class Pesquisa extends CaseStep implements CanGenerateForms
 
         $this->child->save();
 
-        if ($this->place_address && $this->place_city_name && $this->place_uf) {
+        if ($this->place_lat && $this->place_lng) {
             try {
-                $location = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} {$this->place_city_name} {$this->place_uf} {$this->place_cep}");
+//                    $location = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} {$this->place_city_name} {$this->place_uf} {$this->place_cep}");
+                $this->child->update([
+                    'lat' => $this->place_lat,
+                    'lng' => $this->place_lng,
+                ]);
+
 
                 $this->update([
-                    'place_lat' => ($location->DisplayPosition) ? $location->DisplayPosition->Latitude : null,
-                    'place_lng' => ($location->DisplayPosition) ? $location->DisplayPosition->Longitude : null,
-                    'place_map_region' => ($location->Address) ? $location->Address->District : null,
-                    'place_map_geocoded_address' => ($location) ? $location : null,
+                    'place_lat' => $this->place_lat,
+                    'place_lng' => $this->place_lng,
                 ]);
+
+
             } catch (\Exception $ex) {
                 //Log::debug("[pesquisa.on_update.geocode_addr] ({$this->id}) Failed to geocode address: {$ex->getMessage()}");
             }
