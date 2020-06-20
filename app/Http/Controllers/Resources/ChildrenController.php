@@ -387,7 +387,7 @@ class ChildrenController extends BaseController  {
 
 		if($this->currentUser()->isRestrictedToUF()) {
 			$mapCenter = UF::getByCode($this->currentUser()->uf)->getCoordinates();
-			$mapCenter['zoom'] = 6;
+			$mapCenter['zoom'] = 10;
 		}
 
 		// TODO: cache this (w/ tenant ID)
