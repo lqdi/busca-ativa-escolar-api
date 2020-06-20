@@ -153,12 +153,12 @@ class Pesquisa extends CaseStep implements CanGenerateForms
     protected function onComplete(): bool
     {
         // While on the front-end we technically save before completing, this may not always be true
-        $this->onUpdated();
+        $this->onUpdated($oldObject = null);
 
         return true;
     }
 
-    protected function onUpdated()
+    protected function onUpdated($oldObject = null)
     {
 
         if ($this->gender) $this->child->gender = $this->gender;
@@ -190,19 +190,33 @@ class Pesquisa extends CaseStep implements CanGenerateForms
 
         $this->child->save();
 
+        $oldAdress = "{$oldObject->place_address} {$oldObject->place_city_name} {$oldObject->place_uf} {$oldObject->place_cep}";
+        $newAdress = "{$this->place_address} {$this->place_city_name} {$this->place_uf} {$this->place_cep}";
+
+        $chengeAddress = ($oldAdress == $newAdress) ? false : true;
+
+
         if ($this->place_lat && $this->place_lng) {
             try {
-//                    $location = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} {$this->place_city_name} {$this->place_uf} {$this->place_cep}");
-                $this->child->update([
-                    'lat' => $this->place_lat,
-                    'lng' => $this->place_lng,
-                ]);
+                if ($chengeAddress) {
+                    $location = $this->child->updateCoordinatesThroughGeocoding($newAdress);
+                    $this->update([
+                        'place_lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
+                        'place_lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null,
+                        'place_map_region' => ($location->Address) ? $location->Address->District : null,
+                        'Place_map_geocoded_address' => ($location) ? $location : null,
+                    ]);
+                } else {
+                    $this->child->update([
+                        'lat' => $this->place_lat,
+                        'lng' => $this->place_lng,
+                    ]);
 
-
-                $this->update([
-                    'place_lat' => $this->place_lat,
-                    'place_lng' => $this->place_lng,
-                ]);
+                    $this->update([
+                        'place_lat' => $this->place_lat,
+                        'place_lng' => $this->place_lng,
+                    ]);
+                }
 
 
             } catch (\Exception $ex) {
