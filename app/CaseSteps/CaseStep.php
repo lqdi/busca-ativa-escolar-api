@@ -282,11 +282,12 @@ abstract class CaseStep extends Model {
 	 * @return array $input The actual updated fields
 	 */
 	public function setFields(array $data) {
+	    $oldObject = clone $this;
 		$input = collect($data)->only($this->stepFields)->toArray();
 		$this->fill($input);
 		$this->save();
 
-		$this->onUpdated();
+		$this->onUpdated($oldObject);
 
 		// Update search index
 		$this->child->reindex();
@@ -345,7 +346,7 @@ abstract class CaseStep extends Model {
 
 	protected function onStart($prevStep = null) {}
 	protected function onComplete() : bool { return true; }
-	protected function onUpdated() {}
+	protected function onUpdated($oldObject = null) {}
 	protected function onAssign(User $user) {}
 
 	// ------------------------------------------------------------------------
