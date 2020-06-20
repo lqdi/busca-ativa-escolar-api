@@ -533,12 +533,11 @@ class ReportsBar extends BaseController
 
         if($uf != null AND $uf != "null") {
 
-            $data = DB::table('case_steps_alerta')
-                ->select(DB::raw("cities.ibge_city_id as id, count(case_steps_alerta.alert_status) as value, cities.name as name_city"))
-                ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
-                ->where('case_steps_alerta.place_uf', '=', $uf)
-                ->whereNotNull('case_steps_alerta.place_city_id')
-                ->join('cities', 'cities.id', '=', 'case_steps_alerta.place_city_id')
+            $data = DB::table('children')
+                ->select(DB::raw("cities.ibge_city_id as id, count(children.alert_status) as value, cities.name as name_city"))
+                ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                ->where('cities.uf', '=', $uf)
+                ->join('cities', 'children.city_id', '=', 'cities.id')
                 ->groupBy(['cities.name', 'cities.ibge_city_id'])
                 ->get()->toArray();
 
@@ -555,19 +554,19 @@ class ReportsBar extends BaseController
 
         }else{
 
-            $data = DB::table('case_steps_alerta')
-                ->select(DB::raw("place_uf, count(alert_status) as value"))
-                ->where('alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
-                ->whereNotNull('place_uf')
-                ->groupBy('place_uf')
+            $data = DB::table('children')
+                ->select(DB::raw("cities.uf, count(children.alert_status) as value"))
+                ->where('children.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
+                ->join('cities', 'children.city_id', '=', 'cities.id')
+                ->groupBy('cities.uf')
                 ->orderBy('value', 'DESC')
                 ->get()->toArray();
 
             $data = array_map( function ($e) {
-                $e->id = $this->getDataUfBySiglaUf($e->place_uf)[0];
-                $e->displayValue = $e->place_uf;
+                $e->id = $this->getDataUfBySiglaUf($e->uf)[0];
+                $e->displayValue = $e->uf;
                 $e->showLabel = 1;
-                $e->simple_name = strtolower(str_replace(" ", "", $this->getDataUfBySiglaUf($e->place_uf)[1]));
+                $e->simple_name = strtolower(str_replace(" ", "", $this->getDataUfBySiglaUf($e->uf)[1]));
                 return $e;
             }, $data);
 
