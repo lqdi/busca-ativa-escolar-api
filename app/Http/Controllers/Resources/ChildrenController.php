@@ -375,7 +375,7 @@ class ChildrenController extends BaseController  {
 
 	}
 
-	public function getMap(Request $request) {
+	public function getMap() {
 
         $city_id = request('city_id');
 
