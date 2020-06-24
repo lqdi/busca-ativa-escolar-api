@@ -126,7 +126,7 @@ class Alerta extends CaseStep implements CanGenerateForms  {
 
 		if($this->dob) $this->child->recalculateAgeThroughBirthday($this->dob);
 
-        $location = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} {$this->place_city_name} {$this->place_uf} {$this->place_cep}");
+        $location = $this->child->updateCoordinatesThroughGeocoding("{$this->place_address} {$this->place_neighborhood} {$this->place_city_name} {$this->place_uf} {$this->place_cep}");
 
         $this->update([
             'place_lat' => ($location->DisplayPosition) ? $location->DisplayPosition->Latitude : null,
