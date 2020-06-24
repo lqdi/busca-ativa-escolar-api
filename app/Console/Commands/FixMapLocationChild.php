@@ -36,7 +36,6 @@ class FixMapLocationChild extends Command
             ])->chunk($this->chunk, function ($cases) {
 
             foreach ($cases as $case) {
-                var_dump($case->pesquisa);exit;
                 if (empty($case->pesquisa->place)) {
                     if (($case->pesquisa->place_uf && $case->pesquisa->place_city_name && $case->pesquisa->place_address)) {
                         try {
