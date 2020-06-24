@@ -32,9 +32,7 @@ class FixMapLocationChild extends Command
             $query->where(['case_status' => 'in_progress']);
         })->where(
             [
-                'alert_status' => 'accepted',
-                'tenant_id' => 'c5948b00-9728-11e7-ba37-e1430a32d5f2',
-                'id' => 'ffeabbe0-3187-11ea-b0fc-6f357d5a0902',
+                'alert_status' => 'accepted'
             ])->chunk($this->chunk, function ($cases) {
 
             foreach ($cases as $case) {
