@@ -382,12 +382,12 @@ class ChildrenController extends BaseController  {
 		$mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
 
 		if($this->currentUser()->isRestrictedToTenant() && !$this->currentUser()->isRestrictedToUF()) {
-			//$mapCenter =  $this->currentUser()->tenant->getMapCoordinates();
+			$mapCenter =  $this->currentUser()->tenant->getMapCoordinates();
 		}
 
 		if($this->currentUser()->isRestrictedToUF()) {
 			$mapCenter = UF::getByCode($this->currentUser()->uf)->getCoordinates();
-			//$mapCenter['zoom'] = 10;
+			$mapCenter['zoom'] = 10;
 		}
 
 		// TODO: cache this (w/ tenant ID)
@@ -395,7 +395,8 @@ class ChildrenController extends BaseController  {
         if($city_id != null AND $city_id != "null") {
 
             $city = City::where('ibge_city_id', '=', intval($city_id))->first();
-            //$mapCenter =  $tenantByCity->getMapCoordinates();
+            $tenantByCity = Tenant::where('city_id', '=', $city->id)->first();
+            $mapCenter =  $tenantByCity->getMapCoordinates();
 
             $coordinates = Child::query()
                 ->whereIn('child_status', ['out_of_school', 'in_observation'])
