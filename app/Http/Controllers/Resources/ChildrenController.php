@@ -147,7 +147,7 @@ class ChildrenController extends BaseController  {
 		$attempted = $query->getAttemptedQuery();
 		$query = $query->getQuery();
 
-		$results = $search->search(new Child(), $query, 500);
+		$results = $search->search(new Child(), $query, 2000);
 
 		$data = fractal()
 			->item($results)
