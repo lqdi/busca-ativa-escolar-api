@@ -33,8 +33,6 @@ class FixMapLocationChild extends Command
         })->where(
             [
                 'alert_status' => 'accepted',
-                'tenant_id' => '4c095570-a227-11e8-a1f0-03b2c72268cf',
-//                'id' => '710ca940-5549-11e9-8733-236f2beb2a9d',
             ])->chunk($this->chunk, function ($cases) {
             foreach ($cases as $case) {
                 if (($case->pesquisa->place_uf && $case->pesquisa->place_city_name && $case->pesquisa->place_address)) {
