@@ -61,12 +61,11 @@
     16 => 'Barryvdh\\Cors\\ServiceProvider',
     17 => 'Geocoder\\Laravel\\Providers\\GeocoderService',
     18 => 'Rap2hpoutre\\LaravelLogViewer\\LaravelLogViewerServiceProvider',
-    19 => 'Jenssegers\\Agent\\AgentServiceProvider',
-    20 => 'BuscaAtivaEscolar\\Providers\\AppServiceProvider',
-    21 => 'BuscaAtivaEscolar\\Providers\\AuthServiceProvider',
-    22 => 'BuscaAtivaEscolar\\Providers\\EventServiceProvider',
-    23 => 'BuscaAtivaEscolar\\Providers\\RouteServiceProvider',
-    24 => 'BuscaAtivaEscolar\\Providers\\SearchServiceProvider',
+    19 => 'BuscaAtivaEscolar\\Providers\\AppServiceProvider',
+    20 => 'BuscaAtivaEscolar\\Providers\\AuthServiceProvider',
+    21 => 'BuscaAtivaEscolar\\Providers\\EventServiceProvider',
+    22 => 'BuscaAtivaEscolar\\Providers\\RouteServiceProvider',
+    23 => 'BuscaAtivaEscolar\\Providers\\SearchServiceProvider',
   ),
   'deferred' => 
   array (
@@ -159,6 +158,8 @@
     'validation.presence' => 'Illuminate\\Validation\\ValidationServiceProvider',
     'command.ide-helper.generate' => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
     'command.ide-helper.models' => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
+    'agent' => 'Jenssegers\\Agent\\AgentServiceProvider',
+    'Jenssegers\\Agent\\Agent' => 'Jenssegers\\Agent\\AgentServiceProvider',
   ),
   'when' => 
   array (
@@ -199,6 +200,9 @@
     array (
     ),
     'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider' => 
+    array (
+    ),
+    'Jenssegers\\Agent\\AgentServiceProvider' => 
     array (
     ),
   ),
