@@ -439,21 +439,21 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
         $url = $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key;
 
         $request = $client->request('GET', $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key);
+
         $stream = json_decode($request->getBody()->getContents());
-        $location = $stream->Response->View[0]->Result[0]->Location;
+
+        $location = !empty($stream->Response->View[0]) ? $stream->Response->View[0]->Result[0]->Location : null;
 
         if ($location->Address->Country == 'BRA') {
             $this->update([
-                'lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
-                'lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null,
-                'map_region' => ($location->Address) ? $location->Address->District : null,
+                'lat' => ($location->DisplayPosition) ? $location->DisplayPosition->Latitude : null,
+                'lng' => ($location->DisplayPosition) ? $location->DisplayPosition->Longitude : null,
                 'map_geocoded_address' => ($location) ? $location : null,
             ]);
         } else {
             $this->update([
                 'lat' => null,
                 'lng' => null,
-                'map_region' => null,
                 'map_geocoded_address' => null,
             ]);
         }
@@ -494,7 +494,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     public function buildSearchDocument(): array
     {
 
-        if (!$this->exists){
+        if (!$this->exists) {
             return 'null';
         }
 
