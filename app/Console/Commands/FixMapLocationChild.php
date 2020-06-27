@@ -28,7 +28,7 @@ class FixMapLocationChild extends Command
 
     public function handle()
     {
-        $casosAtivos = Child::whereHas('cases', function ($query) {
+        Child::whereHas('cases', function ($query) {
             $query->where(['case_status' => 'in_progress']);
         })->where(
             [
@@ -42,11 +42,7 @@ class FixMapLocationChild extends Command
                     try {
                         $address = "{$case->pesquisa->place_address} {$case->pesquisa->place_city_name} {$case->pesquisa->place_uf} {$case->pesquisa->place_cep}";
 
-                        var_dump($address);
-
                         $location = $case->updateCoordinatesThroughGeocoding($address);
-                        var_dump($location->DisplayPosition->Latitude);
-                        var_dump($location->DisplayPosition->Longitude);
 
                         if ($location != null) {
                             $case->pesquisa->update([
