@@ -28,42 +28,47 @@ class FixMapLocationChild extends Command
 
     public function handle()
     {
-        $casosAtivos = Child::whereHas('cases', function ($query) {
+        Child::whereHas('cases', function ($query) {
             $query->where(['case_status' => 'in_progress']);
         })->where(
             [
-                'alert_status' => 'accepted'
+                'alert_status' => 'accepted',
+                'tenant_id' => '4c095570-a227-11e8-a1f0-03b2c72268cf',
+//                'id' => '710ca940-5549-11e9-8733-236f2beb2a9d',
             ])->chunk($this->chunk, function ($cases) {
-
             foreach ($cases as $case) {
-                if (empty($case->pesquisa->place)) {
-                    if (($case->pesquisa->place_uf && $case->pesquisa->place_city_name && $case->pesquisa->place_address)) {
-                        try {
-                            $address = "{$case->pesquisa->place_address} {$this->place_neighborhood} {$case->pesquisa->place_city_name} {$case->pesquisa->place_uf} {$case->pesquisa->place_cep}";
+                if (($case->pesquisa->place_uf && $case->pesquisa->place_city_name && $case->pesquisa->place_address)) {
 
-                            $location = $case->updateCoordinatesThroughGeocoding($address);
+                    try {
+                        $address = "{$case->pesquisa->place_address} {$case->pesquisa->place_city_name} {$case->pesquisa->place_uf} {$case->pesquisa->place_cep}";
 
+                        $location = $case->updateCoordinatesThroughGeocoding($address);
+
+                        if ($location != null) {
                             $case->pesquisa->update([
-                                'place_lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
-                                'place_lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null,
-                                'place_map_region' => ($location->Address) ? $location->Address->District : null,
-                                'place_cep' => ($location->Address) ? $location->Address->PostalCode : null,
+                                'place_lat' => ($location->DisplayPosition) ? $location->DisplayPosition->Latitude : null,
+                                'place_lng' => ($location->DisplayPosition) ? $location->DisplayPosition->Longitude : null,
                                 'place_map_geocoded_address' => ($location) ? $location : null,
                             ]);
-
-                        } catch (\Exception $ex) {
-                            Log::debug("[pesquisa.on_update.geocode_addr] ({$case->id}) Failed to geocode address: {$ex->getMessage()}");
+                        } else {
+                            $case->pesquisa->update([
+                                'place_lat' => null,
+                                'place_lng' => null,
+                                'place_map_geocoded_address' => null,
+                            ]);
                         }
                         Log::info('success update location children_id: ' . $case->id);
-                        $this->comment("putting location in: {$case->id}");
-                    } else {
-                        Log::error('fail set location children_id: ' . $case->id);
-                        $this->comment("Incomplete address or location already used: {$case->id}");
+                        $this->comment("putting location children_id: {$case->id}");
+                    } catch (\Exception $ex) {
+                        Log::debug("[pesquisa.on_update.geocode_addr] ({$case->id}) Failed to geocode address: {$ex->getMessage()}");
+                        $this->comment("[pesquisa.on_update.geocode_addr] ({$case->id}) Failed to geocode address: {$ex->getMessage()}");
                     }
+                } else {
+                    Log::error('fail set location children_id: ' . $case->id);
+                    $this->comment("Incomplete address or location already used: {$case->id}");
                 }
             }
             $this->comment("Grupo de {$this->chunk} finalizado");
-
         });
 
 
