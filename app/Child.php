@@ -437,11 +437,11 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     {
 //        $geocoder = app('geocoder');
 //        /* @var $geocoder Geocoder */
-        $address = null;
-        $endPoint = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
-        $key = env('HERE_API_KEY');
-        $client = new \GuzzleHttp\Client();
-        $url = $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key;
+//        $address = null;
+//        $endPoint = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
+//        $key = env('HERE_API_KEY');
+//        $client = new \GuzzleHttp\Client();
+//        $url = $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key;
 
 //        $address = null;
 //        $endPoint = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
