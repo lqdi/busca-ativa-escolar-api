@@ -220,4 +220,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
     //Webhooks Mailgun
     Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
 
+    Route::get('/reports/data_map_fusion_chart', 'Bar\ReportsBar@getDataMapFusionChart');
+
 });

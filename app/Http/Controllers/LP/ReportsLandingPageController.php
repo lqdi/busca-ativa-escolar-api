@@ -206,6 +206,13 @@ class ReportsLandingPageController extends BaseController
     {
         $city = request('city');
         $uf = request('uf');
+        $ibgeId = request('ibge_id');
+
+        if( $ibgeId != null && $ibgeId != 'null'){
+            $cityObj = City::where('ibge_city_id', '=', $ibgeId)->first();
+            $city = $cityObj->name;
+        }
+
         $tenant = Tenant::where([['name', '=', $uf . ' / ' . $city], ['is_active', '=', 1]])->first();
         $tenantId = $tenant ? $tenant->id : 0;
         if ($tenant != null) {

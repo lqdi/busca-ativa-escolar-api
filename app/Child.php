@@ -37,11 +37,14 @@ use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use Carbon\Carbon;
 use Geocoder\Geocoder;
 use Geocoder\Model\Address;
+use Geocoder\Provider\LocaleTrait;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Log;
+
+use BuscaAtivaEscolar\Traits\LocationHereTrait;
 
 /**
  * @property int $id
@@ -94,6 +97,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     use Sortable;
 
     use AggregatedBySearchDocument;
+
+    use LocationHereTrait;
 
     const STATUS_OUT_OF_SCHOOL = "out_of_school";
     const STATUS_OBSERVATION = "in_observation";
@@ -438,11 +443,17 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
         $client = new \GuzzleHttp\Client();
         $url = $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key;
 
-        $request = $client->request('GET', $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key);
+//        $address = null;
+//        $endPoint = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
+//        $key = env('HERE_API_KEY');
+//        $client = new \GuzzleHttp\Client();
+//        $url = $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key;
+//
+//        $request = $client->request('GET', $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key);
+//        $stream = json_decode($request->getBody()->getContents());
+//        $location = $stream->Response->View[0]->Result[0]->Location;
 
-        $stream = json_decode($request->getBody()->getContents());
-
-        $location = !empty($stream->Response->View[0]) ? $stream->Response->View[0]->Result[0]->Location : null;
+        $location = $this->getLocationByRawAddress($rawAddress);
 
         if ($location->Address->Country == 'BRA') {
             $this->update([
@@ -494,7 +505,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     public function buildSearchDocument(): array
     {
 
-        if (!$this->exists) {
+        if (!$this->exists){
             return 'null';
         }
 

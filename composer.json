@@ -26,7 +26,8 @@
         "toin0u/geocoder-laravel": "^1.0",
         "rap2hpoutre/laravel-log-viewer": "^0.8.0",
         "pda/pheanstalk": "^3.1",
-        "jenssegers/agent": "^2.6"
+        "jenssegers/agent": "^2.6",
+        "canducci/zipcode": "^2.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
