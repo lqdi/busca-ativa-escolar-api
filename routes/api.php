@@ -172,6 +172,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
         Route::get('/reports/data_rematricula_daily', 'Bar\ReportsBar@getDataRematriculaDaily');
         Route::get('/reports/ufs_by_selo', 'Bar\ReportsBar@ufsBySelo');
         Route::get('/reports/tenants_by_selo', 'Bar\ReportsBar@tenantsBySelo');
+        Route::get('/reports/data_map_fusion_chart', 'Bar\ReportsBar@getDataMapFusionChart');
 
 	});
 
@@ -219,7 +220,5 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
     //Webhooks Mailgun
     Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
-
-    Route::get('/reports/data_map_fusion_chart', 'Bar\ReportsBar@getDataMapFusionChart');
 
 });
