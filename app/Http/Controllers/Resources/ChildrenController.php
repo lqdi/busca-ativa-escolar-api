@@ -432,4 +432,29 @@ class ChildrenController extends BaseController  {
 
 	}
 
+    public function list_files_exported () {
+        $reports = \Storage::allFiles('attachments/children_reports/'.Auth::user()->tenant_id);
+        $finalReports = array_map( function ($file){
+            return [
+                'file' => str_replace('attachments/children_reports/'.Auth::user()->tenant_id, "", $file),
+                'size' => \Storage::size($file),
+                'last_modification' => \Storage::lastModified($file)
+            ];
+        }, $reports);
+        return response()->json(['status' => 'ok', 'data' => $finalReports]);
+    }
+
+    public function get_file_exported(){
+        $nameFile = request('file');
+        if ( !isset($nameFile) ) {
+            return response()->json(['error' => 'Not authorized.'],403);
+        }
+        $exists = \Storage::exists('attachments/children_reports/'.Auth::user()->tenant_id."/".$nameFile);
+        if ( $exists ){
+            return response()->download(storage_path('attachments/children_reports/'.Auth::user()->tenant_id."/".$nameFile));
+        }else{
+            return response()->json(['error' => 'Arquivo inexistente.'],403);
+        }
+    }
+
 }
