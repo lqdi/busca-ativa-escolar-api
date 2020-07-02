@@ -24,6 +24,8 @@ use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\IBGE\UF;
+use BuscaAtivaEscolar\Jobs\ProcessExportChildrenJob;
+use BuscaAtivaEscolar\Jobs\ProcessReportSeloJob;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
@@ -37,9 +39,13 @@ use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\StepTransformer;
 use BuscaAtivaEscolar\User;
+use Carbon\Carbon;
+use File;
+use function GuzzleHttp\Psr7\parse_query;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use Rap2hpoutre\FastExcel\FastExcel;
 
 class ChildrenController extends BaseController  {
 
@@ -449,11 +455,31 @@ class ChildrenController extends BaseController  {
         if ( !isset($nameFile) ) {
             return response()->json(['error' => 'Not authorized.'],403);
         }
-        $exists = \Storage::exists('attachments/children_reports/'.Auth::user()->tenant_id."/".$nameFile);
+        $exists = \Storage::exists("attachments/children_reports/".Auth::user()->tenant_id."/".$nameFile);
         if ( $exists ){
-            return response()->download(storage_path('attachments/children_reports/'.Auth::user()->tenant_id."/".$nameFile));
+            return response()->download(storage_path("app/attachments/children_reports/".Auth::user()->tenant_id."/".$nameFile));
         }else{
             return response()->json(['error' => 'Arquivo inexistente.'],403);
+        }
+    }
+
+    public function create_report_child(){
+
+        dispatch((new ProcessExportChildrenJob(Auth::user()->tenant_id))->onQueue('export_children'));
+
+        return response()->json(
+            [
+                'msg' => 'Arquivo criado',
+                'date' => Carbon::now()->timestamp
+            ],
+            200
+        );
+
+    }
+
+    function childrenGenerator() {
+        foreach (Child::where('tenant_id', '=', Auth::user()->tenant_id)->cursor() as $child) {
+            yield $child;
         }
     }
 
