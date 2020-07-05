@@ -3,7 +3,8 @@
 namespace BuscaAtivaEscolar\Jobs;
 
 use BuscaAtivaEscolar\Child;
-use BuscaAtivaEscolar\Transformers\ChildTransformer;
+use BuscaAtivaEscolar\Group;
+use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
 use File;
 use Illuminate\Bus\Queueable;
@@ -17,30 +18,59 @@ class ProcessExportChildrenJob implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
 
-    private $tenant_id;
+    private $user;
+    private $paramsQuery;
 
-    public function __construct($tenant_id)
+    public function __construct($user, $paramsQuery)
     {
-        $this->tenant_id = $tenant_id;
+        $this->user = $user;
+        $this->paramsQuery = $paramsQuery;
     }
 
     public function handle()
     {
 
-        Log::info("Iniciando processo de exportacao das criancas do municipio");
         set_time_limit(0);
+        Log::info("Iniciando processo de exportacao das criancas do municipio");
 
-        File::makeDirectory(storage_path("app/attachments/children_reports/".$this->tenant_id), $mode = 0777, true, true);
-        (new FastExcel($this->childrenGenerator()))->export(storage_path("app/attachments/children_reports/".$this->tenant_id."/".$this->tenant_id.".xlsx"));
+        File::makeDirectory(storage_path("app/attachments/children_reports/".$this->user->id), $mode = 0777, true, true);
+        (new FastExcel($this->childrenGenerator()))->export(storage_path("app/attachments/children_reports/".$this->user->id."/".$this->user->id.".xlsx"));
 
         Log::info("Finalizando processo de exportacao das criancas do municipio");
 
     }
 
     function childrenGenerator() {
-        foreach (Child::where('tenant_id', '=', $this->tenant_id)->cursor() as $child) {
+
+        $children = Child::where('tenant_id', '=', $this->user->tenant_id);
+        $children->where("current_step_type", "<>", "BuscaAtivaEscolar\CaseSteps\Alerta");
+
+        $children->where("name", "like", "%".$this->paramsQuery['name']."%");
+        $children->where("current_step_type", "like", "%".$this->paramsQuery['step_name']."%");
+
+        //somente os casos do tecnico verificador
+        if( $this->user->type === User::TYPE_TECNICO_VERIFICADOR ){
+            $children->whereHas('cases', function ($query){
+                $query->where(['assigned_user_id' => $this->user->id]);
+            });
+        }
+        //somente os casos do grupo do supervisor se grupo for diferente do primario
+        if ( $this->user->type === User::TYPE_SUPERVISOR_INSTITUCIONAL ){
+            $group = $this->user->group; /* @var $group Group */
+            $group_primary = $this->user->tenant->primaryGroup; /* @var $group Group */
+
+            if( $group->id != $group_primary->id){
+                $children->whereHas('cases', function ($query) use ($group){
+                    $query->where(['assigned_group_id' => $group->id]);
+                });
+            }
+
+        }
+
+        foreach ($children->cursor() as $child) {
             yield $this->transformChildToArrayExport($child);
         }
+
     }
 
     function transformChildToArrayExport($child){
