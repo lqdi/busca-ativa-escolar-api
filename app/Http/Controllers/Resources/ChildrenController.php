@@ -13,14 +13,15 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
-
 use Auth;
+use function Aws\map;
 use BuscaAtivaEscolar\ActivityLog;
 use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Comment;
+use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\IBGE\UF;
@@ -41,6 +42,7 @@ use BuscaAtivaEscolar\Transformers\StepTransformer;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
 use File;
+use function foo\func;
 use function GuzzleHttp\Psr7\parse_query;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -154,7 +156,7 @@ class ChildrenController extends BaseController  {
 		$attempted = $query->getAttemptedQuery();
 		$query = $query->getQuery();
 
-		$results = $search->search(new Child(), $query, 500);
+		$results = $search->search(new Child(), $query, 2000);
 
 		$data = fractal()
 			->item($results)
@@ -439,10 +441,10 @@ class ChildrenController extends BaseController  {
 	}
 
     public function list_files_exported () {
-        $reports = \Storage::allFiles('attachments/children_reports/'.Auth::user()->tenant_id);
+        $reports = \Storage::allFiles('attachments/children_reports/'.Auth::user()->id."/");
         $finalReports = array_map( function ($file){
             return [
-                'file' => str_replace('attachments/children_reports/'.Auth::user()->tenant_id, "", $file),
+                'file' => str_replace('attachments/children_reports/'.Auth::user()->id, "", $file),
                 'size' => \Storage::size($file),
                 'last_modification' => \Storage::lastModified($file)
             ];
@@ -455,9 +457,9 @@ class ChildrenController extends BaseController  {
         if ( !isset($nameFile) ) {
             return response()->json(['error' => 'Not authorized.'],403);
         }
-        $exists = \Storage::exists("attachments/children_reports/".Auth::user()->tenant_id."/".$nameFile);
+        $exists = \Storage::exists("attachments/children_reports/".Auth::user()->id."/".$nameFile);
         if ( $exists ){
-            return response()->download(storage_path("app/attachments/children_reports/".Auth::user()->tenant_id."/".$nameFile));
+            return response()->download(storage_path("app/attachments/children_reports/".Auth::user()->id."/".$nameFile));
         }else{
             return response()->json(['error' => 'Arquivo inexistente.'],403);
         }
@@ -465,7 +467,9 @@ class ChildrenController extends BaseController  {
 
     public function create_report_child(){
 
-        dispatch((new ProcessExportChildrenJob(Auth::user()->tenant_id))->onQueue('export_children'));
+        $paramsQuery = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
+
+        dispatch((new ProcessExportChildrenJob(Auth::user(), $paramsQuery))->onQueue('export_children'));
 
         return response()->json(
             [
@@ -475,12 +479,6 @@ class ChildrenController extends BaseController  {
             200
         );
 
-    }
-
-    function childrenGenerator() {
-        foreach (Child::where('tenant_id', '=', Auth::user()->tenant_id)->cursor() as $child) {
-            yield $child;
-        }
     }
 
 }
