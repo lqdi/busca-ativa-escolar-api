@@ -414,9 +414,9 @@ class ChildrenController extends BaseController  {
                 ->whereIn('child_status', ['out_of_school', 'in_observation'])
                 ->whereNotNull('lat')
                 ->whereNotNull('lng')
-                ->get(['id', 'lat', 'lng'])
+                ->get(['id', 'name', 'lat', 'lng'])
                 ->map(function ($child) {
-                    return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
+                    return ['id' => $child->id, 'name' => $child->name, 'latitude' => $child->lat, 'longitude' => $child->lng];
                 });
 
         }
