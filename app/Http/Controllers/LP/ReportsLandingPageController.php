@@ -14,6 +14,7 @@ use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Data\CaseCause;
+use BuscaAtivaEscolar\StateSignup;
 use BuscaAtivaEscolar\Tenant;
 use Carbon\Carbon;
 
@@ -208,7 +209,7 @@ class ReportsLandingPageController extends BaseController
         $uf = request('uf');
         $ibgeId = request('ibge_id');
 
-        if( $ibgeId != null && $ibgeId != 'null'){
+        if ($ibgeId != null && $ibgeId != 'null') {
             $cityObj = City::where('ibge_city_id', '=', $ibgeId)->first();
             $city = $cityObj->name;
         }
@@ -466,6 +467,20 @@ class ReportsLandingPageController extends BaseController
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
+    }
+
+    public function reach()
+    {
+        try {
+            $data = new \stdClass();
+
+            $data->municipios = \DB::table('tenant_signups')->count();
+            $data->estados = \DB::table('state_signups')->count();
+            return response()->json(['status' => 'ok', '_data' => $data]);
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+
     }
 
 }
