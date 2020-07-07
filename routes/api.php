@@ -216,6 +216,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
     Route::get('/lp/report/uf', 'LP\ReportsLandingPageController@report_uf');
     Route::get('/lp/report/city', 'LP\ReportsLandingPageController@report_city');
     Route::get('/lp/report/list/cities', 'LP\ReportsLandingPageController@list_cities');
+    Route::get('/lp/report/reach', 'LP\ReportsLandingPageController@reach');
 
     //Webhooks Mailgun
     Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
