@@ -474,8 +474,14 @@ class ReportsLandingPageController extends BaseController
         try {
             $data = new \stdClass();
 
-            $data->municipios = \DB::table('tenant_signups')->count();
-            $data->estados = \DB::table('state_signups')->count();
+            $data->municipios = \DB::table('tenant_signups')->where(
+                [
+                    ['tenant_signups.is_approved', 1]
+                ])->count();
+            $data->estados = \DB::table('state_signups')->where(
+                [
+                    ['state_signups.is_approved', 1]
+                ])->count();
             return response()->json(['status' => 'ok', '_data' => $data]);
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
