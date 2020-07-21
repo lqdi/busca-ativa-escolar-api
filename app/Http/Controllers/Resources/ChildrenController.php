@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\ActivityLog;
 use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
@@ -376,6 +377,8 @@ class ChildrenController extends BaseController  {
 
 	public function getMap() {
 
+        $city_id = request('city_id');
+
 		$mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
 
 		if($this->currentUser()->isRestrictedToTenant() && !$this->currentUser()->isRestrictedToUF()) {
@@ -384,19 +387,39 @@ class ChildrenController extends BaseController  {
 
 		if($this->currentUser()->isRestrictedToUF()) {
 			$mapCenter = UF::getByCode($this->currentUser()->uf)->getCoordinates();
-			$mapCenter['zoom'] = 6;
+			$mapCenter['zoom'] = 10;
 		}
 
 		// TODO: cache this (w/ tenant ID)
 
-		$coordinates = Child::query()
-			->whereIn('child_status', ['out_of_school', 'in_observation'])
-			->whereNotNull('lat')
-			->whereNotNull('lng')
-			->get(['id', 'lat', 'lng'])
-			->map(function ($child) {
-				return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
-			});
+        if($city_id != null AND $city_id != "null") {
+
+            $city = City::where('ibge_city_id', '=', intval($city_id))->first();
+            $tenantByCity = Tenant::where('city_id', '=', $city->id)->first();
+            $mapCenter =  $tenantByCity->getMapCoordinates();
+
+            $coordinates = Child::query()
+                ->whereIn('child_status', ['out_of_school', 'in_observation'])
+                ->where('city_id', '=', $city->id)
+                ->whereNotNull('lat')
+                ->whereNotNull('lng')
+                ->get(['id', 'lat', 'lng'])
+                ->map(function ($child) {
+                    return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
+                });
+
+        }else{
+
+            $coordinates = Child::query()
+                ->whereIn('child_status', ['out_of_school', 'in_observation'])
+                ->whereNotNull('lat')
+                ->whereNotNull('lng')
+                ->get(['id', 'name', 'lat', 'lng'])
+                ->map(function ($child) {
+                    return ['id' => $child->id, 'name' => $child->name, 'latitude' => $child->lat, 'longitude' => $child->lng];
+                });
+
+        }
 
 		return response()->json([
 			'center' => [
