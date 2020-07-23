@@ -14,7 +14,6 @@ use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Data\CaseCause;
-use BuscaAtivaEscolar\StateSignup;
 use BuscaAtivaEscolar\Tenant;
 use Carbon\Carbon;
 
@@ -207,13 +206,6 @@ class ReportsLandingPageController extends BaseController
     {
         $city = request('city');
         $uf = request('uf');
-        $ibgeId = request('ibge_id');
-
-        if ($ibgeId != null && $ibgeId != 'null') {
-            $cityObj = City::where('ibge_city_id', '=', $ibgeId)->first();
-            $city = $cityObj->name;
-        }
-
         $tenant = Tenant::where([['name', '=', $uf . ' / ' . $city], ['is_active', '=', 1]])->first();
         $tenantId = $tenant ? $tenant->id : 0;
         if ($tenant != null) {
@@ -467,26 +459,6 @@ class ReportsLandingPageController extends BaseController
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
-    }
-
-    public function reach()
-    {
-        try {
-            $data = new \stdClass();
-
-            $data->municipios = \DB::table('tenant_signups')->where(
-                [
-                    ['tenant_signups.is_approved', 1]
-                ])->count();
-            $data->estados = \DB::table('state_signups')->where(
-                [
-                    ['state_signups.is_approved', 1]
-                ])->count();
-            return response()->json(['status' => 'ok', '_data' => $data]);
-        } catch (\Exception $ex) {
-            return $this->api_exception($ex);
-        }
-
     }
 
 }
