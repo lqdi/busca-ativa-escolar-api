@@ -14,13 +14,13 @@ class CreateClassesTable extends Migration
     public function up()
     {
         Schema::create('classes', function (Blueprint $table) {
-            $table->uuid('id')->index();
-            $table->primary('id');
+            $table->increments('id', true);
             $table->string('name', 100);
             $table->string('shift', 50); //período Matutino, Vespertino ou Noturno
             $table->string('qty_enrollment', 10);
             $table->timestamps();
             $table->softDeletes();
+            $table->string('schools_id');
         });
 
     }
