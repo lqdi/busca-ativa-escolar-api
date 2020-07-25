@@ -14,11 +14,14 @@ class CreateFrequencyTable extends Migration
     public function up()
     {
         Schema::create('frequency', function (Blueprint $table) {
-            $table->uuid('id');
-            $table->primary('id');
+            $table->increments('id', true);
             $table->string('qty_presence', 10);
             $table->timestamps();
+            $table->integer('classes_id')->unsigned();
             $table->softDeletes();
+        });
+        Schema::table('frequency', function($table) {
+            $table->foreign('classes_id')->references('id')->on('classes');
         });
     }
 
