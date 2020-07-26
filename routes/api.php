@@ -8,6 +8,10 @@ Route::group(['prefix' => 'auth'], function () {
 });
 
 Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
+    Route::resource('/classes', 'Resources\ClasseController');
+});
+
+Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	Route::group(['middleware' => 'jwt.auth'], function() { // Authenticated routes
 
