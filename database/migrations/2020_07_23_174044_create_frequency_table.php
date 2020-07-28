@@ -16,8 +16,9 @@ class CreateFrequencyTable extends Migration
         Schema::create('frequency', function (Blueprint $table) {
             $table->increments('id', true);
             $table->string('qty_presence', 10);
-            $table->timestamps();
+            $table->string('qty_enrollment', 10);
             $table->integer('classes_id')->unsigned();
+            $table->timestamps();
             $table->softDeletes();
         });
         Schema::table('frequency', function($table) {
