@@ -153,6 +153,7 @@ return [
         'preferences',
         'notifications',
         'groups.manage',
+        'school.list'
     ],
 
     BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL => [
@@ -180,6 +181,7 @@ return [
         'preferences',
         'notifications',
         'settings.educacenso',
+        'school.list'
     ],
 
     BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL => [
