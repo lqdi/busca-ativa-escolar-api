@@ -140,12 +140,15 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
         Route::get('/states/export', 'Resources\StatesController@export');
 
         // Schools comunications
-        Route::post('/schools/notification', 'Resources\SchoolsController@sendNotificationSchool');
+        Route::post('/schools/educacenso/notification', 'Resources\SchoolsController@sendNotificationsEducacensoSchool');
+        Route::post('/schools/frequency/notification', 'Resources\SchoolsController@sendNotificationsFrequencySchool');
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');
         Route::get('/schools/all_educacenso', 'Resources\SchoolsController@all_educacenso')->middleware('can:settings.educacenso');
         Route::put('/schools/{id}', 'Resources\SchoolsController@update')->middleware('can:settings.educacenso');
+
+        Route::get('/schools/all', 'Resources\SchoolsController@getAll')->middleware('can:school.list');
 
 		// Notifications
 		Route::get('/notifications/unread', 'Resources\NotificationsController@getUnread');

@@ -20,11 +20,11 @@ use BuscaAtivaEscolar\Transformers\EmailJobTransformer;
 class SchoolTransformer extends TransformerAbstract {
 
     protected $availableIncludes = [
-        'emailJob',
+        'emailJobs',
     ];
 
     protected $defaultIncludes = [
-        'emailJob',
+        'emailJobs',
     ];
 
     public function transform(School $school) {
@@ -42,7 +42,7 @@ class SchoolTransformer extends TransformerAbstract {
 		];
 	}
 
-    public function includeEmailJob(School $school) {
+    public function includeEmailJobs(School $school) {
         if(!$school->emailJobs) return null;
         return $this->item($school->emailJobs, new EmailJobTransformer(), false);
     }
