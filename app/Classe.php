@@ -9,7 +9,7 @@ class Classe extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'school_id'];
+    protected $fillable = ['name', 'schools_id'];
     protected $guarded = ['id', 'created_at', 'update_at'];
     protected $hidden = ['id', 'created_at', 'updated_at', 'deleted_at'];
 
@@ -22,7 +22,7 @@ class Classe extends Model
      */
     public function school()
     {
-        return $this->hasOne('BuscaAtivaEscolar\School', 'id', 'school_id');
+        return $this->hasOne('BuscaAtivaEscolar\School', 'id', 'schools_id');
     }
 
 }
