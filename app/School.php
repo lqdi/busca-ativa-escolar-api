@@ -52,6 +52,11 @@ class School extends Model implements Searchable {
         'token'
 	];
 
+    const PERIODICIDADE_DIARIA = "diaria";
+    const PERIODICIDADE_SEMANAL = "semanal";
+    const PERIODICIDADE_QUINZENAL = "quinzenal";
+    const PERIODICIDADE_MENSAL = "mensal";
+
 	protected $casts = [
 		'metadata' => 'object'
 	];
