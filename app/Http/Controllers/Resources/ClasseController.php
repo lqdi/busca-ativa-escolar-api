@@ -17,6 +17,7 @@ use BuscaAtivaEscolar\Http\Controllers\BaseController;
 
 use BuscaAtivaEscolar\Classe;
 use BuscaAtivaEscolar\School;
+use Illuminate\Http\Request;
 
 class ClasseController extends BaseController
 {
@@ -45,7 +46,7 @@ class ClasseController extends BaseController
     {
         $classes = Classe::find($id);
 
-        if (!$aluno) {
+        if (!$classes) {
             return response()->json([
                 'message' => 'Registro não encontradod',
             ], 404);
@@ -54,7 +55,15 @@ class ClasseController extends BaseController
         $classes->fill($request->all());
         $classes->save();
 
-        return response()->json($aluno);
+        $response = [
+            'success' => true,
+            'message' => 'Turma atualizada com sucesso',
+            'turmas' => $classes
+        ];
+
+
+
+        return response()->json($response, 200);
     }
 
 
@@ -65,7 +74,13 @@ class ClasseController extends BaseController
             $classes->fill($request->all());
             $classes->save();
 
-            return response()->json($classes, 201);
+            $response = [
+                'success' => true,
+                'message' => 'Turma salva com sucesso',
+                'turmas' => $classes
+            ];
+
+            return response()->json($response, 201);
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
