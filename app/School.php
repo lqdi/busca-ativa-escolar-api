@@ -49,7 +49,8 @@ class School extends Model implements Searchable {
         'school_cell_phone',
         'school_phone',
         'school_email',
-        'token'
+        'token',
+        'periodicidade'
 	];
 
 	protected $casts = [
