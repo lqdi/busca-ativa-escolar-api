@@ -26,13 +26,18 @@ class SchoolFrequencyNotification extends Mailable
     {
         $message = (new MailMessage())
             ->success()
-            ->subject("[Busca Ativa Escolar] Turmas")
-            ->line($this->school->name)
-            ->line("Precisamos da sua colaboração!")
-            ->line("MENSAGEM AQUI ...")
-            ->action('Colaborar', $this->getUrlToken());
 
-        $this->subject("Precisamos da sua colaboração!");
+            ->subject("[Busca Ativa Escolar] Controle de frequência")
+
+            ->line($this->school->name. " - INEP: " .$this->school->id)
+
+            ->line("Precisamos da sua colaboração!")
+
+            ->line("A secretaria de educação do seu município solicita o cadastro das turmas de sua escola para o controle de frequência.")
+
+            ->action('Cadastrar turmas', $this->getUrlToken());
+
+        $this->subject("[Busca Ativa Escolar] Controle de frequência");
 
         $this->withSwiftMessage(function ($message) {
             $headers = $message->getHeaders();
@@ -44,6 +49,6 @@ class SchoolFrequencyNotification extends Mailable
 
     private function getUrlToken()
     {
-        return env('APP_PANEL_URL') . "/classes/" . $this->school->id;
+        return env('APP_PANEL_URL') . "/turmas/" . $this->school->id;
     }
 }
