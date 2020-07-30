@@ -52,7 +52,6 @@ class SendEmailsActualizeFrequency extends Command
 
                 $today = date('d'); //number of day in the month
                 $today_week = date('w'); //number of day in the week (1 - 7)
-                $lastDayThisMonth = date("t"); //number
                 $dayOfMidleOfMonth = intval(date("t")/2); //number
 
                 //DIARIO
