@@ -26,23 +26,18 @@ class ClassFrequencyNotification extends Mailable
     public function build()
     {
 
-        //FAZER O CONTROLE DO PERIODO AQUI
-        //VERIFICAR SE O USUÁRIO SETOU DIÁRIO, SEMANAL, QUINZENAL OU MENSAL
-
         $message = (new MailMessage())
             ->success()
-            ->subject("[Busca Ativa Escolar] Registro de frequência")
 
-            ->line("Caro responsável pela turma ". $this->class->name)
-            ->line("Precisamos de sua colaboração para auxílio no cadastro da frequência das turmas de sua escola.")
-            ->action('Registrar frequência', $this->getUrlToken());
+            ->subject("[Busca Ativa Escolar] Controle de frequência - Turma ".$this->class->name)
 
-        $this->subject("[Busca Ativa Escolar] Registro de frequência");
+            ->line($this->class->school->name. " - INEP: " .$this->class->school->id)
 
-//        $this->withSwiftMessage(function ($message) {
-//            $headers = $message->getHeaders();
-//            $headers->addTextHeader('message-id', $this->job_id);
-//        });
+            ->line("A secretaria de educação do seu município solicita o registro de frequência da turma ".$this->class->name. " ".$this->class->shift )
+
+            ->action('Cadastrar turmas', $this->getUrlToken());
+
+        $this->subject("[Busca Ativa Escolar] Controle de frequência - Turma ".$this->class->name);
 
         return $this->view('vendor.notifications.email', $message->toArray());
     }
