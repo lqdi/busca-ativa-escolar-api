@@ -9,9 +9,9 @@ class Classe extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'schools_id'];
+    protected $fillable = ['id', 'name', 'shift', 'qty_enrollment', 'schools_id'];
     protected $guarded = ['id', 'created_at', 'update_at'];
-    protected $hidden = ['id', 'created_at', 'updated_at', 'deleted_at'];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
     protected $table = "classes";
 
