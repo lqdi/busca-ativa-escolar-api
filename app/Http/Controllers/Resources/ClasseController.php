@@ -77,7 +77,7 @@ class ClasseController extends BaseController
                 $school->save();
                 $response = [
                     'success' => true,
-                    'message' => 'Turma salva com sucesso',
+                    'message' => 'Periodicidade salva com sucesso',
                 ];
             } else {
                 $classes = new Classe();
