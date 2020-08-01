@@ -16,13 +16,21 @@ class Classe extends Model
     protected $table = "classes";
 
     /**
-     * The tenant this user belongs to.
-     * Will be null when users are global users (SUPERUSER and GESTOR_NACIONAL)
+     * The school this classe belongs to.
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function school()
     {
         return $this->hasOne('BuscaAtivaEscolar\School', 'id', 'schools_id');
+    }
+
+    /**
+     * The frequencies this classe has.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function frequencies()
+    {
+        return $this->hasMany('BuscaAtivaEscolar\Frequency', 'classes_id', 'id');
     }
 
 }
