@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
+use BuscaAtivaEscolar\Frequency;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 
 use BuscaAtivaEscolar\Classe;
@@ -102,7 +103,9 @@ class ClasseController extends BaseController
 
     public function show($id)
     {
-        $classes = Classe::where('schoolS_id', '=', $id)->get()->toArray();
+        $classes = Classe::with('frequencies')
+            ->where('schools_id', '=', $id)
+            ->get()->toArray();
 
 //        if (!$classes) {
 //            return response()->json([
@@ -133,5 +136,28 @@ class ClasseController extends BaseController
         }
 
         $classes->delete();
+    }
+
+    public function updateFrequency(Request $request, $id){
+
+        $frequency = Frequency::find($id);
+
+        if (!$frequency) {
+            return response()->json([
+                'message' => 'Registro não encontradod',
+            ], 404);
+        }
+
+        $frequency->qty_presence = intval($request['qty_presence']);
+        $frequency->save();
+
+        $response = [
+            'success' => true,
+            'message' => 'Frequência atualizada com sucesso',
+            'frequencia' => $frequency
+        ];
+
+        return response()->json($response, 200);
+
     }
 }

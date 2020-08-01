@@ -44,66 +44,129 @@ class SendEmailsActualizeFrequency extends Command
         set_time_limit(0);
         //ini_set('memory_limit', '2G');
 
-        $this->comment("INICIANDO PROCESSO DE ENVIO DE EMAILS PARA AS ESCOLAS COM BASE NAS TURMAS");
+        $this->comment("INICIANDO PROCESSO DE ENVIO DE EMAILS PARA AS ESCOLAS COM BASE NAS ESCOLAS");
+        School::has('classes')->chunk(50, function($schools){
 
-        Classe::chunk(50, function($classes){
-
-            foreach ($classes as $class){
+            foreach ($schools as $school){
 
                 $today = date('d'); //number of day in the month
                 $today_week = date('w'); //number of day in the week (1 - 7)
                 $dayOfMidleOfMonth = intval(date("t")/2); //number
 
-                //DIARIO
-                if( $class->school->periodicidade === School::PERIODICIDADE_DIARIA ) {
+                //DIARIA
+                if( $school->periodicidade === School::PERIODICIDADE_DIARIA ) {
                     try {
-                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_DIARIA);
-                        Mail::to($class->school->school_email)->send($message);
-                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+                        $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_DIARIA);
+                        Mail::to($school->school_email)->send($message);
+                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $school->id. " | ". $school->name);
                     } catch (\Exception $ex) {
                         $this->info($ex->getMessage());
-                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $school->id. " | ". $school->name);
                     }
                 }
 
                 //SEMANAL
-                if( $class->school->periodicidade === School::PERIODICIDADE_SEMANAL AND ( $today_week === 1) ) {
+                if( $school->periodicidade === School::PERIODICIDADE_SEMANAL AND ( $today_week === 1) ) {
                     try {
-                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_DIARIA);
-                        Mail::to($class->school->school_email)->send($message);
-                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+                        $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_SEMANAL);
+                        Mail::to($school->school_email)->send($message);
+                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $school->id. " | ". $school->name);
                     } catch (\Exception $ex) {
                         $this->info($ex->getMessage());
-                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $school->id. " | ". $school->name);
                     }
                 }
 
                 //QUINZENAL
-                if( $class->school->periodicidade === School::PERIODICIDADE_QUINZENAL AND ( $today === ($dayOfMidleOfMonth + 1) OR $today === 1 ) ) {
+                if( $school->periodicidade === School::PERIODICIDADE_QUINZENAL AND ( $today === ($dayOfMidleOfMonth + 1) OR $today === 1 ) ) {
                     try {
-                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_QUINZENAL);
-                        Mail::to($class->school->school_email)->send($message);
-                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+                        $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_QUINZENAL);
+                        Mail::to($school->school_email)->send($message);
+                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $school->id. " | ". $school->name);
                     } catch (\Exception $ex) {
-                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+                        $this->info($ex->getMessage());
+                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $school->id. " | ". $school->name);
                     }
                 }
 
                 //MENSAL
-                if( $class->school->periodicidade === School::PERIODICIDADE_MENSAL AND ( $today === 1 ) ) {
+                if( $school->periodicidade === School::PERIODICIDADE_MENSAL AND ( $today === 1 ) ) {
                     try {
-                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_MENSAL);
-                        Mail::to($class->school->school_email)->send($message);
-                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+                        $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_MENSAL);
+                        Mail::to($school->school_email)->send($message);
+                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $school->id. " | ". $school->name);
                     } catch (\Exception $ex) {
-                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+                        $this->info($ex->getMessage());
+                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $school->id. " | ". $school->name);
                     }
                 }
 
             }
 
         });
-        $this->comment("FINALIZANDO PROCESSO DE ENVIO DE EMAILS PARA AS ESCOLAS COM BASE NAS TURMAS");
+        $this->comment("FINALIZANDO PROCESSO DE ENVIO DE EMAILS PARA AS ESCOLAS COM BASE NAS ESCOLAS");
+
+
+
+//        $this->comment("INICIANDO PROCESSO DE ENVIO DE EMAILS PARA AS ESCOLAS COM BASE NAS TURMAS");
+//        Classe::chunk(50, function($classes){
+//
+//            foreach ($classes as $class){
+//
+//                $today = date('d'); //number of day in the month
+//                $today_week = date('w'); //number of day in the week (1 - 7)
+//                $dayOfMidleOfMonth = intval(date("t")/2); //number
+//
+//                //DIARIO
+//                if( $class->school->periodicidade === School::PERIODICIDADE_DIARIA ) {
+//                    try {
+//                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_DIARIA);
+//                        Mail::to($class->school->school_email)->send($message);
+//                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+//                    } catch (\Exception $ex) {
+//                        $this->info($ex->getMessage());
+//                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+//                    }
+//                }
+//
+//                //SEMANAL
+//                if( $class->school->periodicidade === School::PERIODICIDADE_SEMANAL AND ( $today_week === 1) ) {
+//                    try {
+//                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_DIARIA);
+//                        Mail::to($class->school->school_email)->send($message);
+//                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+//                    } catch (\Exception $ex) {
+//                        $this->info($ex->getMessage());
+//                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+//                    }
+//                }
+//
+//                //QUINZENAL
+//                if( $class->school->periodicidade === School::PERIODICIDADE_QUINZENAL AND ( $today === ($dayOfMidleOfMonth + 1) OR $today === 1 ) ) {
+//                    try {
+//                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_QUINZENAL);
+//                        Mail::to($class->school->school_email)->send($message);
+//                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+//                    } catch (\Exception $ex) {
+//                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+//                    }
+//                }
+//
+//                //MENSAL
+//                if( $class->school->periodicidade === School::PERIODICIDADE_MENSAL AND ( $today === 1 ) ) {
+//                    try {
+//                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_MENSAL);
+//                        Mail::to($class->school->school_email)->send($message);
+//                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+//                    } catch (\Exception $ex) {
+//                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
+//                    }
+//                }
+//
+//            }
+//
+//        });
+//        $this->comment("FINALIZANDO PROCESSO DE ENVIO DE EMAILS PARA AS ESCOLAS COM BASE NAS TURMAS");
 
     }
 }

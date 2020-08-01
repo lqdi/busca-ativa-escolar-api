@@ -91,4 +91,13 @@ class School extends Model implements Searchable {
 	    return $this->hasMany('BuscaAtivaEscolar\EmailJob', 'school_id');
     }
 
+    /**
+     * The classes this school has.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function classes()
+    {
+        return $this->hasMany('BuscaAtivaEscolar\Classe', 'schools_id', 'id');
+    }
+
 }

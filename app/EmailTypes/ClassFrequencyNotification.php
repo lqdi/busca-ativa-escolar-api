@@ -10,11 +10,11 @@ class ClassFrequencyNotification extends Mailable
 {
 
     protected $periodicidade;
-    protected $class;
+    protected $school;
 
-    public function __construct($class, $periodicidade)
+    public function __construct($school, $periodicidade)
     {
-        $this->class = $class;
+        $this->school = $school;
         $this->periodicidade = $periodicidade;
     }
 
@@ -29,21 +29,21 @@ class ClassFrequencyNotification extends Mailable
         $message = (new MailMessage())
             ->success()
 
-            ->subject("[Busca Ativa Escolar] Controle de frequência - Turma ".$this->class->name)
+            ->subject("[Busca Ativa Escolar] Controle de frequência")
 
-            ->line($this->class->school->name. " - INEP: " .$this->class->school->id)
+            ->line($this->school->name. " - INEP: " .$this->school->id)
 
-            ->line("A secretaria de educação do seu município solicita o registro de frequência da turma ".$this->class->name. " ".$this->class->shift )
+            ->line("A secretaria de educação do seu município solicita o registro de frequência das turmas de sua escola.")
 
-            ->action('Cadastrar turmas', $this->getUrlToken());
+            ->action('Cadastrar frequências', $this->getUrlToken());
 
-        $this->subject("[Busca Ativa Escolar] Controle de frequência - Turma ".$this->class->name);
+        $this->subject("[Busca Ativa Escolar] Controle de frequência");
 
         return $this->view('vendor.notifications.email', $message->toArray());
     }
 
     private function getUrlToken()
     {
-        return env('APP_PANEL_URL') . "/classes/" . $this->class->school->id . "/" .$this->class->id;
+        return env('APP_PANEL_URL') . "/frequencia/" . $this->school->id;
     }
 }
