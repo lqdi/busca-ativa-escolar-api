@@ -4,7 +4,9 @@ namespace BuscaAtivaEscolar\Console\Commands;
 
 use BuscaAtivaEscolar\Classe;
 use BuscaAtivaEscolar\EmailTypes\ClassFrequencyNotification;
+use BuscaAtivaEscolar\Frequency;
 use BuscaAtivaEscolar\School;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -55,6 +57,7 @@ class SendEmailsActualizeFrequency extends Command
 
                 //DIARIA
                 if( $school->periodicidade === School::PERIODICIDADE_DIARIA ) {
+                    $this->createFrequenciesBySchool($school);
                     try {
                         $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_DIARIA);
                         Mail::to($school->school_email)->send($message);
@@ -106,67 +109,25 @@ class SendEmailsActualizeFrequency extends Command
         });
         $this->comment("FINALIZANDO PROCESSO DE ENVIO DE EMAILS PARA AS ESCOLAS COM BASE NAS ESCOLAS");
 
+    }
 
+    //CRIA FREQUENCIAS DEFAULT PARA AS TURMAS DE UMA ESCOLA
+    public function createFrequenciesBySchool($school){
+        foreach ($school->classes as $classe){
 
-//        $this->comment("INICIANDO PROCESSO DE ENVIO DE EMAILS PARA AS ESCOLAS COM BASE NAS TURMAS");
-//        Classe::chunk(50, function($classes){
-//
-//            foreach ($classes as $class){
-//
-//                $today = date('d'); //number of day in the month
-//                $today_week = date('w'); //number of day in the week (1 - 7)
-//                $dayOfMidleOfMonth = intval(date("t")/2); //number
-//
-//                //DIARIO
-//                if( $class->school->periodicidade === School::PERIODICIDADE_DIARIA ) {
-//                    try {
-//                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_DIARIA);
-//                        Mail::to($class->school->school_email)->send($message);
-//                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
-//                    } catch (\Exception $ex) {
-//                        $this->info($ex->getMessage());
-//                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
-//                    }
-//                }
-//
-//                //SEMANAL
-//                if( $class->school->periodicidade === School::PERIODICIDADE_SEMANAL AND ( $today_week === 1) ) {
-//                    try {
-//                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_DIARIA);
-//                        Mail::to($class->school->school_email)->send($message);
-//                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
-//                    } catch (\Exception $ex) {
-//                        $this->info($ex->getMessage());
-//                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
-//                    }
-//                }
-//
-//                //QUINZENAL
-//                if( $class->school->periodicidade === School::PERIODICIDADE_QUINZENAL AND ( $today === ($dayOfMidleOfMonth + 1) OR $today === 1 ) ) {
-//                    try {
-//                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_QUINZENAL);
-//                        Mail::to($class->school->school_email)->send($message);
-//                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
-//                    } catch (\Exception $ex) {
-//                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
-//                    }
-//                }
-//
-//                //MENSAL
-//                if( $class->school->periodicidade === School::PERIODICIDADE_MENSAL AND ( $today === 1 ) ) {
-//                    try {
-//                        $message = new ClassFrequencyNotification($class, School::PERIODICIDADE_MENSAL);
-//                        Mail::to($class->school->school_email)->send($message);
-//                        $this->info("MENSAGEM ENCAMINHADA COM SUCESSO - INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
-//                    } catch (\Exception $ex) {
-//                        $this->info("ERRO NO ENVIO DE MENSAGEM INEP: ". $class->school->id. " | ". $class->school->name . " | TURMA ".$class->name);
-//                    }
-//                }
-//
-//            }
-//
-//        });
-//        $this->comment("FINALIZANDO PROCESSO DE ENVIO DE EMAILS PARA AS ESCOLAS COM BASE NAS TURMAS");
+            //VERIFICA SE TEM FREQUENCIA HOJE!
+            $savedFrequency = Frequency::where([
+                ['created_at', '>=', Carbon::today()],
+                ['classes_id', '>=', $classe->id]
+            ])->first();
 
+            if ( $savedFrequency == null ){
+                $frequency = new Frequency();
+                $frequency->qty_presence = 0;
+                $frequency->qty_enrollment = 0;
+                $frequency->classes_id = $classe->id;
+                $frequency->save();
+            }
+        }
     }
 }
