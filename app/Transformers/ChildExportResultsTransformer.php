@@ -57,6 +57,7 @@ class ChildExportResultsTransformer extends TransformerAbstract {
             'Bairro' => $document['_source']['place_neighborhood'] ?? '',
             'Referencia' => $document['_source']['place_reference'] ?? '',
             'CEP' => $document['_source']['place_cep'] ?? '',
+            'Escola de rematricula' => $document['_source']['school_name'] ?? '',
 		];
 	}
 
