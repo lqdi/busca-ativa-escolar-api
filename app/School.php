@@ -49,8 +49,14 @@ class School extends Model implements Searchable {
         'school_cell_phone',
         'school_phone',
         'school_email',
-        'token'
+        'token',
+        'periodicidade'
 	];
+
+    const PERIODICIDADE_DIARIA = "diaria"; //possivelmente usaremos
+    const PERIODICIDADE_SEMANAL = "Semanal";
+    const PERIODICIDADE_QUINZENAL = "Quinzenal";
+    const PERIODICIDADE_MENSAL = "Mensal";
 
 	protected $casts = [
 		'metadata' => 'object'
@@ -83,6 +89,15 @@ class School extends Model implements Searchable {
      */
     public function emailJobs(){
 	    return $this->hasMany('BuscaAtivaEscolar\EmailJob', 'school_id');
+    }
+
+    /**
+     * The classes this school has.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function classes()
+    {
+        return $this->hasMany('BuscaAtivaEscolar\Classe', 'schools_id', 'id');
     }
 
 }

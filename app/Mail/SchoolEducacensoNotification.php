@@ -5,7 +5,7 @@ namespace BuscaAtivaEscolar\Mail;
 use Illuminate\Mail\Mailable;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class SchoolNotification extends Mailable
+class SchoolEducacensoNotification extends Mailable
 {
 
     protected $job_id;

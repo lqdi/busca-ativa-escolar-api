@@ -16,13 +16,16 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\EmailJob;
 use BuscaAtivaEscolar\EmailTypes\SchoolEducacensoEmail;
+use BuscaAtivaEscolar\EmailTypes\SchoolFrequencyEmail;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Jobs\ProcessSmsFrequencySchool;
 use BuscaAtivaEscolar\Jobs\ProcessEmailJob;
-use BuscaAtivaEscolar\Jobs\ProcessSmsSchool;
+use BuscaAtivaEscolar\Jobs\ProcessSmsEducacensoSchool;
 use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
+use BuscaAtivaEscolar\Transformers\PendingAlertTransformer;
 use BuscaAtivaEscolar\Transformers\SchoolCustomTransformer;
 use BuscaAtivaEscolar\Transformers\SchoolSearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\SchoolTransformer;
@@ -75,7 +78,7 @@ class SchoolsController extends BaseController
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
-    public function sendNotificationSchool(Request $request)
+    public function sendNotificationsEducacensoSchool(Request $request)
     {
         $schools = $request->request;
 
@@ -100,7 +103,47 @@ class SchoolsController extends BaseController
             Queue::pushOn('emails', new ProcessEmailJob($job));
 
             if($school->school_cell_phone != null && $school->school_cell_phone != ""){
-                Queue::pushOn('sms_school', new ProcessSmsSchool($school));
+                Queue::pushOn('sms_school', new ProcessSmsEducacensoSchool($school));
+            }
+
+        }
+
+        $data['status'] = "ok";
+        $data['message'] = "Mensagens encaminhadas para fila de envio";
+
+        return response()->json($data, 200);
+    }
+
+    public function sendNotificationsFrequencySchool(Request $request){
+
+        $schools = $request->request;
+
+        $user = auth()->user(); /* @var $user User */
+
+        foreach ($schools as $key => $school) {
+
+            if( $school['school_email'] == null OR $school['school_email'] == "" ){
+                $data['status'] = "error";
+                $data['message'] = "Email inválido";
+                return response()->json($data, 403);
+            }
+
+            $school = School::whereSchoolEmail($school['school_email'])->first();
+
+            if($school->token == null){
+                $school->token = str_random(40);
+                $school->save();
+            }
+
+            $job = EmailJob::createFromType(SchoolFrequencyEmail::TYPE, $user, $school);
+            //Queue::pushOn('emails', new ProcessEmailJob($job));
+            $job1 = new ProcessEmailJob($job);
+            $job1->handle();
+
+            if($school->school_cell_phone != null && $school->school_cell_phone != ""){
+                //Queue::pushOn('sms_school', new ProcessSmsFrequencySchool($school));
+                $job2 = new ProcessSmsFrequencySchool($school);
+                $job2->handle();
             }
 
         }
@@ -216,6 +259,7 @@ class SchoolsController extends BaseController
 
     }
 
+    //only for all_educacenso method
     public function getCursor($limit, $interval, $point){
 
         if($interval == 0) return 0;
@@ -240,6 +284,34 @@ class SchoolsController extends BaseController
         $position = $final_array[$point-1][0];
 
         return $position;
+    }
+
+    public function getAll(){
+
+        $tenant = $this->currentUser()->tenant;
+
+        $query = School::with('emailJobs')->where('city_id', '=', $tenant->city_id);
+
+        $search = request('search', '');
+        if( $search != ''){
+            $query->where('id', '=', intval($search));
+        }
+
+        $max = request('max', 128);
+        if($max > 128) $max = 128;
+        if($max < 5) $max = 5;
+
+        $paginator = $query->paginate($max);
+        $collection = $paginator->getCollection();
+
+        return fractal()
+            ->collection($collection)
+            ->transformWith(new SchoolTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->paginateWith(new IlluminatePaginatorAdapter($paginator))
+            ->parseIncludes(request('with'))
+            ->respond();
+
     }
 
 }

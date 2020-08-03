@@ -9,6 +9,7 @@
 namespace BuscaAtivaEscolar;
 
 
+use BuscaAtivaEscolar\EmailTypes\SchoolFrequencyEmail;
 use BuscaAtivaEscolar\EmailTypes\SendEmail;
 use BuscaAtivaEscolar\EmailTypes\SchoolEducacensoEmail;
 use Illuminate\Database\Eloquent\Model;
@@ -48,6 +49,7 @@ class EmailJob extends Model
 
     const TYPES = [
         'school_educacenso_email' => SchoolEducacensoEmail::class,
+        'school_frequency_email' => SchoolFrequencyEmail::class
     ];
 
     const STATUS_PENDING = "pending";
