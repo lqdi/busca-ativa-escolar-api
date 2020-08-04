@@ -190,20 +190,18 @@ class Pesquisa extends CaseStep implements CanGenerateForms
 
         $this->child->save();
 
-        $oldAdress = "{$oldObject->place_address} {$oldObject->place_city_name} {$oldObject->place_uf} {$oldObject->place_cep}";
+        $oldAdress = $oldObject ? "{$oldObject->place_address} {$oldObject->place_city_name} {$oldObject->place_uf} {$oldObject->place_cep}" : '';
         $newAdress = "{$this->place_address} {$this->place_city_name} {$this->place_uf} {$this->place_cep}";
 
-        $chengeAddress = ($oldAdress == $newAdress) ? false : true;
-
+        $changeAddress = ($oldAdress == $newAdress) ? false : true;
 
         if ($this->place_lat && $this->place_lng) {
             try {
-                if ($chengeAddress) {
+                if ($changeAddress) {
                     $location = $this->child->updateCoordinatesThroughGeocoding($newAdress);
                     $this->update([
                         'place_lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
                         'place_lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null,
-                        'place_map_region' => ($location->Address) ? $location->Address->District : null,
                         'Place_map_geocoded_address' => ($location) ? $location : null,
                     ]);
                 } else {

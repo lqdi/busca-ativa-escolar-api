@@ -131,7 +131,6 @@ class Alerta extends CaseStep implements CanGenerateForms  {
         $this->update([
             'place_lat' => ($location->DisplayPosition) ? $location->DisplayPosition->Latitude : null,
             'place_lng' => ($location->DisplayPosition) ? $location->DisplayPosition->Longitude : null,
-            'place_map_region' => ($location->Address) ? $location->Address->District : null,
             'place_map_geocoded_address' => ($location) ? $location : null,
         ]);
 
