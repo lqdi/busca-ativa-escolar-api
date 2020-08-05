@@ -455,36 +455,26 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
 
         $location = $this->getLocationByRawAddress($rawAddress);
 
-        if ( $location
-            and property_exists($location, 'DisplayPosition')
-            and property_exists($location, 'Address')
-            and property_exists($location->Address, 'District')){
-
+        if($location){
             if ($location->Address->Country == 'BRA') {
-
                 $this->update([
                     'lat' => ($location->DisplayPosition) ? $location->DisplayPosition->Latitude : null,
                     'lng' => ($location->DisplayPosition) ? $location->DisplayPosition->Longitude : null,
                     'map_geocoded_address' => ($location) ? $location : null,
                 ]);
-
             } else {
-
                 $this->update([
                     'lat' => null,
                     'lng' => null,
                     'map_geocoded_address' => null,
                 ]);
             }
-
-        } else {
-
+        }else{
             $this->update([
                 'lat' => null,
                 'lng' => null,
                 'map_geocoded_address' => null,
             ]);
-
         }
 
         return $location;
