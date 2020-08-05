@@ -23,34 +23,32 @@ use DB;
 use Illuminate\Notifications\Notification;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class NotificationsController extends BaseController
-{
+class NotificationsController extends BaseController {
 
-    public function getUnread()
-    {
-        $user = Auth::user();
-        /* @var $user User */
-        $notifications = $user->unreadNotifications;
+	public function getUnread() {
 
-        return fractal()
-            ->collection($notifications)
-            ->transformWith(new NotificationTransformer())
-            ->serializeWith(new SimpleArraySerializer())
-            ->respond();
-        return response()->json();
-    }
+        // mudanca temporaria para evitar o envio de notificacoes nao lidas
+	    return response()->json();
 
-    public function markAsRead($id)
-    {
-        $user = Auth::user();
-        /* @var $user User */
-        $notification = $user->notifications()->where('id', $id)->first();
+	    //		$user = Auth::user(); /* @var $user User */
+//		$notifications = $user->unreadNotifications;
+//
+//		return fractal()
+//			->collection($notifications)
+//			->transformWith(new NotificationTransformer())
+//			->serializeWith(new SimpleArraySerializer())
+//			->respond();
+	}
 
-        if (!$notification) return $this->api_failure('invalid_notification');
+	public function markAsRead($id) {
+		$user = Auth::user(); /* @var $user User */
+		$notification = $user->notifications()->where('id', $id)->first();
 
-        $notification->markAsRead();
+		if(!$notification) return $this->api_failure('invalid_notification');
 
-        return response()->json(['status' => 'ok']);
-    }
+		$notification->markAsRead();
+
+		return response()->json(['status' => 'ok']);
+	}
 
 }

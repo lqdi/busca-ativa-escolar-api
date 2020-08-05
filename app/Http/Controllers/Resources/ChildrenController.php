@@ -13,17 +13,19 @@
 
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
-
 use Auth;
+use function Aws\map;
 use BuscaAtivaEscolar\ActivityLog;
 use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
-use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Comment;
+use BuscaAtivaEscolar\Data\CaseCause;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\IBGE\UF;
+use BuscaAtivaEscolar\Jobs\ProcessExportChildrenJob;
+use BuscaAtivaEscolar\Jobs\ProcessReportSeloJob;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use BuscaAtivaEscolar\Search\Search;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
@@ -37,9 +39,14 @@ use BuscaAtivaEscolar\Transformers\LogEntryTransformer;
 use BuscaAtivaEscolar\Transformers\SearchResultsTransformer;
 use BuscaAtivaEscolar\Transformers\StepTransformer;
 use BuscaAtivaEscolar\User;
+use Carbon\Carbon;
+use File;
+use function foo\func;
+use function GuzzleHttp\Psr7\parse_query;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use Rap2hpoutre\FastExcel\FastExcel;
 
 class ChildrenController extends BaseController  {
 
@@ -148,7 +155,7 @@ class ChildrenController extends BaseController  {
 		$attempted = $query->getAttemptedQuery();
 		$query = $query->getQuery();
 
-		$results = $search->search(new Child(), $query, 500);
+		$results = $search->search(new Child(), $query, 2000);
 
 		$data = fractal()
 			->item($results)
@@ -377,8 +384,6 @@ class ChildrenController extends BaseController  {
 
 	public function getMap() {
 
-        $city_id = request('city_id');
-
 		$mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
 
 		if($this->currentUser()->isRestrictedToTenant() && !$this->currentUser()->isRestrictedToUF()) {
@@ -387,39 +392,19 @@ class ChildrenController extends BaseController  {
 
 		if($this->currentUser()->isRestrictedToUF()) {
 			$mapCenter = UF::getByCode($this->currentUser()->uf)->getCoordinates();
-			$mapCenter['zoom'] = 10;
+			$mapCenter['zoom'] = 6;
 		}
 
 		// TODO: cache this (w/ tenant ID)
 
-        if($city_id != null AND $city_id != "null") {
-
-            $city = City::where('ibge_city_id', '=', intval($city_id))->first();
-            $tenantByCity = Tenant::where('city_id', '=', $city->id)->first();
-            $mapCenter =  $tenantByCity->getMapCoordinates();
-
-            $coordinates = Child::query()
-                ->whereIn('child_status', ['out_of_school', 'in_observation'])
-                ->where('city_id', '=', $city->id)
-                ->whereNotNull('lat')
-                ->whereNotNull('lng')
-                ->get(['id', 'lat', 'lng'])
-                ->map(function ($child) {
-                    return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
-                });
-
-        }else{
-
-            $coordinates = Child::query()
-                ->whereIn('child_status', ['out_of_school', 'in_observation'])
-                ->whereNotNull('lat')
-                ->whereNotNull('lng')
-                ->get(['id', 'name', 'lat', 'lng'])
-                ->map(function ($child) {
-                    return ['id' => $child->id, 'name' => $child->name, 'latitude' => $child->lat, 'longitude' => $child->lng];
-                });
-
-        }
+		$coordinates = Child::query()
+			->whereIn('child_status', ['out_of_school', 'in_observation'])
+			->whereNotNull('lat')
+			->whereNotNull('lng')
+			->get(['id', 'lat', 'lng'])
+			->map(function ($child) {
+				return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
+			});
 
 		return response()->json([
 			'center' => [
@@ -431,5 +416,46 @@ class ChildrenController extends BaseController  {
 		]);
 
 	}
+
+    public function list_files_exported () {
+        $reports = \Storage::allFiles('attachments/children_reports/'.Auth::user()->id."/");
+        $finalReports = array_map( function ($file){
+            return [
+                'file' => str_replace('attachments/children_reports/'.Auth::user()->id, "", $file),
+                'size' => \Storage::size($file),
+                'last_modification' => \Storage::lastModified($file)
+            ];
+        }, $reports);
+        return response()->json(['status' => 'ok', 'data' => $finalReports]);
+    }
+
+    public function get_file_exported(){
+        $nameFile = request('file');
+        if ( !isset($nameFile) ) {
+            return response()->json(['error' => 'Not authorized.'],403);
+        }
+        $exists = \Storage::exists("attachments/children_reports/".Auth::user()->id."/".$nameFile);
+        if ( $exists ){
+            return response()->download(storage_path("app/attachments/children_reports/".Auth::user()->id."/".$nameFile));
+        }else{
+            return response()->json(['error' => 'Arquivo inexistente.'],403);
+        }
+    }
+
+    public function create_report_child(){
+
+        $paramsQuery = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
+
+        dispatch((new ProcessExportChildrenJob(Auth::user(), $paramsQuery))->onQueue('export_children'));
+
+        return response()->json(
+            [
+                'msg' => 'Arquivo criado',
+                'date' => Carbon::now()->timestamp
+            ],
+            200
+        );
+
+    }
 
 }

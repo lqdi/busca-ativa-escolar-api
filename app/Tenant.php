@@ -28,7 +28,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Log;
 use Mail;
-use BuscaAtivaEscolar\Traits\LocationHereTrait;
 
 /**
  * @property int $id
@@ -66,8 +65,6 @@ class Tenant extends Model  {
 	use IndexedByUUID;
 	use SoftDeletes;
 	use Sortable;
-
-	use LocationHereTrait;
 
 	protected $table = "tenants";
 
@@ -174,29 +171,16 @@ class Tenant extends Model  {
 	 */
 	public function getMapCoordinates() {
 		if(!$this->map_lat || !$this->map_lng) {
+			$geocoder = app('geocoder'); /* @var $geocoder Geocoder */
 
-//			$geocoder = app('geocoder'); /* @var $geocoder Geocoder */
-//			$place = $geocoder->geocode("{$this->name} - Brasil")->get()->first();
-//			if(!$place) {
-//				Log::error("Failed to geocode tenant map center: {$this->name}");
-//				return null;
-//			}
+			$place = $geocoder->geocode("{$this->name} - Brasil")->get()->first();
 
-            $location = $this->getLocationByRawAddress("{$this->name} / BRASIL" );
-
-            if ($location->Address->Country == 'BRA') {
-
-                $this->update(
-                    [
-                        'map_lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
-                        'map_lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null
-                    ]
-                );
-
-            } else {
-                Log::error("Failed to geocode tenant map center: {$this->name}");
+			if(!$place) {
+				Log::error("Failed to geocode tenant map center: {$this->name}");
 				return null;
-            }
+			}
+
+			$this->update(['map_lat' => $place->getLatitude(), 'map_lng' => $place->getLongitude()]);
 		}
 
 		return ['lat' => $this->map_lat, 'lng' => $this->map_lng, 'zoom' => 10];

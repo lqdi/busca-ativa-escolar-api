@@ -76,6 +76,7 @@ return [
     BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
         'reports.view',
         'cases.map',
+        'cases.export.uf',
         'users.view',
         'users.manage',
         'users.export',
@@ -92,6 +93,7 @@ return [
         'cases.assign',
         'reports.view',
         'cases.map',
+        'cases.export.uf',
         'users.view',
         'users.manage',
         'users.export',
@@ -132,6 +134,7 @@ return [
         'cases.assign',
         'cases.reopen',
         'cases.request-transfer',
+        'cases.export.all',
         'requests.view',
         'requests.reject',
         'cases.transfer',
@@ -153,6 +156,7 @@ return [
         'preferences',
         'notifications',
         'groups.manage',
+        'school.list'
     ],
 
     BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL => [
@@ -166,6 +170,7 @@ return [
         'cases.request-reopen',
         'cases.map',
         'cases.step.alerta',
+        'cases.export.all',
         'requests.view',
         'cases.step.pesquisa',
         'cases.step.analise_tecnica',
@@ -180,6 +185,7 @@ return [
         'preferences',
         'notifications',
         'settings.educacenso',
+        'school.list'
     ],
 
     BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL => [
@@ -193,6 +199,7 @@ return [
         'cases.assign',
         'cases.reopen',
         'cases.map',
+        'cases.export.uf',
         'cases.step.alerta',
         'cases.step.pesquisa',
         'cases.step.analise_tecnica',
@@ -216,6 +223,7 @@ return [
         'cases.view',
         'cases.manage',
         'cases.map',
+        'cases.export.all',
         'cases.step.alerta',
         'cases.step.pesquisa',
         'cases.step.analise_tecnica',

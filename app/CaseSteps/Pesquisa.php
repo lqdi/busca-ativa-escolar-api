@@ -190,38 +190,71 @@ class Pesquisa extends CaseStep implements CanGenerateForms
 
         $this->child->save();
 
-        $oldAdress = $oldObject ? "{$oldObject->place_address} {$oldObject->place_city_name} {$oldObject->place_uf} {$oldObject->place_cep}" : '';
+//        $oldAdress = $oldObject ? "{$oldObject->place_address} {$oldObject->place_city_name} {$oldObject->place_uf} {$oldObject->place_cep}" : '';
+////        $newAdress = "{$this->place_address} {$this->place_city_name} {$this->place_uf} {$this->place_cep}";
+////
+////        $changeAddress = ($oldAdress == $newAdress) ? false : true;
+////
+////        if ($changeAddress) {
+////            $location = $this->child->updateCoordinatesThroughGeocoding($newAdress);
+////
+////            $this->update([
+////                'place_lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
+////                'place_lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null,
+////                'Place_map_geocoded_address' => ($location) ? $location : null,
+////            ]);
+////
+////        } else {
+////            $this->child->update([
+////                'lat' => $this->place_lat,
+////                'lng' => $this->place_lng,
+////            ]);
+////
+////            $this->update([
+////                'place_lat' => $this->place_lat,
+////                'place_lng' => $this->place_lng,
+////            ]);
+////        }
+///
+
+        //A MUDANCA DE ENDERECO TEM QUE OCORRER SEMPRE QUE HOUVER MUDANCA NO PONTO DO MAPA OU DE ENDERECO NOVO
+        //O FRONT ENCAMINHA A PROPRIEDADE MOVIMENT PRA DEFINIR QUE HOUVE MOVIMENTO MANUAL
+        //VAR OLDOBJCT SEMPRE RETORNA NULL
+
         $newAdress = "{$this->place_address} {$this->place_city_name} {$this->place_uf} {$this->place_cep}";
 
-        $changeAddress = ($oldAdress == $newAdress) ? false : true;
+        $request = request()->all();
 
-        if ($this->place_lat && $this->place_lng) {
-            try {
-                if ($changeAddress) {
-                    $location = $this->child->updateCoordinatesThroughGeocoding($newAdress);
-                    $this->update([
-                        'place_lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
-                        'place_lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null,
-                        'Place_map_geocoded_address' => ($location) ? $location : null,
-                    ]);
-                } else {
-                    $this->child->update([
-                        'lat' => $this->place_lat,
-                        'lng' => $this->place_lng,
-                    ]);
+        $new_place_lat = array_key_exists("place_lat", $request) ? $request['place_lat'] : null;
+        $new_place_lng = array_key_exists("new_place_lng", $request) ? $request['new_place_lng'] : null;
+        $moviment = array_key_exists("moviment", $request) ? $request['moviment'] : false;
 
-                    $this->update([
-                        'place_lat' => $this->place_lat,
-                        'place_lng' => $this->place_lng,
-                    ]);
-                }
+        if ($moviment == false) {
 
+            $location = $this->child->updateCoordinatesThroughGeocoding($newAdress);
 
-            } catch (\Exception $ex) {
-                //Log::debug("[pesquisa.on_update.geocode_addr] ({$this->id}) Failed to geocode address: {$ex->getMessage()}");
+            if($location){
+                $this->update([
+                    'place_lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
+                    'place_lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null,
+                    'place_map_geocoded_address' => ($location) ? $location : null,
+                ]);
             }
 
+        } else {
+
+            $this->child->update([
+                'lat' => $new_place_lat,
+                'lng' => $new_place_lng,
+            ]);
+
+            $this->update([
+                'lat' => $new_place_lat,
+                'lng' => $new_place_lng,
+            ]);
         }
+
+
     }
 
     public function validate($data, $isCompletingStep = false)

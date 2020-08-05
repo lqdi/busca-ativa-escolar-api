@@ -8,6 +8,11 @@ Route::group(['prefix' => 'auth'], function () {
 });
 
 Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
+    Route::resource('/classes', 'Resources\ClasseController');
+    Route::put('/frequency/{id}', 'Resources\ClasseController@updateFrequency');
+});
+
+Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	Route::group(['middleware' => 'jwt.auth'], function() { // Authenticated routes
 
@@ -140,12 +145,15 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
         Route::get('/states/export', 'Resources\StatesController@export');
 
         // Schools comunications
-        Route::post('/schools/notification', 'Resources\SchoolsController@sendNotificationSchool');
+        Route::post('/schools/educacenso/notification', 'Resources\SchoolsController@sendNotificationsEducacensoSchool');
+        Route::post('/schools/frequency/notification', 'Resources\SchoolsController@sendNotificationsFrequencySchool');
 
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');
         Route::get('/schools/all_educacenso', 'Resources\SchoolsController@all_educacenso')->middleware('can:settings.educacenso');
         Route::put('/schools/{id}', 'Resources\SchoolsController@update')->middleware('can:settings.educacenso');
+
+        Route::get('/schools/all', 'Resources\SchoolsController@getAll')->middleware('can:school.list');
 
 		// Notifications
 		Route::get('/notifications/unread', 'Resources\NotificationsController@getUnread');
@@ -167,11 +175,16 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::get('/reports/selo/download', 'Resources\ReportsController@getSeloReport')->middleware('can:cities.selo_reports');
         Route::post('/reports/selo/create', 'Resources\ReportsController@createSeloReport')->middleware('can:cities.selo_reports');
 
+        Route::get('/reports/child', 'Resources\ChildrenController@list_files_exported')->middleware('can:reports.view');
+        Route::get('/reports/child/download', 'Resources\ChildrenController@get_file_exported')->middleware('can:reports.view');
+        Route::post('/reports/child/create', 'Resources\ChildrenController@create_report_child')->middleware('can:reports.view');
+
 		//Reports Bar
         Route::get('/reports/city_bar', 'Bar\ReportsBar@city_bar');
         Route::get('/reports/data_rematricula_daily', 'Bar\ReportsBar@getDataRematriculaDaily');
         Route::get('/reports/ufs_by_selo', 'Bar\ReportsBar@ufsBySelo');
         Route::get('/reports/tenants_by_selo', 'Bar\ReportsBar@tenantsBySelo');
+        Route::get('/reports/data_map_fusion_chart', 'Bar\ReportsBar@getDataMapFusionChart');
 
 	});
 
@@ -220,7 +233,5 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
     //Webhooks Mailgun
     Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
-
-    Route::get('/reports/data_map_fusion_chart', 'Bar\ReportsBar@getDataMapFusionChart');
 
 });
