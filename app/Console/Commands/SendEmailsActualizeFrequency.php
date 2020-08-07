@@ -70,6 +70,7 @@ class SendEmailsActualizeFrequency extends Command
 
                 //SEMANAL
                 if( $school->periodicidade === School::PERIODICIDADE_SEMANAL AND ( $today_week === 1) ) {
+                    $this->createFrequenciesBySchool($school);
                     try {
                         $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_SEMANAL);
                         Mail::to($school->school_email)->send($message);
@@ -82,6 +83,7 @@ class SendEmailsActualizeFrequency extends Command
 
                 //QUINZENAL
                 if( $school->periodicidade === School::PERIODICIDADE_QUINZENAL AND ( $today === ($dayOfMidleOfMonth + 1) OR $today === 1 ) ) {
+                    $this->createFrequenciesBySchool($school);
                     try {
                         $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_QUINZENAL);
                         Mail::to($school->school_email)->send($message);
@@ -94,6 +96,7 @@ class SendEmailsActualizeFrequency extends Command
 
                 //MENSAL
                 if( $school->periodicidade === School::PERIODICIDADE_MENSAL AND ( $today === 1 ) ) {
+                    $this->createFrequenciesBySchool($school);
                     try {
                         $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_MENSAL);
                         Mail::to($school->school_email)->send($message);

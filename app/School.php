@@ -53,7 +53,7 @@ class School extends Model implements Searchable {
         'periodicidade'
 	];
 
-    const PERIODICIDADE_DIARIA = "diaria"; //possivelmente usaremos
+    const PERIODICIDADE_DIARIA = "Diaria";
     const PERIODICIDADE_SEMANAL = "Semanal";
     const PERIODICIDADE_QUINZENAL = "Quinzenal";
     const PERIODICIDADE_MENSAL = "Mensal";
