@@ -66,7 +66,6 @@ class ClasseController extends BaseController
         return response()->json($response, 200);
     }
 
-
     public function store(Request $request)
     {
         try {
@@ -136,6 +135,14 @@ class ClasseController extends BaseController
         }
 
         $classes->delete();
+
+        $response = [
+            'success' => true,
+            'message' => 'Turma removida com sucesso',
+            'turmas' => $classes
+        ];
+
+        return response()->json($response, 200);
     }
 
     public function updateFrequency(Request $request, $id){
