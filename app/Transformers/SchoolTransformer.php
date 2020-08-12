@@ -38,7 +38,8 @@ class SchoolTransformer extends TransformerAbstract {
 			'city_name' => $school->city_name,
             'school_cell_phone' => $school->school_cell_phone,
             'school_phone' => $school->school_phone,
-            'school_email' => $school->school_email
+            'school_email' => $school->school_email,
+            'periodicidade' => $school->periodicidade
 		];
 	}
 
