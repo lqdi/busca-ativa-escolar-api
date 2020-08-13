@@ -101,12 +101,16 @@ class ChildrenController extends BaseController  {
 			if(!$group) $group = $tenant->primaryGroup;
 			if(!$group) $group = new Group();
 
+			//adiciona os motivos de alertas 500 e 600 a supervisores da educacao sempre
+            $handledAlertCauses = $group->getSettings()->getHandledAlertCauses();
+            if ($group->is_primary) { array_unshift($handledAlertCauses, 500, 600 ); }
+
 			$filters = [
 				'assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id],
 
                 // Essa regra está sendo desativada, pois não é possível retornar o getHandledCaseCauses dos grupos ...
                 //'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
-				'alert_cause_id' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledAlertCauses()],
+				'alert_cause_id' => ['type' => 'terms', 'search' => $handledAlertCauses],
 			];
 
 
