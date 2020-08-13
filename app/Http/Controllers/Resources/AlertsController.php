@@ -61,7 +61,9 @@ class AlertsController extends BaseController {
             if(!$group) $group = Auth::user()->tenant->primary_group;
             if(!$group) $group = new Group();
             $query->whereHas('alert', function ($sq) use ($group) {
-                $sq->whereIn('alert_cause_id', $group->getSettings()->getHandledAlertCauses());
+                $handledAlertCauses = $group->getSettings()->getHandledAlertCauses();
+                if ($group->is_primary) { array_unshift($handledAlertCauses, 500, 600 ); }
+                $sq->whereIn('alert_cause_id', $handledAlertCauses);
             });
         }
 
