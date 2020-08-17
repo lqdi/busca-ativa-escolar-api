@@ -52,7 +52,7 @@ class SendEmailsActualizeFrequency extends Command
             foreach ($schools as $school){
 
                 $today = intval(date('d')); //number of day in the month
-                $today_week = intval(date('w')); //number of day in the week (1 - 7)
+                $today_week = intval(date('w')); //number of day in the week (0 - 6)
                 $dayOfMidleOfMonth = intval(date("t")/2); //number
 
                 //DIARIA SE PERIODICIDADE DIARIA E DIA DA SEMANA ATE SEXTA_FEIRA
@@ -118,7 +118,7 @@ class SendEmailsActualizeFrequency extends Command
     public function createFrequenciesBySchool($school){
         foreach ($school->classes as $classe){
 
-            $today_week = intval(date('w')); //number of day in the week (1 - 7)
+            $today_week = intval(date('w')); //number of day in the week (0 - 6)
 
             if( $school->periodicidade === School::PERIODICIDADE_DIARIA){
 
@@ -135,6 +135,7 @@ class SendEmailsActualizeFrequency extends Command
                         $frequency->qty_enrollment = 0;
                         $frequency->classes_id = $classe->id;
                         $frequency->created_at =  Carbon::yesterday();
+                        $frequency->periodicidade = $school->periodicidade;
                         $frequency->save();
                     }
                 }
@@ -152,6 +153,7 @@ class SendEmailsActualizeFrequency extends Command
                         $frequency->qty_enrollment = 0;
                         $frequency->classes_id = $classe->id;
                         $frequency->created_at =  Carbon::now()->subDays(3);
+                        $frequency->periodicidade = $school->periodicidade;
                         $frequency->save();
                     }
                 }
@@ -172,6 +174,7 @@ class SendEmailsActualizeFrequency extends Command
                         $frequency->qty_enrollment = 0;
                         $frequency->classes_id = $classe->id;
                         $frequency->created_at =  Carbon::now()->subDays(3);
+                        $frequency->periodicidade = $school->periodicidade;
                         $frequency->save();
                     }
                 }
@@ -190,6 +193,7 @@ class SendEmailsActualizeFrequency extends Command
                     $frequency->qty_enrollment = 0;
                     $frequency->classes_id = $classe->id;
                     $frequency->created_at =  Carbon::yesterday();
+                    $frequency->periodicidade = $school->periodicidade;
                     $frequency->save();
                 }
 
@@ -208,6 +212,7 @@ class SendEmailsActualizeFrequency extends Command
                     $frequency->qty_enrollment = 0;
                     $frequency->classes_id = $classe->id;
                     $frequency->created_at =  Carbon::yesterday();
+                    $frequency->periodicidade = $school->periodicidade;
                     $frequency->save();
                 }
             }
