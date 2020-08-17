@@ -9,7 +9,7 @@ class Frequency extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['id', 'qty_presence', 'qty_enrollment', 'classes_id', 'created_at'];
+    protected $fillable = ['id', 'qty_presence', 'qty_enrollment', 'classes_id', 'created_at', 'periodicidade'];
     protected $guarded = ['id', 'update_at'];
     protected $hidden = ['updated_at', 'deleted_at'];
 

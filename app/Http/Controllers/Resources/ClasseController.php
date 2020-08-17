@@ -103,8 +103,7 @@ class ClasseController extends BaseController
 
     public function show($id)
     {
-        $classes = Classe::with('frequencies')
-            ->where('schools_id', '=', $id)
+        $classes = Classe::where('schools_id', '=', $id)
             ->get()->toArray();
 
 //        if (!$classes) {
@@ -217,8 +216,9 @@ class ClasseController extends BaseController
                        'qty_presence' => $frequency->qty_presence,
                        'qty_enrollment' => $frequency->qty_enrollment,
                        'classes_id' => $frequency->classes_id,
-                       'created_at' => $frequency->created_at]
-                   );
+                       'created_at' => $frequency->created_at,
+                       'periodicidade' => $frequency->periodicidade
+                   ]);
                }
             }
         });
