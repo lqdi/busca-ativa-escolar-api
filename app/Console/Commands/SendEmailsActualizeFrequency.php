@@ -126,7 +126,7 @@ class SendEmailsActualizeFrequency extends Command
                 if( $today_week > 1 AND $today_week <= 5){
                     $savedFrequency = Frequency::where([
                         ['created_at', '>=', Carbon::yesterday()],
-                        ['classes_id', '>=', $classe->id]
+                        ['classes_id', '=', $classe->id]
                     ])->first();
 
                     if ( $savedFrequency == null ){
@@ -144,7 +144,7 @@ class SendEmailsActualizeFrequency extends Command
                 if( $today_week == 1 ){
                     $savedFrequency = Frequency::where([
                         ['created_at', '>=', Carbon::now()->subDays(3)],
-                        ['classes_id', '>=', $classe->id]
+                        ['classes_id', '=', $classe->id]
                     ])->first();
 
                     if ( $savedFrequency == null ){
@@ -165,7 +165,7 @@ class SendEmailsActualizeFrequency extends Command
                 if( $today_week == 1 ){
                     $savedFrequency = Frequency::where([
                         ['created_at', '>=', Carbon::now()->subDays(3)],
-                        ['classes_id', '>=', $classe->id]
+                        ['classes_id', '=', $classe->id]
                     ])->first();
 
                     if ( $savedFrequency == null ){
@@ -184,7 +184,7 @@ class SendEmailsActualizeFrequency extends Command
 
                 $savedFrequency = Frequency::where([
                     ['created_at', '>=', Carbon::yesterday()],
-                    ['classes_id', '>=', $classe->id]
+                    ['classes_id', '=', $classe->id]
                 ])->first();
 
                 if ( $savedFrequency == null ){
@@ -203,7 +203,7 @@ class SendEmailsActualizeFrequency extends Command
 
                 $savedFrequency = Frequency::where([
                     ['created_at', '>=', Carbon::yesterday()],
-                    ['classes_id', '>=', $classe->id]
+                    ['classes_id', '=', $classe->id]
                 ])->first();
 
                 if ( $savedFrequency == null ){
