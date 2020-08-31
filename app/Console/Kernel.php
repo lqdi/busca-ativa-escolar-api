@@ -6,6 +6,7 @@ use BuscaAtivaEscolar\Console\Commands\Command;
 use BuscaAtivaEscolar\Console\Commands\ExportErrorsCasesDisabled;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Psy\TabCompletion\Matcher\CommandsMatcher;
 
 class Kernel extends ConsoleKernel
 {
@@ -50,7 +51,8 @@ class Kernel extends ConsoleKernel
         Commands\SnapshotDailyMetricsFullMySQL::class,
         Commands\InsertCancelReasonDailyMetrics::class,
         Commands\PopulateDailyMetricsConsolidated::class,
-        Commands\InserirDiaAusenteGraficoRematriculas::class
+        Commands\InserirDiaAusenteGraficoRematriculas::class,
+        Commands\SendEmailsActualizeFrequency::class
     ];
 
     /**
@@ -66,6 +68,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('snapshot:daily_metrics')->dailyAt('21:00');
         $schedule->command('snapshot:daily_metrics_consolidated')->dailyAt('22:00');
         $schedule->command('snapshot:daily_metrics_full_mysql')->dailyAt('23:00');
+        $schedule->command('maintenance:send_emails_actualize_frequency')->dailyAt('00:00');
     }
 
 

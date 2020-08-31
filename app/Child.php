@@ -37,11 +37,14 @@ use BuscaAtivaEscolar\Search\Interfaces\Searchable;
 use Carbon\Carbon;
 use Geocoder\Geocoder;
 use Geocoder\Model\Address;
+use Geocoder\Provider\LocaleTrait;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Log;
+
+use BuscaAtivaEscolar\Traits\LocationHereTrait;
 
 /**
  * @property int $id
@@ -94,6 +97,8 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     use Sortable;
 
     use AggregatedBySearchDocument;
+
+    use LocationHereTrait;
 
     const STATUS_OUT_OF_SCHOOL = "out_of_school";
     const STATUS_OBSERVATION = "in_observation";
@@ -430,35 +435,49 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
      */
     public function updateCoordinatesThroughGeocoding($rawAddress)
     {
-        $geocoder = app('geocoder');
-        /* @var $geocoder Geocoder */
-        $address = null;
+//        $geocoder = app('geocoder');
+//        /* @var $geocoder Geocoder */
+//        $address = null;
+//        $endPoint = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
+//        $key = env('HERE_API_KEY');
+//        $client = new \GuzzleHttp\Client();
+//        $url = $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key;
 
-        try {
-            $address = $geocoder->geocode(str_replace(" ", "+", $rawAddress))->get()->first();
-            /* @var $address Address */
-        } catch (\Exception $ex) {
-            return null;
-            //Log::error("Failed to geocode child (id={$this->id}) coords with address '{$rawAddress}': " . $ex->getMessage());
-        }
+//        $address = null;
+//        $endPoint = "https://geocoder.ls.hereapi.com/6.2/geocode.json";
+//        $key = env('HERE_API_KEY');
+//        $client = new \GuzzleHttp\Client();
+//        $url = $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key;
+//
+//        $request = $client->request('GET', $endPoint . '?searchtext=' . $rawAddress . '&gen=9&apiKey=' . $key);
+//        $stream = json_decode($request->getBody()->getContents());
+//        $location = $stream->Response->View[0]->Result[0]->Location;
 
-        if ($address->getCountry() == 'Brasil') {
-            $this->update([
-                'lat' => ($address) ? $address->getLatitude() : null,
-                'lng' => ($address) ? $address->getLongitude() : null,
-                'map_region' => ($address) ? $address->getSubLocality() : null,
-                'map_geocoded_address' => ($address) ? $address->toArray() : null,
-            ]);
-        } else {
+        $location = $this->getLocationByRawAddress($rawAddress);
+
+        if($location){
+            if ($location->Address->Country == 'BRA') {
+                $this->update([
+                    'lat' => ($location->DisplayPosition) ? $location->DisplayPosition->Latitude : null,
+                    'lng' => ($location->DisplayPosition) ? $location->DisplayPosition->Longitude : null,
+                    'map_geocoded_address' => ($location) ? $location : null,
+                ]);
+            } else {
+                $this->update([
+                    'lat' => null,
+                    'lng' => null,
+                    'map_geocoded_address' => null,
+                ]);
+            }
+        }else{
             $this->update([
                 'lat' => null,
                 'lng' => null,
-                'map_region' => null,
                 'map_geocoded_address' => null,
             ]);
         }
 
-        return $address;
+        return $location;
     }
 
     // ------------------------------------------------------------------------
@@ -494,7 +513,9 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
     public function buildSearchDocument(): array
     {
 
-        if (!$this->exists) return null;
+        if (!$this->exists){
+            return 'null';
+        }
 
         $data = [];
 

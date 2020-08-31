@@ -1,23 +1,18 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mansouza
- * Date: 3/14/2019
- * Time: 4:51 PM
- */
+
 
 namespace BuscaAtivaEscolar\Jobs;
 
 
 use BuscaAtivaEscolar\SMS\Handlers\Zenvia;
 
-class ProcessSmsSchool
+class ProcessSmsFrequencySchool
 {
 
     private $school;
 
     /**
-     * ProcessSmsSchool constructor.
+     * ProcessSmsFrequencySchool constructor.
      * @param $school
      */
     public function __construct($school)
@@ -36,6 +31,7 @@ class ProcessSmsSchool
 
     private function getMessage()
     {
-        return "Por gentileza, acesse o email ".strtolower($this->school->school_email)." e contribua para localizar as criancas e/ou adolescentes fora da escola.";
+        return "Por gentileza, acesse o email ".strtolower($this->school->school_email)." e contribua para o cadastro das turmas da sua escola e o acompanhamento da frequência escolar dos estudantes.";
     }
+
 }
