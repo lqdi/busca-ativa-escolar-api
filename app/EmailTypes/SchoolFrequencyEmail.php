@@ -2,22 +2,19 @@
 /**
  * Created by PhpStorm.
  * User: manoelfilho
- * Date: 2019-03-10
- * Time: 15:02
  */
 
 namespace BuscaAtivaEscolar\EmailTypes;
 
 use BuscaAtivaEscolar\EmailJob;
+use BuscaAtivaEscolar\Mail\SchoolFrequencyNotification;
 use BuscaAtivaEscolar\School;
 use Illuminate\Support\Facades\Mail;
-use BuscaAtivaEscolar\Mail\SchoolEducacensoNotification;
 
-
-class SchoolEducacensoEmail implements SendEmail
+class SchoolFrequencyEmail implements SendEmail
 {
 
-    const TYPE = "school_educacenso_email";
+    const TYPE = "school_frequency_email";
 
     /**
      * @var int The number of JOB
@@ -60,7 +57,7 @@ class SchoolEducacensoEmail implements SendEmail
 
 
         try {
-            $message = new SchoolEducacensoNotification($this->school, $this->job_id);
+            $message = new SchoolFrequencyNotification($this->school, $this->job_id);
 
             Mail::to($this->school_email)
                 ->cc($this->email_user)
