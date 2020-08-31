@@ -288,9 +288,12 @@ class SchoolsController extends BaseController
 
     public function getAll(){
 
-        $tenant = $this->currentUser()->tenant;
-
-        $query = School::with('emailJobs')->where('city_id', '=', $tenant->city_id);
+        if($this->currentUser()->isRestrictedToUF()) {
+            $query = School::with('emailJobs')->where('uf', '=', $this->currentUser()->uf );
+        }else{
+            $tenant = $this->currentUser()->tenant;
+            $query = School::with('emailJobs')->where('city_id', '=', $tenant->city_id);
+        }
 
         $search = request('search', '');
         if( $search != ''){
