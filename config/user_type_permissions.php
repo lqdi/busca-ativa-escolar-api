@@ -217,6 +217,7 @@ return [
         //'alerts.spawn',
         'preferences',
         'notifications',
+        'school.list'
     ],
 
     BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR => [
