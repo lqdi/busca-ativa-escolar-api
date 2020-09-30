@@ -15,6 +15,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 });
 
 Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
+    Route::post('/open/schools', 'Resources\SchoolsController@openSearch');
+});
+
+Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	Route::group(['middleware' => 'jwt.auth'], function() { // Authenticated routes
 
