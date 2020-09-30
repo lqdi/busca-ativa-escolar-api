@@ -112,7 +112,8 @@ return [
         'cases.step.1a_observacao',
         'cases.step.2a_observacao',
         'cases.step.3a_observacao',
-        'cases.step.4a_observacao'
+        'cases.step.4a_observacao',
+        'school.list'
     ],
 
     BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL => [
@@ -216,6 +217,7 @@ return [
         //'alerts.spawn',
         'preferences',
         'notifications',
+        'school.list'
     ],
 
     BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR => [

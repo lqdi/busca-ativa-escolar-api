@@ -27,24 +27,32 @@ class GroupSettings extends SerializableObject {
 		40 =>  true, // Criança ou adolescente em abrigo
 		50 =>  true, // Criança ou adolescente em situação de rua
 		60 =>  true, // Criança ou adolescente vítima de abuso / violência sexual
+        61 => true, // Crianças ou adolescentes migrantes estrangeiros
 		70 =>  true, // Evasão porque sente a escola desinteressante
 		80 =>  true, // Falta de documentação da criança ou adolescente
 		90 =>  true, // Falta de infraestrutura escolar
 		100 =>  true, // Falta de transporte escolar
 		110 =>  true, // Gravidez na adolescência
-		111 =>  true, // Gravidez na adolescência
+		111 =>  true, // Infrequência escolar reportada pela gestão escolar ou pela rede de ensino
 		120 =>  true, // Preconceito ou discriminação racial
 		130 =>  true, // Trabalho infantil
 		140 =>  true, // Uso, abuso ou dependência de substâncias psicoativas
 		150 =>  true, // Violência familiar
 		160 =>  true, // Violência na escola
+        170 =>  true, // Mudança de domicílio, viagem ou deslocamentos frequentes
+        180 =>  true, // Violência no território
 		500 =>  false, // Importados do Educacenso
-		61 =>  true, // Crianças ou adolescentes migrantes estrangeiros
+		600 => false // Evasão e/ou infrequência reportada pela escola ou município
+
+        //O ACRESCIMO DE UM CAMPO AQUI EXIGE UMA CORRECAO NO UPDATE SETTINGS DOS GRUPOS EM GROUPS-CONTROLLER!
+        //OS DO TIPO FALSE DEVEM SER VALIDADOS NAS EDICOES DAS CONFIGURACOES DE GRUPOS
+        //E COLOCADOS NO CONSTRUTOR DESSA CLASSE
 	];
 
 	public function __construct(Group $group) {
-		if($group->is_primary) { // Only primary group gets to act on cause 500
+		if($group->is_primary) { // Only primary group gets to act on cause 500 and 600
 			$this->alerts[500] = true;
+            $this->alerts[600] = true;
 		}
 	}
 

@@ -33,7 +33,7 @@ class ClassFrequencyNotification extends Mailable
 
             ->line($this->school->name. " - INEP: " .$this->school->id)
 
-            ->line("A secretaria de educação do seu município solicita o registro de frequência das turmas de sua escola.")
+            ->line("O Comitê Gestor da Busca Ativa Escolar de seu município solicita o registro de acompanhamento de frequência das turmas cadastradas por sua escola.")
 
             ->action('Cadastrar frequências', $this->getUrlToken());
 

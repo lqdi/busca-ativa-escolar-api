@@ -14,6 +14,7 @@
 namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 use Auth;
+use BuscaAtivaEscolar\City;
 use function Aws\map;
 use BuscaAtivaEscolar\ActivityLog;
 use BuscaAtivaEscolar\Attachment;
@@ -109,12 +110,16 @@ class ChildrenController extends BaseController  {
 			if(!$group) $group = $tenant->primaryGroup;
 			if(!$group) $group = new Group();
 
+			//adiciona os motivos de alertas 500 e 600 a supervisores da educacao sempre
+            $handledAlertCauses = $group->getSettings()->getHandledAlertCauses();
+            if ($group->is_primary) { array_unshift($handledAlertCauses, 500, 600 ); }
+
 			$filters = [
 				'assigned_user_id' => ['type' => 'term', 'search' => Auth::user()->id],
 
                 // Essa regra está sendo desativada, pois não é possível retornar o getHandledCaseCauses dos grupos ...
                 //'case_cause_ids' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledCaseCauses()],
-				'alert_cause_id' => ['type' => 'terms', 'search' => $group->getSettings()->getHandledAlertCauses()],
+				'alert_cause_id' => ['type' => 'terms', 'search' => $handledAlertCauses],
 			];
 
 
@@ -384,6 +389,8 @@ class ChildrenController extends BaseController  {
 
 	public function getMap() {
 
+        $city_id = request('city_id');
+
 		$mapCenter = ['lat' => '-13.5013846', 'lng' => '-51.901559', 'zoom' => 4];
 
 		if($this->currentUser()->isRestrictedToTenant() && !$this->currentUser()->isRestrictedToUF()) {
@@ -397,14 +404,27 @@ class ChildrenController extends BaseController  {
 
 		// TODO: cache this (w/ tenant ID)
 
-		$coordinates = Child::query()
-			->whereIn('child_status', ['out_of_school', 'in_observation'])
-			->whereNotNull('lat')
-			->whereNotNull('lng')
-			->get(['id', 'lat', 'lng'])
-			->map(function ($child) {
-				return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
-			});
+		if ($city_id == null){
+            $coordinates = Child::query()
+                ->whereIn('child_status', ['out_of_school', 'in_observation'])
+                ->whereNotNull('lat')
+                ->whereNotNull('lng')
+                ->get(['id', 'lat', 'lng'])
+                ->map(function ($child) {
+                    return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
+                });
+        }else{
+            $city_ibge = City::where('ibge_city_id', '=', intval($city_id))->first();
+            $coordinates = Child::query()
+                ->where('city_id', '=', $city_ibge->id)
+                ->whereIn('child_status', ['out_of_school', 'in_observation'])
+                ->whereNotNull('lat')
+                ->whereNotNull('lng')
+                ->get(['id', 'lat', 'lng'])
+                ->map(function ($child) {
+                    return ['id' => $child->id, 'latitude' => $child->lat, 'longitude' => $child->lng];
+                });
+        }
 
 		return response()->json([
 			'center' => [

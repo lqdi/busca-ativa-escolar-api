@@ -33,7 +33,7 @@ class SchoolFrequencyNotification extends Mailable
 
             ->line("Precisamos da sua colaboração!")
 
-            ->line("A secretaria de educação do seu município solicita o cadastro das turmas de sua escola para o controle de frequência.")
+            ->line("O Comitê Gestor da Busca Ativa Escolar do seu município solicita o cadastro das turmas da sua escola para o acompanhamento da frequência dos estudantes.")
 
             ->action('Cadastrar turmas', $this->getUrlToken());
 

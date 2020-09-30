@@ -9,7 +9,13 @@ Route::group(['prefix' => 'auth'], function () {
 
 Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
     Route::resource('/classes', 'Resources\ClasseController');
+    Route::get('/frequencies/{id}', 'Resources\ClasseController@frequencies');
     Route::put('/frequency/{id}', 'Resources\ClasseController@updateFrequency');
+    Route::put('/frequencies', 'Resources\ClasseController@updateFrequencies');
+});
+
+Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
+    Route::post('/open/schools', 'Resources\SchoolsController@openSearch');
 });
 
 Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
