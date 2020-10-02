@@ -56,7 +56,7 @@ class SchoolsController extends BaseController
         $parameters['name'] = Str::ascii($parameters['name']);
 
         $query = ElasticSearchQuery::withParameters($parameters)
-            ->searchTextInColumns('name', ['name', 'id'])
+            ->searchTextInColumns('name', ['name', 'id', 'uf', 'city_id'])
             ->filterByTerm('city_id', false)
             ->filterByTerm('uf', false)
             ->getQuery();
