@@ -15,7 +15,7 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
-	    \Barryvdh\Cors\HandleCors::class
+        \Fruitcake\Cors\HandleCors::class,
     ];
 
     /**

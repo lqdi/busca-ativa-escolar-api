@@ -1,4 +1,7 @@
 <?php
+
+use Illuminate\Support\Facades\Route;
+
 Route::get('/versions', function() {
 	return response()->json(['available_versions' => ['v1']]);
 });
