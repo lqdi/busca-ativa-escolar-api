@@ -1,0 +1,99 @@
+Etapas para o upgrade 5.3 para 8
+
+Dependencias obrigatórias:
+
+PHP >= 7.3		OK
+BCMath PHP Extension	OK
+Ctype PHP Extension	OK
+Fileinfo PHP Extension	OK
+JSON PHP Extension	OK
+Mbstring PHP Extension	OK
+OpenSSL PHP Extension	OK
+PDO PHP Extension	OK
+Tokenizer PHP Extension	OK
+XML PHP Extension	OK
+
+
+---------------------------------------------------------------
+
+LOGS DE ERROS INICIAIS:
+
+1- 
+
+[2020-10-14 14:08:42] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/vagrant/code/busca-ativa-escolar-api/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:192)
+[stacktrace]
+#0 /home/vagrant/code/busca-ativa-escolar-api/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(118): Illuminate\\Log\\LogManager->resolve(NULL)
+#1 /home/vagrant/code/busca-ativa-escolar-api/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(98): Illuminate\\Log\\LogManager->get(NULL)
+#2 /home/vagrant/code/busca-ativa-escolar-api/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(547): Illuminate\\Log\\LogManager->driver()
+#3 /home/vagrant/code/busca-ativa-escolar-api/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(237): Illuminate\\Log\\LogManager->error('Declaration of ...', Array)
+#4 /home/vagrant/code/busca-ativa-escolar-api/app/Exceptions/Handler.php(37): Illuminate\\Foundation\\Exceptions\\Handler->report(Object(Symfony\\Component\\ErrorHandler\\Error\\FatalError))
+#5 /home/vagrant/code/busca-ativa-escolar-api/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(88): BuscaAtivaEscolar\\Exceptions\\Handler->report(Object(Symfony\\Component\\ErrorHandler\\Error\\FatalError))
+#6 /home/vagrant/code/busca-ativa-escolar-api/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php(130): Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleException(Object(Symfony\\Component\\ErrorHandler\\Error\\FatalError))
+#7 [internal function]: Illuminate\\Foundation\\Bootstrap\\HandleExceptions->handleShutdown()
+#8 {main}
+"} 
+
+2 -
+
+[2020-10-14 14:08:42] laravel.ERROR: Declaration of Carbon\Translator::setLocale($locale) must be compatible with Symfony\Contracts\Translation\LocaleAwareInterface::setLocale(string $locale) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Declaration of Carbon\\Translator::setLocale($locale) must be compatible with Symfony\\Contracts\\Translation\\LocaleAwareInterface::setLocale(string $locale) at /home/vagrant/code/busca-ativa-escolar-api/vendor/nesbot/carbon/src/Carbon/Translator.php:18)
+[stacktrace]
+#0 {main}
+"} 
+
+
+------------------------------------------------------------------
+
+Solucoes:
+
+1 -
+
+A nova versao do Laravel 8 tem um arquivo específico para a configuracoes de logs presente em config/logging.php. Usei a versão padrão da instalação para teste.
+
+
+2 -
+
+Mesmo com a mudanca do PHP CLI devemos mudar o caminho do PHP na configuracao do nginx da API:
+Mudando a versao do PHP
+	sudo update-alternatives --config php
+
+Mudar de 
+	fastcgi_pass unix:/var/run/php/php7.1-fpm.sock; 
+para 
+	fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+
+No HOMESTEAD.yaml
+
+	muda para 
+
+	- map: api.busca-ativa-escolar.test
+     	to: /home/vagrant/code/busca-ativa-escolar-api/public
+      	php: "7.3"
+
+-------------------------------------------------------------------
+
+
+LOGS DE ERROS
+
+3 -
+
+Illuminate\Contracts\Container\BindingResolutionException
+Target class [Barryvdh\Cors\HandleCors] does not exist.
+
+
+SOLUCAO:
+
+	composer dump-autoload
+
+	composer require fruitcake/laravel-cors
+
+Adicionar a classe abaixo no array $middleware em app/Http/Kernel.php
+
+	protected $middleware = [
+        	\Fruitcake\Cors\HandleCors::class, //Adicionar essa...
+    	];
+
+---------------------------------------------------------------------
+
+Testes da plataforma
+
+1 - Rever uso do JWT e authenticacao
