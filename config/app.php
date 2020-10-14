@@ -171,7 +171,7 @@ return [
 	    Barryvdh\Debugbar\ServiceProvider::class,
 	    Maatwebsite\Excel\ExcelServiceProvider::class,
 	    Intervention\Image\ImageServiceProvider::class,
-	    Tymon\JWTAuth\Providers\LumenServiceProvider::class,
+	    Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 	    Ixudra\Curl\CurlServiceProvider::class,
 	    Spatie\Fractal\FractalServiceProvider::class,
 //	    Barryvdh\Cors\ServiceProvider::class,
