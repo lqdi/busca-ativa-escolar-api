@@ -171,12 +171,12 @@ return [
 	    Barryvdh\Debugbar\ServiceProvider::class,
 	    Maatwebsite\Excel\ExcelServiceProvider::class,
 	    Intervention\Image\ImageServiceProvider::class,
-	    Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
+	    Tymon\JWTAuth\Providers\LumenServiceProvider::class,
 	    Ixudra\Curl\CurlServiceProvider::class,
 	    Spatie\Fractal\FractalServiceProvider::class,
-	    Barryvdh\Cors\ServiceProvider::class,
+//	    Barryvdh\Cors\ServiceProvider::class,
 	    Geocoder\Laravel\Providers\GeocoderService::class,
-	    Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
+//	    Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
 	    Jenssegers\Agent\AgentServiceProvider::class,
 
 
