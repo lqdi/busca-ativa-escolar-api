@@ -92,8 +92,29 @@ Adicionar a classe abaixo no array $middleware em app/Http/Kernel.php
         	\Fruitcake\Cors\HandleCors::class, //Adicionar essa...
     	];
 
+Remover o arquivo config/cors.php
+
+Publicar o novo arquivo:
+
+    php artisan vendor:publish --tag="cors"
+
 ---------------------------------------------------------------------
 
 Testes da plataforma
 
 1 - Rever uso do JWT e authenticacao
+
+Aplicacao nao localiza o Tymon\JWTAuth\Providers\JWT\NamshiAdapter.
+
+A localização de todas as classes relacionadas ao projeto Tymon JWT foram modificadas. A publicacao do arquivo de configuracao do jwt precisa ser refeita com o código:
+
+    php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider" --force
+
+    Atualizar a classe USER.php para assinar os metodos de use Tymon\JWTAuth\Contracts\JWTSubject;
+
+        class User extends Authenticatable implements JWTSubject {
+
+    Correcao dos métodos override da classe pai Authenticable
+
+        sendPasswordResetNotification //Não há necesssidade de reescrever
+
