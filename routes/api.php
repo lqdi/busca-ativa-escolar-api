@@ -11,6 +11,7 @@ Route::group(['prefix' => 'auth'], function () {
 });
 
 Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
+
     Route::resource('/classes', 'Resources\ClasseController');
     Route::get('/frequencies/{id}', 'Resources\ClasseController@frequencies');
     Route::put('/frequency/{id}', 'Resources\ClasseController@updateFrequency');

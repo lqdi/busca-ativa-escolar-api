@@ -76,7 +76,7 @@ class StaticDataController extends BaseController {
 			if($method == "OPTIONS") continue;
 
 			foreach($routes as $route) {
-				$path = $route->getPath();
+				$path = $route->getName();
 				if(substr($path, 0, 7) !== $prefix) continue;
 
 				$path = substr($path, 7);
