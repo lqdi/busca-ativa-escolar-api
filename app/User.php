@@ -19,14 +19,23 @@ use BuscaAtivaEscolar\Settings\UserSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
 use BuscaAtivaEscolar\Traits\Data\Sortable;
 use BuscaAtivaEscolar\Traits\Data\TenantScopedModel;
-use Illuminate\Auth\Authenticatable;
+
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+
+// Apesar de existir aqui, essas classes não implementam os métodos que teoricamente deveriam implementar
+
+// use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+// use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+
+use Tymon\JWTAuth\Contracts\JWTSubject;
+
+//use Illuminate\Auth\Authenticatable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
 
 /**
  * @property int $id
@@ -67,9 +76,9 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
  * @property string $remember_token
  * @property-read UserSettings $settings
  */
-class User extends Model implements AuthenticatableContract, AuthorizableContract {
+class User extends Authenticatable implements JWTSubject {
 
-	use Authenticatable;
+	//use Authenticatable;
 	use Authorizable;
 	use IndexedByUUID;
 	use Notifiable;
@@ -465,13 +474,13 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return env('APP_PANEL_URL')."/password_reset?email={$this->email}&token={$this->remember_token}";
 	}
 
-	/**
-	 * Generates a token and sends an e-mail to the user requesting the password reset.
-	 */
-	public function sendPasswordResetNotification() {
-		$this->generatePasswordResetToken();
-		$this->notify(new PasswordReset());
-	}
+//	/**
+//	 * Generates a token and sends an e-mail to the user requesting the password reset.
+//	 */
+//	public function sendPasswordResetNotification() {
+//		$this->generatePasswordResetToken();
+//		$this->notify(new PasswordReset());
+//	}
 
 	/**
 	 * Generates and persists a token for the password reset.
@@ -610,4 +619,30 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 	public static function findByGroupIDs($groupIDs) {
 		return self::query()->whereIn('group_id', $groupIDs)->get();
 	}
+
+
+
+    // Funcoes implementadas de JWTSubject
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+    // JWTSubject
 }
