@@ -63,13 +63,26 @@ class SchoolsController extends BaseController
 
         $results = $search->search(new School(), $query, 12);
 
-        return fractal()
-            ->item($results)
-            ->transformWith(new SearchResultsTransformer(SchoolSearchResultsTransformer::class, $query))
-            ->serializeWith(new SimpleArraySerializer())
-            ->parseIncludes(request('with'))
-            ->respond();
 
+    }
+
+    public function openSearch(Search $search)
+    {
+        $parameters = request()->only(['id', 'uf', 'ibge_city_id', 'name']);
+        $parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
+        $parameters['name'] = Str::ascii($parameters['name']);
+
+        $query = ElasticSearchQuery::withParameters($parameters)
+            ->searchTextInColumns('name', ['name', 'id', 'ibge_city_id'])
+            ->filterByTerm('ibge_city_id', false)
+            ->filterByTerm('uf', false)
+            ->getQuery();
+
+        $results = $search->search(new School(), $query, 12);
+
+        $values =$this->includeResults($results);
+
+        return response()->json($values, 200);
     }
 
 
@@ -82,19 +95,20 @@ class SchoolsController extends BaseController
     {
         $schools = $request->request;
 
-        $user = auth()->user(); /* @var $user User */
+        $user = auth()->user();
+        /* @var $user User */
 
         foreach ($schools as $key => $school) {
 
-            if( $school['school_email'] == null OR $school['school_email'] == "" ){
+            if ($school['school_email'] == null or $school['school_email'] == "") {
                 $data['status'] = "error";
                 $data['message'] = "Email inválido";
                 return response()->json($data, 403);
             }
 
             $school = School::whereSchoolEmail($school['school_email'])->first();
-            
-            if($school->token == null){
+
+            if ($school->token == null) {
                 $school->token = str_random(40);
                 $school->save();
             }
@@ -102,7 +116,7 @@ class SchoolsController extends BaseController
             $job = EmailJob::createFromType(SchoolEducacensoEmail::TYPE, $user, $school);
             Queue::pushOn('emails', new ProcessEmailJob($job));
 
-            if($school->school_cell_phone != null && $school->school_cell_phone != ""){
+            if ($school->school_cell_phone != null && $school->school_cell_phone != "") {
                 Queue::pushOn('sms_school', new ProcessSmsEducacensoSchool($school));
             }
 
@@ -114,15 +128,17 @@ class SchoolsController extends BaseController
         return response()->json($data, 200);
     }
 
-    public function sendNotificationsFrequencySchool(Request $request){
+    public function sendNotificationsFrequencySchool(Request $request)
+    {
 
         $schools = $request->request;
 
-        $user = auth()->user(); /* @var $user User */
+        $user = auth()->user();
+        /* @var $user User */
 
         foreach ($schools as $key => $school) {
 
-            if( $school['school_email'] == null OR $school['school_email'] == "" ){
+            if ($school['school_email'] == null or $school['school_email'] == "") {
                 $data['status'] = "error";
                 $data['message'] = "Email inválido";
                 return response()->json($data, 403);
@@ -130,7 +146,7 @@ class SchoolsController extends BaseController
 
             $school = School::whereSchoolEmail($school['school_email'])->first();
 
-            if($school->token == null){
+            if ($school->token == null) {
                 $school->token = str_random(40);
                 $school->save();
             }
@@ -140,7 +156,7 @@ class SchoolsController extends BaseController
             $job1 = new ProcessEmailJob($job);
             $job1->handle();
 
-            if($school->school_cell_phone != null && $school->school_cell_phone != ""){
+            if ($school->school_cell_phone != null && $school->school_cell_phone != "") {
                 //Queue::pushOn('sms_school', new ProcessSmsFrequencySchool($school));
                 $job2 = new ProcessSmsFrequencySchool($school);
                 $job2->handle();
@@ -158,7 +174,8 @@ class SchoolsController extends BaseController
      * @param School $school
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(School $school){
+    public function update(School $school)
+    {
 
         $input = request()->all();
         $school = School::findOrFail((int)$input['id']);
@@ -211,7 +228,7 @@ class SchoolsController extends BaseController
 
         $qtd_schools = count($schools_array_id);
 
-        if ($qtd_schools == 0){
+        if ($qtd_schools == 0) {
             array_push($schools_array_id, 0);
         }
 
@@ -219,8 +236,8 @@ class SchoolsController extends BaseController
 
         $total_pages =
             $pagination->total % $pagination->per_page > 0 ?
-            (int) ($pagination->total / $pagination->per_page + 1) :
-            $pagination->total / $pagination->per_page;
+                (int)($pagination->total / $pagination->per_page + 1) :
+                $pagination->total / $pagination->per_page;
 
         $pagination->total_pages = $total_pages;
 
@@ -229,25 +246,25 @@ class SchoolsController extends BaseController
         $cursor = $this->getCursor($pagination->per_page, $qtd_schools, $pagination->current_page);
 
         $schools = DB::select(
-            "select ".
-            "sc.id, sc.name, sc.city_name, sc.uf, sc.school_cell_phone, sc.school_phone, sc.school_email, ".
-            "count(csp.school_last_id) as count_children, ".
-            "count(case when csa.place_address is not null and csa.place_neighborhood is not null then 0 end) as count_with_cep ".
-            "from schools as sc ".
-            "inner join case_steps_pesquisa as csp on sc.id = csp.school_last_id ".
-            "inner join case_steps_alerta as csa on csp.child_id = csa.child_id ".
-            "inner join children as ch on ch.id = csa.child_id ".
-            "where sc.id in (".implode(",",$schools_array_id).") ".
-            "and ch.educacenso_year = ".request('year_educacenso', 2018)." ".
+            "select " .
+            "sc.id, sc.name, sc.city_name, sc.uf, sc.school_cell_phone, sc.school_phone, sc.school_email, " .
+            "count(csp.school_last_id) as count_children, " .
+            "count(case when csa.place_address is not null and csa.place_neighborhood is not null then 0 end) as count_with_cep " .
+            "from schools as sc " .
+            "inner join case_steps_pesquisa as csp on sc.id = csp.school_last_id " .
+            "inner join case_steps_alerta as csa on csp.child_id = csa.child_id " .
+            "inner join children as ch on ch.id = csa.child_id " .
+            "where sc.id in (" . implode(",", $schools_array_id) . ") " .
+            "and ch.educacenso_year = " . request('year_educacenso', 2018) . " " .
             //"and csa.place_cep is null ".
-            "group by sc.id ".
-            "limit ".$cursor.", ".request('max', 5).""
+            "group by sc.id " .
+            "limit " . $cursor . ", " . request('max', 5) . ""
         );
 
         //add a array of emailjobs to each school of the last query
-        array_map(function ($school){
-           $school->emailJob = EmailJob::where('school_id', '=', $school->id)->get()->toArray();
-           return $school;
+        array_map(function ($school) {
+            $school->emailJob = EmailJob::where('school_id', '=', $school->id)->get()->toArray();
+            return $school;
         }, $schools);
 
         return response()->json(
@@ -260,49 +277,51 @@ class SchoolsController extends BaseController
     }
 
     //only for all_educacenso method
-    public function getCursor($limit, $interval, $point){
+    public function getCursor($limit, $interval, $point)
+    {
 
-        if($interval == 0) return 0;
+        if ($interval == 0) return 0;
 
         $final_array = [];
         $actual_array = [];
 
-        for($i = 0; $i < $interval; $i++){
-            if(count($actual_array) <= $limit){
+        for ($i = 0; $i < $interval; $i++) {
+            if (count($actual_array) <= $limit) {
                 array_push($actual_array, $i);
             }
-            if(count($actual_array) == $limit){
+            if (count($actual_array) == $limit) {
                 array_push($final_array, $actual_array);
                 $actual_array = [];
             }
         }
 
-        if(count($actual_array) > 0 AND count($actual_array) < $limit){
+        if (count($actual_array) > 0 and count($actual_array) < $limit) {
             array_push($final_array, $actual_array);
         }
 
-        $position = $final_array[$point-1][0];
+        $position = $final_array[$point - 1][0];
 
         return $position;
     }
 
-    public function getAll(){
+    public function getAll()
+    {
 
-        if($this->currentUser()->isRestrictedToUF()) {
-            $query = School::with('emailJobs')->where('uf', '=', $this->currentUser()->uf );
-        }else{
+        if ($this->currentUser()->isRestrictedToUF()) {
+            $query = School::with('emailJobs')->where('uf', '=', $this->currentUser()->uf);
+        } else {
             $tenant = $this->currentUser()->tenant;
             $query = School::with('emailJobs')->where('city_id', '=', $tenant->city_id);
         }
 
         $search = request('search', '');
-        if( $search != ''){
+        if ($search != '') {
             $query->where('id', '=', intval($search));
         }
 
         $max = request('max', 128);
-        if($max > 128) $max = 128;
-        if($max < 5) $max = 5;
+        if ($max > 128) $max = 128;
+        if ($max < 5) $max = 5;
 
         $paginator = $query->paginate($max);
         $collection = $paginator->getCollection();
@@ -315,6 +334,24 @@ class SchoolsController extends BaseController
             ->parseIncludes(request('with'))
             ->respond();
 
+    }
+
+    private function includeResults($result) {
+        if(!isset($result['hits'])) return null;
+        if(!isset($result['hits']['hits'])) return null;
+        $values = $result['hits']['hits'];
+
+        $arrayValues = [];
+
+        foreach ($values as $value) {
+            $objet = new \stdClass();
+            $objet->id = $value['_id'];
+            $objet->name = $value['_source']['name'];
+            $objet->ibge_id = $value['_source']['city_ibge_id'];
+            $objet->city_name = $value['_source']['city_name'];
+            array_push($arrayValues, $objet);
+        }
+        return $arrayValues;
     }
 
 }
