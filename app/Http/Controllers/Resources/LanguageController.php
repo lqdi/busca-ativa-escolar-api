@@ -31,7 +31,7 @@ class LanguageController extends BaseController {
 		// TODO: cache this
 
 		$timestamp = date("Y-m-d\TH:i:s");
-		$database = array_dot($base);
+		$database = Arr::dot($base);
 
 		return response()->json([
 			'version' => 'v1',
