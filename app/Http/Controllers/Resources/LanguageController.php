@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use Illuminate\Support\Arr;
 use Lang;
 
 class LanguageController extends BaseController {

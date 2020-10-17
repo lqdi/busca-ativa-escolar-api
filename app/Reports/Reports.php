@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
 use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use Elasticsearch\Client;
+use Illuminate\Support\Arr;
 
 class Reports {
 
