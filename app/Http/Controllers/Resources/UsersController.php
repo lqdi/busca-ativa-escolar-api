@@ -61,9 +61,9 @@ class UsersController extends BaseController
 
         }
 
-        if (!empty(request()->get('group_id'))) {
+        if (!empty(request()->get('group_id')))
             $query->where('group_id', request('group_id'));
-        }
+
 
         //filter for visitantes nacionais e estaduais
 
@@ -85,13 +85,12 @@ class UsersController extends BaseController
 
         }
 
-        if (request()->has('email')) $query->where('email', 'LIKE', request('email') . '%');
+        if (!empty(request()->get('email'))) $query->where('email', 'LIKE', request('email') . '%');
 
         if (request('show_suspended', false)) $query->withTrashed();
 
-        if (request()->has('sort')) {
+        if (!empty(request()->has('sort')))
             User::applySorting($query, request('sort', []));
-        }
 
         $max = request('max', 128);
         if ($max > 128) $max = 128;
