@@ -41,14 +41,14 @@ class UsersController extends BaseController
         $query = User::with('group');
 
         // If user is global user, they can filter by tenant_id
-        if ($this->currentUser()->isGlobal() && request()->has('tenant_id')) {
+        if ($this->currentUser()->isGlobal() && !empty(request()->get('tenant_id'))) {
             $query->where('tenant_id', request('tenant_id'));
         } else if ($this->currentUser()->isRestrictedToTenant()) {
             $query->where('tenant_id', '!=', 'global');
         }
 
         // If user is global user, they can filter by UF
-        if ($this->currentUser()->isGlobal() && request()->has('uf')) {
+        if ($this->currentUser()->isGlobal() && !empty(request()->get('uf'))) {
             $query->where('uf', request('uf'));
         } else if ($this->currentUser()->isRestrictedToUF()) { // Else, check if they're bound to a UF
             $query->where('uf', $this->currentUser()->uf);
@@ -61,9 +61,9 @@ class UsersController extends BaseController
 
         }
 
-        if (!empty(request()->get('group_id')))
+        if (!empty(request()->get('group_id'))) {
             $query->where('group_id', request('group_id'));
-
+        }
 
         //filter for visitantes nacionais e estaduais
 
@@ -89,8 +89,9 @@ class UsersController extends BaseController
 
         if (request('show_suspended', false)) $query->withTrashed();
 
-        if (!empty(request()->has('sort')))
+        if (!empty(request()->get('sort'))) {
             User::applySorting($query, request('sort', []));
+        }
 
         $max = request('max', 128);
         if ($max > 128) $max = 128;
