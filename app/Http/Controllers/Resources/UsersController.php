@@ -53,37 +53,33 @@ class UsersController extends BaseController
         } else if ($this->currentUser()->isRestrictedToUF()) { // Else, check if they're bound to a UF
             $query->where('uf', $this->currentUser()->uf);
 
-            if( in_array( $this->currentUser()->type, User::$TYPES_VISITANTES_UFS) ){
+            if (in_array($this->currentUser()->type, User::$TYPES_VISITANTES_UFS)) {
                 $query->whereIn('type', User::$UF_VISITANTES_SCOPED_TYPES);
-            }else{
+            } else {
                 $query->whereIn('type', User::$UF_SCOPED_TYPES);
             }
-            
+
         }
 
-        if (request()->has('group_id')) $query->where('group_id', request('group_id'));
+        if (!empty(request()->get('group_id'))) {
+            $query->where('group_id', request('group_id'));
+        }
 
         //filter for visitantes nacionais e estaduais
 
-        if ( request()->has('type') ) {
+        if (!empty(request()->get('type'))) {
 
-            if( request('type') == User::TYPE_VISITANTE_NACIONAL )
-            {
+            if (request('type') == User::TYPE_VISITANTE_NACIONAL) {
                 $query->where('type', '=', USER::TYPE_VISITANTE_NACIONAL_UM);
                 $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_DOIS);
                 $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_TRES);
                 $query->orWhere('type', '=', USER::TYPE_VISITANTE_NACIONAL_QUATRO);
-            }
-
-            elseif ( request('type') == User::TYPE_VISITANTE_ESTADUAL )
-            {
+            } elseif (request('type') == User::TYPE_VISITANTE_ESTADUAL) {
                 $query->where('type', '=', USER::TYPE_VISITANTE_ESTADUAL_UM);
                 $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_DOIS);
                 $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_TRES);
                 $query->orWhere('type', '=', USER::TYPE_VISITANTE_ESTADUAL_QUATRO);
-            }
-
-            else{
+            } else {
                 $query->where('type', request('type'));
             }
 
@@ -136,12 +132,12 @@ class UsersController extends BaseController
         } else if ($this->currentUser()->isRestrictedToUF()) {
             $query->where('uf', $this->currentUser()->uf);
 
-            if( in_array( $this->currentUser()->type, User::$TYPES_VISITANTES_UFS) ){
+            if (in_array($this->currentUser()->type, User::$TYPES_VISITANTES_UFS)) {
                 $query->whereIn('type', User::$UF_VISITANTES_SCOPED_TYPES);
-            }else{
+            } else {
                 $query->whereIn('type', User::$UF_SCOPED_TYPES);
             }
-            
+
         }
 
         if (isset($group_id) && $group_id != null) $query->where('group_id', $group_id);
@@ -379,9 +375,10 @@ class UsersController extends BaseController
         }
     }
 
-	public function reports(){
+    public function reports()
+    {
         $reports = \Storage::allFiles('attachments/users_reports');
-        $finalReports = array_map( function ($file){
+        $finalReports = array_map(function ($file) {
             return [
                 'file' => str_replace("attachments/users_reports/", "", $file),
                 'size' => \Storage::size($file),
@@ -391,24 +388,26 @@ class UsersController extends BaseController
         return response()->json(['status' => 'ok', 'data' => $finalReports]);
     }
 
-    public function getReport(){
+    public function getReport()
+    {
         $nameFile = request('file');
-        if ( !isset($nameFile) ) {
-            return response()->json(['error' => 'Not authorized.'],403);
+        if (!isset($nameFile)) {
+            return response()->json(['error' => 'Not authorized.'], 403);
         }
-        $exists = \Storage::exists("attachments/users_reports/".$nameFile);
-        if ( $exists ){
-            return response()->download(storage_path("app/attachments/users_reports/".$nameFile));
-        }else{
-            return response()->json(['error' => 'Arquivo inexistente.'],403);
+        $exists = \Storage::exists("attachments/users_reports/" . $nameFile);
+        if ($exists) {
+            return response()->download(storage_path("app/attachments/users_reports/" . $nameFile));
+        } else {
+            return response()->json(['error' => 'Arquivo inexistente.'], 403);
         }
-	}
+    }
 
-	public function createReport(){
+    public function createReport()
+    {
 
         dispatch((new ExportUsersJob())->onQueue('export_users'));
 
-	    return response()->json(
+        return response()->json(
             [
                 'msg' => 'Arquivo criado',
                 'date' => Carbon::now()->timestamp
