@@ -13,6 +13,7 @@
 
 namespace BuscaAtivaEscolar\Data;
 
+use Illuminate\Support\Arr;
 
 abstract class StaticObject {
 
@@ -100,7 +101,7 @@ abstract class StaticObject {
 	 * @return string
 	 */
 	public static function getSlugValidationMask($key =  "slug") {
-		return "in:" . join(",", array_pluck(static::$data, $key));
+		return "in:" . join(",", Arr::pluck(static::$data, $key));
 	}
 
 }

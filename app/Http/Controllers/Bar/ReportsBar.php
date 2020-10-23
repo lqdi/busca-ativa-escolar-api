@@ -581,11 +581,11 @@ class ReportsBar extends BaseController
         $final_data = [
             'colors' => [
                 [
-                    "maxvalue" => max($all_values),
+                    "maxvalue" => count($all_values) > 0 ? max($all_values) : 0,
                     "code" => "#e44a00"
                 ],
                 [
-                    "maxvalue" => max($all_values)/2,
+                    "maxvalue" => count($all_values) > 0 ? max($all_values)/2 : 0,
                     "code" => "#f8bd19"
                 ]
             ],
