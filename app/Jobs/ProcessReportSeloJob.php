@@ -2,6 +2,7 @@
 
 namespace BuscaAtivaEscolar\Jobs;
 
+use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Goal;
@@ -194,15 +195,20 @@ class ProcessReportSeloJob implements ShouldQueue
                                     'alert_status' => Child::ALERT_STATUS_ACCEPTED,
                                     'child_status' => Child::STATUS_OUT_OF_SCHOOL
                                 ])->count(),
+                        
                         'Cancelados' =>
-                            Child::whereHas('cases', function ($query){
-                                $query->where(['case_status'=> 'cancelled']);
+                            Rematricula::whereHas('cases', function ($query) {
+                                $query->where(['cancel_reason' => 'city_transfer'])
+                                    ->orWhere(['cancel_reason' => 'death'])
+                                    ->orWhere(['cancel_reason' => 'not_found'])
+                                    ->orWhere(['case_status' => 'interrupted'])
+                                    ->orWhere(['case_status' => 'transferred']);
                             })->where(
                                 [
                                     'tenant_id' => $tenant->id,
-                                    'alert_status' => Child::ALERT_STATUS_ACCEPTED,
-                                    'child_status' => Child::STATUS_CANCELLED
-                                ])->count(),
+                                    'is_completed' => true
+                                ]
+                            )->count(),
 
                         'Concluídos' => $concluidos,
 
