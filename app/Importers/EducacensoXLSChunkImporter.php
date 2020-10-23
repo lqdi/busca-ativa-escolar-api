@@ -12,12 +12,14 @@ use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Data\AlertCause;
+use BuscaAtivaEscolar\Importers\TypeImporters\EducacensoImporter;
 use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
 use Config;
 use Excel;
+use League\CommonMark\Inline\Parser\EscapableParser;
 use Log;
 
 
@@ -71,27 +73,37 @@ class EducacensoXLSChunkImporter
         Log::info("[educacenso_import] Tenant {$this->tenant->name}, file {$this->file}");
         Log::info("[educacenso_import] Loading spreadsheet data into memory ...");
 
-        Config::set('excel.import.startRow', 12);
-        Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
-            1000,
-            function ($results) {
-                foreach ($results->toArray() as $rowNumber => $row) {
-                    if(!array_key_exists('uf', $row)){
-                        Log::info("[educacenso_import] \t no 'UF' keyword found");
-                        throw new \Exception("Arquivo diferente do padrão fornecido pelo Educacenso");
-                    }
-                    Log::info("[educacenso_import] \t Found UF keyword!");
-                    if($row['uf'] == null){
-                        Log::info("[educacenso_import] Found empty line in data block, block has closed!");
-                        break;
-                    }
-                    if(!$this->isThereChild($row)){
-                        $this->parseChildRow($row);
-                    }
-                }
-            },
-            false
-        );
+//        Config::set('excel.import.startRow', 12); NAO EXISTE MAIS
+
+        $importer = new EducacensoImporter();
+        $array_educacenso_model = Excel::toCollection($importer, $this->file);
+
+        foreach ($array_educacenso_model as $ed_model) {
+            Log::info($importer->getChunkOffset());
+        }
+
+//        LARAVEL 5.3
+//
+//        Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
+//            1000,
+//            function ($results) {
+//                foreach ($results->toArray() as $rowNumber => $row) {
+//                    if(!array_key_exists('uf', $row)){
+//                        Log::info("[educacenso_import] \t no 'UF' keyword found");
+//                        throw new \Exception("Arquivo diferente do padrão fornecido pelo Educacenso");
+//                    }
+//                    Log::info("[educacenso_import] \t Found UF keyword!");
+//                    if($row['uf'] == null){
+//                        Log::info("[educacenso_import] Found empty line in data block, block has closed!");
+//                        break;
+//                    }
+//                    if(!$this->isThereChild($row)){
+//                        $this->parseChildRow($row);
+//                    }
+//                }
+//            },
+//            false
+//        );
 
         Log::info("[educacenso_import] Completed parsing all records");
 
