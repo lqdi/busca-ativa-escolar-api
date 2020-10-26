@@ -31,9 +31,9 @@ class CitiesController extends BaseController  {
 
 		$filters = [];
 
-		if(request()->has('uf')) $filters['uf'] = request('uf');
-		if(request()->has('region')) $filters['region'] = request('region');
-		if(request()->has('name')) $filters['name'] = request('name');
+		if(!empty(request()->get('uf'))) $filters['uf'] = request('uf');
+		if(!empty(request()->get('region'))) $filters['region'] = request('region');
+		if(!empty(request()->get('name'))) $filters['name'] = request('name');
 
 		$query = City::search($filters);
 		$results = $query->simplePaginate(64);
