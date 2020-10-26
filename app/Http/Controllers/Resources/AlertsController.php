@@ -40,7 +40,7 @@ class AlertsController extends BaseController {
         }
 
         //filter to name
-        if(request()->has('name')) {
+        if(!empty(request()->get('name'))) {
             array_push($where, ['name', 'LIKE', request('name').'%']);
         }
 
@@ -49,7 +49,7 @@ class AlertsController extends BaseController {
         $stdRequest = null;
 
         //make a filter by json filter (olnly fields from Children)
-        if(request()->has('sort')) {
+        if(!empty(request()->get('sort'))) {
             $stdRequest = json_decode(request('sort'));
             if(property_exists($stdRequest, 'name')){ $query->orderBy('name', $stdRequest->name); }
             if(property_exists($stdRequest, 'risk_level')){ $query->orderBy('risk_level', $stdRequest->risk_level); }
@@ -67,16 +67,16 @@ class AlertsController extends BaseController {
             });
         }
 
-        if( request()->has('submitter_name') || property_exists($stdRequest, 'agent') ) {
+        if(!empty(request()->get('submitter_name')) || property_exists($stdRequest, 'agent') ) {
             $query->whereHas('submitter', function ($sq) use ($stdRequest) {
-                if( request()->has('submitter_name') ) { $sq->where('name', 'LIKE', '%' . request('submitter_name') . '%'); }
+                if(!empty(request()->get('submitter_name'))) { $sq->where('name', 'LIKE', '%' . request('submitter_name') . '%'); }
                 if( property_exists($stdRequest, 'agent') ) { $sq->orderBy('name', $stdRequest->agent); }
             });
         }
 
-        if( request()->has('neighborhood') || property_exists($stdRequest, 'neighborhood') ){
+        if(!empty(request()->get('neighborhood')) || property_exists($stdRequest, 'neighborhood') ){
             $query->whereHas('alert', function ($sq) use ($stdRequest) {
-                if( request()->has('neighborhood') ) { $sq->where('place_neighborhood', 'like', '%' . request('neighborhood') . '%'); }
+                if(!empty(request()->get('neighborhood'))) { $sq->where('place_neighborhood', 'like', '%' . request('neighborhood') . '%'); }
                 if( property_exists($stdRequest, 'neighborhood') ) { $sq->orderBy('place_neighborhood', $stdRequest->neighborhood); }
             });
         }
