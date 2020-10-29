@@ -64,8 +64,6 @@ class ProcessImportJob implements ShouldQueue {
 
 			Log::info("ImportJob({$this->importJob->id}) - completed processing");
 
-            $this->importJob->storeError(null);
-
             $this->importJob->save();
 
 		} catch (\Exception $ex) {

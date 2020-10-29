@@ -66,9 +66,6 @@ class EducacensoController extends BaseController {
 
 			dispatch(new ProcessImportJob($job));
 
-//            $job_final = new ProcessImportJob($job);
-//            $job_final->handle();
-
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
 		}

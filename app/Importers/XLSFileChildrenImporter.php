@@ -6,6 +6,8 @@ use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Data\AlertCause;
+use BuscaAtivaEscolar\Importers\TypeImporters\ChunkEducacensoReadFilter;
+use BuscaAtivaEscolar\Importers\TypeImporters\ChunkMunicipioReadFilter;
 use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
@@ -13,6 +15,7 @@ use Config;
 use Excel;
 use Log;
 use Exception;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class XLSFileChildrenImporter implements Importer
 {
@@ -51,6 +54,8 @@ class XLSFileChildrenImporter implements Importer
     public function handle(ImportJob $job)
     {
 
+        set_time_limit(0);
+
         $this->job = $job;
         $this->total_records = 0;
         $this->tenant = $job->tenant;
@@ -65,33 +70,67 @@ class XLSFileChildrenImporter implements Importer
         Log::info("[xls_import] Tenant {$this->tenant->name}, file {$this->file}");
         Log::info("[xls_import] Loading spreadsheet data into memory ...");
 
-        //percorre para validar os campos
-        Config::set('excel.import.startRow', 1);
-        Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
-            250,
-            function ($results) {
-                foreach ($results->toArray() as $rowNumber => $row) {
-                    $this->validateRow($row);
+        /** Cria o reader do PhpSpreadsheet */
+        $reader = IOFactory::createReader('Xlsx');
+
+        /**  Define a quantidade de linhas para cada chunk  **/
+        $chunkSize = 100;
+
+        /**  Instância de filtro ChunkEducacensoReadFilter **/
+        $chunkFilter = new ChunkMunicipioReadFilter();
+
+        $reader->setReadFilter($chunkFilter);
+
+        /** VALIDACAO DO ARQUIVO -  O limite de linha 65536 está relacionado ao número máximo de linhas de um XLS **/
+        for ($startRow = 0; $startRow <= 65536; $startRow += $chunkSize) {
+
+            $chunkFilter->setRows($startRow, $chunkSize);
+            $maxRow = ($startRow + $chunkSize)-1;
+            $spreadsheet = $reader->load($this->file);
+            $records = $spreadsheet->getActiveSheet()->rangeToArray('A'.$startRow.':K'.$maxRow);
+
+            //validacao do cabecalho
+            if($startRow == 0 AND $this->isHeaderPatterFileMunicipio($records[1]) == false){
+                throw new \Exception("Cabeçalho padrão da importação não localizado");
+            }
+
+            //Validacao de cada bloco do chunk por linha
+            foreach ($records as $key => $record) {
+                if( ($startRow == 0 AND $key > 1) OR ($startRow > 0) ) {
+                    if ($record[0] == null) { goto lastLineValidation; }
+                    $this->validateRow($record);
                 }
-            },
-            false
-        );
+            }
 
-        //percorre para fazer o cadastro
-        Config::set('excel.import.startRow', 1);
-        Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
-            250,
-            function ($results) {
-                foreach ($results->toArray() as $rowNumber => $row) {
+        }
 
-                    if(!$this->isThereChild($row)){
-                        $this->parseChild($row);
+        lastLineValidation:
+        Log::info("Última linha para validacao localizada");
+
+        /** IMPORTACAO DOS DADOS**/
+        for ($startRow = 0; $startRow <= 65536; $startRow += $chunkSize) {
+
+            $chunkFilter->setRows($startRow, $chunkSize);
+            $maxRow = ($startRow + $chunkSize)-1;
+            $spreadsheet = $reader->load($this->file);
+            $records = $spreadsheet->getActiveSheet()->rangeToArray('A'.$startRow.':K'.$maxRow);
+
+            foreach ($records as $key => $record) {
+                if( ($startRow == 0 AND $key > 1) OR ($startRow > 0) ) {
+
+                    if ($record[0] == null) { goto end; }
+
+                    if( $this->isThereChild($record) == false){
+                        $this->parseChild($record);
                     }
 
                 }
-            },
-            false
-        );
+            }
+
+        }
+
+        end:
+        Log::info("Última linha para importacao localizada");
 
         $job->setTotalRecords($this->total_records);
         $job->setDuplicateds($this->duplicateds);
@@ -103,125 +142,78 @@ class XLSFileChildrenImporter implements Importer
 
     public function validateRow($row){
 
-        //Validacoes dos cabecalhos
-        if(!array_key_exists('nome_da_crianca_ou_adolescente', $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Nome do aluno");
-        }
-
-        if(!array_key_exists('data_de_nascimento_formato_ddmmaaaa', $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Data de nascimento");
-        }
-
-        if(!array_key_exists('nome_da_mae_ou_responsavel', $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Nome da mãe ou responsável");
-        }
-
-        if(!array_key_exists('nome_do_pai', $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Nome do pai");
-        }
-
-        if(!array_key_exists('endereco' , $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Endereço");
-        }
-
-        if(!array_key_exists('bairro' , $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Bairro");
-        }
-
-        if(!array_key_exists('uf_sigla_do_estado' , $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna UF");
-        }
-
-        if(!array_key_exists('cidade' , $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Cidade");
-        }
-
-        if(!array_key_exists('cep_somente_numeros' , $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna CEP");
-        }
-
-        if(!array_key_exists('telefone_apenas_numeros_com_ddd' , $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Telefone");
-        }
-
-        if(!array_key_exists('observacoes' , $row)){
-            throw new Exception("Arquivo inválido. Não tem a coluna Observações");
-        }
-
         //Validacoes dos campos obrigatórios
-        if($row['nome_da_crianca_ou_adolescente'] == null){
+        if($row[0] == null){
             Log::info("Nome da criança ou adolescente não informado.");
             throw new Exception("Arquivo inválido. Nome da criança não informado");
         }
 
-        if($row['nome_da_mae_ou_responsavel'] == null){
+        if($row[2] == null){
             Log::info("Nome da mãe ou responsável pela criança ou adolescente não informado.");
             throw new Exception("Arquivo inválido. Nome da mãe ou responsável pela criança não informado");
         }
 
-        if($row['uf_sigla_do_estado'] == null){
+        if($row[6] == null){
             Log::info("Estado não informado.");
             throw new Exception("Arquivo inválido. Estado não informado");
         }
 
-        if($row['cidade'] == null){
+        if($row[7] == null){
             Log::info("Cidade não informada.");
             throw new Exception("Arquivo inválido. Cidade não informada");
         }
 
-        if($row['bairro'] == null){
+        if($row[5] == null){
             Log::info("Bairro não informado.");
             throw new Exception("Arquivo inválido. Bairro não informado");
         }
 
-        if($row['endereco'] == null){
+        if($row[4] == null){
             Log::info("Endereço não informado.");
             throw new Exception("Arquivo inválido. Endereço não informado");
         }
 
-        //Validacoes dos padroes
+        //validacao data de nascimento
+        if ($row[1] != null) {
 
-        //valida data de nascimento
-        if ($row['data_de_nascimento_formato_ddmmaaaa'] != null) {
-
-            if( !preg_match("/[0-9]{2}\/[0-9]{2}\/[0-9]{4}/", trim($row['data_de_nascimento_formato_ddmmaaaa'])) ){
+            if( !preg_match("/[0-9]{2}\/[0-9]{2}\/[0-9]{4}/", trim($row[1])) ){
                 Log::info("A data de nascimento não está no padrão XX/XX/XXXX.");
-                throw new Exception("Arquivo inválido. A data de nascimento não está no padrão XX/XX/XXXX - ".$row['nome_da_crianca_ou_adolescente']);
+                throw new Exception("Arquivo inválido. A data de nascimento não está no padrão XX/XX/XXXX - ".$row[0]);
             }
-            list($dd,$mm,$yyyy) = explode('/', trim($row['data_de_nascimento_formato_ddmmaaaa']));
+            list($dd,$mm,$yyyy) = explode('/', trim($row[1]));
             if(checkdate($mm,$dd,$yyyy) == false){
                 Log::info("Data de nascimento inválida.");
-                throw new Exception("Arquivo inválido. Data de nascimento inválida - ".$row['nome_da_crianca_ou_adolescente']);
+                throw new Exception("Arquivo inválido. Data de nascimento inválida - ".$row[0]);
             }
         }
 
-        //valida telefone
-        if ($row['telefone_apenas_numeros_com_ddd'] != null) {
-            if( strlen ( (string) $row['telefone_apenas_numeros_com_ddd'] ) < 10 ){
+        //validacao telefone
+        if ($row[9] != null) {
+            if( strlen ( (string) $row[9] ) < 10 ){
                 Log::info("Número de telefone incompleto.");
-                throw new Exception("Arquivo inválido. Número de telefone incompleto - ".$row['nome_da_crianca_ou_adolescente']);
+                throw new Exception("Arquivo inválido. Número de telefone incompleto - ".$row[0]);
             }
 
-            if( strlen ( (string) $row['telefone_apenas_numeros_com_ddd'] ) > 11 ){
+            if( strlen ( (string) $row[9] ) > 11 ){
                 Log::info("Número de telefone maior que o permitido.");
-                throw new Exception("Arquivo inválido. Número de telefone maior que o permitido - ".$row['nome_da_crianca_ou_adolescente']);
+                throw new Exception("Arquivo inválido. Número de telefone maior que o permitido - ".$row[0]);
             }
 
-            if( strpos( (string) $row['telefone_apenas_numeros_com_ddd'], "(" ) OR strpos( (string) $row['telefone_apenas_numeros_com_ddd'], ")" ) ){
+            if( strpos( (string) $row[9], "(" ) OR strpos( (string) $row[9], ")" ) ){
                 Log::info("Número de telefone contém caracteres inválidos.");
-                throw new Exception("Arquivo inválido. Número de telefone contém caracteres inválidos - ".$row['nome_da_crianca_ou_adolescente']);
+                throw new Exception("Arquivo inválido. Número de telefone contém caracteres inválidos - ".$row[0]);
             }
         }
 
         //valida cep
-        if ($row['cep_somente_numeros'] != null) {
-            if( strlen ( (string) $row['cep_somente_numeros'] ) < 8 ){
+        if ($row[8] != null) {
+            if( strlen ( (string) $row[8] ) < 8 ){
                 Log::info("CEP incompleto.");
-                throw new Exception("Arquivo inválido. CEP incompleto - ".$row['nome_da_crianca_ou_adolescente']);
+                throw new Exception("Arquivo inválido. CEP incompleto - ".$row[0]);
             }
-            if( strlen ( (string) $row['cep_somente_numeros'] ) > 8 ){
+            if( strlen ( (string) $row[8] ) > 8 ){
                 Log::info("CEP maior que o permitido.");
-                throw new Exception("Arquivo inválido. CEP maior que o permitido - ".$row['nome_da_crianca_ou_adolescente']);
+                throw new Exception("Arquivo inválido. CEP maior que o permitido - ".$row[0]);
             }
         }
 
@@ -232,15 +224,15 @@ class XLSFileChildrenImporter implements Importer
         Log::info("[xls_import] Bot Agent User: {$this->agent->id}, {$this->agent->name}");
 
         $fieldMap = [
-            'nome_da_crianca_ou_adolescente' => 'name',
-            'data_de_nascimento_formato_ddmmaaaa' => 'dob',
-            'nome_da_mae_ou_responsavel' => 'mother_name',
-            'nome_do_pai' => 'father_name',
-            'endereco' => 'place_address',
-            'bairro' => 'place_neighborhood',
-            'cep_somente_numeros' => 'place_cep',
-            'telefone_apenas_numeros_com_ddd' => 'mother_phone',
-            'observacoes' => 'observation'
+            0 => 'name',
+            1 => 'dob',
+            2 => 'mother_name',
+            3 => 'father_name',
+            4 => 'place_address',
+            5 => 'place_neighborhood',
+            8 => 'place_cep',
+            9 => 'mother_phone',
+            10 => 'observation'
         ];
 
         $data = [];
@@ -281,39 +273,26 @@ class XLSFileChildrenImporter implements Importer
 
     private function isThereChild($row){
 
-//        $birthDay = null;
-//
-//        if($row['data_de_nascimento_formato_ddmmaaaa'] != null){
-//            $birthDay = Carbon::createFromFormat('d/m/Y', $row['data_de_nascimento_formato_ddmmaaaa'])->format('Y-m-d');
-//        }
-//
-//        $age = Child::calculateAgeThroughBirthday($birthDay);
-
-//        Log::info($age);
-
         $child = Child::where(
             [
-                ['name', '=', $row['nome_da_crianca_ou_adolescente']],
-                ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
-//                ['age', '=', $age],
+                ['name', '=', $row[0]],
+                ['mother_name', '=', $row[2]],
                 ['city_id', '=', $this->tenant->city_id],
                 ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED],
                 ['child_status', '=', Child::STATUS_OUT_OF_SCHOOL]
             ]
         )->orWhere(
             [
-                ['name', '=', $row['nome_da_crianca_ou_adolescente']],
-                ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
-//                ['age', '=', $age],
+                ['name', '=', $row[0]],
+                ['mother_name', '=', $row[2]],
                 ['city_id', '=', $this->tenant->city_id],
                 ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED],
                 ['child_status', '=', Child::STATUS_OBSERVATION]
             ]
         )->orWhere(
             [
-                ['name', '=', $row['nome_da_crianca_ou_adolescente']],
-                ['mother_name', '=', $row['nome_da_mae_ou_responsavel']],
-//                ['age', '=', $age],
+                ['name', '=', $row[0]],
+                ['mother_name', '=', $row[2]],
                 ['city_id', '=', $this->tenant->city_id],
                 ['alert_status', '=', Child::ALERT_STATUS_PENDING]
             ]
@@ -326,6 +305,26 @@ class XLSFileChildrenImporter implements Importer
             array_push($this->duplicateds, $child);
             return true;
         }
+
+    }
+
+    public function isHeaderPatterFileMunicipio ($headerArray) {
+
+        $headerPatternMunicipio = [
+            0 => 'Nome da criança ou adolescente',
+            1 => 'Data de nascimento: (formato dd/mm/aaaa)',
+            2 => 'Nome da mãe ou responsável',
+            3 => 'Nome do pai',
+            4 => 'Endereço',
+            5 => 'Bairro',
+            6 => 'UF: (sigla do estado)',
+            7 => 'Cidade',
+            8 => 'CEP: (somente números) ',
+            9 => 'Telefone: (apenas números com DDD)',
+            10 => 'Observações'
+        ];
+
+        return $headerArray == $headerPatternMunicipio;
 
     }
 
