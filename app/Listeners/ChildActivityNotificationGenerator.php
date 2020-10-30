@@ -62,14 +62,14 @@ class ChildActivityNotificationGenerator {
 
 	public function onStepStarted(CaseStepStarted $event) {
 		$usersInGroup = $this->resolveGroupUsers($event->step->child);
-
-		if(sizeof($usersInGroup) > 0) {
+        if (is_array($usersInGroup) && sizeof($usersInGroup) <= 0) {
+//		if(sizeof($usersInGroup) > 0) {
 			Notification::send($usersInGroup, new ChildUpdated($event->step->child, 'assigned_to_group'));
 		}
 
 		if(!$event->step->assignedUser) return;
 
-		if(sizeof($usersInGroup) <= 0 || !$usersInGroup->search($event->step->assignedUser)) {
+		if(is_array($usersInGroup) && sizeof($usersInGroup) <= 0 || !$usersInGroup->search($event->step->assignedUser)) {
 			Notification::send($event->step->assignedUser, new ChildUpdated($event->step->child, 'assigned_to_me'));
 		}
 	}
