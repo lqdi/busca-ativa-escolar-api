@@ -58,11 +58,13 @@ class StepFieldsTransformer extends TransformerAbstract {
 		}
 
 		if(isset($data['school_last_id'])) {
-			$data['school_last'] = School::find($data['school_last_id'])->toArray();
+            $school_last =  School::find($data['school_last_id']);
+            $data['school_last'] = $school_last ? $school_last->toArray(): null;
 		}
 
 		if(isset($data['school_id'])) {
-			$data['school'] = School::find($data['school_id'])->toArray();
+            $school = School::find($data['school_id']);
+            $data['school'] = $school ? $school->toArray(): null;
 		}
 
 		if(isset($step->reinsertion_date_original)) {
