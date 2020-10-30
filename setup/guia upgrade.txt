@@ -131,3 +131,5 @@ A localização de todas as classes relacionadas ao projeto Tymon JWT foram modi
     Instalação de pacote de helper como dependencia
 composer require laravel/helpers
 Resolveu o array_pluck, str_slug,(Arr::pluck Arr::dot(Tive que importar na classe)),
+
+Rodei o comando php artisan clear-compiled por causa do pda/pheanstalk
