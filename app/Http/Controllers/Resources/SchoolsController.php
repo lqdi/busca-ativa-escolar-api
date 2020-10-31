@@ -63,6 +63,12 @@ class SchoolsController extends BaseController
 
         $results = $search->search(new School(), $query, 12);
 
+        return fractal()
+            ->item($results)
+            ->transformWith(new SearchResultsTransformer(SchoolSearchResultsTransformer::class, $query))
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
 
     }
 
