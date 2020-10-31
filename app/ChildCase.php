@@ -470,7 +470,7 @@ class ChildCase extends Model
             ]
         )->get();
 
-        if ( is_array($coordinators) && sizeof($coordinators) <= 0 ) { // PHP 7.2
+        if ( is_array($coordinators) && (sizeof($coordinators) <= 0) ) { // PHP 7.2
 //        if ( $coordinators->count() <= 0 ) { // Implementação antiga PHP 7.1
             return response()->json(
                 [
@@ -541,7 +541,7 @@ class ChildCase extends Model
             ]
         )->first();
 
-        if( is_array($reopeningRequest) && sizeof($reopeningRequest) <= 0 ){
+        if( is_array($reopeningRequest) && (sizeof($reopeningRequest) <= 0)){
 //        if( $reopeningRequest->count() <= 0 ){
             return response()->json(
                 [
@@ -709,7 +709,7 @@ class ChildCase extends Model
         /* */
         $requesterUser->type = User::TYPE_GESTOR_OPERACIONAL;
 
-        if (is_array($coordinators) && sizeof($coordinators) <= 0) {
+        if (is_array($coordinators) && (sizeof($coordinators) <= 0)) {
 //        if ( $coordinators->count() <= 0 ) {
             return response()->json(
                 [
