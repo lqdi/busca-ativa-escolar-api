@@ -31,7 +31,7 @@ class ProcessSmsFrequencySchool
 
     private function getMessage()
     {
-        return "Por gentileza, acesse o email ".strtolower($this->school->school_email)." e contribua para o cadastro de turmas e frequência da sua escola.";
+        return "Por gentileza, acesse o email ".strtolower($this->school->school_email)." e contribua para o cadastro das turmas da sua escola e o acompanhamento da frequência escolar dos estudantes.";
     }
 
 }

@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Classe;
 use BuscaAtivaEscolar\School;
 use Illuminate\Http\Request;
+use function foo\func;
 
 class ClasseController extends BaseController
 {
@@ -66,7 +67,6 @@ class ClasseController extends BaseController
         return response()->json($response, 200);
     }
 
-
     public function store(Request $request)
     {
         try {
@@ -103,8 +103,7 @@ class ClasseController extends BaseController
 
     public function show($id)
     {
-        $classes = Classe::with('frequencies')
-            ->where('schools_id', '=', $id)
+        $classes = Classe::where('schools_id', '=', $id)
             ->get()->toArray();
 
 //        if (!$classes) {
@@ -136,6 +135,38 @@ class ClasseController extends BaseController
         }
 
         $classes->delete();
+
+        $response = [
+            'success' => true,
+            'message' => 'Turma removida com sucesso',
+            'turmas' => $classes
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    public function frequencies($id)
+    {
+        $classes = Classe::with([
+            'frequencies' => function($q)
+            {
+                $q->orderBy('created_at', 'asc');
+            }
+        ])
+            ->where('schools_id', '=', $id)
+            ->get()
+            ->toArray();
+
+        $school = School::find($id);
+
+        $response = [
+            'success' => true,
+            'message' => 'Turmas listadas com sucesso',
+            'school' => ['name' => $school->name, 'periodicidade' => $school->periodicidade],
+            'turmas' => $classes
+        ];
+
+        return response()->json($response, 200);
     }
 
     public function updateFrequency(Request $request, $id){
@@ -155,6 +186,46 @@ class ClasseController extends BaseController
             'success' => true,
             'message' => 'Frequência atualizada com sucesso',
             'frequencia' => $frequency
+        ];
+
+        return response()->json($response, 200);
+
+    }
+
+    public function updateFrequencies(Request $request){
+
+        $frequencies = json_decode($request->getContent());
+        $arrayFrequencies = [];
+
+        foreach ($frequencies as $frequency){
+            array_push($arrayFrequencies, $frequency);
+        }
+
+        \DB::transaction( function () use ($arrayFrequencies) {
+            foreach ($arrayFrequencies as $frequency){
+
+               if (property_exists($frequency, 'id')){
+                   //update dos que já existem
+                   Frequency::where('id', $frequency->id)
+                       ->update(
+                           ['qty_presence' => (int)$frequency->qty_presence]
+                       );
+               }else {
+                   //cadastro dos que nao existem
+                   Frequency::create([
+                       'qty_presence' => $frequency->qty_presence,
+                       'qty_enrollment' => $frequency->qty_enrollment,
+                       'classes_id' => $frequency->classes_id,
+                       'created_at' => $frequency->created_at,
+                       'periodicidade' => $frequency->periodicidade
+                   ]);
+               }
+            }
+        });
+
+        $response = [
+            'success' => true,
+            'message' => 'Frequência atualizada com sucesso'
         ];
 
         return response()->json($response, 200);

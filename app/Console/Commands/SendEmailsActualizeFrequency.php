@@ -51,12 +51,12 @@ class SendEmailsActualizeFrequency extends Command
 
             foreach ($schools as $school){
 
-                $today = date('d'); //number of day in the month
-                $today_week = date('w'); //number of day in the week (1 - 7)
+                $today = intval(date('d')); //number of day in the month
+                $today_week = intval(date('w')); //number of day in the week (0 - 6)
                 $dayOfMidleOfMonth = intval(date("t")/2); //number
 
-                //DIARIA
-                if( $school->periodicidade === School::PERIODICIDADE_DIARIA ) {
+                //DIARIA SE PERIODICIDADE DIARIA E DIA DA SEMANA ATE SEXTA_FEIRA
+                if( $school->periodicidade === School::PERIODICIDADE_DIARIA AND ($today_week > 0 AND $today_week <= 5) ) {
                     $this->createFrequenciesBySchool($school);
                     try {
                         $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_DIARIA);
@@ -68,8 +68,9 @@ class SendEmailsActualizeFrequency extends Command
                     }
                 }
 
-                //SEMANAL
+                //SEMANAL SE PERIODICIDADE SEMANAL E DIA DA SEMANA SEGUNDA
                 if( $school->periodicidade === School::PERIODICIDADE_SEMANAL AND ( $today_week === 1) ) {
+                    $this->createFrequenciesBySchool($school);
                     try {
                         $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_SEMANAL);
                         Mail::to($school->school_email)->send($message);
@@ -80,8 +81,9 @@ class SendEmailsActualizeFrequency extends Command
                     }
                 }
 
-                //QUINZENAL
+                //QUINZENAL SE PERIODICIDADE QUINZENAL E DIA DO MES É METADE DO MES MAIS 1 OU 1 DO MES
                 if( $school->periodicidade === School::PERIODICIDADE_QUINZENAL AND ( $today === ($dayOfMidleOfMonth + 1) OR $today === 1 ) ) {
+                    $this->createFrequenciesBySchool($school);
                     try {
                         $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_QUINZENAL);
                         Mail::to($school->school_email)->send($message);
@@ -92,8 +94,9 @@ class SendEmailsActualizeFrequency extends Command
                     }
                 }
 
-                //MENSAL
+                //MENSAL SE PERIODICIDADE MENSAL E DIA E 1 DO MES
                 if( $school->periodicidade === School::PERIODICIDADE_MENSAL AND ( $today === 1 ) ) {
+                    $this->createFrequenciesBySchool($school);
                     try {
                         $message = new ClassFrequencyNotification($school, School::PERIODICIDADE_MENSAL);
                         Mail::to($school->school_email)->send($message);
@@ -115,19 +118,105 @@ class SendEmailsActualizeFrequency extends Command
     public function createFrequenciesBySchool($school){
         foreach ($school->classes as $classe){
 
-            //VERIFICA SE TEM FREQUENCIA HOJE!
-            $savedFrequency = Frequency::where([
-                ['created_at', '>=', Carbon::today()],
-                ['classes_id', '>=', $classe->id]
-            ])->first();
+            $today_week = intval(date('w')); //number of day in the week (0 - 6)
 
-            if ( $savedFrequency == null ){
-                $frequency = new Frequency();
-                $frequency->qty_presence = 0;
-                $frequency->qty_enrollment = 0;
-                $frequency->classes_id = $classe->id;
-                $frequency->save();
+            if( $school->periodicidade === School::PERIODICIDADE_DIARIA){
+
+                //SE DE TERÇA A SEXTA-FEIRA
+                if( $today_week > 1 AND $today_week <= 5){
+                    $savedFrequency = Frequency::where([
+                        ['created_at', '>=', Carbon::yesterday()],
+                        ['classes_id', '=', $classe->id]
+                    ])->first();
+
+                    if ( $savedFrequency == null ){
+                        $frequency = new Frequency();
+                        $frequency->qty_presence = 0;
+                        $frequency->qty_enrollment = 0;
+                        $frequency->classes_id = $classe->id;
+                        $frequency->created_at =  Carbon::yesterday();
+                        $frequency->periodicidade = $school->periodicidade;
+                        $frequency->save();
+                    }
+                }
+
+                //SE SEGUNDA-FEIRA
+                if( $today_week == 1 ){
+                    $savedFrequency = Frequency::where([
+                        ['created_at', '>=', Carbon::now()->subDays(3)],
+                        ['classes_id', '=', $classe->id]
+                    ])->first();
+
+                    if ( $savedFrequency == null ){
+                        $frequency = new Frequency();
+                        $frequency->qty_presence = 0;
+                        $frequency->qty_enrollment = 0;
+                        $frequency->classes_id = $classe->id;
+                        $frequency->created_at =  Carbon::now()->subDays(3);
+                        $frequency->periodicidade = $school->periodicidade;
+                        $frequency->save();
+                    }
+                }
+
             }
+
+            if( $school->periodicidade === School::PERIODICIDADE_SEMANAL){
+                //SEGUNDA-FEIRA
+                if( $today_week == 1 ){
+                    $savedFrequency = Frequency::where([
+                        ['created_at', '>=', Carbon::now()->subDays(3)],
+                        ['classes_id', '=', $classe->id]
+                    ])->first();
+
+                    if ( $savedFrequency == null ){
+                        $frequency = new Frequency();
+                        $frequency->qty_presence = 0;
+                        $frequency->qty_enrollment = 0;
+                        $frequency->classes_id = $classe->id;
+                        $frequency->created_at =  Carbon::now()->subDays(3);
+                        $frequency->periodicidade = $school->periodicidade;
+                        $frequency->save();
+                    }
+                }
+            }
+
+            if( $school->periodicidade === School::PERIODICIDADE_QUINZENAL){
+
+                $savedFrequency = Frequency::where([
+                    ['created_at', '>=', Carbon::yesterday()],
+                    ['classes_id', '=', $classe->id]
+                ])->first();
+
+                if ( $savedFrequency == null ){
+                    $frequency = new Frequency();
+                    $frequency->qty_presence = 0;
+                    $frequency->qty_enrollment = 0;
+                    $frequency->classes_id = $classe->id;
+                    $frequency->created_at =  Carbon::yesterday();
+                    $frequency->periodicidade = $school->periodicidade;
+                    $frequency->save();
+                }
+
+            }
+
+            if( $school->periodicidade === School::PERIODICIDADE_MENSAL) {
+
+                $savedFrequency = Frequency::where([
+                    ['created_at', '>=', Carbon::yesterday()],
+                    ['classes_id', '=', $classe->id]
+                ])->first();
+
+                if ( $savedFrequency == null ){
+                    $frequency = new Frequency();
+                    $frequency->qty_presence = 0;
+                    $frequency->qty_enrollment = 0;
+                    $frequency->classes_id = $classe->id;
+                    $frequency->created_at =  Carbon::yesterday();
+                    $frequency->periodicidade = $school->periodicidade;
+                    $frequency->save();
+                }
+            }
+
         }
     }
 }
