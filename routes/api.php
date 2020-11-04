@@ -1,6 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+//solucao para o cors LARAVEL 8
+header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token, Authorization, Accept,charset,boundary,Content-Length');
+header('Access-Control-Allow-Origin: *');
+//solucao para o cors LARAVEL 8
 
 Route::get('/versions', function() {
 	return response()->json(['available_versions' => ['v1']]);
