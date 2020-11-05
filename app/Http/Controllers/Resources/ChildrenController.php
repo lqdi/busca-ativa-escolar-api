@@ -464,9 +464,13 @@ class ChildrenController extends BaseController  {
 
     public function create_report_child(){
 
+	    \Log::info("Chamdnou");
+
         $paramsQuery = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
 
-        dispatch((new ProcessExportChildrenJob(Auth::user(), $paramsQuery))->onQueue('export_children'));
+        $job = new ProcessExportChildrenJob(Auth::user(), $paramsQuery);
+
+       $job->handle();
 
         return response()->json(
             [
