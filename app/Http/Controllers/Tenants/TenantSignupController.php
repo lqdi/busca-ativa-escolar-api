@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Tenants;
 
 
 use Auth;
+use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Exceptions\ValidationException;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
@@ -29,6 +30,11 @@ use Excel;
 use Illuminate\Support\Str;
 
 class TenantSignupController extends BaseController  {
+
+    const PERMITED_FILES_MIME_TYPES = [
+        'image/jpeg',
+        'image/png'
+    ];
 
 	public function register() {
 		$data = request()->all();
@@ -287,5 +293,14 @@ class TenantSignupController extends BaseController  {
 		return response()->json(['status' => 'ok']);
 
 	}
+
+	public function uploadfile(){
+        $file = request()->file('file');
+        if(!in_array($file->getMimeType(), self::PERMITED_FILES_MIME_TYPES)){
+            return response()->json(["reason" => "Arquivo inválido",  "status" => "error"], 400);
+        }
+        $attachment = Attachment::createFromImageTituloEleitor($file, "Titulo de eleitor de prefeito - " . date('Y-m-d H:i:s'));
+        return response()->json(['status' => 'ok', 'link' => $attachment->getURLPublic()]);
+    }
 
 }

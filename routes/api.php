@@ -223,6 +223,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::post('/signups/tenants/register', 'Tenants\TenantSignupController@register');
 	Route::get('/signups/tenants/via_token/{signup}', 'Tenants\TenantSignupController@get_via_token');
 	Route::post('/signups/tenants/{signup}/complete', 'Tenants\TenantSignupController@complete');
+    Route::post('/signups/tenants/uploadfile', 'Tenants\TenantSignupController@uploadfile');
 
 	// State Sign-up
 	Route::post('/signups/state/register', 'Tenants\StateSignupController@register');
