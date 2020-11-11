@@ -17,8 +17,11 @@ namespace BuscaAtivaEscolar\Http\Controllers\Tenants;
 use Auth;
 use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\City;
+use BuscaAtivaEscolar\EmailTypes\ClassFrequencyNotification;
 use BuscaAtivaEscolar\Exceptions\ValidationException;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Mail\MayorSignupNotification;
+use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
@@ -28,6 +31,7 @@ use DB;
 use Event;
 use Excel;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class TenantSignupController extends BaseController  {
 
@@ -64,6 +68,9 @@ class TenantSignupController extends BaseController  {
 			}
 
 			$signup = TenantSignup::createFromForm($data);
+
+            $message = new MayorSignupNotification($signup);
+            Mail::to($data['mayor']['email'])->send($message);
 
 			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
 		} catch (\Exception $ex) {
@@ -210,6 +217,19 @@ class TenantSignupController extends BaseController  {
 			return $this->api_exception($ex);
 		}
 	}
+
+    public function accept(TenantSignup $signup) {
+        try {
+
+            if(!$signup) return $this->api_failure('invalid_signup_id');
+
+            $signup->accept();
+            return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
+
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+    }
 
 	public function reject(TenantSignup $signup) {
 		try {

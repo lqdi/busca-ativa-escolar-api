@@ -224,8 +224,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::get('/signups/tenants/via_token/{signup}', 'Tenants\TenantSignupController@get_via_token');
 	Route::post('/signups/tenants/{signup}/complete', 'Tenants\TenantSignupController@complete');
     Route::post('/signups/tenants/uploadfile', 'Tenants\TenantSignupController@uploadfile');
+    Route::get('/signups/tenants/{signup}/accept', 'Tenants\TenantSignupController@accept');
 
-	// State Sign-up
+
+    // State Sign-up
 	Route::post('/signups/state/register', 'Tenants\StateSignupController@register');
 	Route::post('/signups/state/check_if_available', 'Tenants\StateSignupController@checkIfAvailable');
 
