@@ -73,6 +73,7 @@ class TenantSignup extends Model {
 		'is_approved' => 'boolean',
 		'is_provisioned' => 'boolean',
 		'data' => 'array',
+        'is_approved_by_mayor' => 'boolean'
 	];
 
 	public function city() {
@@ -103,6 +104,11 @@ class TenantSignup extends Model {
 
 		$this->sendNotification();
 	}
+
+    public function accept() {
+        $this->is_approved_by_mayor = true;
+        $this->save();
+    }
 
 	public function reject(User $judge) {
 		$this->is_approved = false;
