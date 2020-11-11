@@ -64,6 +64,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $position
  * @property string $is_suspended
  * @property string $suspended_by
+ * @property boolean $lgpd
  *
  * @property Tenant|null $tenant
  * @property City|null $city
@@ -245,6 +246,7 @@ class User extends Authenticatable implements JWTSubject {
 		'position',
 
 		'is_suspended',
+        'lgpd',
 		'suspended_by',
 	];
 
@@ -619,8 +621,6 @@ class User extends Authenticatable implements JWTSubject {
 	public static function findByGroupIDs($groupIDs) {
 		return self::query()->whereIn('group_id', $groupIDs)->get();
 	}
-
-
 
     // Funcoes implementadas de JWTSubject
 

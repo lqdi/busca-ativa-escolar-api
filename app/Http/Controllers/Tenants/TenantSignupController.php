@@ -17,6 +17,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Tenants;
 use Auth;
 use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\City;
+use BuscaAtivaEscolar\ElectedMayor;
 use BuscaAtivaEscolar\EmailTypes\ClassFrequencyNotification;
 use BuscaAtivaEscolar\Exceptions\ValidationException;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
@@ -321,6 +322,17 @@ class TenantSignupController extends BaseController  {
         }
         $attachment = Attachment::createFromImageTituloEleitor($file, "Titulo de eleitor de prefeito - " . date('Y-m-d H:i:s'));
         return response()->json(['status' => 'ok', 'link' => $attachment->getURLPublic()]);
+    }
+
+    public function getMayorByTitulo(){
+        $titulo = request('titulo');
+        if(!$titulo) return $this->api_failure('invalid_token');
+        $electedMayor = ElectedMayor::where('nm_titulo', '=', $titulo)->first();
+        if($electedMayor != null){
+            return response()->json(['status' => 'ok', 'mayor' => $electedMayor]);
+        }else{
+            return response()->json(['status' => 'not_found', 'mayor' => null]);
+        }
     }
 
 }

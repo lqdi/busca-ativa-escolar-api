@@ -225,6 +225,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::post('/signups/tenants/{signup}/complete', 'Tenants\TenantSignupController@complete');
     Route::post('/signups/tenants/uploadfile', 'Tenants\TenantSignupController@uploadfile');
     Route::get('/signups/tenants/{signup}/accept', 'Tenants\TenantSignupController@accept');
+    Route::get('/signups/tenants/mayor/by/titulo/{titulo}', 'Tenants\TenantSignupController@getMayorByTitulo');
 
 
     // State Sign-up
