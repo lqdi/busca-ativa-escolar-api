@@ -31,7 +31,8 @@ class ElectedMayor extends Model
         'email',
         'cpf',
         'nm_titulo',
-        'uf'
+        'uf',
+        'municipio'
     ];
 
 }

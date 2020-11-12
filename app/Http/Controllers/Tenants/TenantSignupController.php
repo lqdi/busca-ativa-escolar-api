@@ -324,10 +324,10 @@ class TenantSignupController extends BaseController  {
         return response()->json(['status' => 'ok', 'link' => $attachment->getURLPublic()]);
     }
 
-    public function getMayorByTitulo(){
-        $titulo = request('titulo');
-        if(!$titulo) return $this->api_failure('invalid_token');
-        $electedMayor = ElectedMayor::where('nm_titulo', '=', $titulo)->first();
+    public function getMayorByCpf(){
+        $cpf = request('cpf');
+        if(!$cpf) return $this->api_failure('invalid_token');
+        $electedMayor = ElectedMayor::where('cpf', '=', $cpf)->first();
         if($electedMayor != null){
             return response()->json(['status' => 'ok', 'mayor' => $electedMayor]);
         }else{

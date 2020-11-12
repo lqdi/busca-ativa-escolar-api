@@ -31,7 +31,7 @@ class CancelAllTenantsWithSigupsAndUsers extends Command
     public function handle()
     {
 
-        \Log::info("Iniciando processo de desativação de todos os tenants");
+        $this->comment("Iniciando processo de desativação de todos os tenants");
 
         Tenant::chunk(500, function($tenants){
 
@@ -49,7 +49,18 @@ class CancelAllTenantsWithSigupsAndUsers extends Command
 
         });
 
-        \Log::info("Finalizando o processo de desativação de todos os tenants");
+        $this->comment("Finalizando o processo de desativação de todos os tenants");
+
+        $this->comment("Iniciando processo de remoção de adesões pendentes");
+
+        //Remove signups não aprovados (sem tenant) inclusive rejeitados (withTrashed)
+        TenantSignup::withTrashed()->whereNull(['tenant_id'])->chunk(10, function($signups){
+            foreach ($signups as $signup){
+
+            }
+        });
+
+        $this->comment("Finalizando processo de remoção de adesões pendentes");
 
     }
 }
