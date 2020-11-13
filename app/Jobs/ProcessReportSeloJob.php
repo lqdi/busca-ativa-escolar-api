@@ -27,7 +27,7 @@ class ProcessReportSeloJob implements ShouldQueue
         set_time_limit(0);
 
         $cities = [];
-        $cities_with_goal = City::has('goal')->get();
+        $cities_with_goal = City::all();
 
         foreach ($cities_with_goal as $city) {
 
