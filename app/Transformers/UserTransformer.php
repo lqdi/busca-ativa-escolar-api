@@ -78,6 +78,7 @@ class UserTransformer extends TransformerAbstract {
 					'uf' => $user->work_uf,
 				] : null,
 				'work_uf' => $user->work_uf,
+				'lgpd' => $user->lgpd,
 
 			] : []);
 
