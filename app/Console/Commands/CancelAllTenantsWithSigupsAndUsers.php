@@ -53,10 +53,10 @@ class CancelAllTenantsWithSigupsAndUsers extends Command
 
         $this->comment("Iniciando processo de remoção de adesões pendentes");
 
-        //Remove signups não aprovados (sem tenant) inclusive rejeitados (withTrashed)
-        TenantSignup::withTrashed()->whereNull(['tenant_id'])->chunk(10, function($signups){
+        //Remove signups não aprovados (sem tenant)
+        TenantSignup::whereNull(['tenant_id'])->chunk(10, function($signups){
             foreach ($signups as $signup){
-
+                $signup->forceDelete();
             }
         });
 
