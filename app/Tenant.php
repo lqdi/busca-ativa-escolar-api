@@ -286,9 +286,9 @@ class Tenant extends Model  {
 			throw new ValidationException('political_admin_email_in_use');
 		}
 
-		if(User::checkIfExists($operationalAdminData['email'])) {
-			throw new ValidationException('operational_admin_email_in_use');
-		}
+        if(User::checkIfExists($operationalAdminData['email'])) {
+            throw new ValidationException('operational_admin_email_in_use');
+        }
 
 		$now = date('Y-m-d H:i:s');
 
@@ -363,6 +363,114 @@ class Tenant extends Model  {
 		return $tenant;
 
 	}
+
+    /**
+     * Recovere a tenant based on sign-up data
+     *
+     * @param TenantSignup $signup
+     * @param array $politicalAdminData
+     * @param array $operationalAdminData
+     *
+     * @throws \Exception on failure
+     *
+     * @returns Tenant
+     */
+    public static function recovere(TenantSignup $signup, array $politicalAdminData, array $operationalAdminData, $lastTenant, array $lastCoordinators) {
+
+//        $city = $signup->city;
+//
+//        if(!$city) {
+//            throw new ValidationException('invalid_signup_city');
+//        }
+//
+//        if(User::checkIfExists($politicalAdminData['email'])) {
+//            throw new ValidationException('political_admin_email_in_use');
+//        }
+//
+//        if(sizeof($operationalAdminData) > 0){
+//            if(User::checkIfExists($operationalAdminData['email'])) {
+//                throw new ValidationException('operational_admin_email_in_use');
+//            }
+//        }
+//
+//        foreach ($lastCoordinators as $coordinator){
+//            if(User::checkIfExists($coordinator['email'])) {
+//                throw new ValidationException('coordinator_email_in_use');
+//            }
+//        }
+//
+//        $now = date('Y-m-d H:i:s');
+//
+//        $name = Tenant::generateNameFromCity($city);
+//
+//        $tenant = Tenant::create([
+//            'uf' => $city->uf,
+//            'name' => $name,
+//            'name_ascii' => strtolower(Str::ascii($name)),
+//            'city_id' => $city->id,
+//            'operational_admin_id' => null,
+//            'political_admin_id' => null,
+//            'is_registered' => false,
+//            'is_active' => false,
+//            'last_active_at' => $now,
+//            'registered_at' => $signup->created_at,
+//            'activated_at' => $now,
+//        ]);
+//
+//        $politicalAdminData['type'] = User::TYPE_GESTOR_POLITICO;
+//        $politicalAdminData['uf'] = $tenant->uf;
+//        $politicalAdminData['tenant_id'] = $tenant->id;
+//
+//        $operationalAdminData['type'] = User::TYPE_GESTOR_OPERACIONAL;
+//        $operationalAdminData['tenant_id'] = $tenant->id;
+//        $operationalAdminData['uf'] = $tenant->uf;
+//
+//        $politicalAdmin = new User();
+//        $politicalAdmin->fill($politicalAdminData);
+//        $politicalAdmin->password = password_hash($politicalAdminData['password'], PASSWORD_DEFAULT);
+//
+//        $validator = $politicalAdmin->validate($politicalAdminData, true, true, false);
+//
+//        if($validator->fails()) {
+//            $tenant->delete();
+//            throw new ValidationException('invalid_political_admin_data', $validator);
+//        }
+//
+//        $operationalAdmin = new User();
+//        $operationalAdmin->fill($operationalAdminData);
+//        $operationalAdmin->password = password_hash($operationalAdminData['password'], PASSWORD_DEFAULT);
+//
+//        $validator = $operationalAdmin->validate($operationalAdminData, true, true, false);
+//
+//        if($validator->fails()) {
+//            $tenant->delete();
+//            throw new ValidationException('invalid_operational_admin_data', $validator);
+//        }
+//
+//        $politicalAdmin->save();
+//        $operationalAdmin->save();
+//
+//        $primaryGroup = Group::createDefaultPrimaryGroup($tenant);
+//
+//        $tenant->political_admin_id = $politicalAdmin->id;
+//        $tenant->operational_admin_id = $operationalAdmin->id;
+//        $tenant->primary_group_id = $primaryGroup->id;
+//        $tenant->is_registered = true;
+//        $tenant->is_active = true;
+//        $tenant->save();
+//
+//        $signup->is_provisioned = true;
+//        $signup->tenant_id = $tenant->id;
+//        $signup->save();
+//
+//        Cache::forget('uf_tenants_' . $tenant->uf);
+//
+//        Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
+//        Mail::to($operationalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $operationalAdmin, $operationalAdminData['password']));
+//
+//        return $tenant;
+
+    }
 
 	/**
 	 * Gets a list of all tenant IDs within a specific state

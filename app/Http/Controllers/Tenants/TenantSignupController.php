@@ -203,6 +203,34 @@ class TenantSignupController extends BaseController  {
 		$cityId = $signup['original']['city_id'];
 		$city = $signup->getCitybyId($cityId);
         $signup->setAttribute('city', $city);
+
+        /*
+         * Update da readesao. Exibicao da lista de coordenadores
+         * baseado na última adesão que existia na plataforma
+         * data setada manualmente
+         */
+        $lastTenant = Tenant::onlyTrashed()
+            ->where([
+                ['deleted_at', '>', '2020-11-17 00:00:00'],
+                ['city_id', '=', $signup->city_id ]
+            ])->latest('created_at')
+            ->first();
+
+        $lastCoordinators = null;
+
+        if($lastTenant != null){
+
+            $lastCoordinators = User::onlyTrashed()
+                ->with('group')
+                ->where([
+                    ['tenant_id', '=', $lastTenant->id],
+                    ['type', '=', User::TYPE_GESTOR_OPERACIONAL]
+                ])->get();
+        }
+
+        $signup->setAttribute('last_tenant', $lastTenant);
+        $signup->setAttribute('last_coordinators', $lastCoordinators);
+
 		return response()->json($signup);
 	}
 
@@ -286,12 +314,34 @@ class TenantSignupController extends BaseController  {
 		$politicalAdmin = request('political', []);
 		$operationalAdmin = request('operational', []);
 
-		if(trim(strtolower($politicalAdmin['email'])) === trim(strtolower($operationalAdmin['email']))) {
-			return $this->api_failure("admin_emails_are_the_same");
-		}
+        $lastTenant = request('lastTenant', null);
+        $lastCoordinators = request('lastCoordinators', []);
+        $isNecessaryNewCoordinator = request('isNecessaryNewCoordinator', false);
+
+		if($isNecessaryNewCoordinator){
+            if(trim(strtolower($politicalAdmin['email'])) === trim(strtolower($operationalAdmin['email']))) {
+                return $this->api_failure("admin_emails_are_the_same");
+            }
+        }
+
+		foreach ($lastCoordinators as $coordinator){
+            if(trim(strtolower($politicalAdmin['email'])) === trim(strtolower($coordinator['email']))) {
+                return $this->api_failure("coordinator_emails_are_the_same");
+            }
+            if($isNecessaryNewCoordinator) {
+                if (trim(strtolower($operationalAdmin['email'])) === trim(strtolower($coordinator['email']))) {
+                    return $this->api_failure("coordinator_emails_are_the_same");
+                }
+            }
+        }
 
 		try {
-			$tenant = Tenant::provision($signup, $politicalAdmin, $operationalAdmin);
+
+		    if($lastTenant == null){
+                $tenant = Tenant::provision($signup, $politicalAdmin, $operationalAdmin);
+            }else{
+                $tenant = Tenant::recovere($signup, $politicalAdmin, $operationalAdmin, $lastTenant, $lastCoordinators);
+            }
 
 			return response()->json(['status' => 'ok', 'tenant_id' => $tenant->id]);
 		} catch (ValidationException $ex) {

@@ -42,6 +42,6 @@ class MayorSignupNotification extends Mailable
     }
 
     protected function getUrlConfirmSignup(){
-        return env('APP_URL')."api/v1/signups/tenants/".$this->tenant_signup->id."/accept";
+        return env('APP_PANEL_URL')."/confirmacao_prefeito/".$this->tenant_signup->id;
     }
 }
