@@ -33,7 +33,7 @@ class CancelAllTenantsWithSigupsAndUsers extends Command
 
         $this->comment("Iniciando processo de desativação de todos os tenants");
 
-        Tenant::chunk(500, function($tenants){
+        Tenant::chunk(100, function($tenants){
 
             foreach ($tenants as $tenant){
 
@@ -54,8 +54,9 @@ class CancelAllTenantsWithSigupsAndUsers extends Command
         $this->comment("Iniciando processo de remoção de adesões pendentes");
 
         //Remove signups não aprovados (sem tenant)
-        TenantSignup::whereNull(['tenant_id'])->chunk(10, function($signups){
+        TenantSignup::whereNull(['tenant_id'])->chunk(100, function($signups){
             foreach ($signups as $signup){
+                $this->comment($signup['admin']['institution']);
                 $signup->forceDelete();
             }
         });
