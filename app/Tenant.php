@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar;
 
 
 use BuscaAtivaEscolar\Exceptions\ValidationException;
+use BuscaAtivaEscolar\Mail\UserRegisterNotification;
 use BuscaAtivaEscolar\Mailables\UserCredentialsForNewTenant;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
@@ -329,7 +330,8 @@ class Tenant extends Model  {
 
 		$operationalAdmin = new User();
 		$operationalAdmin->fill($operationalAdminData);
-		$operationalAdmin->password = password_hash($operationalAdminData['password'], PASSWORD_DEFAULT);
+		//default password
+		$operationalAdmin->password = password_hash( date_timestamp_get(date_create()), PASSWORD_DEFAULT);
 
 		$validator = $operationalAdmin->validate($operationalAdminData, true, true, false);
 
@@ -358,7 +360,7 @@ class Tenant extends Model  {
 		Cache::forget('uf_tenants_' . $tenant->uf);
 
 		Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
-		Mail::to($operationalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $operationalAdmin, $operationalAdminData['password']));
+		Mail::to($operationalAdmin->email)->send(new UserRegisterNotification($operationalAdmin, UserRegisterNotification::TYPE_REGISTER_INITIAL));
 
 		return $tenant;
 
@@ -428,7 +430,8 @@ class Tenant extends Model  {
 
             $operationalAdmin = new User();
             $operationalAdmin->fill($operationalAdminData);
-            $operationalAdmin->password = password_hash($operationalAdminData['password'], PASSWORD_DEFAULT);
+            //default password
+            $operationalAdmin->password = password_hash(date_timestamp_get(date_create()), PASSWORD_DEFAULT);
 
             $validator = $operationalAdmin->validate($operationalAdminData, true, true, false);
 
@@ -437,12 +440,16 @@ class Tenant extends Model  {
             }
 
             $politicalAdmin->save();
+            Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
+
             $operationalAdmin->save();
+            Mail::to($operationalAdmin->email)->send(new UserRegisterNotification($operationalAdmin, UserRegisterNotification::TYPE_REGISTER_INITIAL));
 
             $tenant->operational_admin_id = $operationalAdmin->id;
 
         }else{
             $politicalAdmin->save();
+            Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
         }
 
         $tenant->political_admin_id = $politicalAdmin->id;
@@ -459,21 +466,18 @@ class Tenant extends Model  {
 
         Cache::forget('uf_tenants_' . $tenant->uf);
 
+        //reativa usuários e encaminha mensagens
         foreach ($lastCoordinators as $coordinator){
-            if($coordinator['active']){
+            if( $coordinator['active'] ){
                 $registeredCoordenator = User::onlyTrashed()->where('id', '=', $coordinator['id'])->first();
+                $registeredCoordenator->email = $coordinator['email'];
+                $registeredCoordenator->save();
                 $registeredCoordenator->restore();
+                Mail::to($registeredCoordenator->email)->send(new UserRegisterNotification($registeredCoordenator, UserRegisterNotification::TYPE_REGISTER_REACTIVATION));
             }
         }
 
-        Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
-
         return $tenant;
-
-        //ATIVAR OS ULTIMOS COORDENADORE APENAS SE ACTIVE TRUE
-        //FAZER UPDATES DO TENANT!
-        //REMOVER DO TENANT SIGNUP A INFORMACAO DO TENANT
-        //NUNCA HOUVE RELACAO ENTRE TENANT -> SIGUNP - SOMENTE ENTRE SIGNUP -> TENANTS
 
     }
 

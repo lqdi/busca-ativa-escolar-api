@@ -528,7 +528,8 @@ class User extends Authenticatable implements JWTSubject {
 		return validator($data, [
 			'name' => 'required|string',
 			'email' => ($isCreating ? 'required' : 'nullable') . '|email',
-			'password' => ($isCreating ? 'required' : 'nullable') . '|min:6',
+			//'password' => ($isCreating ? 'required' : 'nullable') . '|min:6',
+            'password' => 'nullable|min:6',
 
 			'tenant_id' => ($needsTenantID) ? 'required' : 'nullable',
 			'city_id' => 'nullable',
@@ -645,4 +646,9 @@ class User extends Authenticatable implements JWTSubject {
     }
 
     // JWTSubject
+
+    //Gerar tokens para acesso em determinadas rotas
+    public function getURLToken() {
+        return sha1(env('APP_KEY') . $this->id . $this->created_at);
+    }
 }

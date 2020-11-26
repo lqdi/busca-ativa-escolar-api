@@ -344,6 +344,7 @@ class TenantSignupController extends BaseController  {
             }
 
 			return response()->json(['status' => 'ok', 'tenant_id' => $tenant->id]);
+
 		} catch (ValidationException $ex) {
 			if($ex->getValidator()) return $this->api_validation_failed($ex->getReason(), $ex->getValidator());
 			return $this->api_failure($ex->getReason());
@@ -383,6 +384,17 @@ class TenantSignupController extends BaseController  {
         }else{
             return response()->json(['status' => 'not_found', 'mayor' => null]);
         }
+    }
+
+    public function get_user_via_token(User $user) {
+        $token = request('token');
+        $validToken = $user->getURLToken();
+
+        if(!$token) return $this->api_failure('invalid_token');
+        if($token !== $validToken) return $this->api_failure('token_mismatch');
+        if($user->lgpd) return $this->api_failure('lgpd_already_accepted');
+
+        return response()->json($user);
     }
 
 }
