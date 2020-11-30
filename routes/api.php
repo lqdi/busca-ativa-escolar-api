@@ -227,6 +227,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
     Route::get('/signups/tenants/{signup}/accept', 'Tenants\TenantSignupController@accept');
     Route::get('/signups/tenants/mayor/by/cpf/{cpf}', 'Tenants\TenantSignupController@getMayorByCpf');
     Route::get('/signups/users/via_token/{user}', 'Tenants\TenantSignupController@get_user_via_token');
+    Route::post('/signups/users/{user}/confirm', 'Tenants\TenantSignupController@confirm_user');
 
 
     // State Sign-up

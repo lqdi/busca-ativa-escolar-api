@@ -397,4 +397,40 @@ class TenantSignupController extends BaseController  {
         return response()->json($user);
     }
 
+    public function confirm_user(User $user){
+        $token = request('token');
+        $validToken = $user->getURLToken();
+
+        $input = request()->all();
+
+        if(!$token) return $this->api_failure('invalid_token');
+        if($token !== $validToken) return $this->api_failure('token_mismatch');
+        if($user->lgpd) return $this->api_failure('lgpd_already_accepted');
+
+        if(trim($input['user']['email']) != $user->email){
+            if(User::checkIfExists($input['user']['email'])) {
+                return $this->api_failure('email_already_used');
+            }
+        }
+
+        if (!isset($input['user']['password'])) {
+            return $this->api_failure('invalid_password');
+        }
+
+        $input['user']['password'] = password_hash($input['user']['password'], PASSWORD_DEFAULT);
+
+        $validation = $user->validate($input['user'], false, false, false);
+
+        if ($validation->fails()) {
+            return $this->api_validation_failed('validation_failed', $validation);
+        }
+
+        $user->fill($input['user']);
+
+        $user->save();
+
+        return response()->json(['status' => 'ok', 'updated' => $input['user']]);
+
+    }
+
 }

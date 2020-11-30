@@ -42,7 +42,7 @@ class UserRegistered extends Mailable {
 			->line("Seu perfil de acesso à plataforma Busca Ativa Escolar foi criado.")
 			->line("Dados de acesso:")
 			->line("**Usuário:** --{$this->user->email}--")
-			->line("**Senha temporária:** --{$this->initialPassword}--")
+			//->line("**Senha temporária:** --{$this->initialPassword}--")
 			->line("**Perfil:** --" . trans('user.type.' . $this->user->type) . '--')
 			->line("Caso queira alterar sua senha e personalizar seu perfil, clique na seta ao lado do seu nome, no menu, e depois vá em 'Preferências'.")
 			->success()

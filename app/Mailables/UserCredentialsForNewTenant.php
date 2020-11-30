@@ -44,7 +44,7 @@ class UserCredentialsForNewTenant extends Mailable {
 			->line("Seu cadastro na Busca Ativa Escolar foi concluído com sucesso e a plataforma está pronta para uso.")
 			->line("Seus dados para acesso são:")
 			->line("**Usuário:** --{$this->user->email}--")
-			->line("**Senha temporária:** --{$this->initialPassword}--")
+			//->line("**Senha temporária:** --{$this->initialPassword}--")
 			->line("**Perfil:** --" . trans('user.type.' . $this->user->type) . '--')
 			->line("Caso queira alterar sua senha e personalizar seu perfil na plataforma, clique na seta ao lado do seu nome, no menu, e depois vá em 'Preferências'.")
 			->line('Clique no botão abaixo para entrar na plataforma.')
