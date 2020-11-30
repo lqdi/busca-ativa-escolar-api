@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 composer install --no-interaction --prefer-dist --optimize-autoloader
-echo "" | sudo -S service php7.1-fpm reload
+echo "" | sudo -S service php7.3-fpm reload
 
 if [ -f artisan ]
 then
