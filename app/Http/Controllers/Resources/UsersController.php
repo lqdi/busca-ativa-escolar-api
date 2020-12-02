@@ -231,9 +231,9 @@ class UsersController extends BaseController
             }
 
             // Here we check if we still have enough permission to set the target user to this new state (maybe type changed?)
-            if (!Auth::user()->canManageUser($user)) {
-                return $this->api_failure('not_enough_permissions');
-            }
+//            if (!Auth::user()->canManageUser($user)) {
+//                return $this->api_failure('not_enough_permissions');
+//            }
 
             $user->save();
 
