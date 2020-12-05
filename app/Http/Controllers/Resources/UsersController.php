@@ -311,7 +311,8 @@ class UsersController extends BaseController
 //            }
 
             Mail::to($user->email)->send(new UserRegisterNotification($user, UserRegisterNotification::TYPE_REGISTER_INITIAL));
-            
+
+
             return response()->json(['status' => 'ok', 'id' => $user->id]);
 
         } catch (\Exception $ex) {
