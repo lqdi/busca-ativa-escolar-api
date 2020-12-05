@@ -72,8 +72,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
         Route::post('/users/reports/create', 'Resources\UsersController@createReport')->middleware('can:users.reports');
 		Route::get('/users/myself', 'Auth\IdentityController@identity');
 
-        Route::put('/users/{user}/update_yourself', 'Resources\UsersController@update_yourself')->middleware('can:update.yourself');
-        Route::post('/users/{user_id}/send_reactivation_mail', 'Resources\UsersController@send_reactivation_mail')->middleware('can:users.manage');
+        Route::put('/user/{user}/update_yourself', 'Resources\UsersController@update_yourself')->middleware('can:update.yourself');
+        Route::post('/user/{user_id}/send_reactivation_mail', 'Resources\UsersController@send_reactivation_mail')->middleware('can:users.manage');
 
 		Route::group(['middleware' => 'can:users.manage'], function() {
 			Route::post('/users/{user_id}/restore', 'Resources\UsersController@restore');
