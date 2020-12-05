@@ -71,10 +71,14 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
         Route::get('/users/reports/download', 'Resources\UsersController@getReport')->middleware('can:users.reports');
         Route::post('/users/reports/create', 'Resources\UsersController@createReport')->middleware('can:users.reports');
 		Route::get('/users/myself', 'Auth\IdentityController@identity');
+
 		Route::group(['middleware' => 'can:users.manage'], function() {
 			Route::post('/users/{user_id}/restore', 'Resources\UsersController@restore');
 			Route::resource('/users', 'Resources\UsersController');
 		});
+
+		//Update 'update.yourself'
+        Route::put('/users/{user}/update_yourself', 'Resources\UsersController@update_yourself')->middleware('can:update.yourself');
 
         // User Groups
         Route::get('/groups', 'Resources\GroupsController@index');

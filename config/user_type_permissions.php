@@ -25,6 +25,7 @@ return [
         'ufs.contact_info',
         'developer_tools',
         'maintenance',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_GESTOR_NACIONAL => [
@@ -47,6 +48,7 @@ return [
         'ufs.contact_info',
         'cities.selo_reports',
         'users.reports',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_COMITE_NACIONAL => [
@@ -57,6 +59,7 @@ return [
         'cases.map',
         'tenants.view',
         'ufs.view',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO => [
@@ -71,6 +74,7 @@ return [
         'preferences',
         'notifications',
         'groups.manage',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
@@ -86,6 +90,7 @@ return [
         'tenants.export',
         'groups.manage',
         'preferences',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_COORDENADOR_ESTADUAL => [
@@ -113,7 +118,8 @@ return [
         'cases.step.2a_observacao',
         'cases.step.3a_observacao',
         'cases.step.4a_observacao',
-        'school.list'
+        'school.list',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL => [
@@ -122,6 +128,7 @@ return [
         'tenants.view',
         'tenants.contact_info',
         'preferences',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL => [
@@ -157,7 +164,8 @@ return [
         'preferences',
         'notifications',
         'groups.manage',
-        'school.list'
+        'school.list',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL => [
@@ -186,7 +194,8 @@ return [
         'preferences',
         'notifications',
         'settings.educacenso',
-        'school.list'
+        'school.list',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_SUPERVISOR_ESTADUAL => [
@@ -217,7 +226,8 @@ return [
         //'alerts.spawn',
         'preferences',
         'notifications',
-        'school.list'
+        'school.list',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR => [
@@ -232,10 +242,12 @@ return [
         'alerts.spawn',
         'preferences',
         'notifications',
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO => [
         'alerts.spawn',
+        'update.yourself',
     ],
 
 
@@ -253,7 +265,9 @@ return [
         'cases.step.1a_observacao',
         'cases.step.2a_observacao',
         'cases.step.3a_observacao',
-        'cases.step.4a_observacao'
+        'cases.step.4a_observacao',
+
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL_DOIS => [
@@ -270,7 +284,9 @@ return [
 //        'cases.step.1a_observacao',
 //        'cases.step.2a_observacao',
 //        'cases.step.3a_observacao',
-//        'cases.step.4a_observacao'
+//        'cases.step.4a_observacao',
+
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL_TRES => [
@@ -287,7 +303,9 @@ return [
 //        'cases.step.1a_observacao',
 //        'cases.step.2a_observacao',
 //        'cases.step.3a_observacao',
-//        'cases.step.4a_observacao'
+//        'cases.step.4a_observacao',
+
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_VISITANTE_NACIONAL_QUATRO => [
@@ -304,7 +322,9 @@ return [
         'cases.step.1a_observacao',
         'cases.step.2a_observacao',
         'cases.step.3a_observacao',
-        'cases.step.4a_observacao'
+        'cases.step.4a_observacao',
+
+        'update.yourself',
     ],
 
 
@@ -323,7 +343,9 @@ return [
 //        'cases.step.1a_observacao',
 //        'cases.step.2a_observacao',
 //        'cases.step.3a_observacao',
-//        'cases.step.4a_observacao'
+//        'cases.step.4a_observacao',
+
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_DOIS => [
@@ -341,7 +363,9 @@ return [
 //        'cases.step.1a_observacao',
 //        'cases.step.2a_observacao',
 //        'cases.step.3a_observacao',
-//        'cases.step.4a_observacao'
+//        'cases.step.4a_observacao',
+
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_TRES => [
@@ -359,7 +383,9 @@ return [
 //        'cases.step.1a_observacao',
 //        'cases.step.2a_observacao',
 //        'cases.step.3a_observacao',
-//        'cases.step.4a_observacao'
+//        'cases.step.4a_observacao',
+
+        'update.yourself',
     ],
 
     BuscaAtivaEscolar\User::TYPE_VISITANTE_ESTADUAL_QUATRO => [
@@ -377,7 +403,9 @@ return [
 //        'cases.step.1a_observacao',
 //        'cases.step.2a_observacao',
 //        'cases.step.3a_observacao',
-//        'cases.step.4a_observacao'
+//        'cases.step.4a_observacao',
+
+        'update.yourself',
     ],
 
     'can_manage_types' => [ // Which users can set/change/create which user types
@@ -452,21 +480,26 @@ return [
             BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
             BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
             BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
-            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO
         ],
         BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO => [
             BuscaAtivaEscolar\User::TYPE_GESTOR_OPERACIONAL,
             BuscaAtivaEscolar\User::TYPE_GESTOR_POLITICO,
             BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
             BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
-            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO
         ],
         BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL => [
+            BuscaAtivaEscolar\User::TYPE_SUPERVISOR_INSTITUCIONAL,
             BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR,
-            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO,
+            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO
         ],
-        BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR => [],
-        BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO => [],
+        BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR => [
+            BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR
+        ],
+        BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO => [
+            BuscaAtivaEscolar\User::TYPE_AGENTE_COMUNITARIO
+        ],
     ],
 
     'can_filter_types' => [ // Which users can set/change/create which user types
