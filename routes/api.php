@@ -79,6 +79,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 		//Update 'update.yourself'
         Route::put('/users/{user}/update_yourself', 'Resources\UsersController@update_yourself')->middleware('can:update.yourself');
+        Route::post('/users/{user_id}/send_reactivation_mail', 'Resources\UsersController@send_reactivation_mail')->middleware('can:users.manage');
 
         // User Groups
         Route::get('/groups', 'Resources\GroupsController@index');

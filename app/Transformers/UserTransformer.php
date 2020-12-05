@@ -56,6 +56,7 @@ class UserTransformer extends TransformerAbstract {
 
 			'created_at' => $user->created_at,
 			'deleted_at' => $user->deleted_at,
+            'lgpd' => $user->lgpd
 
 			] + (($this->mode == 'long') ? [
 

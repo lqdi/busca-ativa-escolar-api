@@ -22,6 +22,7 @@ use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use BuscaAtivaEscolar\ExportUsersJob;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Mail\UserRegisterNotification;
 use BuscaAtivaEscolar\Mailables\StateUserRegistered;
 use BuscaAtivaEscolar\Mailables\UserRegistered;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
@@ -303,12 +304,14 @@ class UsersController extends BaseController
                 $user->save();
             }
 
-            if ($user->tenant) {
-                Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
-            } else if ($isUFUser) {
-                Mail::to($user->email)->send(new StateUserRegistered($user->uf, $user, $initialPassword));
-            }
+//            if ($user->tenant) {
+//                Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
+//            } else if ($isUFUser) {
+//                Mail::to($user->email)->send(new StateUserRegistered($user->uf, $user, $initialPassword));
+//            }
 
+            Mail::to($user->email)->send(new UserRegisterNotification($user, UserRegisterNotification::TYPE_REGISTER_INITIAL));
+            
             return response()->json(['status' => 'ok', 'id' => $user->id]);
 
         } catch (\Exception $ex) {
@@ -328,7 +331,9 @@ class UsersController extends BaseController
         }
 
         try {
-            $user->delete(); // Soft-deletes internally
+            $user->lgpd = 0;
+            $user->save();
+            $user->delete();
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
@@ -365,6 +370,9 @@ class UsersController extends BaseController
             }
 
             $user->restore();
+
+            Mail::to($user->email)->send(new UserRegisterNotification($user, UserRegisterNotification::TYPE_REGISTER_REACTIVATION));
+
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
@@ -473,6 +481,18 @@ class UsersController extends BaseController
             return $this->api_exception($ex);
         }
 
+    }
+
+    public function send_reactivation_mail($user_id)
+    {
+        try {
+
+            $user = User::findOrFail($user_id);
+            Mail::to($user->email)->send(new UserRegisterNotification($user, UserRegisterNotification::TYPE_REGISTER_REACTIVATION));
+
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
     }
 
 }
