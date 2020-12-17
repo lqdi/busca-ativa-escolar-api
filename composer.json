@@ -1,71 +1,81 @@
 {
-    "name": "lqdi/busca-ativa-escolar-api",
-    "description": "Busca Ativa Escolar - API",
-    "license": "AGPLv2",
+    "name": "laravel/laravel",
     "type": "project",
+    "description": "The Laravel Framework.",
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
+    "license": "MIT",
     "require": {
-        "php": ">=7.1.0",
-        "laravel/framework": "5.3.*",
-        "maatwebsite/excel": "^2.1",
+        "php": "^7.3",
+        "barryvdh/laravel-debugbar": "^v3.0.0",
+        "barryvdh/laravel-ide-helper": "^2.8",
+        "doctrine/dbal": "^2.11.1",
+        "elasticsearch/elasticsearch": "^7.9",
+        "fideloper/proxy": "^4.2",
         "filp/whoops": "^2.1",
-        "barryvdh/laravel-ide-helper": "^2.2",
-        "barryvdh/laravel-debugbar": "^2.3",
-        "firebase/php-jwt": "^4.0",
-        "tymon/jwt-auth": "^0.5",
-        "intervention/image": "^2.3",
-        "aws/aws-sdk-php": "^3.19",
-        "league/flysystem-aws-s3-v3": "^1.0",
-        "hashids/hashids": "^1.0",
-        "webpatser/laravel-uuid": "^2.0",
-        "spatie/laravel-sluggable": "^1.3",
-        "ixudra/curl": "^6.6",
-        "spatie/laravel-fractal": "^3.1",
-        "barryvdh/laravel-cors": "^0.8.2",
-        "doctrine/dbal": "^2.6",
-        "elasticsearch/elasticsearch": "^5.1",
-        "toin0u/geocoder-laravel": "^1.0",
-        "rap2hpoutre/laravel-log-viewer": "^0.8.0",
-        "pda/pheanstalk": "^3.1",
-        "jenssegers/agent": "^2.6",
-        "rap2hpoutre/fast-excel": "^2.2"
+        "fruitcake/laravel-cors": "^2.0",
+        "guzzlehttp/guzzle": "^7.0.1",
+        "hashids/hashids": "^4.0.0",
+        "intervention/image": "^2.5.1",
+        "ixudra/curl": "^6.21.0",
+        "jenssegers/agent": "^v2.6.4",
+        "laravel/framework": "^8.0",
+        "laravel/helpers": "^1.3",
+        "laravel/tinker": "^2.0",
+        "maatwebsite/excel": "^3.1",
+        "microsoft/microsoft-graph": "^1.24",
+        "pda/pheanstalk": "^4.0",
+        "phpoffice/phpexcel": "^1.8",
+        "phpoffice/phpspreadsheet": "^1.15",
+        "spatie/laravel-fractal": "^5.8.0",
+        "toin0u/geocoder-laravel": "^4.4.1",
+        "tymon/jwt-auth": "^1.0",
+        "webpatser/laravel-uuid": "^3.0.2"
     },
     "require-dev": {
-        "fzaninotto/faker": "~1.4",
-        "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~5.0",
-        "symfony/css-selector": "3.1.*",
-        "symfony/dom-crawler": "3.1.*"
+        "barryvdh/laravel-debugbar": "^3.5",
+        "facade/ignition": "^2.3.6",
+        "fzaninotto/faker": "^1.9.1",
+        "mockery/mockery": "^1.3.1",
+        "nunomaduro/collision": "^5.0",
+        "phpunit/phpunit": "^9.3"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
     },
     "autoload": {
-        "classmap": [
-            "database"
-        ],
         "psr-4": {
-            "BuscaAtivaEscolar\\": "app/"
+            "BuscaAtivaEscolar\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {
-        "classmap": [
-            "tests/TestCase.php"
-        ]
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
         "post-root-package-install": [
-            "php7.1 -r \"file_exists('.env') || copy('.env.example', '.env');\""
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "php7.1 artisan key:generate"
-        ],
-        "post-install-cmd": [
-            "Illuminate\\Foundation\\ComposerScripts::postInstall",
-            "php7.1 artisan optimize"
-        ],
-        "post-update-cmd": [
-            "Illuminate\\Foundation\\ComposerScripts::postUpdate",
-            "php7.1 artisan optimize"
+            "@php artisan key:generate --ansi"
         ]
-    },
-    "config": {
-        "preferred-install": "dist"
     }
 }
