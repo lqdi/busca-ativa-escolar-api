@@ -1,5 +1,9 @@
 <?php
-
+//phpinfo();
+if (!defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
+    //PHP < 7.2 Define it as 0 so it does nothing
+    define('JSON_INVALID_UTF8_SUBSTITUTE', 0);
+}
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
@@ -19,7 +23,7 @@
 |
 */
 
-require __DIR__.'/../bootstrap/autoload.php';
+require __DIR__ . '/../bootstrap/autoload.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +37,7 @@ require __DIR__.'/../bootstrap/autoload.php';
 |
 */
 
-$app = require_once __DIR__.'/../bootstrap/app.php';
+$app = require_once __DIR__ . '/../bootstrap/app.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +50,6 @@ $app = require_once __DIR__.'/../bootstrap/app.php';
 | and wonderful application we have prepared for them.
 |
 */
-
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
 $response = $kernel->handle(

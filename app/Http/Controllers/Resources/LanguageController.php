@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar\Http\Controllers\Resources;
 
 
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use Illuminate\Support\Arr;
 use Lang;
 
 class LanguageController extends BaseController {
@@ -31,7 +32,7 @@ class LanguageController extends BaseController {
 		// TODO: cache this
 
 		$timestamp = date("Y-m-d\TH:i:s");
-		$database = array_dot($base);
+		$database = Arr::dot($base);
 
 		return response()->json([
 			'version' => 'v1',

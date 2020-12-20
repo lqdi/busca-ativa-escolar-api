@@ -114,6 +114,10 @@ class Attachment extends Model {
 		}
 	}
 
+    public function getURLPublic() {
+        return str_replace("public", "storage", url($this->uri));
+    }
+
 	public function getFile() {
 		switch($this->location) {
 			case "local":default: return storage_path("app/{$this->uri}");
@@ -136,7 +140,7 @@ class Attachment extends Model {
 	// -----------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * Creates an attachment through a file uploaded via HTTP.
+	 * Creates an attachment through a file uploaded via HTTP. Used for Educacenso and XLS of municipalities
 	 *
 	 * @param UploadedFile $upload The uploaded file
 	 * @param Model $content The content entity that this attachment should be attached to
@@ -169,6 +173,38 @@ class Attachment extends Model {
 		return $attachment;
 
 	}
+
+    /**
+     * Cria um arquivo baseado na imagem carregada no momento da adesão de um município
+     *
+     * @param UploadedFile $upload The uploaded file
+     * @return Attachment
+     * @throws \Exception
+     */
+    public static function createFromImageTituloEleitor(UploadedFile $upload, $description = '') {
+        $attachment = new Attachment();
+        $attachment->id = Uuid::generate()->string;
+
+        $attachment->tenant_id = null;
+        $attachment->content_type = get_class($attachment);
+        $attachment->content_id = $attachment->id;
+        $attachment->uploader_id = null;
+
+        $attachment->mime_type = $upload->getMimeType();
+        $attachment->location = "local";
+        $attachment->file_name = $upload->getClientOriginalName();
+
+        $attachment->metadata = $upload;
+        $attachment->description = $description;
+
+        $fileName = $attachment->id . "." . strtolower(basename($upload->getClientOriginalExtension()));
+        $attachment->uri = $upload->storeAs("public/signups", $fileName);
+
+        $attachment->save();
+
+        return $attachment;
+
+    }
 
 	/**
 	 * Generates the base (directory) path based on a specific content type/id

@@ -76,18 +76,11 @@ class EmailJob extends Model
             throw new \Exception("Invalid email type: {$emailType}");
         }
 
-        //ACAO RELACIONADA A USUÁRIOS DO ESTADO
-        if($user->tenant == null){
-            $tenant_id = 0;
-        }else{
-            $tenant_id = $user->tenant->id;
-        }
-
         return self::create([
             'type' => $emailType,
             'status' => self::STATUS_PENDING,
             'user_id' => $user->id,
-            'tenant_id' => $tenant_id,
+            'tenant_id' => $user->tenant->id,
             'school_id' => $school->id,
             'school_email' => $school->school_email,
             'email_user' => $user->email

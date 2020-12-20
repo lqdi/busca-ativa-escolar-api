@@ -19,6 +19,7 @@ use BuscaAtivaEscolar\Reports\Interfaces\CanBeAggregated;
 use BuscaAtivaEscolar\Reports\Interfaces\CollectsDailyMetrics;
 use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use Elasticsearch\Client;
+use Illuminate\Support\Arr;
 
 class Reports {
 
@@ -120,7 +121,10 @@ class Reports {
 			'body' => $request
 		]);
 
-		$report = array_pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
+		// deprecated array_pluck
+		//$report = array_pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
+
+        $report = Arr::pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
 
 		if ( $dimension == 'age' AND $nullAges ){
 		    array_push($report, $response['aggregations']['num_entities_null']['doc_count']);

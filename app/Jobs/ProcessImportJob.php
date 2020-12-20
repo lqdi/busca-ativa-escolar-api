@@ -31,6 +31,16 @@ class ProcessImportJob implements ShouldQueue {
 		$this->importJob = $importJob;
 	}
 
+    /**
+     * Determine the time at which the job should timeout.
+     *
+     * @return \DateTime
+     */
+    public function retryUntil()
+    {
+        return now()->addSeconds(5);
+    }
+
 	/**
 	 * Handles a queued import job
 	 * @throws \Exception
@@ -54,6 +64,8 @@ class ProcessImportJob implements ShouldQueue {
 
 			Log::info("ImportJob({$this->importJob->id}) - completed processing");
 
+            $this->importJob->save();
+
 		} catch (\Exception $ex) {
 
 			Log::error("ImportJob({$this->importJob->id}) - failed: " . $ex->getMessage());
@@ -61,6 +73,7 @@ class ProcessImportJob implements ShouldQueue {
 			$this->importJob->setStatus(ImportJob::STATUS_FAILED);
 
 			$this->importJob->storeError($ex);
+
 			$this->importJob->save();
 
 			throw $ex;

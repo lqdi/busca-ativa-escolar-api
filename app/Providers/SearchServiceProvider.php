@@ -37,7 +37,7 @@ class SearchServiceProvider extends ServiceProvider {
 
     	$esClient = ClientBuilder::create()
 		    ->setHosts([env('ELASTICSEARCH_ADDR', '127.0.0.1:9200')])
-		    ->setLogger(ClientBuilder::defaultLogger(storage_path('logs/elastic.log')))
+//		    ->setLogger(ClientBuilder::defaultLogger(storage_path('logs/elastic.log'))) todo ver solução de logs
 		    ->build();
 
 	    $this->app->singleton(Search::class, function ($app) use ($esClient) {

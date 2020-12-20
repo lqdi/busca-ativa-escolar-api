@@ -15,6 +15,7 @@ namespace BuscaAtivaEscolar;
 
 
 use BuscaAtivaEscolar\Exceptions\ValidationException;
+use BuscaAtivaEscolar\Mail\UserRegisterNotification;
 use BuscaAtivaEscolar\Mailables\UserCredentialsForNewTenant;
 use BuscaAtivaEscolar\Settings\TenantSettings;
 use BuscaAtivaEscolar\Traits\Data\IndexedByUUID;
@@ -286,9 +287,9 @@ class Tenant extends Model  {
 			throw new ValidationException('political_admin_email_in_use');
 		}
 
-		if(User::checkIfExists($operationalAdminData['email'])) {
-			throw new ValidationException('operational_admin_email_in_use');
-		}
+        if(User::checkIfExists($operationalAdminData['email'])) {
+            throw new ValidationException('operational_admin_email_in_use');
+        }
 
 		$now = date('Y-m-d H:i:s');
 
@@ -329,7 +330,8 @@ class Tenant extends Model  {
 
 		$operationalAdmin = new User();
 		$operationalAdmin->fill($operationalAdminData);
-		$operationalAdmin->password = password_hash($operationalAdminData['password'], PASSWORD_DEFAULT);
+		//default password
+		$operationalAdmin->password = password_hash( date_timestamp_get(date_create()), PASSWORD_DEFAULT);
 
 		$validator = $operationalAdmin->validate($operationalAdminData, true, true, false);
 
@@ -358,11 +360,126 @@ class Tenant extends Model  {
 		Cache::forget('uf_tenants_' . $tenant->uf);
 
 		Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
-		Mail::to($operationalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $operationalAdmin, $operationalAdminData['password']));
+		Mail::to($operationalAdmin->email)->send(new UserRegisterNotification($operationalAdmin, UserRegisterNotification::TYPE_REGISTER_INITIAL));
 
 		return $tenant;
 
 	}
+
+    /**
+     * Recovere a tenant based on sign-up data
+     *
+     * @param TenantSignup $signup
+     * @param array $politicalAdminData
+     * @param array $operationalAdminData
+     *
+     * @throws \Exception on failure
+     *
+     * @returns Tenant
+     */
+    public static function recovere(TenantSignup $signup, array $politicalAdminData, array $operationalAdminData, $lastTenant, array $lastCoordinators) {
+
+        $city = $signup->city;
+
+        if(!$city) {
+            throw new ValidationException('invalid_signup_city');
+        }
+
+        if(User::checkIfExists($politicalAdminData['email'])) {
+            throw new ValidationException('political_admin_email_in_use');
+        }
+
+        if(sizeof($operationalAdminData) > 0){
+            if(User::checkIfExists($operationalAdminData['email'])) {
+                throw new ValidationException('operational_admin_email_in_use');
+            }
+        }
+
+        foreach ($lastCoordinators as $coordinator){
+            if(User::checkIfExists($coordinator['email'])) {
+                throw new ValidationException('coordinator_email_in_use');
+            }
+        }
+
+        $now = date('Y-m-d H:i:s');
+
+        //Recupera o antigo tenant
+        $tenant = Tenant::withTrashed()->where('id', '=', $lastTenant['id'])->first();
+
+        //Cria a estutura dos dados do novo Gestor político
+        $politicalAdminData['type'] = User::TYPE_GESTOR_POLITICO;
+        $politicalAdminData['uf'] = $tenant->uf;
+        $politicalAdminData['tenant_id'] = $tenant->id;
+
+        $politicalAdmin = new User();
+        $politicalAdmin->fill($politicalAdminData);
+        $politicalAdmin->password = password_hash($politicalAdminData['password'], PASSWORD_DEFAULT);
+
+        $validator = $politicalAdmin->validate($politicalAdminData, true, true, false);
+
+        if($validator->fails()) {
+            throw new ValidationException('invalid_political_admin_data', $validator);
+        }
+
+        //cria a estrutura do novo coordenador se existir
+        if(sizeof($operationalAdminData) > 0){
+
+            $operationalAdminData['type'] = User::TYPE_GESTOR_OPERACIONAL;
+            $operationalAdminData['tenant_id'] = $tenant->id;
+            $operationalAdminData['uf'] = $tenant->uf;
+
+            $operationalAdmin = new User();
+            $operationalAdmin->fill($operationalAdminData);
+            //default password
+            $operationalAdmin->password = password_hash(date_timestamp_get(date_create()), PASSWORD_DEFAULT);
+
+            $validator = $operationalAdmin->validate($operationalAdminData, true, true, false);
+
+            if($validator->fails()) {
+                throw new ValidationException('invalid_operational_admin_data', $validator);
+            }
+
+            $politicalAdmin->save();
+            Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
+
+            $operationalAdmin->save();
+            Mail::to($operationalAdmin->email)->send(new UserRegisterNotification($operationalAdmin, UserRegisterNotification::TYPE_REGISTER_INITIAL));
+
+            $tenant->operational_admin_id = $operationalAdmin->id;
+
+        }else{
+            $politicalAdmin->save();
+            Mail::to($politicalAdmin->email)->send(new UserCredentialsForNewTenant($signup, $tenant, $politicalAdmin, $politicalAdminData['password']));
+        }
+
+        $tenant->political_admin_id = $politicalAdmin->id;
+        $tenant->is_registered = true;
+        $tenant->is_active = true;
+        $tenant->last_active_at = $now;
+        $tenant->activated_at = $now;
+        $tenant->deleted_at = null;
+        $tenant->save();
+
+        $signup->is_provisioned = true;
+        $signup->tenant_id = $tenant->id;
+        $signup->save();
+
+        Cache::forget('uf_tenants_' . $tenant->uf);
+
+        //reativa usuários e encaminha mensagens
+        foreach ($lastCoordinators as $coordinator){
+            if( $coordinator['active'] ){
+                $registeredCoordenator = User::onlyTrashed()->where('id', '=', $coordinator['id'])->first();
+                $registeredCoordenator->email = $coordinator['email'];
+                $registeredCoordenator->save();
+                $registeredCoordenator->restore();
+                Mail::to($registeredCoordenator->email)->send(new UserRegisterNotification($registeredCoordenator, UserRegisterNotification::TYPE_REGISTER_REACTIVATION));
+            }
+        }
+
+        return $tenant;
+
+    }
 
 	/**
 	 * Gets a list of all tenant IDs within a specific state

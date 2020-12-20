@@ -3,6 +3,7 @@
 namespace BuscaAtivaEscolar\Exceptions;
 
 use Exception;
+use Throwable;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Log;
@@ -31,7 +32,7 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return void
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         parent::report($exception);
     }
@@ -43,7 +44,7 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception) {
+    public function render($request, Throwable $exception) {
 
     	if($request->ajax() || $request->wantsJson()) {
 

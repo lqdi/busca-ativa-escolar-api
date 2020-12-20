@@ -2,7 +2,6 @@
 
 namespace BuscaAtivaEscolar\Jobs;
 
-use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Goal;
@@ -102,19 +101,6 @@ class ProcessReportSeloJob implements ShouldQueue
                             'child_status' => Child::STATUS_IN_SCHOOL
                         ])->count();
 
-                $cancelados =
-                    Rematricula::whereHas('cases', function ($query) {
-                        $query->where(['cancel_reason' => 'city_transfer'])
-                            ->orWhere(['cancel_reason' => 'death'])
-                            ->orWhere(['cancel_reason' => 'not_found'])
-                            ->orWhere(['case_status' => 'interrupted'])
-                            ->orWhere(['case_status' => 'transferred']);
-                    })->where(
-                        [
-                            'tenant_id' => $tenant->id,
-                            'is_completed' => true
-                        ]
-                    )->count();
 
                 array_push(
                     $cities,
@@ -208,14 +194,20 @@ class ProcessReportSeloJob implements ShouldQueue
                                     'alert_status' => Child::ALERT_STATUS_ACCEPTED,
                                     'child_status' => Child::STATUS_OUT_OF_SCHOOL
                                 ])->count(),
-
-                        'Cancelados' => $cancelados,
+                        'Cancelados' =>
+                            Child::whereHas('cases', function ($query){
+                                $query->where(['case_status'=> 'cancelled']);
+                            })->where(
+                                [
+                                    'tenant_id' => $tenant->id,
+                                    'alert_status' => Child::ALERT_STATUS_ACCEPTED,
+                                    'child_status' => Child::STATUS_CANCELLED
+                                ])->count(),
 
                         'Concluídos' => $concluidos,
 
                         'CeA na Escola' => $obs1+$obs2+$obs3+$obs4+$concluidos,
-
-                        '% Atingimento da Meta' => (($obs1+$obs2+$obs3+$obs4+$concluidos+$cancelados)*100)/$city->goal->goal,
+                        '% Atingimento da Meta' => (($obs1+$obs2+$obs3+$obs4+$concluidos)*100)/$city->goal->goal,
 
                         'ID-CIDADE' => $city->id
                     ]

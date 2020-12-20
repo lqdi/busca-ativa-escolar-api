@@ -15,9 +15,14 @@ namespace BuscaAtivaEscolar\Http\Controllers\Tenants;
 
 
 use Auth;
+use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\City;
+use BuscaAtivaEscolar\ElectedMayor;
+use BuscaAtivaEscolar\EmailTypes\ClassFrequencyNotification;
 use BuscaAtivaEscolar\Exceptions\ValidationException;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Mail\MayorSignupNotification;
+use BuscaAtivaEscolar\School;
 use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
@@ -27,8 +32,14 @@ use DB;
 use Event;
 use Excel;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class TenantSignupController extends BaseController  {
+
+    const PERMITED_FILES_MIME_TYPES = [
+        'image/jpeg',
+        'image/png'
+    ];
 
 	public function register() {
 		$data = request()->all();
@@ -58,6 +69,9 @@ class TenantSignupController extends BaseController  {
 			}
 
 			$signup = TenantSignup::createFromForm($data);
+
+            $message = new MayorSignupNotification($signup);
+            Mail::to($data['mayor']['email'])->send($message);
 
 			return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
 		} catch (\Exception $ex) {
@@ -189,6 +203,34 @@ class TenantSignupController extends BaseController  {
 		$cityId = $signup['original']['city_id'];
 		$city = $signup->getCitybyId($cityId);
         $signup->setAttribute('city', $city);
+
+        /*
+         * Update da readesao. Exibicao da lista de coordenadores
+         * baseado na última adesão que existia na plataforma
+         * data setada manualmente
+         */
+        $lastTenant = Tenant::onlyTrashed()
+            ->where([
+                ['deleted_at', '>', '2020-11-17 00:00:00'],
+                ['city_id', '=', $signup->city_id ]
+            ])->latest('created_at')
+            ->first();
+
+        $lastCoordinators = null;
+
+        if($lastTenant != null){
+
+            $lastCoordinators = User::onlyTrashed()
+                ->with('group')
+                ->where([
+                    ['tenant_id', '=', $lastTenant->id],
+                    ['type', '=', User::TYPE_GESTOR_OPERACIONAL]
+                ])->get();
+        }
+
+        $signup->setAttribute('last_tenant', $lastTenant);
+        $signup->setAttribute('last_coordinators', $lastCoordinators);
+
 		return response()->json($signup);
 	}
 
@@ -204,6 +246,19 @@ class TenantSignupController extends BaseController  {
 			return $this->api_exception($ex);
 		}
 	}
+
+    public function accept(TenantSignup $signup) {
+        try {
+
+            if(!$signup) return $this->api_failure('invalid_signup_id');
+
+            $signup->accept();
+            return response()->json(['status' => 'ok', 'signup_id' => $signup->id]);
+
+        } catch (\Exception $ex) {
+            return $this->api_exception($ex);
+        }
+    }
 
 	public function reject(TenantSignup $signup) {
 		try {
@@ -259,14 +314,37 @@ class TenantSignupController extends BaseController  {
 		$politicalAdmin = request('political', []);
 		$operationalAdmin = request('operational', []);
 
-		if(trim(strtolower($politicalAdmin['email'])) === trim(strtolower($operationalAdmin['email']))) {
-			return $this->api_failure("admin_emails_are_the_same");
-		}
+        $lastTenant = request('lastTenant', null);
+        $lastCoordinators = request('lastCoordinators', []);
+        $isNecessaryNewCoordinator = request('isNecessaryNewCoordinator', false);
+
+		if($isNecessaryNewCoordinator){
+            if(trim(strtolower($politicalAdmin['email'])) === trim(strtolower($operationalAdmin['email']))) {
+                return $this->api_failure("admin_emails_are_the_same");
+            }
+        }
+
+		foreach ($lastCoordinators as $coordinator){
+            if(trim(strtolower($politicalAdmin['email'])) === trim(strtolower($coordinator['email']))) {
+                return $this->api_failure("coordinator_emails_are_the_same");
+            }
+            if($isNecessaryNewCoordinator) {
+                if (trim(strtolower($operationalAdmin['email'])) === trim(strtolower($coordinator['email']))) {
+                    return $this->api_failure("coordinator_emails_are_the_same");
+                }
+            }
+        }
 
 		try {
-			$tenant = Tenant::provision($signup, $politicalAdmin, $operationalAdmin);
+
+		    if($lastTenant == null){
+                $tenant = Tenant::provision($signup, $politicalAdmin, $operationalAdmin);
+            }else{
+                $tenant = Tenant::recovere($signup, $politicalAdmin, $operationalAdmin, $lastTenant, $lastCoordinators);
+            }
 
 			return response()->json(['status' => 'ok', 'tenant_id' => $tenant->id]);
+
 		} catch (ValidationException $ex) {
 			if($ex->getValidator()) return $this->api_validation_failed($ex->getReason(), $ex->getValidator());
 			return $this->api_failure($ex->getReason());
@@ -287,5 +365,72 @@ class TenantSignupController extends BaseController  {
 		return response()->json(['status' => 'ok']);
 
 	}
+
+	public function uploadfile(){
+        $file = request()->file('file');
+        if(!in_array($file->getMimeType(), self::PERMITED_FILES_MIME_TYPES)){
+            return response()->json(["reason" => "Arquivo inválido",  "status" => "error"], 400);
+        }
+        $attachment = Attachment::createFromImageTituloEleitor($file, "Titulo de eleitor de prefeito - " . date('Y-m-d H:i:s'));
+        return response()->json(['status' => 'ok', 'link' => $attachment->getURLPublic()]);
+    }
+
+    public function getMayorByCpf(){
+        $cpf = request('cpf');
+        if(!$cpf) return $this->api_failure('invalid_token');
+        $electedMayor = ElectedMayor::where('cpf', '=', $cpf)->first();
+        if($electedMayor != null){
+            return response()->json(['status' => 'ok', 'mayor' => $electedMayor]);
+        }else{
+            return response()->json(['status' => 'not_found', 'mayor' => null]);
+        }
+    }
+
+    public function get_user_via_token(User $user) {
+        $token = request('token');
+        $validToken = $user->getURLToken();
+
+        if(!$token) return $this->api_failure('invalid_token');
+        if($token !== $validToken) return $this->api_failure('token_mismatch');
+        if($user->lgpd) return $this->api_failure('lgpd_already_accepted');
+
+        return response()->json($user);
+    }
+
+    public function confirm_user(User $user){
+        $token = request('token');
+        $validToken = $user->getURLToken();
+
+        $input = request()->all();
+
+        if(!$token) return $this->api_failure('invalid_token');
+        if($token !== $validToken) return $this->api_failure('token_mismatch');
+        if($user->lgpd) return $this->api_failure('lgpd_already_accepted');
+
+        if(trim($input['user']['email']) != $user->email){
+            if(User::checkIfExists($input['user']['email'])) {
+                return $this->api_failure('email_already_used');
+            }
+        }
+
+        if (!isset($input['user']['password'])) {
+            return $this->api_failure('invalid_password');
+        }
+
+        $input['user']['password'] = password_hash($input['user']['password'], PASSWORD_DEFAULT);
+
+        $validation = $user->validate($input['user'], false, false, false);
+
+        if ($validation->fails()) {
+            return $this->api_validation_failed('validation_failed', $validation);
+        }
+
+        $user->fill($input['user']);
+
+        $user->save();
+
+        return response()->json(['status' => 'ok', 'updated' => $input['user']]);
+
+    }
 
 }

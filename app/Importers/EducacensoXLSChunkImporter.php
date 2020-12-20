@@ -12,13 +12,17 @@ use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\Comment;
 use BuscaAtivaEscolar\Data\AlertCause;
+use BuscaAtivaEscolar\Importers\TypeImporters\ChunkEducacensoReadFilter;
+use BuscaAtivaEscolar\Importers\TypeImporters\EducacensoImporter;
 use BuscaAtivaEscolar\ImportJob;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
 use Config;
 use Excel;
+use League\CommonMark\Inline\Parser\EscapableParser;
 use Log;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 
 class EducacensoXLSChunkImporter
@@ -58,6 +62,8 @@ class EducacensoXLSChunkImporter
      */
     public function handle(ImportJob $job) {
 
+        set_time_limit(0);
+
         $this->job = $job;
         $this->tenant = $job->tenant;
         $this->file = $job->getAbsolutePath();
@@ -71,27 +77,53 @@ class EducacensoXLSChunkImporter
         Log::info("[educacenso_import] Tenant {$this->tenant->name}, file {$this->file}");
         Log::info("[educacenso_import] Loading spreadsheet data into memory ...");
 
-        Config::set('excel.import.startRow', 12);
-        Excel::selectSheetsByIndex(0)->filter('chunk')->load($this->file)->chunk(
-            1000,
-            function ($results) {
-                foreach ($results->toArray() as $rowNumber => $row) {
-                    if(!array_key_exists('uf', $row)){
-                        Log::info("[educacenso_import] \t no 'UF' keyword found");
-                        throw new \Exception("Arquivo diferente do padrão fornecido pelo Educacenso");
+        /** Cria o reader do PhpSpreadsheet */
+        $reader = IOFactory::createReader('Xlsx');
+
+        /**  Define a quantidade de linhas para cada chunk  **/
+        $chunkSize = 100;
+
+        /**  Instância de filtro ChunkEducacensoReadFilter **/
+        $chunkFilter = new ChunkEducacensoReadFilter();
+
+        $reader->setReadFilter($chunkFilter);
+
+        /**  O limite de linha 65536 está relacionado ao número máximo de linhas de um XLS **/
+        for ($startRow = 0; $startRow <= 65536; $startRow += $chunkSize) {
+
+            $chunkFilter->setRows($startRow, $chunkSize);
+            $maxRow = ($startRow + $chunkSize)-1;
+            $spreadsheet = $reader->load($this->file);
+            $records = $spreadsheet->getActiveSheet()->rangeToArray('A'.$startRow.':N'.$maxRow);
+
+            if($startRow > 0 AND $records[0][0] == null){
+                return;
+            }
+
+            if($startRow == 0 AND $this->isHeaderEducacenso($records[12]) == false){
+                throw new \Exception("Cabeçalho padrão do Educacenso não localizado");
+            }
+
+            foreach ($records as $key => $record) {
+
+                if( ($startRow == 0 AND $key > 12) OR ($startRow > 0) ) {
+
+                    if ($record[0] == null) { goto end; }
+
+                    if(!$this->isThereChild($record)){
+
+                        $this->parseChildRow($record);
+
                     }
-                    Log::info("[educacenso_import] \t Found UF keyword!");
-                    if($row['uf'] == null){
-                        Log::info("[educacenso_import] Found empty line in data block, block has closed!");
-                        break;
-                    }
-                    if(!$this->isThereChild($row)){
-                        $this->parseChildRow($row);
-                    }
+
                 }
-            },
-            false
-        );
+
+            }
+
+        }
+
+        end:
+        Log::info("Última linha do arquivo localizada");
 
         Log::info("[educacenso_import] Completed parsing all records");
 
@@ -118,13 +150,13 @@ class EducacensoXLSChunkImporter
         ];
 
         $fieldMap = [
-            'identificacao_unica' => 'educacenso_id',
-            'nome_do_aluno' => 'name',
-            'data_de_nascimento' => 'dob',
-            'filiacao_1' => 'mother_name',
-            'localizacao' => 'place_kind',
-            'codigo_da_escola' => 'school_last_id',
-            'nome_da_escola' => 'school_last_name',
+            8 => 'educacenso_id',
+            9 => 'name',
+            10 => 'dob',
+            11 => 'mother_name',
+            5 => 'place_kind',
+            6 => 'school_last_id',
+            7 => 'school_last_name',
         ];
 
         $data = [];
@@ -134,7 +166,7 @@ class EducacensoXLSChunkImporter
             $data[$systemField] = $row[$xlsField];
         }
 
-        $data['observation'] = "Escola: ".$row['nome_da_escola']." | Modalidade de ensino: ".$row['modalidade_de_ensino']." | Etapa: ".$row['etapa_de_ensino'];
+        $data['observation'] = "Escola: ".$row[7]." | Modalidade de ensino: ".$row[12]." | Etapa: ".$row[13];
 
         $data['alert_cause_id'] = AlertCause::getBySlug('educacenso_inep')->id;
 
@@ -164,8 +196,8 @@ class EducacensoXLSChunkImporter
 
         Comment::post($child, $this->agent, "Caso importado na planilha do Educacenso");
 
-        if(isset($row['Etapa de ensino'])) {
-            Comment::post($child, $this->agent, "Última etapa de ensino: "  . $row['Etapa de ensino']);
+        if(isset($row[13])) {
+            Comment::post($child, $this->agent, "Última etapa de ensino: "  . $row[13]);
         }
 
         Log::info("[educacenso_import] \t Child spawn complete!");
@@ -173,7 +205,7 @@ class EducacensoXLSChunkImporter
     }
 
     public function isThereChild($row){
-        $identificacao_unica = strval($row['identificacao_unica']);
+        $identificacao_unica = strval($row[8]);
         $child = Child::where(
             [
                 ['educacenso_year', '=', $this->educacenso_year],
@@ -188,6 +220,29 @@ class EducacensoXLSChunkImporter
             Log::info("Child already exists ".$child->name." | ID: ".$child->id." | ID Educacenso: ".$child->educacenso_id." | Ano: ".$child->educacenso_year);
             return true;
         }
+    }
+
+    public function isHeaderEducacenso ($headerArray) {
+
+        $headerFileEducacenso = [
+            0 => 'UF',
+            1 => 'Município',
+            2 => 'Dependência Administrativa',
+            3 => 'Categoria da escola privada',
+            4 => 'Conveniada com o poder público',
+            5 => 'Localização',
+            6 => 'Código da escola',
+            7 => 'Nome da escola',
+            8 => 'Identificação única',
+            9 => 'Nome do aluno',
+            10 => 'Data de nascimento',
+            11 => 'Filiação 1',
+            12 => 'Modalidade de ensino',
+            13 => 'Etapa de ensino',
+        ];
+
+        return $headerArray == $headerFileEducacenso;
+
     }
 
 }
