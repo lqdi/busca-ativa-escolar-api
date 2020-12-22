@@ -468,12 +468,14 @@ class Tenant extends Model  {
 
         //reativa usuários e encaminha mensagens
         foreach ($lastCoordinators as $coordinator){
-            if( $coordinator['active'] ){
-                $registeredCoordenator = User::onlyTrashed()->where('id', '=', $coordinator['id'])->first();
-                $registeredCoordenator->email = $coordinator['email'];
-                $registeredCoordenator->save();
-                $registeredCoordenator->restore();
-                Mail::to($registeredCoordenator->email)->send(new UserRegisterNotification($registeredCoordenator, UserRegisterNotification::TYPE_REGISTER_REACTIVATION));
+            if( array_key_exists("active", $coordinator) ) {
+                if( $coordinator['active'] ){
+                    $registeredCoordenator = User::onlyTrashed()->where('id', '=', $coordinator['id'])->first();
+                    $registeredCoordenator->email = $coordinator['email'];
+                    $registeredCoordenator->save();
+                    $registeredCoordenator->restore();
+                    Mail::to($registeredCoordenator->email)->send(new UserRegisterNotification($registeredCoordenator, UserRegisterNotification::TYPE_REGISTER_REACTIVATION));
+                }
             }
         }
 

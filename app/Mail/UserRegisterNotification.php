@@ -36,7 +36,7 @@ class UserRegisterNotification extends Mailable
             ->success()
             ->subject($subject)
             ->line("Caro(a) usuário(a) ".$this->user->name)
-            ->line("MENSAGEM...")
+            ->line("Você agora faz parte da equipe da Busca Ativa Escolar em seu município. Por favor, confirme seu cadastro clicando no botão abaixo.")
             ->action('Confirmar cadastro', $this->getUrlConfirmRegister());
 
         $this->subject($subject);
