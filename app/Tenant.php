@@ -472,6 +472,7 @@ class Tenant extends Model  {
                 if( $coordinator['active'] ){
                     $registeredCoordenator = User::onlyTrashed()->where('id', '=', $coordinator['id'])->first();
                     $registeredCoordenator->email = $coordinator['email'];
+                    $registeredCoordenator->lgpd = 0;
                     $registeredCoordenator->save();
                     $registeredCoordenator->restore();
                     Mail::to($registeredCoordenator->email)->send(new UserRegisterNotification($registeredCoordenator, UserRegisterNotification::TYPE_REGISTER_REACTIVATION));
