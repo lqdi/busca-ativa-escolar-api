@@ -1,4 +1,5 @@
 <?php
+
 /**
  * busca-ativa-escolar-api
  * UsersController.php
@@ -59,7 +60,6 @@ class UsersController extends BaseController
             } else {
                 $query->whereIn('type', User::$UF_SCOPED_TYPES);
             }
-
         }
 
         if (!empty(request()->get('group_id'))) {
@@ -83,7 +83,6 @@ class UsersController extends BaseController
             } else {
                 $query->where('type', request('type'));
             }
-
         }
 
         if (!empty(request()->get('email'))) $query->where('email', 'LIKE', request('email') . '%');
@@ -138,7 +137,6 @@ class UsersController extends BaseController
             } else {
                 $query->whereIn('type', User::$UF_SCOPED_TYPES);
             }
-
         }
 
         if (isset($group_id) && $group_id != null) $query->where('group_id', $group_id);
@@ -161,11 +159,8 @@ class UsersController extends BaseController
 
                 $sheet->setOrientation('landscape');
                 $sheet->fromArray($users);
-
             });
-
         })->download('xls');
-
     }
 
     public function show(User $user)
@@ -240,7 +235,6 @@ class UsersController extends BaseController
             }
 
             return response()->json(['status' => 'ok', 'updated' => $input]);
-
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
@@ -304,17 +298,16 @@ class UsersController extends BaseController
                 $user->save();
             }
 
-//            if ($user->tenant) {
-//                Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
-//            } else if ($isUFUser) {
-//                Mail::to($user->email)->send(new StateUserRegistered($user->uf, $user, $initialPassword));
-//            }
+            //            if ($user->tenant) {
+            //                Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
+            //            } else if ($isUFUser) {
+            //                Mail::to($user->email)->send(new StateUserRegistered($user->uf, $user, $initialPassword));
+            //            }
 
             Mail::to($user->email)->send(new UserRegisterNotification($user, UserRegisterNotification::TYPE_REGISTER_INITIAL));
 
 
             return response()->json(['status' => 'ok', 'id' => $user->id]);
-
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
@@ -373,7 +366,6 @@ class UsersController extends BaseController
             $user->restore();
 
             Mail::to($user->email)->send(new UserRegisterNotification($user, UserRegisterNotification::TYPE_REGISTER_REACTIVATION));
-
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
@@ -418,11 +410,11 @@ class UsersController extends BaseController
             ],
             200
         );
-
     }
 
-    public function update_yourself(User $user){
-
+    public function update_yourself(User $user)
+    {
+        $grapController = new GraphController();
         try {
 
             $input = request()->all();
@@ -456,7 +448,8 @@ class UsersController extends BaseController
             if ($validation->fails()) {
                 return $this->api_validation_failed('validation_failed', $validation);
             }
-
+            $user->fill($input);
+            $grapController->createUser($user->id, $user->name, $user->type, $user->password, $user->email);
             if (isset($input['password'])) {
                 $input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
             }
@@ -477,11 +470,9 @@ class UsersController extends BaseController
             }
 
             return response()->json(['status' => 'ok', 'updated' => $input]);
-
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
-
     }
 
     public function send_reactivation_mail($user_id)
@@ -490,10 +481,8 @@ class UsersController extends BaseController
 
             $user = User::findOrFail($user_id);
             Mail::to($user->email)->send(new UserRegisterNotification($user, UserRegisterNotification::TYPE_REGISTER_REACTIVATION));
-
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
     }
-
 }
