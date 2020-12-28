@@ -34,6 +34,7 @@ use Excel;
 use Exception;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Mail;
+use BuscaAtivaEscolar\Http\Controllers\Auth\GraphController;
 
 class UsersController extends BaseController
 {
