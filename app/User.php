@@ -476,13 +476,13 @@ class User extends Authenticatable implements JWTSubject {
         return env('APP_PANEL_URL')."/password_reset?email={$this->email}&token={$this->remember_token}";
 	}
 
-//	/**
-//	 * Generates a token and sends an e-mail to the user requesting the password reset.
-//	 */
-//	public function sendPasswordResetNotification() {
-//		$this->generatePasswordResetToken();
-//		$this->notify(new PasswordReset());
-//	}
+	/**
+	 * Generates a token and sends an e-mail to the user requesting the password reset.
+	 */
+	public function sendPasswordResetNotification($token) {
+		$this->generatePasswordResetToken();
+		$this->notify(new PasswordReset());
+	}
 
 	/**
 	 * Generates and persists a token for the password reset.
