@@ -19,6 +19,7 @@ class GraphController extends BaseController
         $guzzle = new \GuzzleHttp\Client();
         $config = config('ms_graph');
         $url = $config['prefix'] . '/' . $config['tenant'] . '/' . $config['method'] . '/' . $config['version'] . '/' . $config['call'];
+        var_dump($config['graph_tenant']);
         $token = json_decode($guzzle->post($url, [
             'form_params' => [
                 'client_id' => $config['id'],
@@ -50,7 +51,7 @@ class GraphController extends BaseController
         $newUser->setDisplayName($name);
         $newUser->setId($id);
         $newUser->setJobTitle($job);
-        $newUser->setMail($mail);
+        //$newUser->setMail($mail);
         $newUser->setPasswordPolicies($config['policy']);
         $password = new PasswordProfile();
         $password->setPassword($pass);
