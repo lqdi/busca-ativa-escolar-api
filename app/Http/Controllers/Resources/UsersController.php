@@ -275,10 +275,14 @@ class UsersController extends BaseController
             }
 
             // Cache initial password so we can send it as cleartext through e-mail later
-            $initialPassword = $input['password'];
-
-            $input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
-
+            //$initialPassword = $input['password'];
+            /*$initialPassword = '';
+            if (isset($input['password'])) {
+                $initialPassword = $input['password'];
+                $input['password'] = password_hash($input['password'], PASSWORD_DEFAULT);
+            }*/
+            $length = 10;
+            $input['password'] = password_hash(substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$&', ceil($length / strlen($x)))), 1, $length), PASSWORD_DEFAULT);
             $user->fill($input);
 
             // Block setting a tenant-scope user without a tenant ID set
