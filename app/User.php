@@ -1,4 +1,5 @@
 <?php
+
 /**
  * busca-ativa-escolar-api
  * Iser.php
@@ -77,7 +78,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $remember_token
  * @property-read UserSettings $settings
  */
-class User extends Authenticatable implements JWTSubject {
+class User extends Authenticatable implements JWTSubject
+{
 
 	//use Authenticatable;
 	use Authorizable;
@@ -88,7 +90,7 @@ class User extends Authenticatable implements JWTSubject {
 	use Sortable;
 
 	const ID_EDUCACENSO_BOT = "b6b720e1-bee4-4cbb-9700-f1651db45094";
-    const ID_IMPORT_XLS_BOT = "xlsimportmunicipio_bot_pass#1";
+	const ID_IMPORT_XLS_BOT = "xlsimportmunicipio_bot_pass#1";
 
 	// Types of user
 	const TYPE_SUPERUSER = "superuser";
@@ -106,44 +108,44 @@ class User extends Authenticatable implements JWTSubject {
 
 	//perfis para visitantes
 
-    const TYPE_VISITANTE = "perfil_visitante";              // apenas para filtro dos perfis abaixo
-    const TYPE_VISITANTE_NACIONAL = "visitante_nacional";   // apenas para filtro dos perfis abaixo
-    const TYPE_VISITANTE_ESTADUAL = "visitante_estadual";   // apenas para filtro dos perfis abaixo
+	const TYPE_VISITANTE = "perfil_visitante";              // apenas para filtro dos perfis abaixo
+	const TYPE_VISITANTE_NACIONAL = "visitante_nacional";   // apenas para filtro dos perfis abaixo
+	const TYPE_VISITANTE_ESTADUAL = "visitante_estadual";   // apenas para filtro dos perfis abaixo
 
-    const TYPE_VISITANTE_NACIONAL_UM = "visitante_nacional_1";
-    const TYPE_VISITANTE_NACIONAL_DOIS = "visitante_nacional_2";
-    const TYPE_VISITANTE_NACIONAL_TRES = "visitante_nacional_3";
-    const TYPE_VISITANTE_NACIONAL_QUATRO = "visitante_nacional_4";
+	const TYPE_VISITANTE_NACIONAL_UM = "visitante_nacional_1";
+	const TYPE_VISITANTE_NACIONAL_DOIS = "visitante_nacional_2";
+	const TYPE_VISITANTE_NACIONAL_TRES = "visitante_nacional_3";
+	const TYPE_VISITANTE_NACIONAL_QUATRO = "visitante_nacional_4";
 
-    const TYPE_VISITANTE_ESTADUAL_UM = "visitante_estadual_1";
-    const TYPE_VISITANTE_ESTADUAL_DOIS = "visitante_estadual_2";
-    const TYPE_VISITANTE_ESTADUAL_TRES = "visitante_estadual_3";
-    const TYPE_VISITANTE_ESTADUAL_QUATRO = "visitante_estadual_4";
+	const TYPE_VISITANTE_ESTADUAL_UM = "visitante_estadual_1";
+	const TYPE_VISITANTE_ESTADUAL_DOIS = "visitante_estadual_2";
+	const TYPE_VISITANTE_ESTADUAL_TRES = "visitante_estadual_3";
+	const TYPE_VISITANTE_ESTADUAL_QUATRO = "visitante_estadual_4";
 
-    static $ALLOWED_TYPES_VISITANTES = [
-        self::TYPE_VISITANTE_NACIONAL_UM,
-        self::TYPE_VISITANTE_NACIONAL_DOIS,
-        self::TYPE_VISITANTE_NACIONAL_TRES,
-        self::TYPE_VISITANTE_NACIONAL_QUATRO,
-        self::TYPE_VISITANTE_ESTADUAL_UM,
-        self::TYPE_VISITANTE_ESTADUAL_DOIS,
-        self::TYPE_VISITANTE_ESTADUAL_TRES,
-        self::TYPE_VISITANTE_ESTADUAL_QUATRO,
-    ];
+	static $ALLOWED_TYPES_VISITANTES = [
+		self::TYPE_VISITANTE_NACIONAL_UM,
+		self::TYPE_VISITANTE_NACIONAL_DOIS,
+		self::TYPE_VISITANTE_NACIONAL_TRES,
+		self::TYPE_VISITANTE_NACIONAL_QUATRO,
+		self::TYPE_VISITANTE_ESTADUAL_UM,
+		self::TYPE_VISITANTE_ESTADUAL_DOIS,
+		self::TYPE_VISITANTE_ESTADUAL_TRES,
+		self::TYPE_VISITANTE_ESTADUAL_QUATRO,
+	];
 
-    //dados estáticos para mapear permissoes de visitantes no front
-    static $PERMISSIONS_FORM_FOR_VISITANTE = [
-        "visitante_nacional_1" => ['relatorios', 'usuarios', 'casos'],
-        "visitante_nacional_2" => ['relatorios', 'usuarios'],
-        "visitante_nacional_3" => ['relatorios'],
-        "visitante_nacional_4" => ['relatorios', 'casos'],
-        "visitante_estadual_1" => ['relatorios', 'usuarios', 'casos'],
-        "visitante_estadual_2" => ['relatorios', 'usuarios'],
-        "visitante_estadual_3" => ['relatorios'],
-        "visitante_estadual_4" => ['relatorios', 'casos'],
-    ];
+	//dados estáticos para mapear permissoes de visitantes no front
+	static $PERMISSIONS_FORM_FOR_VISITANTE = [
+		"visitante_nacional_1" => ['relatorios', 'usuarios', 'casos'],
+		"visitante_nacional_2" => ['relatorios', 'usuarios'],
+		"visitante_nacional_3" => ['relatorios'],
+		"visitante_nacional_4" => ['relatorios', 'casos'],
+		"visitante_estadual_1" => ['relatorios', 'usuarios', 'casos'],
+		"visitante_estadual_2" => ['relatorios', 'usuarios'],
+		"visitante_estadual_3" => ['relatorios'],
+		"visitante_estadual_4" => ['relatorios', 'casos'],
+	];
 
-    //--------------------------
+	//--------------------------
 
 	// Which user types are allowed to be assigned
 	static $ALLOWED_TYPES = [
@@ -156,16 +158,16 @@ class User extends Authenticatable implements JWTSubject {
 		self::TYPE_COORDENADOR_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
 
-        self::TYPE_VISITANTE,
+		self::TYPE_VISITANTE,
 
-        self::TYPE_VISITANTE_NACIONAL_UM,
-        self::TYPE_VISITANTE_NACIONAL_DOIS,
-        self::TYPE_VISITANTE_NACIONAL_TRES,
-        self::TYPE_VISITANTE_NACIONAL_QUATRO,
-        self::TYPE_VISITANTE_ESTADUAL_UM,
-        self::TYPE_VISITANTE_ESTADUAL_DOIS,
-        self::TYPE_VISITANTE_ESTADUAL_TRES,
-        self::TYPE_VISITANTE_ESTADUAL_QUATRO,
+		self::TYPE_VISITANTE_NACIONAL_UM,
+		self::TYPE_VISITANTE_NACIONAL_DOIS,
+		self::TYPE_VISITANTE_NACIONAL_TRES,
+		self::TYPE_VISITANTE_NACIONAL_QUATRO,
+		self::TYPE_VISITANTE_ESTADUAL_UM,
+		self::TYPE_VISITANTE_ESTADUAL_DOIS,
+		self::TYPE_VISITANTE_ESTADUAL_TRES,
+		self::TYPE_VISITANTE_ESTADUAL_QUATRO,
 	];
 
 	public static $TENANT_SCOPED_TYPES = [
@@ -176,19 +178,19 @@ class User extends Authenticatable implements JWTSubject {
 		self::TYPE_AGENTE_COMUNITARIO,
 	];
 
-    public static $TYPES_VISITANTES_UFS = [
-        self::TYPE_VISITANTE_ESTADUAL_UM,
-        self::TYPE_VISITANTE_ESTADUAL_DOIS,
-        self::TYPE_VISITANTE_ESTADUAL_TRES,
-        self::TYPE_VISITANTE_ESTADUAL_QUATRO,
-    ];
+	public static $TYPES_VISITANTES_UFS = [
+		self::TYPE_VISITANTE_ESTADUAL_UM,
+		self::TYPE_VISITANTE_ESTADUAL_DOIS,
+		self::TYPE_VISITANTE_ESTADUAL_TRES,
+		self::TYPE_VISITANTE_ESTADUAL_QUATRO,
+	];
 
-    public static $UF_VISITANTES_SCOPED_TYPES = [
-        self::TYPE_GESTOR_ESTADUAL,
-        self::TYPE_COORDENADOR_ESTADUAL,
-        self::TYPE_GESTOR_POLITICO,
-        self::TYPE_GESTOR_OPERACIONAL
-    ];
+	public static $UF_VISITANTES_SCOPED_TYPES = [
+		self::TYPE_GESTOR_ESTADUAL,
+		self::TYPE_COORDENADOR_ESTADUAL,
+		self::TYPE_GESTOR_POLITICO,
+		self::TYPE_GESTOR_OPERACIONAL
+	];
 
 	public static $UF_SCOPED_TYPES = [
 		self::TYPE_GESTOR_ESTADUAL,
@@ -196,10 +198,10 @@ class User extends Authenticatable implements JWTSubject {
 		self::TYPE_COORDENADOR_ESTADUAL,
 		self::TYPE_SUPERVISOR_ESTADUAL,
 
-        self::TYPE_VISITANTE_ESTADUAL_UM,
-        self::TYPE_VISITANTE_ESTADUAL_DOIS,
-        self::TYPE_VISITANTE_ESTADUAL_TRES,
-        self::TYPE_VISITANTE_ESTADUAL_QUATRO,
+		self::TYPE_VISITANTE_ESTADUAL_UM,
+		self::TYPE_VISITANTE_ESTADUAL_DOIS,
+		self::TYPE_VISITANTE_ESTADUAL_TRES,
+		self::TYPE_VISITANTE_ESTADUAL_QUATRO,
 	];
 
 	public static $GLOBAL_SCOPED_TYPES = [
@@ -207,15 +209,15 @@ class User extends Authenticatable implements JWTSubject {
 		self::TYPE_GESTOR_NACIONAL,
 		self::TYPE_COMITE_NACIONAL,
 
-        self::TYPE_VISITANTE_NACIONAL_UM,
-        self::TYPE_VISITANTE_NACIONAL_DOIS,
-        self::TYPE_VISITANTE_NACIONAL_TRES,
-        self::TYPE_VISITANTE_NACIONAL_QUATRO,
+		self::TYPE_VISITANTE_NACIONAL_UM,
+		self::TYPE_VISITANTE_NACIONAL_DOIS,
+		self::TYPE_VISITANTE_NACIONAL_TRES,
+		self::TYPE_VISITANTE_NACIONAL_QUATRO,
 
 	];
 
-    protected $fillable = [
-    	'name',
+	protected $fillable = [
+		'name',
 		'email',
 		'password',
 
@@ -246,7 +248,7 @@ class User extends Authenticatable implements JWTSubject {
 		'position',
 
 		'is_suspended',
-        'lgpd',
+		'lgpd',
 		'suspended_by',
 	];
 
@@ -262,7 +264,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Will be null when users are global users (SUPERUSER and GESTOR_NACIONAL)
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
-	public function tenant() {
+	public function tenant()
+	{
 		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
 	}
 
@@ -271,7 +274,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Will be null when users are global users (SUPERUSER and GESTOR_NACIONAL)
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
-	public function city() {
+	public function city()
+	{
 		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
 	}
 
@@ -280,7 +284,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Will be null when users are global users (SUPERUSER and GESTOR_NACIONAL)
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
-	public function group() {
+	public function group()
+	{
 		return $this->hasOne('BuscaAtivaEscolar\Group', 'id', 'group_id')->withoutGlobalScope(TenantScope::class);
 	}
 
@@ -288,7 +293,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Internal, primary key for API routing.
 	 * @return string
 	 */
-	public function getRouteKeyName() {
+	public function getRouteKeyName()
+	{
 		return 'id';
 	}
 
@@ -296,7 +302,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Resolves which e-mail to send notifications to
 	 * @return string
 	 */
-	public function routeNotificationForMail() {
+	public function routeNotificationForMail()
+	{
 		return $this->email;
 	}
 
@@ -304,7 +311,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Resolves which phone number to send SMS to
 	 * @return string
 	 */
-	public function routeNotificationForNexmo() {
+	public function routeNotificationForNexmo()
+	{
 		return $this->personal_mobile;
 	}
 
@@ -313,7 +321,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * @param string $relationship The type of relationship (default, assigned_to_me, assigned_to_group or all_cases)
 	 * @return array
 	 */
-	public function getNotificationChannels($relationship = 'default') {
+	public function getNotificationChannels($relationship = 'default')
+	{
 		return $this->getSettings()->getNotificationChannels($relationship);
 	}
 
@@ -321,7 +330,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Updates the user settings object
 	 * @param UserSettings $settings
 	 */
-	public function setSettings(UserSettings $settings) {
+	public function setSettings(UserSettings $settings)
+	{
 		$this->settings = $settings->serialize();
 		$this->save();
 	}
@@ -330,8 +340,9 @@ class User extends Authenticatable implements JWTSubject {
 	 * Gets the user settings object
 	 * @return UserSettings
 	 */
-	public function getSettings() {
-		if(!$this->settings) return new UserSettings();
+	public function getSettings()
+	{
+		if (!$this->settings) return new UserSettings();
 		return UserSettings::unserialize($this->settings);
 	}
 
@@ -339,11 +350,12 @@ class User extends Authenticatable implements JWTSubject {
 	 * Gets the list of permissions for the user, based on their type
 	 * @return array
 	 */
-	public function getPermissions() {
-		if(!$this->type) return [];
+	public function getPermissions()
+	{
+		if (!$this->type) return [];
 		$permissions = config('user_type_permissions.' . $this->type, []);
 
-		if($this->hasType(self::TYPE_SUPERVISOR_INSTITUCIONAL) && $this->belongsToPrimaryGroup()) {
+		if ($this->hasType(self::TYPE_SUPERVISOR_INSTITUCIONAL) && $this->belongsToPrimaryGroup()) {
 			array_push($permissions, 'settings.educacenso');
 		}
 
@@ -355,9 +367,10 @@ class User extends Authenticatable implements JWTSubject {
 	 * @param null|string $type The type to check against (@see User::TYPE_*)
 	 * @return bool
 	 */
-	public function hasType(?string $type) {
-		if(!$this->type) return false;
-		if(!$type) return false;
+	public function hasType(?string $type)
+	{
+		if (!$this->type) return false;
+		if (!$type) return false;
 		return $this->type === $type;
 	}
 
@@ -366,13 +379,14 @@ class User extends Authenticatable implements JWTSubject {
 	 * @param User $user The target user
 	 * @return bool
 	 */
-	public function canSeeContactInfoFor(User $user) {
-		if($this->id === $user->id) return true; // Is himself
-		if($this->tenant_id !== null && $this->tenant_id === $user->tenant_id) return true; // Is tenant-bound & are same tenant
-		if($this->isRestrictedToUF()) { // Is UF-bound and is looking at users from the same UF
-		    return true;
-        }
-		if($this->isRestrictedToUF()) return $this->can('ufs.contact_info'); // Is UF-bound and has relevant permission
+	public function canSeeContactInfoFor(User $user)
+	{
+		if ($this->id === $user->id) return true; // Is himself
+		if ($this->tenant_id !== null && $this->tenant_id === $user->tenant_id) return true; // Is tenant-bound & are same tenant
+		if ($this->isRestrictedToUF()) { // Is UF-bound and is looking at users from the same UF
+			return true;
+		}
+		if ($this->isRestrictedToUF()) return $this->can('ufs.contact_info'); // Is UF-bound and has relevant permission
 		return $this->can('tenants.contact_info'); // Checks for user type permissions
 	}
 
@@ -381,9 +395,10 @@ class User extends Authenticatable implements JWTSubject {
 	 * work phone, work mobile and personal mobile
 	 * @return string
 	 */
-	public function getContactPhone() {
-		if($this->work_phone) return $this->work_phone;
-		if($this->work_mobile) return $this->work_mobile;
+	public function getContactPhone()
+	{
+		if ($this->work_phone) return $this->work_phone;
+		if ($this->work_mobile) return $this->work_mobile;
 		return $this->personal_mobile;
 	}
 
@@ -391,7 +406,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Checks if the user belongs to the primary tenant group
 	 * @return bool
 	 */
-	public function belongsToPrimaryGroup() {
+	public function belongsToPrimaryGroup()
+	{
 		return $this->tenant->primary_group_id && $this->group_id === $this->tenant->primary_group_id;
 	}
 
@@ -399,8 +415,9 @@ class User extends Authenticatable implements JWTSubject {
 	 * Gets the list of user types this user can manage, based on their type
 	 * @return array
 	 */
-	public function getWhoCanManage() {
-		if(!$this->type) return [];
+	public function getWhoCanManage()
+	{
+		if (!$this->type) return [];
 		return config('user_type_permissions.can_manage_types.' . $this->type, []);
 	}
 
@@ -408,8 +425,9 @@ class User extends Authenticatable implements JWTSubject {
 	 * Gets the list of user types this user can view/filter, based on their type
 	 * @return array
 	 */
-	public function getWhoCanFilter() {
-		if(!$this->type) return [];
+	public function getWhoCanFilter()
+	{
+		if (!$this->type) return [];
 		return config('user_type_permissions.can_filter_types.' . $this->type, []);
 	}
 
@@ -419,8 +437,9 @@ class User extends Authenticatable implements JWTSubject {
 	 * @param array $arguments
 	 * @return bool
 	 */
-	public function can($permission, $arguments = []) {
-		if(!$this->type) return false;
+	public function can($permission, $arguments = [])
+	{
+		if (!$this->type) return false;
 		return in_array($permission, config('user_type_permissions.' . $this->type, []));
 	}
 
@@ -430,7 +449,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * @param array $arguments
 	 * @return bool
 	 */
-	public function cannot($permission, $arguments = []) {
+	public function cannot($permission, $arguments = [])
+	{
 		return !$this->can($permission);
 	}
 
@@ -439,7 +459,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * @param User $user The user being edited
 	 * @return bool
 	 */
-	public function canManageUser(User $user) {
+	public function canManageUser(User $user)
+	{
 		$canManageTypes = config('user_type_permissions.can_manage_types.' . $this->type, []);
 		return in_array($user->type, $canManageTypes);
 	}
@@ -448,7 +469,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Checks if a user is global or restricted/assigned to a specific tenant.
 	 * @return bool True when tenant-based, false when global.
 	 */
-	public function isRestrictedToTenant() {
+	public function isRestrictedToTenant()
+	{
 		return !in_array($this->type, self::$GLOBAL_SCOPED_TYPES) && !in_array($this->type, self::$UF_SCOPED_TYPES);
 	}
 
@@ -456,7 +478,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Checks if a user is global or restricted/assigned to tenants in a specific state.
 	 * @return bool True when state-based, false when global.
 	 */
-	public function isRestrictedToUF() {
+	public function isRestrictedToUF()
+	{
 		return in_array($this->type, self::$UF_SCOPED_TYPES);
 	}
 
@@ -464,7 +487,8 @@ class User extends Authenticatable implements JWTSubject {
 	 * Checks if a user is global or restricted/assigned to tenants in a specific state.
 	 * @return bool True when state-based, false when global.
 	 */
-	public function isGlobal() {
+	public function isGlobal()
+	{
 		return in_array($this->type, self::$GLOBAL_SCOPED_TYPES);
 	}
 
@@ -472,14 +496,16 @@ class User extends Authenticatable implements JWTSubject {
 	 * Gets the front-end URL for completing a password reset.
 	 * @return string
 	 */
-	public function getPasswordResetURL() {
-        return env('APP_PANEL_URL')."/password_reset?email={$this->email}&token={$this->remember_token}";
+	public function getPasswordResetURL()
+	{
+		return env('APP_PANEL_URL') . "/password_reset?email={$this->email}&token={$this->remember_token}";
 	}
 
 	/**
 	 * Generates a token and sends an e-mail to the user requesting the password reset.
 	 */
-	public function sendPasswordResetNotification($token) {
+	public function sendPasswordResetNotification($token)
+	{
 		$this->generatePasswordResetToken();
 		$this->notify(new PasswordReset());
 	}
@@ -487,7 +513,8 @@ class User extends Authenticatable implements JWTSubject {
 	/**
 	 * Generates and persists a token for the password reset.
 	 */
-	public function generatePasswordResetToken() {
+	public function generatePasswordResetToken()
+	{
 		$this->remember_token = str_random(40);
 		$this->save();
 	}
@@ -499,11 +526,12 @@ class User extends Authenticatable implements JWTSubject {
 	 * @throws \Exception One of these failure reasons:
 	 *     reset_not_requested, missing_token, token_mismatch, token_mismatch, password_too_short
 	 */
-	public function resetPassword(string $token, string $newPassword) {
-		if(!$this->remember_token) throw new \Exception("reset_not_requested");
-		if(!$token) throw new \Exception("missing_token");
-		if($token !== $this->remember_token) throw new \Exception("token_mismatch");
-		if(strlen($newPassword) < 6) throw new \Exception("password_too_short");
+	public function resetPassword(string $token, string $newPassword)
+	{
+		if (!$this->remember_token) throw new \Exception("reset_not_requested");
+		if (!$token) throw new \Exception("missing_token");
+		if ($token !== $this->remember_token) throw new \Exception("token_mismatch");
+		if (strlen($newPassword) < 6) throw new \Exception("password_too_short");
 
 		$this->remember_token = null;
 		$this->password = password_hash($newPassword, PASSWORD_DEFAULT);
@@ -520,24 +548,24 @@ class User extends Authenticatable implements JWTSubject {
 	 *
 	 * @return \Illuminate\Contracts\Validation\Validator
 	 */
-	public function validate($data, $isCreating = false, $needsTenantID = true, $needsUF = false) {
+	public function validate($data, $isCreating = false, $needsTenantID = true, $needsUF = false)
+	{
 
-	    $users_allowed_joined = join(",", self::$ALLOWED_TYPES);
-        $users_visitantes_allowed_joined = join(",", self::$ALLOWED_TYPES_VISITANTES);
+		$users_allowed_joined = join(",", self::$ALLOWED_TYPES);
+		$users_visitantes_allowed_joined = join(",", self::$ALLOWED_TYPES_VISITANTES);
 
 		return validator($data, [
 			'name' => 'required|string',
 			'email' => ($isCreating ? 'required' : 'nullable') . '|email',
 			//'password' => ($isCreating ? 'required' : 'nullable') . '|min:6',
-            'password' => 'nullable|min:6',
-
+			'password' => 'nullable|min:8|max:16|regex:/[a-z]/|regex:/[A-Z]/regex:/[0-9]/regex:/[!@#$%&*?]/',
 			'tenant_id' => ($needsTenantID) ? 'required' : 'nullable',
 			'city_id' => 'nullable',
 			'group_id' => 'nullable',
 
 			'uf' => ($needsUF) ? 'required' : 'nullable',
 
-			'type' => 'required:in:' . $users_allowed_joined . "," .$users_visitantes_allowed_joined,
+			'type' => 'required:in:' . $users_allowed_joined . "," . $users_visitantes_allowed_joined,
 
 			'dob' => 'required|date',
 			'cpf' => 'required|alpha_dash',
@@ -559,7 +587,8 @@ class User extends Authenticatable implements JWTSubject {
 		]);
 	}
 
-	public function toExportArray() {
+	public function toExportArray()
+	{
 		return [
 			'UF' => $this->tenant->city->uf ?? '',
 			'Município' => $this->tenant->city->name ?? '',
@@ -577,8 +606,8 @@ class User extends Authenticatable implements JWTSubject {
 			'Instituição' => $this->institution,
 			'Posição' => $this->position,
 			'Cadastro' => $this->deleted_at ? 'Desativado' : 'Ativo',
-            'Data de desativacao' => $this->deleted_at ? $this->deleted_at : '',
-            'Meta Selo UNICEF' => $this->tenant->city->goal->goal ?? '',
+			'Data de desativacao' => $this->deleted_at ? $this->deleted_at : '',
+			'Meta Selo UNICEF' => $this->tenant->city->goal->goal ?? '',
 		];
 	}
 
@@ -592,12 +621,13 @@ class User extends Authenticatable implements JWTSubject {
 	 * @return User A registered user
 	 * @throws \Exception When a user already exists with same e-mail, or when query fails
 	 */
-	public static function register(array $data) {
+	public static function register(array $data)
+	{
 		$data['email'] = trim(strtolower($data['email']));
 		$data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
 
 		$existingUser = self::query()->where('email', $data['email'])->first();
-		if($existingUser) throw new \Exception("email_already_exists");
+		if ($existingUser) throw new \Exception("email_already_exists");
 
 		return self::create($data);
 	}
@@ -607,11 +637,12 @@ class User extends Authenticatable implements JWTSubject {
 	 * @param string $email The e-mail to check against
 	 * @return bool
 	 */
-	public static function checkIfExists($email) {
+	public static function checkIfExists($email)
+	{
 		return (self::query()
-				->where('email', '=', $email)
-				->whereNull('deleted_at')
-				->count() > 0);
+			->where('email', '=', $email)
+			->whereNull('deleted_at')
+			->count() > 0);
 	}
 
 	/**
@@ -619,36 +650,38 @@ class User extends Authenticatable implements JWTSubject {
 	 * @param int[] $groupIDs A list of group IDs to search for
 	 * @return User[]|Collection The resulting list of users
 	 */
-	public static function findByGroupIDs($groupIDs) {
+	public static function findByGroupIDs($groupIDs)
+	{
 		return self::query()->whereIn('group_id', $groupIDs)->get();
 	}
 
-    // Funcoes implementadas de JWTSubject
+	// Funcoes implementadas de JWTSubject
 
-    /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
-     */
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
+	/**
+	 * Get the identifier that will be stored in the subject claim of the JWT.
+	 *
+	 * @return mixed
+	 */
+	public function getJWTIdentifier()
+	{
+		return $this->getKey();
+	}
 
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
-     */
-    public function getJWTCustomClaims()
-    {
-        return [];
-    }
+	/**
+	 * Return a key value array, containing any custom claims to be added to the JWT.
+	 *
+	 * @return array
+	 */
+	public function getJWTCustomClaims()
+	{
+		return [];
+	}
 
-    // JWTSubject
+	// JWTSubject
 
-    //Gerar tokens para acesso em determinadas rotas
-    public function getURLToken() {
-        return sha1(env('APP_KEY') . $this->id . $this->created_at);
-    }
+	//Gerar tokens para acesso em determinadas rotas
+	public function getURLToken()
+	{
+		return sha1(env('APP_KEY') . $this->id . $this->created_at);
+	}
 }
