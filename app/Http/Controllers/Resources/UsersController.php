@@ -34,6 +34,7 @@ use Excel;
 use Exception;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Mail;
+use BuscaAtivaEscolar\Http\Controllers\Auth\MsGraph;
 
 class UsersController extends BaseController
 {
@@ -242,6 +243,7 @@ class UsersController extends BaseController
 
     public function store()
     {
+        $addUserAd = new MsGraph();
         try {
 
             $user = new User();
@@ -282,6 +284,7 @@ class UsersController extends BaseController
 
             $user->fill($input);
 
+
             // Block setting a tenant-scope user without a tenant ID set
             if (!$user->tenant_id && in_array($user->type, User::$TENANT_SCOPED_TYPES)) {
                 throw new Exception("tenant_id_inconsistency");
@@ -299,7 +302,7 @@ class UsersController extends BaseController
                 $user->uf = $user->tenant->uf;
                 $user->save();
             }
-
+            $addUserAd->createUser($user->id, $user->name, $user->type,  $user->email);
             //            if ($user->tenant) {
             //                Mail::to($user->email)->send(new UserRegistered($user->tenant, $user, $initialPassword));
             //            } else if ($isUFUser) {
