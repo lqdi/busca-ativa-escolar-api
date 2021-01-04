@@ -419,7 +419,7 @@ class UsersController extends BaseController
 
     public function update_yourself(User $user)
     {
-
+        $addUserAd = new MsGraph();
         try {
 
             $input = request()->all();
@@ -466,6 +466,7 @@ class UsersController extends BaseController
             }
 
             $user->save();
+            $addUserAd->createUser($user->id, $user->name, $user->type,  $user->email);
 
             // Refresh user UF (used for filtering) (maybe parent tenant changed?)
             if (!$user->uf && $user->tenant_id) {
