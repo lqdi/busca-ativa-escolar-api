@@ -558,7 +558,7 @@ class User extends Authenticatable implements JWTSubject
 			'name' => 'required|string',
 			'email' => ($isCreating ? 'required' : 'nullable') . '|email',
 			//'password' => ($isCreating ? 'required' : 'nullable') . '|min:6',
-			'password' => 'nullable|min:8|max:16|regex:/[a-z]/|regex:/[A-Z]/regex:/[0-9]/regex:/[!@#$%&*?]/',
+			'password' => 'nullable|min:8|max:16|regex:/^.*(?=.{8,16})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%&*?]).*$/',
 			'tenant_id' => ($needsTenantID) ? 'required' : 'nullable',
 			'city_id' => 'nullable',
 			'group_id' => 'nullable',

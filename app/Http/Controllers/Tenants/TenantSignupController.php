@@ -417,9 +417,9 @@ class TenantSignupController extends BaseController  {
             return $this->api_failure('invalid_password');
         }
 
-        $input['user']['password'] = password_hash($input['user']['password'], PASSWORD_DEFAULT);
-
         $validation = $user->validate($input['user'], false, false, false);
+
+        $input['user']['password'] = password_hash($input['user']['password'], PASSWORD_DEFAULT);
 
         if ($validation->fails()) {
             return $this->api_validation_failed('validation_failed', $validation);

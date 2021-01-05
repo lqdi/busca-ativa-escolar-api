@@ -27,8 +27,8 @@ class MayorSignupNotification extends Mailable
         $message = (new MailMessage())
             ->success()
             ->subject("[Busca Ativa Escolar] Adesão municipal")
-            ->line("Sr(a). Prefeito(a) de ".$this->tenant_signup->data["mayor"]["name"])
-            ->line("Seu pedido de readesão à estratégia Busca Ativa Escolar foi aprovado. Por favor, confirme a adesão no botão abaixo.")
+            ->line("Sr(a). Prefeito(a) ".$this->tenant_signup->data["mayor"]["name"])
+            ->line("Seu pedido de adesão/readesão à estratégia Busca Ativa Escolar foi aprovado. Por favor, confirme a adesão/readesão no botão abaixo.")
             ->action('Confirmar adesão/readesão', $this->getUrlConfirmSignup());
 
         $this->subject("[Busca Ativa Escolar] Adesão municipal");
