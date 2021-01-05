@@ -6,6 +6,7 @@ use BuscaAtivaEscolar\CaseSteps\Rematricula;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\DailyMetrics;
 use BuscaAtivaEscolar\DailyMetricsConsolidated;
+use BuscaAtivaEscolar\Tenant;
 use Illuminate\Console\Command;
 
 class SnapshotDailyMetricsFullMySQL extends Command
@@ -56,6 +57,8 @@ class SnapshotDailyMetricsFullMySQL extends Command
 
                     $this->comment("[index:{$today}] Child #{$child->id} - {$child->name}");
 
+                    $tenant = Tenant::withTrashed()->where([ ['id', '=', $child->tenant_id] ])->first();
+
                     $dailyMetrics = new DailyMetrics(
                         [
                             'tenant_id' => $child->tenant_id,
@@ -66,8 +69,8 @@ class SnapshotDailyMetricsFullMySQL extends Command
                             'date' => $today,
                             'case_status' => $child->currentCase->case_status,
                             'step_slug' => str_slug($child->currentCase->currentStep->getName(), '_'),
-                            'city_id' => $child->tenant->city->id,
-                            'uf' => $child->tenant->city->uf,
+                            'city_id' => $tenant->city->id,
+                            'uf' => $tenant->city->uf,
                             'cancel_reason' => $child->currentCase->cancel_reason,
                             'reinsertion_grade' => $reinsertion_grade
                         ]

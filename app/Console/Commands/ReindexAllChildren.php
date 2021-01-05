@@ -23,8 +23,7 @@ class ReindexAllChildren extends Command
 
     public function handle()
     {
-        set_time_limit(0);
-        Child::with('alert')->chunk(150, function ($children) {
+        Child::chunk(3000, function ($children) {
             foreach ($children as $child) {
                 $this->comment("Reindexing: " . ($child->tenant->name ?? '## NO TENANT! ##') . " / {$child->id} -> {$child->name}");
                 $child->save();

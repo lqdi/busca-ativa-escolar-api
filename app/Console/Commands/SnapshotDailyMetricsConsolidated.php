@@ -47,7 +47,7 @@ class SnapshotDailyMetricsConsolidated extends Command
 
         $this->info("Iniciando Snapshot do número de rematriculas - {$today}");
 
-        Tenant::chunk(500, function ($t) use ($today) {
+        Tenant::withTrashed()->chunk(500, function ($t) use ($today) {
 
             foreach($t as $tenant) {
 

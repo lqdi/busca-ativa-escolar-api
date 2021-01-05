@@ -37,7 +37,7 @@ class CancelAllTenantsWithSigupsAndUsers extends Command
 
             foreach ($tenants as $tenant){
 
-                \Log::info("Desativando ".$tenant->name);
+                $this->comment("Desativando ".$tenant->name);
 
                 $users = User::query()->where('tenant_id', $tenant->id);
                 $signup = TenantSignup::query()->where('tenant_id', $tenant->id);
