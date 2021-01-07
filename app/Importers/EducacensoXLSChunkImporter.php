@@ -180,12 +180,6 @@ class EducacensoXLSChunkImporter
         $data['has_been_in_school'] = true;
         $data['educacenso_year'] = $this->educacenso_year;
 
-        // Evitar multiplos acessos API HERE
-        $data['place_lat'] = null;
-        $data['place_lng'] = null;
-        $data['moviment'] = false;
-        //--
-
         Log::info("[educacenso_import] \t Parsed data: " . print_r($data, true));
 
         $child = Child::spawnFromAlertData($this->tenant, $this->agent->id, $data);

@@ -103,7 +103,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms
         'place_map_region',
         'place_map_geocoded_address',
         'aux',
-        'nis',
+        'nis'
 
     ];
 
@@ -202,6 +202,8 @@ class Pesquisa extends CaseStep implements CanGenerateForms
         $new_place_lng = array_key_exists("place_lng", $request) ? $request['place_lng'] : null;
         $moviment = array_key_exists("moviment", $request) ? $request['moviment'] : false;
 
+        if($this->child->educacenso_id =! null) { $moviment = true; }
+
         if ($moviment == false) {
 
             $location = $this->child->updateCoordinatesThroughGeocoding($newAdress);
@@ -215,6 +217,8 @@ class Pesquisa extends CaseStep implements CanGenerateForms
             }
 
         } else {
+
+            Log::info("Não fazendo consulta ...");
 
             $this->child->update([
                 'lat' => $new_place_lat,
