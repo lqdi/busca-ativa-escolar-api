@@ -53,29 +53,28 @@ class ChildAssigned extends Notification implements ShouldQueue {
 			->action('Visualizar caso', $this->child->getViewURL());
 	}
 
-//DESABILITANDO ACAO DE SALVAR DADOS NO BANCO DE DADOS
-//	/**
-//	 * Renders this notification in array format
-//	 * @param User $notifiable
-//	 * @return array
-//	 */
-//	public function toArray($notifiable) {
-//		return [
-//			'tenant_id' => $this->child->tenant_id,
-//			'title' => "Caso atribuído à você: {$this->child->getShorthandIdentifier()}",
-//			'type' => 'info',
-//			'open_url' => $this->child->getViewURL(),
-//			'child' => [
-//				'id' => $this->child->id,
-//				'name' => $this->child->name,
-//				'gender' => $this->child->gender,
-//				'age' => $this->child->age,
-//				'child_status' => $this->child->child_status,
-//				'current_case_id' => $this->child->current_case_id,
-//				'current_step_type' => $this->child->current_step_type,
-//				'current_step_id' => $this->child->current_step_id,
-//			]
-//		];
-//	}
+	/**
+	 * Renders this notification in array format
+	 * @param User $notifiable
+	 * @return array
+	 */
+	public function toArray($notifiable) {
+		return [
+			'tenant_id' => $this->child->tenant_id,
+			'title' => "Caso atribuído à você: {$this->child->getShorthandIdentifier()}",
+			'type' => 'info',
+			'open_url' => $this->child->getViewURL(),
+			'child' => [
+				'id' => $this->child->id,
+				'name' => $this->child->name,
+				'gender' => $this->child->gender,
+				'age' => $this->child->age,
+				'child_status' => $this->child->child_status,
+				'current_case_id' => $this->child->current_case_id,
+				'current_step_type' => $this->child->current_step_type,
+				'current_step_id' => $this->child->current_step_id,
+			]
+		];
+	}
 
 }

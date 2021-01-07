@@ -190,33 +190,6 @@ class Pesquisa extends CaseStep implements CanGenerateForms
 
         $this->child->save();
 
-//        $oldAdress = $oldObject ? "{$oldObject->place_address} {$oldObject->place_city_name} {$oldObject->place_uf} {$oldObject->place_cep}" : '';
-////        $newAdress = "{$this->place_address} {$this->place_city_name} {$this->place_uf} {$this->place_cep}";
-////
-////        $changeAddress = ($oldAdress == $newAdress) ? false : true;
-////
-////        if ($changeAddress) {
-////            $location = $this->child->updateCoordinatesThroughGeocoding($newAdress);
-////
-////            $this->update([
-////                'place_lat' => ($location->MapView) ? $location->MapView->TopLeft->Latitude : null,
-////                'place_lng' => ($location->MapView) ? $location->MapView->TopLeft->Longitude : null,
-////                'Place_map_geocoded_address' => ($location) ? $location : null,
-////            ]);
-////
-////        } else {
-////            $this->child->update([
-////                'lat' => $this->place_lat,
-////                'lng' => $this->place_lng,
-////            ]);
-////
-////            $this->update([
-////                'place_lat' => $this->place_lat,
-////                'place_lng' => $this->place_lng,
-////            ]);
-////        }
-///
-
         //A MUDANCA DE ENDERECO TEM QUE OCORRER SEMPRE QUE HOUVER MUDANCA NO PONTO DO MAPA OU DE ENDERECO NOVO
         //O FRONT ENCAMINHA A PROPRIEDADE MOVIMENT PRA DEFINIR QUE HOUVE MOVIMENTO MANUAL
         //VAR OLDOBJCT SEMPRE RETORNA NULL
@@ -226,7 +199,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms
         $request = request()->all();
 
         $new_place_lat = array_key_exists("place_lat", $request) ? $request['place_lat'] : null;
-        $new_place_lng = array_key_exists("new_place_lng", $request) ? $request['new_place_lng'] : null;
+        $new_place_lng = array_key_exists("place_lng", $request) ? $request['place_lng'] : null;
         $moviment = array_key_exists("moviment", $request) ? $request['moviment'] : false;
 
         if ($moviment == false) {

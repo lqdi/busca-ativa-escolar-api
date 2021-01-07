@@ -53,7 +53,7 @@ class EducacensoXLSChunkImporter
     /**
      * @var int The year of Educacenso
      */
-    public $educacenso_year = 2019;
+    public $educacenso_year = 2020;
 
     /**
      * Handles the importing of Educacenso's XLS
@@ -179,6 +179,12 @@ class EducacensoXLSChunkImporter
         $data['place_kind'] = isset($data['place_kind']) ? ($placeKindMap[$data['place_kind']] ?? null) : null;
         $data['has_been_in_school'] = true;
         $data['educacenso_year'] = $this->educacenso_year;
+
+        // Evitar multiplos acessos API HERE
+        $data['place_lat'] = null;
+        $data['place_lng'] = null;
+        $data['moviment'] = false;
+        //--
 
         Log::info("[educacenso_import] \t Parsed data: " . print_r($data, true));
 
