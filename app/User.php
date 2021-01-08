@@ -589,6 +589,7 @@ class User extends Authenticatable implements JWTSubject
 
 	public function toExportArray()
 	{
+
 		return [
 			'UF' => $this->tenant->city->uf ?? '',
 			'Município' => $this->tenant->city->name ?? '',
@@ -600,7 +601,7 @@ class User extends Authenticatable implements JWTSubject
 			'Telefone Institucional' => $this->work_phone,
 			'Celular Institucional' => $this->work_mobile,
 			'Celular Pessoal' => $this->personal_mobile,
-			'Data de nascimento' => $this->dob,
+			'Data de nascimento' => $this->dob  ? $this->formateDate($this->dob) : '',
 			'Tipo' => trans('user.type.' . $this->type),
 			'Grupo' => $this->group->name ?? '',
 			'Instituição' => $this->institution,
@@ -611,6 +612,12 @@ class User extends Authenticatable implements JWTSubject
 		];
 	}
 
+	public function formateDate($entrance)
+	{
+		# code...
+		$result = explode('-', $entrance);
+		return "$result[2]/$result[1]/$result[0]";
+	}
 	// ------------------------------------------------------------------------
 
 	/**
