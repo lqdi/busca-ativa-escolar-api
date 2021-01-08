@@ -21,6 +21,7 @@ use BuscaAtivaEscolar\CaseSteps\GestaoDoCaso;
 use BuscaAtivaEscolar\CaseSteps\Observacao;
 use BuscaAtivaEscolar\CaseSteps\Pesquisa;
 use BuscaAtivaEscolar\CaseSteps\Rematricula;
+use BuscaAtivaEscolar\Exports\UsersExport;
 use BuscaAtivaEscolar\ExportUsersJob;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Mail\UserRegisterNotification;
@@ -34,10 +35,15 @@ use Excel;
 use Exception;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Mail;
+use Maatwebsite\Excel\Excel as ExcelB;
 
 class UsersController extends BaseController
 {
-
+    private $excel;
+    public function __construct(ExcelB $excel)
+    {
+        $this->excel = $excel;
+    }
     public function search()
     {
         $query = User::with('group');
@@ -144,23 +150,14 @@ class UsersController extends BaseController
         if (isset($email) && $email != null) $query->where('email0', 'LIKE', $email . '%');
 
         if ($show_suspended == "true") $query->withTrashed();
-
-        $users = $query
+        $users  = $query
             ->get()
             ->map(function ($user) {
-                /* @var $user User */
                 return $user->toExportArray();
             })
             ->toArray();
 
-        Excel::create('buscaativaescolar_users', function ($excel) use ($users) {
-
-            $excel->sheet('users', function ($sheet) use ($users) {
-
-                $sheet->setOrientation('landscape');
-                $sheet->fromArray($users);
-            });
-        })->download('xls');
+        return $this->excel->download(new UsersExport($users), 'buscaativaescolar_users.xls');
     }
 
     public function show(User $user)
