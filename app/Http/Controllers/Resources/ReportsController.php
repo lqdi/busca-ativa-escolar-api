@@ -416,8 +416,7 @@ class ReportsController extends BaseController
             array_unshift($header, 'Data');
             array_unshift($data, $header);
         }
-
-        $this->excel->store(new RepostsExport($data), auth()->user()->id . '/' . auth()->user()->id . '.xls');
+        $this->excel->store(new RepostsExport($data), 'attachment/buscaativaescolar_user/' . auth()->user()->id . '/' . auth()->user()->id . '.xls');
         $token = \JWTAuth::fromUser(auth()->user());
         return $this->api_success([
             'export_file' => auth()->user()->id . '.xls',
@@ -432,7 +431,7 @@ class ReportsController extends BaseController
 
         \JWTAuth::invalidate($token);
 
-        return response()->download(storage_path('app/' . auth()->user()->id . '/' . basename($filename)));
+        return response()->download(storage_path('app/attachment/buscaativaescolar_user/' . auth()->user()->id . '/' . basename($filename)));
     }
 
     public function country_stats()
