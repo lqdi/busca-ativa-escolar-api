@@ -1,4 +1,5 @@
 <?php
+
 /**
  * busca-ativa-escolar-api
  * TenantsController.php
@@ -28,24 +29,34 @@ use DB;
 use Excel;
 use Illuminate\Support\Str;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use Maatwebsite\Excel\Excel as ExcelB;
+use BuscaAtivaEscolar\Exports\TenantsExport;
 
-class TenantsController extends BaseController  {
+class TenantsController extends BaseController
+{
+    private $excel;
+    public function __construct(ExcelB $excel)
+    {
+        $this->excel = $excel;
+    }
 
-	public function index() {
-		$tenants = Tenant::query()
-			->orderBy('name', 'ASC')
-			->get();
+    public function index()
+    {
+        $tenants = Tenant::query()
+            ->orderBy('name', 'ASC')
+            ->get();
 
-		return fractal()
-			->collection($tenants)
-			->transformWith(new TenantTransformer())
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes('city') // Does not include user info
-			->respond();
-	}
+        return fractal()
+            ->collection($tenants)
+            ->transformWith(new TenantTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes('city') // Does not include user info
+            ->respond();
+    }
 
-    public function getByUf() {
-	    $uf = request('uf');
+    public function getByUf()
+    {
+        $uf = request('uf');
         $tenants = Tenant::query()
             ->where('uf', '=', $uf)
             ->orderBy('name', 'ASC')
@@ -58,7 +69,8 @@ class TenantsController extends BaseController  {
             ->parseIncludes('city')
             ->respond();
     }
-    public function getUfWithTenant() {
+    public function getUfWithTenant()
+    {
         $uf = request('uf');
         $tenants = Tenant::query()
             ->where('uf', '=', $uf)
@@ -71,7 +83,8 @@ class TenantsController extends BaseController  {
             ->respond();
     }
 
-	public function all() {
+    public function all()
+    {
 
         $max = intval(request('max', null));
 
@@ -81,43 +94,43 @@ class TenantsController extends BaseController  {
         $tenants = Tenant::query()->with(['operationalAdmin', 'politicalAdmin', 'users']);
         Tenant::applySorting($tenants, $sort);
 
-        if(isset($filter['name']) && strlen($filter['name']) > 0) {
+        if (isset($filter['name']) && strlen($filter['name']) > 0) {
             $tenants->where('name_ascii', 'REGEXP', strtolower(Str::ascii($filter['name'])));
         }
 
-        if(isset($filter['uf']) && strlen($filter['uf']) > 0) {
+        if (isset($filter['uf']) && strlen($filter['uf']) > 0) {
             $tenants->where('uf', 'REGEXP', strtoupper(Str::ascii($filter['uf'])));
         }
 
-        if(isset($filter['political_admin']) && strlen($filter['political_admin']) > 0) {
+        if (isset($filter['political_admin']) && strlen($filter['political_admin']) > 0) {
             $tenants->whereHas('politicalAdmin', function ($sq) use ($filter) {
                 return $sq->where('name', 'REGEXP', $filter['political_admin']);
             });
         }
 
-        if(isset($filter['operational_admin']) && strlen($filter['operational_admin']) > 0) {
+        if (isset($filter['operational_admin']) && strlen($filter['operational_admin']) > 0) {
             $tenants->whereHas('operationalAdmin', function ($sq) use ($filter) {
                 return $sq->where('name', 'REGEXP', $filter['operational_admin']);
             });
         }
 
-        if(isset($filter['last_active_at']) && strlen($filter['last_active_at']) > 0) {
+        if (isset($filter['last_active_at']) && strlen($filter['last_active_at']) > 0) {
             $numDays = intval($filter['last_active_at']);
             $cutoffDate = Carbon::now()->addDays(-$numDays);
 
             $tenants->where('last_active_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
         }
 
-        if(isset($filter['created_at']) && strlen($filter['created_at']) > 0) {
+        if (isset($filter['created_at']) && strlen($filter['created_at']) > 0) {
             $numDays = intval($filter['created_at']);
             $cutoffDate = Carbon::now()->addDays(-$numDays);
 
             $tenants->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
         }
 
-        if(request('show_suspended', false)) $tenants->withTrashed();
+        if (request('show_suspended', false)) $tenants->withTrashed();
 
-        if($this->currentUser()->isRestrictedToUF()) {
+        if ($this->currentUser()->isRestrictedToUF()) {
             $tenants->where('uf', $this->currentUser()->uf);
         }
 
@@ -129,47 +142,49 @@ class TenantsController extends BaseController  {
             ->serializeWith(new SimpleArraySerializer())
             ->parseIncludes(request('with'));
 
-        if($max) {
+        if ($max) {
             $results->paginateWith(new IlluminatePaginatorAdapter($tenants));
         }
 
         return $results->respond();
+    }
 
-	}
+    public function show(Tenant $tenant)
+    {
+        return response()->json($tenant);
+    }
 
-	public function show(Tenant $tenant) {
-		return response()->json($tenant);
-	}
+    public function get_recent_activity()
+    {
+        $max = max(1, min(32, intval(request('max'))));
+        $recentActivity = ActivityLog::fetchRecentEntries(null, $max, true);
 
-	public function get_recent_activity() {
-		$max = max(1, min(32, intval(request('max'))));
-		$recentActivity = ActivityLog::fetchRecentEntries(null, $max, true);
+        return fractal()
+            ->collection($recentActivity)
+            ->transformWith(new LogEntryTransformer())
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with'))
+            ->respond();
+    }
 
-		return fractal()
-			->collection($recentActivity)
-			->transformWith(new LogEntryTransformer())
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond();
-	}
+    public function cancel(Tenant $tenant)
+    {
 
-	public function cancel(Tenant $tenant) {
-		
-		if(!$tenant) return $this->api_failure('invalid_tenant');
-		if(!$tenant->id) return $this->api_failure('no_tenant_id');
+        if (!$tenant) return $this->api_failure('invalid_tenant');
+        if (!$tenant->id) return $this->api_failure('no_tenant_id');
 
-		$users = User::query()->where('tenant_id', $tenant->id);
-		$signup = TenantSignup::query()->where('tenant_id', $tenant->id);
+        $users = User::query()->where('tenant_id', $tenant->id);
+        $signup = TenantSignup::query()->where('tenant_id', $tenant->id);
 
-		$users->delete();
-		$signup->delete();
-		$tenant->delete();
+        $users->delete();
+        $signup->delete();
+        $tenant->delete();
 
-		return $this->api_success();
+        return $this->api_success();
+    }
 
-	}
-
-	public function export() {
+    public function export()
+    {
 
         $name = request('name');
         $uf = request('uf');
@@ -181,43 +196,43 @@ class TenantsController extends BaseController  {
 
         $query = Tenant::query()->with(['operationalAdmin', 'politicalAdmin', 'users']);
 
-        if(isset($name) && strlen($name) > 0) {
+        if (isset($name) && strlen($name) > 0) {
             $query->where('name_ascii', 'REGEXP', strtolower(Str::ascii($name)));
         }
 
-        if(isset($uf) && strlen($uf) > 0) {
+        if (isset($uf) && strlen($uf) > 0) {
             $query->where('uf', 'REGEXP', strtoupper(Str::ascii($uf)));
         }
 
-        if(isset($political_admin) && strlen($political_admin) > 0) {
+        if (isset($political_admin) && strlen($political_admin) > 0) {
             $query->whereHas('politicalAdmin', function ($sq) use ($political_admin) {
                 return $sq->where('name', 'REGEXP', $political_admin);
             });
         }
 
-        if(isset($operational_admin) && strlen($operational_admin) > 0) {
+        if (isset($operational_admin) && strlen($operational_admin) > 0) {
             $query->whereHas('operationalAdmin', function ($sq) use ($operational_admin) {
                 return $sq->where('name', 'REGEXP', $operational_admin);
             });
         }
 
-        if(isset($last_active_at) && strlen($last_active_at) > 0) {
+        if (isset($last_active_at) && strlen($last_active_at) > 0) {
             $numDays = intval($last_active_at);
             $cutoffDate = Carbon::now()->addDays(-$numDays);
             $query->where('last_active_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
         }
 
-        if(isset($created_at) && strlen($created_at) > 0) {
+        if (isset($created_at) && strlen($created_at) > 0) {
             $numDays = intval($created_at);
             $cutoffDate = Carbon::now()->addDays(-$numDays);
             $query->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
         }
-        
-        if($show_suspended == "true"){
+
+        if ($show_suspended == "true") {
             $query->withTrashed();
         }
 
-        if($this->currentUser()->isRestrictedToUF()) {
+        if ($this->currentUser()->isRestrictedToUF()) {
             $query->where('uf', $this->currentUser()->uf);
         }
 
@@ -227,18 +242,6 @@ class TenantsController extends BaseController  {
                 return $tenant->toExportArray();
             })
             ->toArray();
-
-        Excel::create('buscaativaescolar_municipios', function($excel) use ($tenants) {
-
-            $excel->sheet('tenants', function($sheet) use ($tenants) {
-
-                $sheet->setOrientation('landscape');
-                $sheet->fromArray($tenants);
-
-            });
-
-        })->export('xls');
-
-	}
-
+        return $this->excel->download(new TenantsExport($tenants), 'buscaativaescolar_municipios.xls');
+    }
 }
