@@ -3,6 +3,7 @@
 namespace BuscaAtivaEscolar\Jobs;
 
 use BuscaAtivaEscolar\Child;
+use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\Group;
 use BuscaAtivaEscolar\User;
 use Carbon\Carbon;
@@ -33,47 +34,38 @@ class ProcessExportChildrenJob implements ShouldQueue
         set_time_limit(0);
         Log::info("Iniciando processo de exportacao das criancas do municipio");
 
-        File::makeDirectory(storage_path("app/attachments/children_reports/".$this->user->id), $mode = 0777, true, true);
-        (new FastExcel($this->childrenGenerator()))->export(storage_path("app/attachments/children_reports/".$this->user->id."/".$this->user->id.".xlsx"));
+        File::makeDirectory(storage_path("app/attachments/children_reports/" . $this->user->id), $mode = 0777, true, true);
+        (new FastExcel($this->childrenGenerator()))->export(storage_path("app/attachments/children_reports/" . $this->user->id . "/" . $this->user->id . ".xlsx"));
 
         Log::info("Finalizando processo de exportacao das criancas do municipio");
-
     }
 
-    function childrenGenerator() {
+    function childrenGenerator()
+    {
 
-        $children = Child::where('tenant_id', '=', $this->user->tenant_id);
-        $children->where("current_step_type", "<>", "BuscaAtivaEscolar\CaseSteps\Alerta");
+        $children = Child::query();
+        $testando = ChildCase::where('tenant_id', $this->user->tenant_id)->whereIn(
+            'case_status',
+            $this->paramsQuery['case_status']
+        )->get()->toArray();
 
-        $children->where("name", "like", "%".$this->paramsQuery['name']."%");
-        $children->where("current_step_type", "like", "%".$this->paramsQuery['step_name']."%");
-
-        //somente os casos do tecnico verificador
-        if( $this->user->type === User::TYPE_TECNICO_VERIFICADOR ){
-            $children->whereHas('cases', function ($query){
-                $query->where(['assigned_user_id' => $this->user->id]);
-            });
+        $idsCases = [];
+        foreach ($testando as $test) {
+            array_push($idsCases, $test['id']);
         }
-        //somente os casos do grupo do supervisor se grupo for diferente do primario
-        if ( $this->user->type === User::TYPE_SUPERVISOR_INSTITUCIONAL ){
-            $group = $this->user->group; /* @var $group Group */
-            $group_primary = $this->user->tenant->primaryGroup; /* @var $group Group */
 
-            if( $group->id != $group_primary->id){
-                $children->whereHas('cases', function ($query) use ($group){
-                    $query->where(['assigned_group_id' => $group->id]);
-                });
-            }
+        $children->where("alert_status", "=", 'accepted');
 
-        }
+
+        $children->whereIn("current_case_id", $idsCases);
 
         foreach ($children->cursor() as $child) {
             yield $this->transformChildToArrayExport($child);
         }
-
     }
 
-    function transformChildToArrayExport($child){
+    function transformChildToArrayExport($child)
+    {
         return [
             'Nome' => $child->name ?? '',
             'Nome da mãe' => $child->mother_name ?? null,
@@ -96,5 +88,4 @@ class ProcessExportChildrenJob implements ShouldQueue
             'CEP' => $child->place_cep ?? '',
         ];
     }
-
 }
