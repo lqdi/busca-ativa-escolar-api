@@ -44,14 +44,14 @@ class ProcessExportChildrenJob implements ShouldQueue
     {
 
         $children = Child::query();
-        $testando = ChildCase::where('tenant_id', $this->user->tenant_id)->whereIn(
+        $cases = ChildCase::where('tenant_id', $this->user->tenant_id)->whereIn(
             'case_status',
             $this->paramsQuery['case_status']
         )->get()->toArray();
 
         $idsCases = [];
-        foreach ($testando as $test) {
-            array_push($idsCases, $test['id']);
+        foreach ($cases as $case) {
+            array_push($idsCases, $case['id']);
         }
 
         $children->where("alert_status", "=", 'accepted');
