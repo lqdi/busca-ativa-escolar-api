@@ -520,94 +520,79 @@ class ReportsController extends BaseController
                     // final do ciclo 2
 
                     // ciclo 1
-
-                    'num_tenants_ciclo_1' => HistoricalTenant::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
-                        ->where('is_registered', '=', true)
+                    'num_tenants' => Tenant::query()
                         ->count(),
 
-                    'num_ufs_ciclo_1' => StateSignup::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_ufs' => StateSignup::query()->count(),
+
+                    'num_signups' => TenantSignup::query()
                         ->count(),
 
-                    'num_signups_ciclo_1' => HistoricalTenantSignup::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
-                        ->count(),
-
-                    'num_pending_setup_ciclo_1' => HistoricalTenantSignup::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_pending_setup' => TenantSignup::query()
                         ->where('is_approved', '=', 1)
                         ->where('is_provisioned', '=', 0)
                         ->count(),
 
-                    'num_alerts_ciclo_1' => Alerta::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_alerts' => Alerta::query()
                         ->accepted()
                         ->count(),
 
-                    'num_pending_alerts_ciclo_1' => Child::whereHas('alert', function ($query) {
-                        $query->where([ ['alert_status', '=', 'pending'], ['created_at', '<', '2021-01-01 00:00:00'] ]);
+                    'num_pending_alerts' => Child::whereHas('alert', function ($query) {
+                        $query->where('alert_status', '=', 'pending');
                     })->pending()->count(),
 
-                    'num_rejected_alerts_ciclo_1' => Child::whereHas('alert', function ($query) {
-                        $query->where([ ['alert_status','=', Child::ALERT_STATUS_REJECTED], ['created_at', '<', '2021-01-01 00:00:00'] ]);
+                    'num_rejected_alerts' => Child::whereHas('alert', function ($query) {
+                        $query->where('alert_status','=', 'rejected');
                     })->rejected()->count(),
 
-                    'num_total_alerts_ciclo_1' => ChildCase::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_total_alerts' => ChildCase::query()
                         ->count(),
 
-                    'num_cases_in_progress_ciclo_1' => Child::with(['currentCase'])
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_cases_in_progress' => Child::with(['currentCase'])
                         ->hasCaseInProgress()
                         ->count(),
 
-                    'num_children_reinserted_ciclo_1' => Child::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_children_reinserted' => Child::query()
                         ->whereIn('child_status', [Child::STATUS_IN_SCHOOL, Child::STATUS_OBSERVATION])
                         ->count(),
 
-                    'num_pending_signups_ciclo_1' => HistoricalTenantSignup::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_pending_signups' => TenantSignup::query()
                         ->whereNull('judged_by')
                         ->count(),
 
-                    'num_pending_state_signups_ciclo_1' => StateSignup::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_pending_state_signups' => StateSignup::query()
                         ->whereNull('judged_by')
                         ->count(),
 
-                    'num_children_in_school_ciclo_1' => Child::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_children_in_school' => Child::query()
                         ->where('child_status', '=', Child::STATUS_IN_SCHOOL)
                         ->count(),
 
-                    'num_children_in_observation_ciclo_1' => Child::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_children_in_observation' => Child::query()
                         ->where('child_status', '=', Child::STATUS_OBSERVATION)
                         ->count(),
 
-                    'num_children_out_of_school_ciclo_1' => Child::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_children_out_of_school' => Child::query()
                         ->where('child_status', '=', Child::STATUS_OUT_OF_SCHOOL)
                         ->where('alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                         ->count(),
 
-                    'num_children_cancelled_ciclo_1' => Child::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_children_cancelled' => Child::query()
                         ->where('child_status', '=', Child::STATUS_CANCELLED)
                         ->where('alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                         ->count(),
 
-                    'num_children_transferred_ciclo_1' => Child::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_children_transferred' => Child::query()
                         ->where('child_status', '=', Child::STATUS_TRANSFERRED)
                         ->count(),
 
-                    'num_children_interrupted_ciclo_1' => Child::query()
-                        ->where('created_at', '<', '2021-01-01 00:00:00')
+                    'num_children_interrupted' => Child::query()
                         ->where('child_status', '=', Child::STATUS_INTERRUPTED)
-                        ->count(),
+                        ->count()
+
+                    //final do ciclo 2
+
+
                 ];
 
             });
