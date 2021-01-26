@@ -59,6 +59,31 @@ class ProcessExportChildrenJob implements ShouldQueue
 
         $children->whereIn("current_case_id", $idsCases);
 
+        $children->whereIn('risk_level', $this->paramsQuery['risk_level']);
+
+        /*if (!array_key_exists(null, $this->paramsQuery['gender'])) {
+            $children->whereIn('gender', $this->paramsQuery['gender']);
+        } else {
+            if (count($this->paramsQuery['gender']) == 1) {
+                $children->where('gender', 'is', $this->paramsQuery['gender']);
+            } else {
+                array_pop($this->paramsQuery['gender']);
+                $children->whereNull('gender')->orWhereIn('gender', $this->paramsQuery['gender']);
+            }
+        }
+        if (!array_key_exists(null, $this->paramsQuery['gender']) == 0) {
+            $children->whereIn('gender', $this->paramsQuery['gender']);
+        } else {
+            array_pop($this->paramsQuery['gender']);
+            //$children->whereNull('gender')->orWhereIn('gender', $this->paramsQuery['gender']);
+            $children->wherey(function ($query) {
+                $query->whereIn('gender', $this->paramsQuery['gender'])
+                    ->orWhereNull('gender');
+            });
+        }*/
+
+
+
         foreach ($children->cursor() as $child) {
             yield $this->transformChildToArrayExport($child);
         }

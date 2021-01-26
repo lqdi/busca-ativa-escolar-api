@@ -477,27 +477,14 @@ class ChildrenController extends BaseController
 		}
 	}
 
-	public function create_report_child(Search $search)
+
+	public function create_report_child()
 	{
 
-		$query = $this->prepareSearchQuery();
+		$paramsQuery = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
 
-		$attempted = $query->getAttemptedQuery();
-		$query = $query->getQuery();
+		dispatch((new ProcessExportChildrenJob(Auth::user(), $paramsQuery))->onQueue('export_children'));
 
-		$results = $search->search(new Child(), $query, 2000);
-
-		$data = fractal()
-			->item($results)
-			->transformWith(new SearchResultsTransformer(new ChildExportResultsTransformer(), $query, $attempted))
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with'))
-			->respond()->content();
-		$childrens = json_decode($data, true);
-		$this->excel->store(new ChildrenExport($childrens['results']), 'attachments/children_reports/' . auth()->user()->id . '/' . auth()->user()->id . '.xlsx');
-
-		//	(new CasesExports(Auth::user(), $teste['results']))->queue('attachments/children_reports/' . Auth::user()->id . '/' . Auth::user()->id . '.xls');
-		//$this->export($search);
 		return response()->json(
 			[
 				'msg' => 'Arquivo criado',
