@@ -14,6 +14,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Log;
 use Rap2hpoutre\FastExcel\FastExcel;
+use BuscaAtivaEscolar\Search\Search;
 
 class ProcessExportChildrenJob implements ShouldQueue
 {
@@ -28,64 +29,23 @@ class ProcessExportChildrenJob implements ShouldQueue
         $this->paramsQuery = $paramsQuery;
     }
 
-    public function handle()
+    public function handle(Search $search)
     {
 
         set_time_limit(0);
         Log::info("Iniciando processo de exportacao das criancas do municipio");
-
         File::makeDirectory(storage_path("app/attachments/children_reports/" . $this->user->id), $mode = 0777, true, true);
-        (new FastExcel($this->childrenGenerator()))->export(storage_path("app/attachments/children_reports/" . $this->user->id . "/" . $this->user->id . ".xlsx"));
+        (new FastExcel($this->childrenGenerator($search)))->export(storage_path("app/attachments/children_reports/" . $this->user->id . "/" . $this->user->id . ".xlsx"));
 
         Log::info("Finalizando processo de exportacao das criancas do municipio");
     }
 
-    function childrenGenerator()
+    function childrenGenerator(Search $search)
     {
+        $results = $search->search(new Child(), $this->paramsQuery, 2000);
 
-        $children = Child::query();
-        $cases = ChildCase::where('tenant_id', $this->user->tenant_id)->whereIn(
-            'case_status',
-            $this->paramsQuery['case_status']
-        )->get()->toArray();
-
-        $idsCases = [];
-        foreach ($cases as $case) {
-            array_push($idsCases, $case['id']);
-        }
-
-        $children->where("alert_status", "=", 'accepted');
-
-
-        $children->whereIn("current_case_id", $idsCases);
-
-        $children->whereIn('risk_level', $this->paramsQuery['risk_level']);
-
-        /*if (!array_key_exists(null, $this->paramsQuery['gender'])) {
-            $children->whereIn('gender', $this->paramsQuery['gender']);
-        } else {
-            if (count($this->paramsQuery['gender']) == 1) {
-                $children->where('gender', 'is', $this->paramsQuery['gender']);
-            } else {
-                array_pop($this->paramsQuery['gender']);
-                $children->whereNull('gender')->orWhereIn('gender', $this->paramsQuery['gender']);
-            }
-        }
-        if (!array_key_exists(null, $this->paramsQuery['gender']) == 0) {
-            $children->whereIn('gender', $this->paramsQuery['gender']);
-        } else {
-            array_pop($this->paramsQuery['gender']);
-            //$children->whereNull('gender')->orWhereIn('gender', $this->paramsQuery['gender']);
-            $children->wherey(function ($query) {
-                $query->whereIn('gender', $this->paramsQuery['gender'])
-                    ->orWhereNull('gender');
-            });
-        }*/
-
-
-
-        foreach ($children->cursor() as $child) {
-            yield $this->transformChildToArrayExport($child);
+        foreach ($results['hits']['hits'] as $child) {
+            yield $this->transformChildToArrayExport((object) $child['_source']);
         }
     }
 

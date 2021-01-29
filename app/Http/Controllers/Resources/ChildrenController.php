@@ -477,14 +477,15 @@ class ChildrenController extends BaseController
 		}
 	}
 
-
-	public function create_report_child()
+	public function create_report_child(Search $search)
 	{
 
-		$paramsQuery = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
+		$query = $this->prepareSearchQuery();
 
-		dispatch((new ProcessExportChildrenJob(Auth::user(), $paramsQuery))->onQueue('export_children'));
+		//$attempted = $query->getAttemptedQuery();
+		$query = $query->getQuery();
 
+		dispatch((new ProcessExportChildrenJob(Auth::user(), $query))->onQueue('export_children'));
 		return response()->json(
 			[
 				'msg' => 'Arquivo criado',
