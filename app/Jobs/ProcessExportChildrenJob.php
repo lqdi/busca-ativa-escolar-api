@@ -42,7 +42,7 @@ class ProcessExportChildrenJob implements ShouldQueue
 
     function childrenGenerator(Search $search)
     {
-        $results = $search->search(new Child(), $this->paramsQuery, 2000);
+        $results = $search->search(new Child(), $this->paramsQuery, 10000);
 
         foreach ($results['hits']['hits'] as $child) {
             yield $this->transformChildToArrayExport((object) $child['_source']);

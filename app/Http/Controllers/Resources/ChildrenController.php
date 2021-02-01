@@ -479,6 +479,7 @@ class ChildrenController extends BaseController
 
 	public function create_report_child(Search $search)
 	{
+		$paramsQuery = $this->filterAsciiFields(request()->all(), ['name', 'cause_name', 'assigned_user_name', 'location_full', 'step_name']);
 
 		$query = $this->prepareSearchQuery();
 
@@ -486,6 +487,8 @@ class ChildrenController extends BaseController
 		$query = $query->getQuery();
 
 		dispatch((new ProcessExportChildrenJob(Auth::user(), $query))->onQueue('export_children'));
+		//(new CasesExports(Auth::user(), $paramsQuery))->queue('attachments/children_reports/' . Auth::user()->id . '/' . Auth::user()->id . '.xls');
+
 		return response()->json(
 			[
 				'msg' => 'Arquivo criado',
