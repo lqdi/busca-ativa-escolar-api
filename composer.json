@@ -28,6 +28,7 @@
         "pda/pheanstalk": "^4.0",
         "phpoffice/phpexcel": "^1.8",
         "phpoffice/phpspreadsheet": "^1.15",
+        "rap2hpoutre/fast-excel": "^2.3",
         "spatie/laravel-fractal": "^5.8.0",
         "toin0u/geocoder-laravel": "^4.4.1",
         "tymon/jwt-auth": "^1.0",
