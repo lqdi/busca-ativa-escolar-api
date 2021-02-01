@@ -1,4 +1,5 @@
 <?php
+
 /**
  * busca-ativa-escolar-api
  * ReportsController.php
@@ -26,7 +27,10 @@ use BuscaAtivaEscolar\Data\IncomeRange;
 use BuscaAtivaEscolar\Data\Race;
 use BuscaAtivaEscolar\Data\SchoolingLevel;
 use BuscaAtivaEscolar\Data\WorkActivity;
+use BuscaAtivaEscolar\HistoricalTenant;
+use BuscaAtivaEscolar\HistoricalTenantSignup;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
+use BuscaAtivaEscolar\Exports\RepostsExport;
 use BuscaAtivaEscolar\IBGE\Region;
 use BuscaAtivaEscolar\IBGE\UF;
 use BuscaAtivaEscolar\Jobs\ProcessReportSeloJob;
@@ -41,10 +45,15 @@ use Cache;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Excel as ExcelB;
 
 class ReportsController extends BaseController
 {
-
+    private $excel;
+    public function __construct(ExcelB $excel)
+    {
+        $this->excel = $excel;
+    }
     public function query_children(Reports $reports)
     {
 
@@ -64,19 +73,18 @@ class ReportsController extends BaseController
         //Verifica se a cidade foi informada no filtro. Neste caso remove o filtro de cidade e cria-se um filtro de tenant
         if (isset($filters['place_city'])) {
 
-            $tenant = Tenant::where('city_id', $filters['place_city_id'])->first();
+            $tenant = Tenant::where('city_id', $filters['place_city_id'])->withTrashed()->first();
 
-            if( $tenant != null ) {
+            if ($tenant != null) {
                 $filters['tenant_id'] = $tenant->id;
                 $tenant = true;
-            }else{
+            } else {
                 $tenant = false;
             }
 
             unset($filters['place_city']);
             unset($filters['place_city_id']);
             unset($filters['place_uf']);
-
         }
 
         if (Auth::user()->isRestrictedToTenant()) $filters['tenant_id'] = Auth::user()->tenant_id;
@@ -104,10 +112,10 @@ class ReportsController extends BaseController
             ->filterByTerms('gender', $filters['gender_null'] ?? false)
             ->filterByTerms('place_kind', $filters['place_kind_null'] ?? false);
 
-            //->filterByTerms('deadline_status', false)
-            //->filterByTerm('race',$filters['race_null'] ?? false)
-            //->filterByTerm('guardian_schooling',$filters['guardian_schooling_null'] ?? false)
-            //->filterByTerm('parents_income',$filters['parents_income_null'] ?? false)
+        //->filterByTerms('deadline_status', false)
+        //->filterByTerm('race',$filters['race_null'] ?? false)
+        //->filterByTerm('guardian_schooling',$filters['guardian_schooling_null'] ?? false)
+        //->filterByTerm('parents_income',$filters['parents_income_null'] ?? false)
 
         if ($params['view'] == "time_series") {
             if (!isset($filters['date'])) $filters['date'] = ['lte' => 'now', 'gte' => 'now-2d'];
@@ -124,7 +132,7 @@ class ReportsController extends BaseController
         $nullAges = $filters['age_null'] ?? false;
         //-------
 
-        if($ageRanges != null AND $params['dimension'] != 'age'){
+        if ($ageRanges != null and $params['dimension'] != 'age') {
 
             $rangesQuery = collect($filters['age_ranges'])->map(function ($rangeSlug) {
                 $range = AgeRange::getBySlug($rangeSlug);
@@ -151,7 +159,6 @@ class ReportsController extends BaseController
 
             $ids = $this->extractDimensionIDs($response['report'], $params['view']);
             $labels = $this->fetchDimensionLabels($params['dimension'], $ids);
-
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
@@ -160,12 +167,18 @@ class ReportsController extends BaseController
             return $this->exportResults($params['view'], $response, $labels);
         }
 
-        if( isset($tenant) ){ $response['tenant'] = $tenant; }
+        if (isset($tenant)) {
+            $response['tenant'] = $tenant;
+        }
 
         //remove IDS 500 e 600 dos motivos dos casos
-        if($params['dimension'] == "case_cause_ids"){
-            if( array_key_exists(500, $response['report']) ){ unset($response['report'][500]); }
-            if( array_key_exists(600, $response['report']) ){ unset($response['report'][600]); }
+        if ($params['dimension'] == "case_cause_ids") {
+            if (array_key_exists(500, $response['report'])) {
+                unset($response['report'][500]);
+            }
+            if (array_key_exists(600, $response['report'])) {
+                unset($response['report'][600]);
+            }
         }
 
         return response()->json(
@@ -235,7 +248,6 @@ class ReportsController extends BaseController
                     ->pluck('count', 'name');
 
                 break;
-
         }
 
         $response = [
@@ -362,7 +374,6 @@ class ReportsController extends BaseController
             'response' => $response,
             'labels' => $labels
         ]);
-
     }
 
     private function exportResults($view, $response, $labels)
@@ -379,7 +390,6 @@ class ReportsController extends BaseController
                 })
                 ->values()
                 ->toArray();
-
         } else if ($view === "time_series") { // TODO: optimize for performance
 
             $header = null;
@@ -407,25 +417,13 @@ class ReportsController extends BaseController
 
             array_unshift($header, 'Data');
             array_unshift($data, $header);
-
         }
-
-        $exported = \Excel::create($exportFile, function ($excel) use ($data) {
-
-            $excel->sheet('export', function ($sheet) use ($data) {
-                $sheet->fromArray($data, null, 'A1', false, false);
-            });
-
-        })->store('xls', $exportFolder, true);
-
+        $this->excel->store(new RepostsExport($data), 'attachment/buscaativaescolar_user/' . auth()->user()->id . '/' . auth()->user()->id . '.xls');
         $token = \JWTAuth::fromUser(auth()->user());
-
         return $this->api_success([
-            'export_file' => $exported['file'],
-            'download_url' => route('api.reports.download_exported', ['filename' => $exported['file'], 'token' => $token])
+            'export_file' => auth()->user()->id . '.xls',
+            'download_url' => route('api.reports.download_exported', ['filename' => auth()->user()->id . '.xls', 'token' => $token])
         ]);
-
-
     }
 
     public function download_exported($filename)
@@ -435,8 +433,7 @@ class ReportsController extends BaseController
 
         \JWTAuth::invalidate($token);
 
-        return response()->download(storage_path('app/export/' . auth()->user()->id . '/' . basename($filename)));
-
+        return response()->download(storage_path('app/attachment/buscaativaescolar_user/' . auth()->user()->id . '/' . basename($filename)));
     }
 
     public function country_stats()
@@ -445,7 +442,11 @@ class ReportsController extends BaseController
         try {
 
             $stats = Cache::remember('stats_country', config('cache.timeouts.stats_platform'), function () {
+
                 return [
+
+                    //Inicio do ciclo 2
+
                     'num_tenants' => Tenant::query()
                         ->count(),
 
@@ -455,8 +456,8 @@ class ReportsController extends BaseController
                         ->count(),
 
                     'num_pending_setup' => TenantSignup::query()
-                        ->where('is_approved', 1)
-                        ->where('is_provisioned', 0)
+                        ->where('is_approved', '=', 1)
+                        ->where('is_provisioned', '=', 0)
                         ->count(),
 
                     'num_alerts' => Alerta::query()
@@ -464,12 +465,11 @@ class ReportsController extends BaseController
                         ->count(),
 
                     'num_pending_alerts' => Child::whereHas('alert', function ($query) {
-                        $query->where(['alert_status' => 'pending']);
+                        $query->where('alert_status', '=', 'pending');
                     })->pending()->count(),
 
-                    //todo corrigir consulta pois rejeitado tem que estar no alerta e no child
                     'num_rejected_alerts' => Child::whereHas('alert', function ($query) {
-                        $query->where(['alert_status' => 'rejected']);
+                        $query->where('alert_status','=', 'rejected');
                     })->rejected()->count(),
 
                     'num_total_alerts' => ChildCase::query()
@@ -491,51 +491,42 @@ class ReportsController extends BaseController
                         ->whereNull('judged_by')
                         ->count(),
 
-                    //new options
-
                     'num_children_in_school' => Child::query()
-                        ->where('child_status', '=',Child::STATUS_IN_SCHOOL)
+                        ->where('child_status', '=', Child::STATUS_IN_SCHOOL)
                         ->count(),
 
                     'num_children_in_observation' => Child::query()
-                        ->where('child_status', '=',Child::STATUS_OBSERVATION)
+                        ->where('child_status', '=', Child::STATUS_OBSERVATION)
                         ->count(),
 
                     'num_children_out_of_school' => Child::query()
-                        ->where([
-                            ['child_status', '=', Child::STATUS_OUT_OF_SCHOOL],
-                            ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
-                        ])
+                        ->where('child_status', '=', Child::STATUS_OUT_OF_SCHOOL)
+                        ->where('alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                         ->count(),
 
                     'num_children_cancelled' => Child::query()
-                        ->where([
-                            ['child_status', '=', Child::STATUS_CANCELLED],
-                            ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
-                        ])
+                        ->where('child_status', '=', Child::STATUS_CANCELLED)
+                        ->where('alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
                         ->count(),
 
                     'num_children_transferred' => Child::query()
-                        ->where([
-                            ['child_status', '=', Child::STATUS_TRANSFERRED]
-                        ])
+                        ->where('child_status', '=', Child::STATUS_TRANSFERRED)
                         ->count(),
 
                     'num_children_interrupted' => Child::query()
-                        ->where([
-                            ['child_status', '=', Child::STATUS_INTERRUPTED],
-                        ])
+                        ->where('child_status', '=', Child::STATUS_INTERRUPTED)
                         ->count(),
 
+                    // final do ciclo 2
+
                 ];
+
             });
 
             return response()->json(['status' => 'ok', 'stats' => $stats]);
-
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
-
     }
 
     public function state_stats()
@@ -611,7 +602,7 @@ class ReportsController extends BaseController
 
                     'num_children_in_school' => Child::query()
                         ->whereIn('tenant_id', $tenantIDs)
-                        ->where('child_status', '=',Child::STATUS_IN_SCHOOL)
+                        ->where('child_status', '=', Child::STATUS_IN_SCHOOL)
                         ->count(),
 
                     'num_children_out_of_school' => Child::query()
@@ -621,10 +612,10 @@ class ReportsController extends BaseController
                             ['alert_status', '=', Child::ALERT_STATUS_ACCEPTED]
                         ])
                         ->count(),
-                    
+
                     'num_children_in_observation' => Child::query()
                         ->whereIn('tenant_id', $tenantIDs)
-                        ->where('child_status', '=',Child::STATUS_OBSERVATION)
+                        ->where('child_status', '=', Child::STATUS_OBSERVATION)
                         ->count(),
 
                     'num_children_cancelled' => Child::query()
@@ -654,11 +645,9 @@ class ReportsController extends BaseController
             });
 
             return response()->json(['status' => 'ok', 'stats' => $stats, 'uf' => $uf, 'tenant_ids' => $tenantIDs, 'city_ids' => $cityIDs]);
-
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
         }
-
     }
 
     protected function extractDimensionIDs($report, $view)
@@ -718,13 +707,13 @@ class ReportsController extends BaseController
                 return trans('reports_terms.country_region');
             case 'school_last_grade':
                 return trans('reports_terms.school_last_grade');
-                default:
+            default:
                 return [];
         }
-
     }
 
-    public function createSeloReport(){
+    public function createSeloReport()
+    {
 
         dispatch((new ProcessReportSeloJob())->onQueue('export_users'));
         return response()->json(
@@ -734,12 +723,12 @@ class ReportsController extends BaseController
             ],
             200
         );
-
     }
 
-    public function getSeloReports(){
+    public function getSeloReports()
+    {
         $reports = \Storage::allFiles('attachments/selo_reports');
-        $finalReports = array_map( function ($file){
+        $finalReports = array_map(function ($file) {
             return [
                 'file' => str_replace("attachments/selo_reports/", "", $file),
                 'size' => \Storage::size($file),
@@ -749,17 +738,17 @@ class ReportsController extends BaseController
         return response()->json(['status' => 'ok', 'data' => $finalReports]);
     }
 
-    public function getSeloReport(){
+    public function getSeloReport()
+    {
         $nameFile = request('file');
-        if ( !isset($nameFile) ) {
-            return response()->json(['error' => 'Not authorized.'],403);
+        if (!isset($nameFile)) {
+            return response()->json(['error' => 'Not authorized.'], 403);
         }
-        $exists = \Storage::exists("attachments/selo_reports/".$nameFile);
-        if ( $exists ){
-            return response()->download(storage_path("app/attachments/selo_reports/".$nameFile));
-        }else{
-            return response()->json(['error' => 'Arquivo inexistente.'],403);
+        $exists = \Storage::exists("attachments/selo_reports/" . $nameFile);
+        if ($exists) {
+            return response()->download(storage_path("app/attachments/selo_reports/" . $nameFile));
+        } else {
+            return response()->json(['error' => 'Arquivo inexistente.'], 403);
         }
     }
-
 }

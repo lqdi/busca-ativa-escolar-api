@@ -218,8 +218,6 @@ class Pesquisa extends CaseStep implements CanGenerateForms
 
         } else {
 
-            Log::info("Não fazendo consulta ...");
-
             $this->child->update([
                 'lat' => $new_place_lat,
                 'lng' => $new_place_lng,
