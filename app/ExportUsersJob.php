@@ -43,6 +43,7 @@ class ExportUsersJob implements ShouldQueue
                 'E-mail' => $userDate->email,
                 'UF' => $userDate->uf,
                 'Município' => $userDate->work_city_name,
+                'Instituição' => $userDate->institution,
                 //'Município' => $userDate->tenant->city->name,
 
             ];
