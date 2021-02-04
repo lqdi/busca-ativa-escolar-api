@@ -11,42 +11,47 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Log;
+use File;
+use Rap2hpoutre\FastExcel\FastExcel;
 
 class ExportUsersJob implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
 
-    public function handle() {
+    public function handle()
+    {
 
         Log::info("Iniciando processo de exportacao de usuários");
 
         set_time_limit(0);
 
-        $query = User::with('group')->withTrashed();
 
-        Excel::create('buscaativaescolar_users_'.Carbon::now()->timestamp, function($excel) use ($query) {
+        function usersGenerator()
+        {
+            foreach (User::withTrashed()->get() as $user) {
+                yield $user;
+            }
+        }
 
-            $excel->sheet('users', function($sheet) use ($query) {
+        // Export consumes only a few MB, even with 10M+ rows.
+        $users = usersGenerator();
+        File::makeDirectory(storage_path("app/attachments/user_reports/" . Carbon::now()->timestamp), $mode = 0777, true, true);
+        (new FastExcel($users))->export(storage_path('app/attachments/user_reports/' . Carbon::now()->timestamp . '/buscaativaescolar_users_' . Carbon::now()->timestamp . '.xlsx'), function ($userDate) {
+            return [
 
-                //All columns are defined in class User -> toExportArray
-                $sheet->appendRow(array(
-                    'UF','Município','Nome interno','Data de adesão','Data de cadastro','Nome do usuário','E-mail','Telefone Institucional','Celular Institucional','Celular Pessoal','Data de nascimento','Tipo','Grupo','Instituição','Posição','Cadastro','Data de desativacao', 'Meta Selo UNICEF'
-                ));
+                'Nome do usuário' => $userDate->name,
+                'E-mail' => $userDate->email,
+                'UF' => $userDate->uf,
+                'Município' => $userDate->work_city_name,
+                'Instituição' => $userDate->institution,
+                'Telefone Institucional' => $userDate->work_phone,
+                'Posição' => $userDate->position,
+                'Tipo' => trans('user.type.' . $userDate->type),
+                'Cadastro' => $userDate->deleted_at ? 'Desativado' : 'Ativo',
+            ];
+        });
 
-                $query->chunk(500, function ($rows) use ($sheet) {
-                    foreach ($rows as $row) {
-                        $sheet->appendRow(
-                            $row->toExportArray()
-                        );
-                    }
-                });
-
-            });
-
-        })->store('xls', storage_path('app/attachments/users_reports'));
 
         Log::info("Finalizando processo de exportacao de usuários");
-
     }
-
 }
