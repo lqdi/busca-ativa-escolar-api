@@ -44,7 +44,10 @@ class ExportUsersJob implements ShouldQueue
                 'UF' => $userDate->uf,
                 'Município' => $userDate->work_city_name,
                 'Instituição' => $userDate->institution,
+                'Telefone Institucional' => $userDate->work_phone,
+                'Posição' => $userDate->position,
                 'Tipo' => trans('user.type.' . $userDate->type),
+                'Cadastro' => $userDate->deleted_at ? 'Desativado' : 'Ativado',
                 //'Município' => $userDate->tenant->city->name,
 
             ];
