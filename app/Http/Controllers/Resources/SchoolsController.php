@@ -52,7 +52,9 @@ class SchoolsController extends BaseController
     {
 
         $parameters = request()->only(['id', 'uf', 'city_id', 'name']);
-        $parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
+        if(in_array('uf', $parameters)){
+            $parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
+        }
         $parameters['name'] = Str::ascii($parameters['name']);
 
         $query = ElasticSearchQuery::withParameters($parameters)
