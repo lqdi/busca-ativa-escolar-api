@@ -372,10 +372,10 @@ class UsersController extends BaseController
 
     public function reports()
     {
-        $reports = \Storage::allFiles('attachments/users_reports');
+        $reports = \Storage::allFiles('attachments/user_reports');
         $finalReports = array_map(function ($file) {
             return [
-                'file' => str_replace("attachments/users_reports/", "", $file),
+                'file' => str_replace("attachments/user_reports/", "", $file),
                 'size' => \Storage::size($file),
                 'last_modification' => \Storage::lastModified($file)
             ];
