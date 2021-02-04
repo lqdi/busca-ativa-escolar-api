@@ -81,7 +81,7 @@ class StepTransformer extends TransformerAbstract {
 	}
 
 	public function includeAssignedUser(CaseStep $step) {
-		$assignedUser = $step->assignedUser()->withoutGlobalScope(TenantScope::class)->first();
+		$assignedUser = $step->assignedUser()->withoutGlobalScope(TenantScope::class)->withTrashed()->first();
 		if(!$assignedUser) return null;
 		return $this->item($assignedUser, new UserTransformer, false);
 	}
