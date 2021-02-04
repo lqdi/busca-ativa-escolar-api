@@ -35,8 +35,8 @@ class ExportUsersJob implements ShouldQueue
 
         // Export consumes only a few MB, even with 10M+ rows.
         $users = usersGenerator();
-        File::makeDirectory(storage_path("app/attachments/user_reports/" . Carbon::now()->timestamp), $mode = 0777, true, true);
-        (new FastExcel($users))->export(storage_path('app/attachments/user_reports/' . Carbon::now()->timestamp . '/buscaativaescolar_users_' . Carbon::now()->timestamp . '.xlsx'), function ($userDate) {
+        File::makeDirectory(storage_path("app/attachments/user_reports/"), $mode = 0777, true, true);
+        (new FastExcel($users))->export(storage_path('app/attachments/user_reports/buscaativaescolar_users_' . Carbon::now()->timestamp . '.xlsx'), function ($userDate) {
             return [
 
                 'Nome do usuário' => $userDate->name,
