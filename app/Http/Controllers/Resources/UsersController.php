@@ -389,9 +389,9 @@ class UsersController extends BaseController
         if (!isset($nameFile)) {
             return response()->json(['error' => 'Not authorized.'], 403);
         }
-        $exists = \Storage::exists("attachments/users_reports/" . $nameFile);
+        $exists = \Storage::exists("attachments/user_reports/" . $nameFile);
         if ($exists) {
-            return response()->download(storage_path("app/attachments/users_reports/" . $nameFile));
+            return response()->download(storage_path("app/attachments/user_reports/" . $nameFile));
         } else {
             return response()->json(['error' => 'Arquivo inexistente.'], 403);
         }
