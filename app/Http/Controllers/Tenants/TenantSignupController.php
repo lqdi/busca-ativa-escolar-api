@@ -160,6 +160,7 @@ class TenantSignupController extends BaseController
 	{
 		$status = request('status');
 		(new TenantSignupExport($status))->store('invoices.xlsx');
+		return response()->download(storage_path("app/invoices.xlsx"));
 	}
 
 	public function get_via_token(TenantSignup $signup)
