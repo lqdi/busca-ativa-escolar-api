@@ -5,10 +5,11 @@ namespace BuscaAtivaEscolar\Exports;
 use BuscaAtivaEscolar\TenantSignup;
 use BuscaAtivaEscolar\City;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\FromArray;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Support\Str;
 
 /**
  * @property City|null $city
@@ -16,14 +17,19 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 class TenantSignupExport implements FromQuery, ShouldAutoSize, WithHeadings
 {
     use Exportable;
-    public function __construct($status)
+    public function __construct($status, $city_name, $city_uf, $created_at)
     {
         $this->status = $status;
+        $this->city_name = $city_name;
+        $this->city_uf = $city_uf;
+        $this->created_at = $created_at;
     }
 
     public function query()
     {
-
+        $city_name = $this->city_name;
+        $city_uf = $this->city_uf;
+        $created_at = $this->created_at;
         $query =  TenantSignup::query()
             ->with(['city', 'judge', 'tenant.operationalAdmin', 'tenant.politicalAdmin'])
             ->orderBy('created_at', 'ASC');
@@ -50,6 +56,25 @@ class TenantSignupExport implements FromQuery, ShouldAutoSize, WithHeadings
             default:
                 break;
         }
+        if (isset($this->city_name) && strlen($this->city_name) > 0) {
+            $query->whereHas('city', function ($sq) use ($city_name) {
+                return $sq->where('name_ascii', 'REGEXP', Str::ascii($city_name));
+            });
+        }
+
+        if (isset($this->city_uf) && strlen($this->city_uf) > 0) {
+            $query->whereHas('city', function ($sq) use ($city_uf) {
+                return $sq->where('uf', 'REGEXP', Str::ascii($city_uf));
+            });
+        }
+
+        if (isset($this->created_at) && strlen($this->created_at) > 0) {
+            $numDays = intval($created_at);
+            $cutoffDate = Carbon::now()->addDays(-$numDays);
+
+            $query->where('created_at', '>=', $cutoffDate->format('Y-m-d H:i:s'));
+        }
+
         return $query;
     }
 

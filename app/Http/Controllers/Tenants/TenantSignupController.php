@@ -159,8 +159,11 @@ class TenantSignupController extends BaseController
 	public function export_signups()
 	{
 		$status = request('status');
-		(new TenantSignupExport($status))->store('invoices.xlsx');
-		return response()->download(storage_path("app/invoices.xlsx"));
+		$city_name = request('city_name');
+		$city_uf = request('city_uf');
+		$created_at = request('created_at');
+		(new TenantSignupExport($status, $city_name, $city_uf, $created_at))->store('attachments/buscaativaescolar_adesoes.xlsx');
+		return response()->download(storage_path("app/attachments/buscaativaescolar_adesoes.xlsx"));
 	}
 
 	public function get_via_token(TenantSignup $signup)
