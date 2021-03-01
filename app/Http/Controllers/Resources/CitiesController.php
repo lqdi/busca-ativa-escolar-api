@@ -47,7 +47,7 @@ class CitiesController extends BaseController  {
 	public function search(Search $search) {
 
 		$parameters = request()->only(['uf', 'name']);
-		$parameters['uf'] = strtolower(Str::ascii($parameters['uf']));
+		if (array_key_exists('uf', $parameters)) { $parameters['uf'] = strtolower(Str::ascii($parameters['uf'])); }
 		$parameters['name_ascii'] = strtolower(Str::ascii($parameters['name']));
 
 		$query = ElasticSearchQuery::withParameters($parameters)
