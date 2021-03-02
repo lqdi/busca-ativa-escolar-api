@@ -17,6 +17,8 @@ return [
 			'dob' => "Data de nascimento*",
 			'rg' => "RG",
 			'cpf' => "CPF",
+            'nis' => "NIS (Número de Identificação Social)",
+            'cns' => "CNS (Cartão Nacional do SUS)",
 			'has_been_in_school' => "Já frequentou a escola alguma vez?*",
 			'reason_not_enrolled' => "Qual a justificativa de não ter frequentado?*",
 			'school_last_grade' => "Qual o último ano que frequentou?*",

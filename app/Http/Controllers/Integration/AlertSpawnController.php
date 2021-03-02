@@ -41,6 +41,7 @@ class AlertSpawnController extends BaseController {
 			if(!$tenant) return response()->json(['status' => 'error', 'reason' => 'user_has_no_tenant']);
 
 			$data = request()->toArray();
+
 			$validation = (new Alerta())->validate($data);
 
 			if($validation->fails()) return $this->api_validation_failed('validation_failed', $validation);

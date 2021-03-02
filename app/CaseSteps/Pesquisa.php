@@ -308,7 +308,9 @@ class Pesquisa extends CaseStep implements CanGenerateForms
                     ->field('race', 'select', trans('form_builder.pesquisa.field.race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
                     ->field('dob', 'date', trans('form_builder.pesquisa.field.dob'))
                     ->field('rg', 'alphanum', trans('form_builder.pesquisa.field.rg'))
-                    ->field('cpf', 'alphanum', trans('form_builder.pesquisa.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation', 'placeholder' => '000.000.000-00']);
+                    ->field('cpf', 'alphanum', trans('form_builder.pesquisa.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation', 'placeholder' => '000.000.000-00'])
+                    ->field('cns', 'alphanum', trans('form_builder.pesquisa.field.cns'))
+                    ->field('nis', 'alphanum', trans('form_builder.pesquisa.field.nis'));
             })
             ->group('school', trans('form_builder.pesquisa.group.school'), function (FormBuilder $group) {
                 return $group
@@ -346,7 +348,7 @@ class Pesquisa extends CaseStep implements CanGenerateForms
                     ->field('guardian_dob', 'date', trans('form_builder.pesquisa.field.guardian_dob'))
                     ->field('guardian_phone', 'alphanum', trans('form_builder.pesquisa.field.guardian_phone'), ['mask' => 'phone', 'transform' => 'strip_punctuation', 'placeholder' => '(00) 00000-0000'])
                     ->field('guardian_race', 'select', trans('form_builder.pesquisa.field.guardian_race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
-                    ->field('guardian_schooling', 'string', trans('form_builder.pesquisa.field.guardian_schooling'), ['options' => SchoolingLevel::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
+                    ->field('guardian_schooling', 'select', trans('form_builder.pesquisa.field.guardian_schooling'), ['options' => SchoolingLevel::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
                     ->field('guardian_job', 'string', trans('form_builder.pesquisa.field.guardian_job'));
             })
             ->group('cause', trans('form_builder.pesquisa.group.cause'), function (FormBuilder $group) {
