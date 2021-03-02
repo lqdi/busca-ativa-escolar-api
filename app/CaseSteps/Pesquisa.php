@@ -308,7 +308,9 @@ class Pesquisa extends CaseStep implements CanGenerateForms
                     ->field('race', 'select', trans('form_builder.pesquisa.field.race'), ['options' => Race::getAllAsArray(), 'key' => 'slug', 'label' => 'label'])
                     ->field('dob', 'date', trans('form_builder.pesquisa.field.dob'))
                     ->field('rg', 'alphanum', trans('form_builder.pesquisa.field.rg'))
-                    ->field('cpf', 'alphanum', trans('form_builder.pesquisa.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation', 'placeholder' => '000.000.000-00']);
+                    ->field('cpf', 'alphanum', trans('form_builder.pesquisa.field.cpf'), ['mask' => 'cpf', 'transform' => 'strip_punctuation', 'placeholder' => '000.000.000-00'])
+                    ->field('cns', 'alphanum', trans('form_builder.pesquisa.field.cns'))
+                    ->field('nis', 'alphanum', trans('form_builder.pesquisa.field.nis'));
             })
             ->group('school', trans('form_builder.pesquisa.group.school'), function (FormBuilder $group) {
                 return $group
