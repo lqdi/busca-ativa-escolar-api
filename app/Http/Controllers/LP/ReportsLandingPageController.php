@@ -222,9 +222,11 @@ class ReportsLandingPageController extends BaseController
         $tenantId = $tenant ? $tenant->id : 0;
 
         if ($tenant != null) {
+
             $created = $tenant->created_at->format('d/m/Y');
             $now = Carbon::now();
             $last_active_at = $tenant->last_active_at;
+            $lastTenantSignup = TenantSignup::where('tenant_id', $tenantId)->latest()->first();
 
             if ($now->diffInDays($last_active_at) >= 30) {
                 $status = "Inativo";
@@ -232,7 +234,7 @@ class ReportsLandingPageController extends BaseController
                 $status = "Ativo";
             }
 
-            $data_city = $data_city = ['created' => $created, 'status' => $status];
+            $data_city = $data_city = ['created' => $created, 'status' => $status, 'last_tenant_signup' => $lastTenantSignup ? $lastTenantSignup->created_at->format('d/m/Y') : null];
 
         } else {
             $data_city = null;
