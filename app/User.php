@@ -40,6 +40,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
  * @property int $id
+ * @property int $attempt
  *
  * @property string name
  * @property string $email
@@ -66,6 +67,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string $is_suspended
  * @property string $suspended_by
  * @property boolean $lgpd
+ * 
  *
  * @property Tenant|null $tenant
  * @property City|null $city
@@ -74,6 +76,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
+ * @property \Carbon\Carbon $attempted_at
  *
  * @property string $remember_token
  * @property-read UserSettings $settings
@@ -249,6 +252,8 @@ class User extends Authenticatable implements JWTSubject
 
 		'is_suspended',
 		'lgpd',
+		'attempt',
+		'attempted_at',
 		'suspended_by',
 	];
 
