@@ -29,7 +29,7 @@ class AlertsController extends BaseController {
 	public function get_pending() {
 
         /** @var Builder $query */
-        $query = Child::with('alert');
+        $query = Child::query();
 
         $where = [];
 
