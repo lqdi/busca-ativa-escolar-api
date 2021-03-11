@@ -75,6 +75,7 @@ return [
         'notifications',
         'groups.manage',
         'update.yourself',
+        'update.school',
     ],
 
     BuscaAtivaEscolar\User::TYPE_GESTOR_ESTADUAL => [
@@ -120,6 +121,7 @@ return [
         'cases.step.4a_observacao',
         'school.list',
         'update.yourself',
+        'update.school'
     ],
 
     BuscaAtivaEscolar\User::TYPE_COMITE_ESTADUAL => [
@@ -160,6 +162,7 @@ return [
         'alerts.spawn',
         'settings.manage',
         'settings.educacenso',
+        'update.school',
         'tenant.complete_setup',
         'preferences',
         'notifications',
@@ -194,6 +197,7 @@ return [
         'preferences',
         'notifications',
         'settings.educacenso',
+        'update.school',
         'school.list',
         'update.yourself',
     ],
@@ -228,6 +232,7 @@ return [
         'notifications',
         'school.list',
         'update.yourself',
+        'update.school',
     ],
 
     BuscaAtivaEscolar\User::TYPE_TECNICO_VERIFICADOR => [

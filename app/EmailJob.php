@@ -80,7 +80,7 @@ class EmailJob extends Model
             'type' => $emailType,
             'status' => self::STATUS_PENDING,
             'user_id' => $user->id,
-            'tenant_id' => $user->tenant->id,
+            'tenant_id' => $user->tenant ? $user->tenant->id : null,
             'school_id' => $school->id,
             'school_email' => $school->school_email,
             'email_user' => $user->email
