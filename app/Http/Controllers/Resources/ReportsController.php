@@ -469,7 +469,7 @@ class ReportsController extends BaseController
                     })->pending()->count(),
 
                     'num_rejected_alerts' => Child::whereHas('alert', function ($query) {
-                        $query->where('alert_status','=', 'rejected');
+                        $query->where('alert_status', '=', 'rejected');
                     })->rejected()->count(),
 
                     'num_total_alerts' => ChildCase::query()
@@ -520,7 +520,6 @@ class ReportsController extends BaseController
                     // final do ciclo 2
 
                 ];
-
             });
 
             return response()->json(['status' => 'ok', 'stats' => $stats]);

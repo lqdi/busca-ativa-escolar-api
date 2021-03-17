@@ -22,41 +22,18 @@ use BuscaAtivaEscolar\User;
 use Illuminate\Http\Request;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use Illuminate\Foundation\Auth\ThrottlesLogins;
-use BuscaAtivaEscolar\Http\Traits\ThrottlesLogin;
+use BuscaAtivaEscolar\Traits\LoginAttempts;
 
 class IdentityController extends BaseController
 {
-	use ThrottlesLogins;
-	protected $maxLoginAttempts = 3;
-	protected $lockoutTime = 300;
+	use LoginAttempts;
 	public function authenticate(Request $request)
 	{
-		if ($this->hasTooManyLoginAttempts($request)) {
-			print_r('teste');
-			$this->fireLockoutEvent($request);
-			return $this->sendLockoutResponse($request);
+		$this->store($request);
+		$user  = $this->inTable($request);
+		if ($user->blocked == 1) {
+			return response()->json(['error' => "Credentials blocked. Please renew your password."], 401);
 		}
-		$validation = $this->validate($request, [
-			'email' => 'required|email',
-			'password' => 'required|min:4'
-		]);
-
-		/** Validation is done, now login user */
-		//else to user profile
-		$check = Auth::attempt(['email' => $request['email'], 'password' => $request['password']]);
-
-		if ($check) {
-
-			$user = Auth::user();
-			/** Since Authentication is done, Use it here */
-			$this->clearLoginAttempts($request);
-		} else {
-			/** Authentication Failed */
-			$this->incrementLoginAttempts($request);
-			return response()->json(['error' => 'invalid_credentials'], 401);
-		}
-
 		if (request('grant_type', 'login') == "refresh") {
 			return $this->refresh($request);
 		}
@@ -67,7 +44,17 @@ class IdentityController extends BaseController
 
 			$token = JWTAuth::attempt($credentials);
 
-			if (!$token) return response()->json(['error' => 'invalid_credentials'], 401);
+
+			if (!$token) {
+				$this->incrementLoginAttempts($request->email);
+				return response()->json(['error' => 'invalid_credentials'], 401);
+			} else {
+				if ($this->hasTooManyLoginAttempts($request) == true) {
+					return response()->json(['error' => "Access blocked until $user->attempted_at. $user->attempt attempts to access the profile with wrong credentials"], 401);
+				}
+				$this->clearLoginAttempts($request->email);
+			}
+
 
 			$user = fractal()
 				->item(Auth::user())
@@ -159,7 +146,7 @@ class IdentityController extends BaseController
 			if (!$user) {
 				return $this->api_failure('invalid_email');
 			}
-
+			$this->disblockUser($email);
 			$user->resetPassword($token, $newPassword);
 		} catch (\Exception $ex) {
 			return $this->api_failure($ex->getMessage());

@@ -34,7 +34,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            'throttle:60,1',
+            //'throttle:60,1',
             'bindings',
         ],
     ];
@@ -54,8 +54,8 @@ class Kernel extends HttpKernel
         'guest' => \BuscaAtivaEscolar\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
 
-	    'can' => \BuscaAtivaEscolar\Http\Middleware\VerifyPermissions::class,
-	    'jwt.auth' => 'Tymon\JWTAuth\Middleware\GetUserFromToken',
-	    'jwt.refresh' => 'Tymon\JWTAuth\Middleware\RefreshToken',
+        'can' => \BuscaAtivaEscolar\Http\Middleware\VerifyPermissions::class,
+        'jwt.auth' => 'Tymon\JWTAuth\Middleware\GetUserFromToken',
+        'jwt.refresh' => 'Tymon\JWTAuth\Middleware\RefreshToken',
     ];
 }

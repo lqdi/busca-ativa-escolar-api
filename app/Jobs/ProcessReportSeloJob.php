@@ -27,7 +27,7 @@ class ProcessReportSeloJob implements ShouldQueue
 
         Log::info("Iniciando processo de exportacao dos dados do Selo UNICEF");
         set_time_limit(0);
-        //File::makeDirectory(storage_path("app/attachments/selo_reports/" . Carbon::now()->timestamp), $mode = 0777, true, true);
+        File::makeDirectory(storage_path("app/attachments/selo_reports/" . Carbon::now()->timestamp), $mode = 0777, true, true);
 
         $cities = [];
         $cities_with_goal = City::has('goal')->get();
