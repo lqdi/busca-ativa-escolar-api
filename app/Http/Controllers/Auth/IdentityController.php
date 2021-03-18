@@ -22,39 +22,38 @@ use BuscaAtivaEscolar\User;
 use Illuminate\Http\Request;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use BuscaAtivaEscolar\Http\Controllers\Auth\LoginAttempts;
+use BuscaAtivaEscolar\Traits\LoginAttempts;
 
 class IdentityController extends BaseController
 {
+	use LoginAttempts;
 	public function authenticate(Request $request)
 	{
-		$login = new LoginAttempts;
-		if ($login->hasTooManyLoginAttempts($request) == true) {
-			$user  = User::where('email', '=', $request->email)->first();
-			if ($user->attempt < 8) {
-				return response()->json(['error' => "Access blocked until $user->attempted_at. $user->attempt attempts to access the profile with wrong credentials"], 401);
-			} else {
-				return response()->json(['error' => "Credentials blocked. Please renew your password."], 401);
-			}
-		};
+		$this->store($request);
+		$user  = $this->inTable($request);
+		if ($user->blocked == 1) {
+			return response()->json(['error' => "Credentials blocked. Please renew your password."], 401);
+		}
 		if (request('grant_type', 'login') == "refresh") {
 			return $this->refresh($request);
 		}
 
-
-
 		$credentials = $request->only('email', 'password');
-		print_r(Auth::attempt($credentials));
-		if (Auth::attempt($credentials)) {
-			$login->clearLoginAttempts($request);
-		} else {
-			$login->incrementLoginAttempts($request);
-		}
+
 		try {
 
 			$token = JWTAuth::attempt($credentials);
 
-			if (!$token) return response()->json(['error' => 'invalid_credentials'], 401);
+
+			if (!$token) {
+				$this->incrementLoginAttempts($request->email);
+				return response()->json(['error' => 'invalid_credentials'], 401);
+			} else {
+				if ($this->hasTooManyLoginAttempts($request) == true) {
+					return response()->json(['error' => "Access blocked until $user->attempted_at. $user->attempt attempts to access the profile with wrong credentials"], 401);
+				}
+				$this->clearLoginAttempts($request->email);
+			}
 
 
 			$user = fractal()
@@ -147,7 +146,7 @@ class IdentityController extends BaseController
 			if (!$user) {
 				return $this->api_failure('invalid_email');
 			}
-
+			$this->disblockUser($email);
 			$user->resetPassword($token, $newPassword);
 		} catch (\Exception $ex) {
 			return $this->api_failure($ex->getMessage());
