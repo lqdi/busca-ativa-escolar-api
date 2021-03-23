@@ -1,4 +1,5 @@
 <?php
+
 /**
  * busca-ativa-escolar-api
  * TokenController.php
@@ -21,12 +22,19 @@ use BuscaAtivaEscolar\User;
 use Illuminate\Http\Request;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use BuscaAtivaEscolar\Traits\LoginAttempts;
 
-class IdentityController extends BaseController  {
-
-	public function authenticate(Request $request) {
-
-		if(request('grant_type', 'login') == "refresh") {
+class IdentityController extends BaseController
+{
+	use LoginAttempts;
+	public function authenticate(Request $request)
+	{
+		$this->store($request);
+		$user  = $this->inTable($request);
+		if ($user->blocked == 1) {
+			return response()->json(['error' => "Credentials blocked. Please renew your password."], 401);
+		}
+		if (request('grant_type', 'login') == "refresh") {
 			return $this->refresh($request);
 		}
 
@@ -36,7 +44,17 @@ class IdentityController extends BaseController  {
 
 			$token = JWTAuth::attempt($credentials);
 
-			if (!$token) return response()->json(['error' => 'invalid_credentials'], 401);
+
+			if (!$token) {
+				$this->incrementLoginAttempts($request->email);
+				return response()->json(['error' => 'invalid_credentials'], 401);
+			} else {
+				if ($this->hasTooManyLoginAttempts($request) == true) {
+					return response()->json(['error' => "Access blocked until $user->attempted_at. $user->attempt attempts to access the profile with wrong credentials"], 401);
+				}
+				$this->clearLoginAttempts($request->email);
+			}
+
 
 			$user = fractal()
 				->item(Auth::user())
@@ -44,12 +62,9 @@ class IdentityController extends BaseController  {
 				->serializeWith(new SimpleArraySerializer())
 				->parseIncludes(['tenant'])
 				->toArray();
-
-
 		} catch (JWTException $ex) {
 
 			return response()->json(['error' => 'token_generation_failed', 'reason' => $ex->getMessage()], 500);
-
 		}
 
 		$this->tickTenantLastActivity();
@@ -57,11 +72,12 @@ class IdentityController extends BaseController  {
 		return response()->json(compact('token', 'user'));
 	}
 
-	public function refresh(Request $request) {
+	public function refresh(Request $request)
+	{
 
 		$token = $request->get('token', false);
 
-		if(!$token) {
+		if (!$token) {
 			return response()->json(['error' => 'no_token_provided'], 500);
 		}
 
@@ -78,7 +94,8 @@ class IdentityController extends BaseController  {
 		return response()->json(compact('token', 'user'));
 	}
 
-	public function identity() {
+	public function identity()
+	{
 
 		$user = Auth::user();
 
@@ -90,10 +107,10 @@ class IdentityController extends BaseController  {
 			->serializeWith(new SimpleArraySerializer())
 			->parseIncludes(request('with', 'tenant'))
 			->respond();
-
 	}
 
-	public function begin_password_reset() {
+	public function begin_password_reset()
+	{
 
 		$email = request('email');
 
@@ -103,12 +120,11 @@ class IdentityController extends BaseController  {
 
 			$user = User::whereEmail($email)->first(); /* @var $user User */
 
-			if(!$user) {
-				return $this->api_failure('<br>O email ('.$email.')<br> nao foi encontrado no sistema, <br>entre com o email cadastrado para acessar o sistema e trocar a senha.');
+			if (!$user) {
+				return $this->api_failure('<br>O email (' . $email . ')<br> nao foi encontrado no sistema, <br>entre com o email cadastrado para acessar o sistema e trocar a senha.');
 			}
 
 			$user->sendPasswordResetNotification($user->getRememberToken());
-
 		} catch (\Exception $ex) {
 
 			$this->api_failure('reset_send_failed');
@@ -117,7 +133,8 @@ class IdentityController extends BaseController  {
 		return $this->api_success();
 	}
 
-	public function complete_password_reset() {
+	public function complete_password_reset()
+	{
 		$email = request('email');
 		$token = request('token');
 		$newPassword = request('new_password');
@@ -126,17 +143,24 @@ class IdentityController extends BaseController  {
 
 			$user = User::whereEmail($email)->first(); /* @var $user User */
 
-			if(!$user) {
+			if (!$user) {
 				return $this->api_failure('invalid_email');
 			}
-
+			$this->disblockUser($email);
 			$user->resetPassword($token, $newPassword);
-
 		} catch (\Exception $ex) {
 			return $this->api_failure($ex->getMessage());
 		}
 
 		return $this->api_success();
 	}
-
+	/**
+	 * Username used in ThrottlesLogins trait
+	 * 
+	 * @return string
+	 */
+	public function username()
+	{
+		return 'email';
+	}
 }
