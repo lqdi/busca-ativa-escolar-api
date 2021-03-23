@@ -535,10 +535,12 @@ class ReportsBar extends BaseController
 
             $data = DB::table('case_steps_alerta')
                 ->select(DB::raw("cities.ibge_city_id as id, count(case_steps_alerta.alert_status) as value, cities.name as name_city"))
+                ->join('tenants', 'tenants.id', '=',  'case_steps_alerta.tenant_id')
+                ->join('cities', 'cities.id', '=', 'tenants.city_id')
+
                 ->where('case_steps_alerta.alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
-                ->where('case_steps_alerta.place_uf', '=', $uf)
-                ->whereNotNull('case_steps_alerta.place_city_id')
-                ->join('cities', 'cities.id', '=', 'case_steps_alerta.place_city_id')
+                ->where('tenants.uf', '=', $uf)
+
                 ->groupBy(['cities.name', 'cities.ibge_city_id'])
                 ->get()->toArray();
 
@@ -556,10 +558,10 @@ class ReportsBar extends BaseController
         }else{
 
             $data = DB::table('case_steps_alerta')
-                ->select(DB::raw("place_uf, count(alert_status) as value"))
+                ->select(DB::raw("tenants.uf as place_uf, count(alert_status) as value"))
+                ->join('tenants', 'tenants.id', '=',  'case_steps_alerta.tenant_id')
                 ->where('alert_status', '=', Child::ALERT_STATUS_ACCEPTED)
-                ->whereNotNull('place_uf')
-                ->groupBy('place_uf')
+                ->groupBy(['tenants.uf'])
                 ->orderBy('value', 'DESC')
                 ->get()->toArray();
 
