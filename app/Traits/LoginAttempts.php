@@ -34,7 +34,20 @@ trait LoginAttempts
       if ($user->attempt == 3) {
         $user->attempted_at = Carbon::now()->addSeconds(60)->toDateTimeString();
       } elseif ($user->attempt >= 4 && $user->attempt < 8) {
-        $user->attempted_at = Carbon::now()->addSeconds(pow(300, ($user->attempt - 4 + 1)))->toDateTimeString();
+        switch ($user->attempt) {
+          case 4:
+            $user->attempted_at = Carbon::now()->addSeconds(300)->toDateTimeString();
+            break;
+          case 5:
+            $user->attempted_at = Carbon::now()->addSeconds(600)->toDateTimeString();
+            break;
+          case 6:
+            $user->attempted_at = Carbon::now()->addSeconds(1200)->toDateTimeString();
+            break;
+          case 7:
+            $user->attempted_at = Carbon::now()->addSeconds(2400)->toDateTimeString();
+            break;
+        }
       } else if ($user->attempt >= 8) {
         $this->blockUser($email);
       }
@@ -76,14 +89,4 @@ trait LoginAttempts
       }
     }
   }
-
-  /*public function incrementLoginAttempts(Request $request)
-  {
-    $this->updateAttempt($request);
-  }*/
-
-  /*public function clearLoginAttempts($email)
-  {
-    $this->eraseAttempt($request);
-  }*/
 }
