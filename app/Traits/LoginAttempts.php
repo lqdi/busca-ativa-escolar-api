@@ -34,7 +34,7 @@ trait LoginAttempts
       if ($user->attempt == 3) {
         $user->attempted_at = Carbon::now()->addSeconds(60)->toDateTimeString();
       } elseif ($user->attempt >= 4 && $user->attempt < 8) {
-        $user->attempted_at = Carbon::now()->addSeconds(300 * ($user->attempt - 4 + 1))->toDateTimeString();
+        $user->attempted_at = Carbon::now()->addSeconds(pow(300, ($user->attempt - 4 + 1)))->toDateTimeString();
       } else if ($user->attempt >= 8) {
         $this->blockUser($email);
       }
