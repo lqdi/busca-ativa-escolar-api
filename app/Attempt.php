@@ -22,7 +22,9 @@ class Attempt extends Model
         'id',
         'email',
         'attempt',
+        'attempt_history',
         'blocked',
         'attempted_at',
+        'attempted_at_history',
     ];
 }

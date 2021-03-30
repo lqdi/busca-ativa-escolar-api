@@ -30,8 +30,8 @@ class IdentityController extends BaseController
 	public function authenticate(Request $request)
 	{
 		$this->store($request);
-		$user  = $this->inTable($request);
-		if ($user->blocked == 1) {
+		$userA  = $this->inTable($request);
+		if ($userA->blocked == 1) {
 			return response()->json(['error' => "Credentials blocked. Please renew your password."], 401);
 		}
 		if (request('grant_type', 'login') == "refresh") {
@@ -50,7 +50,7 @@ class IdentityController extends BaseController
 				return response()->json(['error' => 'invalid_credentials'], 401);
 			} else {
 				if ($this->hasTooManyLoginAttempts($request) == true) {
-					return response()->json(['error' => "Access blocked until $user->attempted_at. $user->attempt attempts to access the profile with wrong credentials"], 401);
+					return response()->json(['error' => "Access blocked until $userA->attempted_at. $userA->attempt attempts to access the profile with wrong credentials"], 401);
 				}
 				$this->clearLoginAttempts($request->email);
 			}
@@ -69,7 +69,7 @@ class IdentityController extends BaseController
 
 		$this->tickTenantLastActivity();
 
-		return response()->json(compact('token', 'user'));
+		return response()->json(compact('token', 'user', 'userA'));
 	}
 
 	public function refresh(Request $request)
@@ -162,5 +162,11 @@ class IdentityController extends BaseController
 	public function username()
 	{
 		return 'email';
+	}
+
+	public function clearHistoryUser(Request $request)
+	{
+		$this->clearHistory($request->email);
+		return response()->json(['msg' => 'History clear.'], 200);
 	}
 }
