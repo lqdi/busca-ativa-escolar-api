@@ -300,12 +300,20 @@ class TenantSignupController extends BaseController
 			}
 		}
 
+        foreach ($lastCoordinators as $key => $coordinator) {
+            if ( array_key_exists('active', $coordinator) ) {
+                if ( $coordinator['active'] == false ) { unset($lastCoordinators[$key]); }
+            }
+            if ( !array_key_exists('active', $coordinator) ) { unset($lastCoordinators[$key]); }
+        }
+
 		foreach ($lastCoordinators as $coordinator) {
-			if (trim(strtolower($politicalAdmin['email'])) === trim(strtolower($coordinator['email']))) {
+		    //emails iguais e ultimo coordenador reativado
+			if (  trim(strtolower($politicalAdmin['email'])) === trim(strtolower($coordinator['email'])) ) {
 				return $this->api_failure("coordinator_emails_are_the_same");
 			}
 			if ($isNecessaryNewCoordinator) {
-				if (trim(strtolower($operationalAdmin['email'])) === trim(strtolower($coordinator['email']))) {
+				if ( trim(strtolower($operationalAdmin['email'])) === trim(strtolower($coordinator['email'])) ) {
 					return $this->api_failure("coordinator_emails_are_the_same");
 				}
 			}
@@ -326,6 +334,8 @@ class TenantSignupController extends BaseController
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
 		}
+
+
 	}
 
 	public function completeSetup()
