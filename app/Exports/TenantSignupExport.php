@@ -88,10 +88,11 @@ class TenantSignupExport implements FromQuery, ShouldAutoSize, WithHeadings
     public function headings(): array
     {
         return [
-            'ID Adesão',
             'Região',
             'UF',
             'Município',
+            'Adesão',
+            'Data adesão',
             'Status (Considerando últimos 30 dias)',
             'Último acesso',
             'Adesão - Gestor - Nome',
@@ -106,14 +107,10 @@ class TenantSignupExport implements FromQuery, ShouldAutoSize, WithHeadings
             'Instância - Gestor Político - Nome',
             'Instância - Gestor Político - E-mail',
             'Instância - Gestor Político - Telefone',
-            'Data adesão',
             'Data ativação',
             'Data exclusão/ rejeição',
-            'Endereço IP',
-            'Navegador',
-            'Instância - ID',
             'Instância - Nome',
-            'Código - IBGE'
+            'Código - IBGE',
         ];
     }
 }

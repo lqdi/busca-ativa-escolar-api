@@ -2,13 +2,15 @@
 return [
 
 	'status' => [
-		'pending' => 'Aguardando aprovação',
-		'pending_initial_setup' => 'Aguardando configuração',
-		'rejected' => 'Rejeitado',
-		//'pending_tenant_setup' => 'Parametrização',
-		'deleted' => 'Desativado',
-		'inactive' => 'Inativo',
-		'active' => 'Ativo',
+        //'pending_tenant_setup' => 'Parametrização',
+        'pending' => 'Aguardando aprovação',
+        'pending_initial_setup' => 'Aguardando configuração',
+        'rejected' => 'Rejeitado',
+        'deleted' => 'Desativado',
+        'approved' => 'Aprovado e configurado',
+        'inactive' => 'Inativo',
+        'active' => 'Ativo',
+        'null' => ''
 	]
 
 ];
