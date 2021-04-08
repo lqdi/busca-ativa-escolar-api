@@ -244,6 +244,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	//Open data to landing page
 	Route::get('/lp/report', 'LP\ReportsLandingPageController@report_country');
+	Route::get('/lp/report/reg', 'LP\ReportsLandingPageController@report_reg');
 	Route::get('/lp/report/uf', 'LP\ReportsLandingPageController@report_uf');
 	Route::get('/lp/report/city', 'LP\ReportsLandingPageController@report_city');
 	Route::get('/lp/report/list/cities', 'LP\ReportsLandingPageController@list_cities');
