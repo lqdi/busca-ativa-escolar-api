@@ -9,6 +9,8 @@ return [
 		'deleted' => 'Desativado',
 		'inactive' => 'Inativo',
 		'active' => 'Ativo',
+		'approved' => 'Aprovado e configurado',
+		'null' => ''
 	]
 
 ];

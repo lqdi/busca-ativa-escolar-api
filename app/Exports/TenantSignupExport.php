@@ -30,10 +30,11 @@ class TenantSignupExport implements FromQuery, ShouldAutoSize, WithHeadings
         $city_name = $this->city_name;
         $city_uf = $this->city_uf;
         $created_at = $this->created_at;
+        $status = $this->status;
         $query =  TenantSignup::query()
             ->with(['city', 'judge', 'tenant.operationalAdmin', 'tenant.politicalAdmin'])
             ->orderBy('created_at', 'ASC');
-        switch ($this->status) {
+        switch ($status) {
             case "all":
                 $query->withTrashed();
                 break;
@@ -88,10 +89,11 @@ class TenantSignupExport implements FromQuery, ShouldAutoSize, WithHeadings
     public function headings(): array
     {
         return [
-            'ID Adesão',
             'Região',
             'UF',
             'Município',
+            'Adesão',
+            'Data adesão',
             'Status (Considerando últimos 30 dias)',
             'Último acesso',
             'Adesão - Gestor - Nome',
@@ -106,14 +108,10 @@ class TenantSignupExport implements FromQuery, ShouldAutoSize, WithHeadings
             'Instância - Gestor Político - Nome',
             'Instância - Gestor Político - E-mail',
             'Instância - Gestor Político - Telefone',
-            'Data adesão',
             'Data ativação',
             'Data exclusão/ rejeição',
-            'Endereço IP',
-            'Navegador',
-            'Instância - ID',
             'Instância - Nome',
-            'Código - IBGE'
+            'Código - IBGE',
         ];
     }
 }
