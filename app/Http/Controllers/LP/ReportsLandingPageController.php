@@ -15,7 +15,9 @@ use BuscaAtivaEscolar\City;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Data\CaseCause;
+use BuscaAtivaEscolar\StateSignup;
 use BuscaAtivaEscolar\Tenant;
+use BuscaAtivaEscolar\TenantSignup;
 use Carbon\Carbon;
 
 class ReportsLandingPageController extends BaseController
@@ -475,21 +477,22 @@ class ReportsLandingPageController extends BaseController
         $ibge_id = request('ibge_id');
 
         if ($city != null) {
-            $tenant = Tenant::where([['name', '=', $uf . ' / ' . $city], ['is_active', '=', 1]])->first();
+            $tenant = Tenant::where([['name', '=', $uf . ' / ' . $city], ['is_active', '=', 1]])->withTrashed()->first();
         }
 
         if ($ibge_id != null) {
             $city_ibge = City::where('ibge_city_id', '=', intval($ibge_id))->first();
-            $tenant = Tenant::where([['city_id', '=', $city_ibge->id], ['is_active', '=', 1]])->first();
+            $tenant = Tenant::where([['city_id', '=', $city_ibge->id], ['is_active', '=', 1]])->withTrashed()->first();
         }
 
         $tenantId = $tenant ? $tenant->id : 0;
 
-
         if ($tenant != null) {
+
             $created = $tenant->created_at->format('d/m/Y');
             $now = Carbon::now();
             $last_active_at = $tenant->last_active_at;
+            $lastTenantSignup = TenantSignup::where('tenant_id', $tenantId)->latest()->first();
 
             if ($now->diffInDays($last_active_at) >= 30) {
                 $status = "Inativo";
@@ -497,9 +500,16 @@ class ReportsLandingPageController extends BaseController
                 $status = "Ativo";
             }
 
-            $data_city = $data_city = ['created' => $created, 'status' => $status];
+            $data_city = $data_city = ['created' => $created, 'status' => $status, 'last_tenant_signup' => $lastTenantSignup ? $lastTenantSignup->created_at->format('d/m/Y') : null];
         } else {
             $data_city = null;
+            $data = [
+                'alerts' => [],
+                'cases' => [],
+                'causes' => [],
+                'data_city' => $data_city
+            ];
+            return response()->json(['status' => 'ok', '_data' => $data]);
         }
 
         try {
@@ -515,8 +525,8 @@ class ReportsLandingPageController extends BaseController
                         [
                             ['case_steps_alerta.tenant_id', $tenantId],
                             ['case_steps_alerta.alert_cause_id', $cause->id],
-                            ['children.alert_status', 'accepted'],
-                            ['children.child_status', '<>', 'cancelled']
+                            ['children.alert_status', 'accepted']
+
                         ]
                     )
                     ->count();
@@ -525,7 +535,6 @@ class ReportsLandingPageController extends BaseController
                     array_push($causes, ['id' => $cause->id, 'cause' => $cause->label, 'qtd' => $qtd]);
                 }
             }
-
 
             $data = [
 
@@ -569,48 +578,6 @@ class ReportsLandingPageController extends BaseController
                 ],
 
                 'cases' => [
-
-                    //                    '_enrollment' =>
-                    //
-                    //                        \DB::table('case_steps_alerta')
-                    //                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
-                    //                            ->join('children_cases', 'children_cases.child_id', '=', 'case_steps_alerta.child_id')
-                    //                            ->where(
-                    //                                [
-                    //                                    ['case_steps_alerta.tenant_id', $tenantId],
-                    //                                    ['case_steps_alerta.alert_status', 'accepted'],
-                    //                                    ['children.alert_status', 'accepted'],
-                    //                                    ['children.child_status', 'in_school'],
-                    //                                    ['children.child_status', '<>', 'cancelled'],
-                    //                                    ['children.child_status', '<>', 'interrupted']
-                    //                                ]
-                    //                            )->orWhere(
-                    //                                [
-                    //                                    ['case_steps_alerta.tenant_id', $tenantId],
-                    //                                    ['case_steps_alerta.alert_status', 'accepted'],
-                    //                                    ['children.alert_status', 'accepted'],
-                    //                                    ['children.child_status', 'in_observation'],
-                    //                                    ['children.child_status', '<>', 'cancelled'],
-                    //                                    ['children.child_status', '<>', 'interrupted']
-                    //                                ]
-                    //                            )->count(),
-
-                    //                    '_in_progress' =>
-                    //
-                    //                        \DB::table('case_steps_alerta')
-                    //                            ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
-                    //                            ->join('children_cases', 'children_cases.child_id', '=', 'children.id')
-                    //                            ->where(
-                    //                                [
-                    //                                    ['case_steps_alerta.tenant_id', $tenantId],
-                    //                                    ['case_steps_alerta.alert_status', 'accepted'],
-                    //                                    ['children.alert_status', 'accepted'],
-                    //                                    ['children_cases.case_status', 'in_progress'],
-                    //                                    ['children.child_status', '<>', 'in_school'],
-                    //                                    ['children.child_status', '<>', 'cancelled'],
-                    //                                    ['children.child_status', '<>', 'interrupted']
-                    //                                ]
-                    //                            )->count(),
 
                     '_out_of_school' =>
 
@@ -741,16 +708,10 @@ class ReportsLandingPageController extends BaseController
         try {
             $data = new \stdClass();
 
-            $data->municipios = \DB::table('tenant_signups')->where(
-                [
-                    ['tenant_signups.is_approved', 1]
-                ]
-            )->count();
-            $data->estados = \DB::table('state_signups')->where(
-                [
-                    ['state_signups.is_approved', 1]
-                ]
-            )->count();
+            $data->municipios = TenantSignup::query()->count();
+
+            $data->estados = StateSignup::query()->count();
+
             return response()->json(['status' => 'ok', '_data' => $data]);
         } catch (\Exception $ex) {
             return $this->api_exception($ex);
