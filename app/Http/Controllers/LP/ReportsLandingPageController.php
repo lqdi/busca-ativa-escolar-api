@@ -48,9 +48,30 @@ class ReportsLandingPageController extends BaseController
                     array_push($causes, ['id' => $cause->id, 'cause' => $cause->label, 'qtd' => $qtd]);
                 }
             }
-
+            //-1 * DATEDIFF('last_active_at', now()) < 30   diffInDays(Carbon::now()) >= 30
+            //$active = Tenant::query()->where("DATEDIFF('last_active_at', '" . Carbon::now() . "')", '>', '-30')->count();
+            //print_r($active);
+            //$inactive = Tenant::query()->where("DATEDIFF('last_active_at', '" . Carbon::now() . "')", '<=', '-30')->count();
+            $expDate = Carbon::now()->subDays(30);
+            $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->count();
+            $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->count();
             $data = [
+                'tenants' => [
+                    'num_tenants' => Tenant::query()
+                        ->count(),
+                    'active' => $active,
+                    'inactive' => $inactive,
 
+                    'num_ufs' => StateSignup::query()->count(),
+
+                    'num_signups' => TenantSignup::query()
+                        ->count(),
+
+                    'num_pending_setup' => TenantSignup::query()
+                        ->where('is_approved', '=', 1)
+                        ->where('is_provisioned', '=', 0)
+                        ->count(),
+                ],
                 'alerts' => [
 
                     '_approved' =>
@@ -176,7 +197,6 @@ class ReportsLandingPageController extends BaseController
             "S" => ["RS", "SC", "PR"]
         ];
         $ufs = join(",", $states[$reg]);
-
         try {
 
             $causes = [];
@@ -201,8 +221,24 @@ class ReportsLandingPageController extends BaseController
                 }
             }
 
+            $expDate = Carbon::now()->subDays(30);
+            $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->andWhereIn('tenants.uf', $states[$reg])->count();
+            $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->andWhereIn('tenants.uf', $states[$reg])->count();
             $data = [
+                'tenants' => [
+                    'num_tenants' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
+                        ->count(),
+                    'active' => $active,
+                    'inactive' => $inactive,
 
+                    'num_signups' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
+                        ->count(),
+
+                    'num_pending_setup' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
+                        ->where('is_approved', '=', 1)
+                        ->where('is_provisioned', '=', 0)
+                        ->count(),
+                ],
                 'alerts' => [
 
                     '_approved' =>
@@ -346,8 +382,24 @@ class ReportsLandingPageController extends BaseController
                 }
             }
 
+            $expDate = Carbon::now()->subDays(30);
+            $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->andWhere('tenants.uf', $uf)->count();
+            $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->andWhere('tenants.uf', $uf)->count();
             $data = [
+                'tenants' => [
+                    'num_tenants' => Tenant::query()->where('tenants.uf', $uf)
+                        ->count(),
+                    'active' => $active,
+                    'inactive' => $inactive,
 
+                    'num_signups' => Tenant::query()->where('tenants.uf', $uf)
+                        ->count(),
+
+                    'num_pending_setup' => Tenant::query()->where('tenants.uf', $uf)
+                        ->where('is_approved', '=', 1)
+                        ->where('is_provisioned', '=', 0)
+                        ->count(),
+                ],
                 'alerts' => [
 
                     '_approved' =>
