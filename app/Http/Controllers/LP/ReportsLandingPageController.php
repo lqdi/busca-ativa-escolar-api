@@ -199,7 +199,7 @@ class ReportsLandingPageController extends BaseController
             "SE" => ["SP", "RJ", "ES", "MG"],
             "S" => ["RS", "SC", "PR"]
         ];
-        $ufs = join(",", $states[$reg]);
+
         try {
 
             $causes = [];
@@ -225,8 +225,8 @@ class ReportsLandingPageController extends BaseController
             }
 
             $expDate = Carbon::now()->subDays(30);
-            $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->andWhereIn('tenants.uf', $states[$reg])->count();
-            $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->andWhereIn('tenants.uf', $states[$reg])->count();
+            $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->whereIn('tenants.uf', $states[$reg])->count();
+            $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->whereIn('tenants.uf', $states[$reg])->count();
             $data = [
                 'tenants' => [
                     'num_tenants' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
@@ -397,8 +397,8 @@ class ReportsLandingPageController extends BaseController
             }
 
             $expDate = Carbon::now()->subDays(30);
-            $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->andWhere('tenants.uf', $uf)->count();
-            $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->andWhere('tenants.uf', $uf)->count();
+            $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->where('tenants.uf', $uf)->count();
+            $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->where('tenants.uf', $uf)->count();
             $data = [
                 'tenants' => [
                     'num_tenants' => Tenant::query()->where('tenants.uf', $uf)
