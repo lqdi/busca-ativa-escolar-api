@@ -80,6 +80,20 @@ return [
             'engine' => null,
         ],
 
+        'trajetorias' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST_TSE', ''),
+            'port' => env('DB_PORT_TSE', ''),
+            'database' => env('DB_DATABASE_TSE', ''),
+            'username' => env('DB_USERNAME_TSE', ''),
+            'password' => env('DB_PASSWORD_TSE', ''),
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', 'localhost'),
