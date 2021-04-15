@@ -62,15 +62,15 @@ class ReportsLandingPageController extends BaseController
                     'active' => $active,
                     'inactive' => $inactive,
 
-                    'num_ufs' => StateSignup::query()->count(),
+                    //'num_ufs' => StateSignup::query()->count(),
 
-                    'num_signups' => TenantSignup::query()
-                        ->count(),
+                    /*'num_signups' => TenantSignup::query()
+                        ->count(),*/
 
-                    'num_pending_setup' => TenantSignup::query()
+                    /*'num_pending_setup' => TenantSignup::query()
                         ->where('is_approved', '=', 1)
                         ->where('is_provisioned', '=', 0)
-                        ->count(),
+                        ->count(),*/
                 ],
                 'alerts' => [
 
@@ -82,22 +82,14 @@ class ReportsLandingPageController extends BaseController
                             [
                                 ['case_steps_alerta.alert_status', 'accepted'],
                                 ['children.alert_status', 'accepted'],
-                                ['children.child_status', '<>', 'cancelled']
+                                //['children.child_status', '<>', 'cancelled']
                             ]
                         )
                         ->count(),
 
-                    '_pending' =>
-
-                    \DB::table('case_steps_alerta')
-                        ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
-                        ->where(
-                            [
-                                ['case_steps_alerta.alert_status', 'pending'],
-                                ['children.child_status', '<>', 'cancelled']
-                            ]
-                        )
-                        ->count(),
+                    '_pending' => Child::whereHas('alert', function ($query) {
+                        $query->where('alert_status', '=', 'pending');
+                    })->pending()->count(),
 
                     '_rejected' =>
 
@@ -140,14 +132,25 @@ class ReportsLandingPageController extends BaseController
                                 ['children.alert_status', 'accepted']
                             ]
                         )->count(),
-                    '_in_progress' =>
+                    '_in_observation' =>
 
                     \DB::table('children')
                         ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                         ->where(
                             [
                                 ['case_steps_alerta.alert_status', 'accepted'],
-                                ['children.child_status', 'in_progress'],
+                                ['children.child_status', 'in_observation'],
+                                ['children.alert_status', 'accepted']
+                            ]
+                        )->count(),
+                    '_out_of_school' =>
+
+                    \DB::table('children')
+                        ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        ->where(
+                            [
+                                //['case_steps_alerta.alert_status', 'accepted'],
+                                ['children.child_status', 'out_of_school'],
                                 ['children.alert_status', 'accepted']
                             ]
                         )->count(),
@@ -211,7 +214,7 @@ class ReportsLandingPageController extends BaseController
                         [
                             ['case_steps_alerta.alert_cause_id', $cause->id],
                             ['children.alert_status', 'accepted'],
-                            ['children.child_status', '<>', 'cancelled']
+                            //['children.child_status', '<>', 'cancelled']
                         ]
                     )->whereIn('case_steps_alerta.place_uf', $states[$reg])
                     ->count();
@@ -231,13 +234,13 @@ class ReportsLandingPageController extends BaseController
                     'active' => $active,
                     'inactive' => $inactive,
 
-                    'num_signups' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
+                    /*'num_signups' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
                         ->count(),
 
                     'num_pending_setup' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
                         ->where('is_approved', '=', 1)
                         ->where('is_provisioned', '=', 0)
-                        ->count(),
+                        ->count(),*/
                 ],
                 'alerts' => [
 
@@ -249,7 +252,7 @@ class ReportsLandingPageController extends BaseController
                             [
                                 ['case_steps_alerta.alert_status', 'accepted'],
                                 ['children.alert_status', 'accepted'],
-                                ['children.child_status', '<>', 'cancelled']
+                                //['children.child_status', '<>', 'cancelled']
                             ]
                         )->whereIn('case_steps_alerta.place_uf', $states[$reg])
                         ->count(),
@@ -261,7 +264,7 @@ class ReportsLandingPageController extends BaseController
                         ->where(
                             [
                                 ['case_steps_alerta.alert_status', 'pending'],
-                                ['children.child_status', '<>', 'cancelled']
+                                //['children.child_status', '<>', 'cancelled']
                             ]
                         )->whereIn('case_steps_alerta.place_uf', $states[$reg])
                         ->count(),
@@ -307,14 +310,25 @@ class ReportsLandingPageController extends BaseController
                                 ['children.alert_status', 'accepted']
                             ]
                         )->whereIn('case_steps_alerta.place_uf', $states[$reg])->count(),
-                    '_in_progress' =>
+                    '_in_observation' =>
 
                     \DB::table('children')
                         ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                         ->where(
                             [
                                 ['case_steps_alerta.alert_status', 'accepted'],
-                                ['children.child_status', 'in_progress'],
+                                ['children.child_status', 'in_observation'],
+                                ['children.alert_status', 'accepted']
+                            ]
+                        )->whereIn('case_steps_alerta.place_uf', $states[$reg])->count(),
+                    '_out_of_school' =>
+
+                    \DB::table('children')
+                        ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        ->where(
+                            [
+                                //['case_steps_alerta.alert_status', 'accepted'],
+                                ['children.child_status', 'out_of_school'],
                                 ['children.alert_status', 'accepted']
                             ]
                         )->whereIn('case_steps_alerta.place_uf', $states[$reg])->count(),
@@ -392,13 +406,13 @@ class ReportsLandingPageController extends BaseController
                     'active' => $active,
                     'inactive' => $inactive,
 
-                    'num_signups' => Tenant::query()->where('tenants.uf', $uf)
+                    /*'num_signups' => Tenant::query()->where('tenants.uf', $uf)
                         ->count(),
 
                     'num_pending_setup' => Tenant::query()->where('tenants.uf', $uf)
                         ->where('is_approved', '=', 1)
                         ->where('is_provisioned', '=', 0)
-                        ->count(),
+                        ->count(),*/
                 ],
                 'alerts' => [
 
@@ -474,7 +488,7 @@ class ReportsLandingPageController extends BaseController
                                 ['children.alert_status', 'accepted']
                             ]
                         )->count(),
-                    '_in_progress' =>
+                    '_in_observation' =>
 
                     \DB::table('children')
                         ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
@@ -482,7 +496,19 @@ class ReportsLandingPageController extends BaseController
                             [
                                 ['case_steps_alerta.place_uf', $uf],
                                 ['case_steps_alerta.alert_status', 'accepted'],
-                                ['children.child_status', 'in_progress'],
+                                ['children.child_status', 'in_observation'],
+                                ['children.alert_status', 'accepted']
+                            ]
+                        )->count(),
+                    '_out_of_school' =>
+
+                    \DB::table('children')
+                        ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        ->where(
+                            [
+                                ['case_steps_alerta.place_uf', $uf],
+                                //['case_steps_alerta.alert_status', 'accepted'],
+                                ['children.child_status', 'out_of_school'],
                                 ['children.alert_status', 'accepted']
                             ]
                         )->count(),
@@ -717,6 +743,20 @@ class ReportsLandingPageController extends BaseController
                                 ['case_steps_alerta.alert_status', 'accepted'],
                                 ['children.alert_status', 'accepted'],
                                 ['children.child_status', 'in_observation'],
+                                ['children_cases.case_status', 'in_progress']
+                            ]
+                        )->count(),
+                    '_out_of_school' =>
+
+                    \DB::table('case_steps_alerta')
+                        ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
+                        ->join('children_cases', 'children_cases.child_id', '=', 'case_steps_alerta.child_id')
+                        ->where(
+                            [
+                                ['case_steps_alerta.tenant_id', $tenantId],
+                                // ['case_steps_alerta.alert_status', 'accepted'],
+                                ['children.alert_status', 'accepted'],
+                                ['children.child_status', 'out_of_school'],
                                 ['children_cases.case_status', 'in_progress']
                             ]
                         )->count(),
