@@ -132,6 +132,17 @@ class ReportsLandingPageController extends BaseController
                                 ['children.alert_status', 'accepted']
                             ]
                         )->count(),
+                    '_transferred' =>
+
+                    \DB::table('children')
+                        ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        ->where(
+                            [
+                                ['case_steps_alerta.alert_status', 'accepted'],
+                                ['children.child_status', 'transferred'],
+                                ['children.alert_status', 'accepted']
+                            ]
+                        )->count(),
                     '_in_observation' =>
 
                     \DB::table('children')
@@ -310,6 +321,17 @@ class ReportsLandingPageController extends BaseController
                                 ['children.alert_status', 'accepted']
                             ]
                         )->whereIn('case_steps_alerta.place_uf', $states[$reg])->count(),
+                    '_transferred' =>
+
+                    \DB::table('children')
+                        ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        ->where(
+                            [
+                                ['case_steps_alerta.alert_status', 'accepted'],
+                                ['children.child_status', 'transferred'],
+                                ['children.alert_status', 'accepted']
+                            ]
+                        )->whereIn('case_steps_alerta.place_uf', $states[$reg])->count(),
                     '_in_observation' =>
 
                     \DB::table('children')
@@ -485,6 +507,18 @@ class ReportsLandingPageController extends BaseController
                                 ['case_steps_alerta.place_uf', $uf],
                                 ['case_steps_alerta.alert_status', 'accepted'],
                                 ['children.child_status', 'in_school'],
+                                ['children.alert_status', 'accepted']
+                            ]
+                        )->count(),
+                    '_transferred' =>
+
+                    \DB::table('children')
+                        ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
+                        ->where(
+                            [
+                                ['case_steps_alerta.place_uf', $uf],
+                                ['case_steps_alerta.alert_status', 'accepted'],
+                                ['children.child_status', 'transferred'],
                                 ['children.alert_status', 'accepted']
                             ]
                         )->count(),
@@ -698,6 +732,20 @@ class ReportsLandingPageController extends BaseController
                                 ['case_steps_alerta.alert_status', 'accepted'],
                                 ['children.alert_status', 'accepted'],
                                 ['children.child_status', 'in_school'],
+                                ['children_cases.case_status', 'completed']
+                            ]
+                        )->count(),
+                    '_transferred' =>
+
+                    \DB::table('case_steps_alerta')
+                        ->join('children', 'children.id', '=', 'case_steps_alerta.child_id')
+                        ->join('children_cases', 'children_cases.child_id', '=', 'case_steps_alerta.child_id')
+                        ->where(
+                            [
+                                ['case_steps_alerta.tenant_id', $tenantId],
+                                ['case_steps_alerta.alert_status', 'accepted'],
+                                ['children.alert_status', 'accepted'],
+                                ['children.child_status', 'transferred'],
                                 ['children_cases.case_status', 'completed']
                             ]
                         )->count(),
