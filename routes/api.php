@@ -250,6 +250,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::get('/lp/report/list/cities', 'LP\ReportsLandingPageController@list_cities');
 	Route::get('/lp/report/reach', 'LP\ReportsLandingPageController@reach');
 
+	//Open data to landing page pnad
+	Route::get('/pnad/report/capital', 'LP\ReportsPnadController@pnad_capital');
 	//Webhooks Mailgun
 	Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
 });
