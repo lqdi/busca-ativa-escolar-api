@@ -252,6 +252,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	//Open data to landing page pnad
 	Route::get('/pnad/report/capital', 'LP\ReportsPnadController@pnad_capital');
+	Route::get('/pnad/report/reg', 'LP\ReportsPnadController@pnad_regiao');
+	Route::get('/pnad/report/uf', 'LP\ReportsPnadController@pnad_uf');
+
 	//Webhooks Mailgun
 	Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
 });
