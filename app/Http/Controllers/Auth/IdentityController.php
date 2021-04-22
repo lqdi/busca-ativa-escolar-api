@@ -1,5 +1,4 @@
 <?php
-
 /**
  * busca-ativa-escolar-api
  * TokenController.php
@@ -22,151 +21,122 @@ use BuscaAtivaEscolar\User;
 use Illuminate\Http\Request;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use BuscaAtivaEscolar\Traits\LoginAttempts;
 
-class IdentityController extends BaseController
-{
-	use LoginAttempts;
-	public function authenticate(Request $request)
-	{
-		$this->store($request);
-		$userA  = $this->inTable($request);
-		if ($userA->blocked == 1) {
-			return response()->json(['error' => "Credentials blocked. Please renew your password."], 401);
-		}
-		if (request('grant_type', 'login') == "refresh") {
-			return $this->refresh($request);
-		}
+class IdentityController extends BaseController  {
 
-		$credentials = $request->only('email', 'password');
+    public function authenticate(Request $request) {
 
-		try {
+        if(request('grant_type', 'login') == "refresh") {
+            return $this->refresh($request);
+        }
 
-			$token = JWTAuth::attempt($credentials);
+        $credentials = $request->only('email', 'password');
 
+        try {
 
-			if (!$token) {
-				$this->incrementLoginAttempts($request->email);
-				return response()->json(['error' => 'invalid_credentials'], 401);
-			} else {
-				if ($this->hasTooManyLoginAttempts($request) == true) {
-					return response()->json(['error' => "Access blocked until $userA->attempted_at. $userA->attempt attempts to access the profile with wrong credentials"], 401);
-				}
-				$this->clearLoginAttempts($request->email);
-			}
+            $token = JWTAuth::attempt($credentials);
+
+            if (!$token) return response()->json(['error' => 'invalid_credentials'], 401);
+
+            $user = fractal()
+                ->item(Auth::user())
+                ->transformWith(new UserTransformer('long'))
+                ->serializeWith(new SimpleArraySerializer())
+                ->parseIncludes(['tenant'])
+                ->toArray();
 
 
-			$user = fractal()
-				->item(Auth::user())
-				->transformWith(new UserTransformer('long'))
-				->serializeWith(new SimpleArraySerializer())
-				->parseIncludes(['tenant'])
-				->toArray();
-		} catch (JWTException $ex) {
+        } catch (JWTException $ex) {
 
-			return response()->json(['error' => 'token_generation_failed', 'reason' => $ex->getMessage()], 500);
-		}
+            return response()->json(['error' => 'token_generation_failed', 'reason' => $ex->getMessage()], 500);
 
-		$this->tickTenantLastActivity();
+        }
 
-		return response()->json(compact('token', 'user', 'userA'));
-	}
+        $this->tickTenantLastActivity();
 
-	public function refresh(Request $request)
-	{
+        return response()->json(compact('token', 'user'));
+    }
 
-		$token = $request->get('token', false);
+    public function refresh(Request $request) {
 
-		if (!$token) {
-			return response()->json(['error' => 'no_token_provided'], 500);
-		}
+        $token = $request->get('token', false);
 
-		try {
-			$token = JWTAuth::refresh($token);
-			$user = JWTAuth::toUser($token);
-		} catch (JWTException $ex) {
-			return response()->json(['error' => 'token_refresh_fail', 'reason' => $ex->getMessage()], 500);
-		}
+        if(!$token) {
+            return response()->json(['error' => 'no_token_provided'], 500);
+        }
 
-		$this->tickTenantLastActivity();
+        try {
+            $token = JWTAuth::refresh($token);
+            $user = JWTAuth::toUser($token);
+        } catch (JWTException $ex) {
+            return response()->json(['error' => 'token_refresh_fail', 'reason' => $ex->getMessage()], 500);
+        }
+
+        $this->tickTenantLastActivity();
 
 
-		return response()->json(compact('token', 'user'));
-	}
+        return response()->json(compact('token', 'user'));
+    }
 
-	public function identity()
-	{
+    public function identity() {
 
-		$user = Auth::user();
+        $user = Auth::user();
 
-		$this->tickTenantLastActivity();
+        $this->tickTenantLastActivity();
 
-		return fractal()
-			->item($user)
-			->transformWith(new UserTransformer('long'))
-			->serializeWith(new SimpleArraySerializer())
-			->parseIncludes(request('with', 'tenant'))
-			->respond();
-	}
+        return fractal()
+            ->item($user)
+            ->transformWith(new UserTransformer('long'))
+            ->serializeWith(new SimpleArraySerializer())
+            ->parseIncludes(request('with', 'tenant'))
+            ->respond();
 
-	public function begin_password_reset()
-	{
+    }
 
-		$email = request('email');
+    public function begin_password_reset() {
 
-		try {
+        $email = request('email');
 
-			// TODO: rate limiting
+        try {
 
-			$user = User::whereEmail($email)->first(); /* @var $user User */
+            // TODO: rate limiting
 
-			if (!$user) {
-				return $this->api_failure('<br>O email (' . $email . ')<br> nao foi encontrado no sistema, <br>entre com o email cadastrado para acessar o sistema e trocar a senha.');
-			}
+            $user = User::whereEmail($email)->first(); /* @var $user User */
 
-			$user->sendPasswordResetNotification($user->getRememberToken());
-		} catch (\Exception $ex) {
+            if(!$user) {
+                return $this->api_failure('<br>O email ('.$email.')<br> nao foi encontrado no sistema, <br>entre com o email cadastrado para acessar o sistema e trocar a senha.');
+            }
 
-			$this->api_failure('reset_send_failed');
-		}
+            $user->sendPasswordResetNotification($user->getRememberToken());
 
-		return $this->api_success();
-	}
+        } catch (\Exception $ex) {
 
-	public function complete_password_reset()
-	{
-		$email = request('email');
-		$token = request('token');
-		$newPassword = request('new_password');
+            $this->api_failure('reset_send_failed');
+        }
 
-		try {
+        return $this->api_success();
+    }
 
-			$user = User::whereEmail($email)->first(); /* @var $user User */
+    public function complete_password_reset() {
+        $email = request('email');
+        $token = request('token');
+        $newPassword = request('new_password');
 
-			if (!$user) {
-				return $this->api_failure('invalid_email');
-			}
-			$this->disblockUser($email);
-			$user->resetPassword($token, $newPassword);
-		} catch (\Exception $ex) {
-			return $this->api_failure($ex->getMessage());
-		}
+        try {
 
-		return $this->api_success();
-	}
-	/**
-	 * Username used in ThrottlesLogins trait
-	 * 
-	 * @return string
-	 */
-	public function username()
-	{
-		return 'email';
-	}
+            $user = User::whereEmail($email)->first(); /* @var $user User */
 
-	public function clearHistoryUser(Request $request)
-	{
-		$this->clearHistory($request->email);
-		return response()->json(['msg' => 'History clear.'], 200);
-	}
+            if(!$user) {
+                return $this->api_failure('invalid_email');
+            }
+
+            $user->resetPassword($token, $newPassword);
+
+        } catch (\Exception $ex) {
+            return $this->api_failure($ex->getMessage());
+        }
+
+        return $this->api_success();
+    }
+
 }
