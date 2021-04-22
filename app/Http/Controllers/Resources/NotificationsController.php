@@ -27,14 +27,17 @@ class NotificationsController extends BaseController {
 
 	public function getUnread() {
 
-	    $user = Auth::user(); /* @var $user User */
-		$notifications = $user->unreadNotifications;
+//	    $user = Auth::user(); /* @var $user User */
+//		$notifications = $user->unreadNotifications;
+//
+//		return fractal()
+//			->collection($notifications)
+//			->transformWith(new NotificationTransformer())
+//			->serializeWith(new SimpleArraySerializer())
+//			->respond();
 
-		return fractal()
-			->collection($notifications)
-			->transformWith(new NotificationTransformer())
-			->serializeWith(new SimpleArraySerializer())
-			->respond();
+        return response()->json([ 'data' => [] ]);
+
 	}
 
 	public function markAsRead($id) {

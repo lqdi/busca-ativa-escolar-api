@@ -1,5 +1,4 @@
 <?php
-
 /**
  * busca-ativa-escolar-api
  * TenantSignup.php
@@ -48,8 +47,7 @@ use Mail;
  * @property Tenant|null $tenant
  * @property User|null $judge
  */
-class TenantSignup extends Model
-{
+class TenantSignup extends Model {
 
 	use IndexedByUUID;
 	use SoftDeletes;
@@ -75,35 +73,30 @@ class TenantSignup extends Model
 		'is_approved' => 'boolean',
 		'is_provisioned' => 'boolean',
 		'data' => 'array',
-		'is_approved_by_mayor' => 'boolean'
+        'is_approved_by_mayor' => 'boolean'
 	];
 
-	public function city()
-	{
+	public function city() {
 		return $this->hasOne('BuscaAtivaEscolar\City', 'id', 'city_id');
 	}
 
-	public function tenant()
-	{
+	public function tenant() {
 		return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id')->withTrashed();
 	}
 
-	public function judge()
-	{
+	public function judge() {
 		return $this->hasOne('BuscaAtivaEscolar\User', 'id', 'judged_by')->withTrashed();
 	}
 
-	public function getCitybyId($id)
-	{
-		$cityObj = new \BuscaAtivaEscolar\City;
-		$city = $cityObj::findByID($id);
-		return $city;
-	}
+	public function getCitybyId($id){
+	    $cityObj = new \BuscaAtivaEscolar\City;
+	    $city = $cityObj::findByID($id);
+	    return $city;
+    }
 
 	// -----------------------------------------------------------------------------------------------------------------
 
-	public function approve(User $judge)
-	{
+	public function approve(User $judge) {
 		$this->deleted_at = null;
 		$this->is_approved = true;
 		$this->judged_by = $judge->id;
@@ -112,14 +105,12 @@ class TenantSignup extends Model
 		$this->sendNotification();
 	}
 
-	public function accept()
-	{
-		$this->is_approved_by_mayor = true;
-		$this->save();
-	}
+    public function accept() {
+        $this->is_approved_by_mayor = true;
+        $this->save();
+    }
 
-	public function reject(User $judge)
-	{
+	public function reject(User $judge) {
 		$this->is_approved = false;
 		$this->judged_by = $judge->id;
 		$this->save();
@@ -129,9 +120,8 @@ class TenantSignup extends Model
 		$this->sendRejectionNotification();
 	}
 
-	public function updateRegistrationEmail($type, $email)
-	{
-		if (!in_array($type, ['admin', 'mayor'])) {
+	public function updateRegistrationEmail($type, $email) {
+		if(!in_array($type, ['admin', 'mayor'])) {
 			throw new \InvalidArgumentException("Invalid e-mail type: {$type}; valid types are: admin | mayor");
 		}
 
@@ -142,77 +132,115 @@ class TenantSignup extends Model
 		$this->save();
 	}
 
-	public function sendNotification()
-	{
+	public function sendNotification() {
 		$target = $this->data['admin']['email'];
 		Mail::to($target)->send(new TenantSignupApproved($this));
 	}
 
-	public function sendRejectionNotification()
-	{
+	public function sendRejectionNotification() {
 		$target = $this->data['admin']['email'];
 		Mail::to($target)->send(new TenantSignupRejected($this));
 	}
 
-	public function getURLToken()
-	{
+	public function getURLToken() {
 		return self::generateURLToken($this);
 	}
 
-	public function renderStatus($validate)
-	{
-		if ($validate === 'a') {
-			if ($this->is_approved  && $this->is_provisioned && !$this->deleted_at) return 'approved';
-			if (!$this->judged_by) return 'pending';
-			if ($this->is_approved === false) return 'rejected';
-			if ($this->is_provisioned !== true || !$this->tenant) return 'pending_initial_setup';
-			//if(!$this->tenant->is_setup) return 'pending_tenant_setup';
-			if ($this->tenant->deleted_at) return 'deleted';
-		}
-		if ($validate === 's') {
-			if ($this->is_approved  && $this->is_provisioned && !$this->deleted_at && $this->tenant) {
-				if ($this->tenant->last_active_at->diffInDays(Carbon::now()) >= 30) return 'inactive';
-				else return 'active';
-			}
-			return 'null';
-		}
-	}
+	/*public function renderStatus() {
+		if(!$this->judged_by) return 'pending';
+		if($this->is_approved === false) return 'rejected';
+		if($this->is_provisioned !== true || !$this->tenant) return 'pending_initial_setup';
+		//if(!$this->tenant->is_setup) return 'pending_tenant_setup';
+		if($this->tenant->deleted_at) return 'deleted';
+		if( $this->tenant->last_active_at->diffInDays(Carbon::now()) >= 30 ) return 'inactive';
 
-	public function toExportArray()
-	{
+		return 'active';
+	}*/
 
-		return [
-			'Região' => $this->city ? $this->city->getRegion()->name : null,
-			'UF' => $this->city->uf ?? null,
-			'Município' => $this->city->name ?? null,
-			'Adesão' => trans('signups.status.' . $this->renderStatus('a')),
-			'Data adesão' => $this->created_at->format('d/m/Y') ?? null,
-			'Status (Considerando últimos 30 dias)' => trans('signups.status.' . $this->renderStatus('s')),
+    public function renderStatus($validate)
+    {
+        if ($validate === 'a') {
+            if ($this->is_approved  && $this->is_provisioned && !$this->deleted_at) return 'approved';
+            if (!$this->judged_by) return 'pending';
+            if ($this->is_approved === false) return 'rejected';
+            if ($this->is_provisioned !== true || !$this->tenant) return 'pending_initial_setup';
+            //if(!$this->tenant->is_setup) return 'pending_tenant_setup';
+            if ( $this->tenant->deleted_at || $this->deleted_at ) return 'deleted';
+        }
+        if ($validate === 's') {
+            if ($this->is_approved  && $this->is_provisioned && !$this->deleted_at && $this->tenant) {
+                if ($this->tenant->last_active_at->diffInDays(Carbon::now()) >= 30) return 'inactive';
+                else return 'active';
+            }
+            return 'null';
+        }
+    }
+
+	/*public function toExportArray() {
+
+	    return [
+			'ID Adesão' => $this->id,
+            'Região' => $this->city ? $this->city->getRegion()->name : null,
+            'UF' => $this->city->uf ?? null,
+            'Município' => $this->city->name ?? null,
+			'Status (Considerando últimos 30 dias)' => trans('signups.status.' . $this->renderStatus()),
 			'Último acesso' => $this->tenant ? $this->tenant->last_active_at->format('d/m/Y') : null,
-			'Adesão - Gestor - Nome' => $this->data['admin']['name'] ?? null,
-			'Adesão - Gestor - E-mail' => $this->data['admin']['email'] ?? null,
-			'Adesão - Gestor - Telefone' => $this->data['admin']['phone'] ?? null,
-			'Adesão - Prefeito - Nome' => $this->data['mayor']['name'] ?? null,
-			'Adesão - Prefeito - E-mail' => $this->data['mayor']['email'] ?? null,
-			'Adesão - Prefeito - Telefone' => $this->data['mayor']['phone'] ?? null,
-			'Instância - Gestor Operacional - Nome' => $this->tenant->operationalAdmin->name ?? null,
-			'Instância - Gestor Operacional - E-mail' => $this->tenant->operationalAdmin->email ?? null,
-			'Instância - Gestor Operacional - Telefone' => ($this->tenant && $this->tenant->operationalAdmin) ? $this->tenant->operationalAdmin->getContactPhone() : null,
-			'Instância - Gestor Político - Nome' => $this->tenant->politicalAdmin->name ?? null,
-			'Instância - Gestor Político - E-mail' => $this->tenant->politicalAdmin->email ?? null,
-			'Instância - Gestor Político - Telefone' => ($this->tenant && $this->tenant->politicalAdmin) ? $this->tenant->politicalAdmin->getContactPhone() : null,
-			'Data ativação' => $this->tenant ? $this->tenant->created_at->format('d/m/Y') : null,
-			'Data exclusão/ rejeição' => $this->deleted_at ? Carbon::createFromFormat('Y-m-d H:i:s', $this->deleted_at)->format('d/m/Y') : null,
+            'Adesão - Gestor - Nome' => $this->data['admin']['name'] ?? null,
+            'Adesão - Gestor - E-mail' => $this->data['admin']['email'] ?? null,
+            'Adesão - Gestor - Telefone' => $this->data['admin']['phone'] ?? null,
+            'Adesão - Prefeito - Nome' => $this->data['mayor']['name'] ?? null,
+            'Adesão - Prefeito - E-mail' => $this->data['mayor']['email'] ?? null,
+            'Adesão - Prefeito - Telefone' => $this->data['mayor']['phone'] ?? null,
+            'Instância - Gestor Operacional - Nome' => $this->tenant->operationalAdmin->name ?? null,
+            'Instância - Gestor Operacional - E-mail' => $this->tenant->operationalAdmin->email ?? null,
+            'Instância - Gestor Operacional - Telefone' => ($this->tenant && $this->tenant->operationalAdmin) ? $this->tenant->operationalAdmin->getContactPhone() : null,
+            'Instância - Gestor Político - Nome' => $this->tenant->politicalAdmin->name ?? null,
+            'Instância - Gestor Político - E-mail' => $this->tenant->politicalAdmin->email ?? null,
+            'Instância - Gestor Político - Telefone' => ($this->tenant && $this->tenant->politicalAdmin) ? $this->tenant->politicalAdmin->getContactPhone() : null,
+            'Data adesão' => $this->created_at->format('d/m/Y') ?? null,
+            'Data ativação' => $this->tenant ? $this->tenant->created_at->format('d/m/Y') : null,
+            'Data exclusão/ rejeição' => $this->deleted_at ? Carbon::createFromFormat('Y-m-d H:i:s', $this->deleted_at)->format('d/m/Y') : null,
+            'Endereço IP' => $this->ip_addr,
+			'Navegador' => $this->user_agent ? Utils::renderUserAgent($this->user_agent) : null,
+			'Instância - ID' => $this->tenant_id ?? null,
 			'Instância - Nome' => $this->tenant->name ?? null,
 			'Código - IBGE' => $this->tenant->city->ibge_city_id ?? null
 		];
-	}
+	}*/
+
+    public function toExportArray()
+    {
+        return [
+            'Região' => $this->city ? $this->city->getRegion()->name : null,
+            'UF' => $this->city->uf ?? null,
+            'Município' => $this->city->name ?? null,
+            'Adesão' => trans('signups.status.' . $this->renderStatus('a')),
+            'Data adesão' => $this->created_at->format('d/m/Y') ?? null,
+            'Status (Considerando últimos 30 dias)' => trans('signups.status.' . $this->renderStatus('s')),
+            'Último acesso' => $this->renderStatus('a') === 'approved' ? $this->tenant->last_active_at->format('d/m/Y') : null,
+            'Adesão - Gestor - Nome' => $this->data['admin']['name'] ?? null,
+            'Adesão - Gestor - E-mail' => $this->data['admin']['email'] ?? null,
+            'Adesão - Gestor - Telefone' => $this->data['admin']['phone'] ?? null,
+            'Adesão - Prefeito - Nome' => $this->data['mayor']['name'] ?? null,
+            'Adesão - Prefeito - E-mail' => $this->data['mayor']['email'] ?? null,
+            'Adesão - Prefeito - Telefone' => $this->data['mayor']['phone'] ?? null,
+            'Instância - Gestor Operacional - Nome' => $this->tenant->operationalAdmin->name ?? null,
+            'Instância - Gestor Operacional - E-mail' => $this->tenant->operationalAdmin->email ?? null,
+            'Instância - Gestor Operacional - Telefone' => ($this->tenant && $this->tenant->operationalAdmin) ? $this->tenant->operationalAdmin->getContactPhone() : null,
+            'Instância - Gestor Político - Nome' => $this->tenant->politicalAdmin->name ?? null,
+            'Instância - Gestor Político - E-mail' => $this->tenant->politicalAdmin->email ?? null,
+            'Instância - Gestor Político - Telefone' => ($this->tenant && $this->tenant->politicalAdmin) ? $this->tenant->politicalAdmin->getContactPhone() : null,
+            'Data ativação' => $this->tenant ? $this->tenant->created_at->format('d/m/Y') : null,
+            'Data exclusão/ rejeição' => $this->deleted_at ? Carbon::createFromFormat('Y-m-d H:i:s', $this->deleted_at)->format('d/m/Y') : null,
+            'Instância - Nome' => $this->tenant->name ?? null,
+            'Código - IBGE' => $this->tenant->city->ibge_city_id ?? null
+        ];
+    }
 
 
 	// -----------------------------------------------------------------------------------------------------------------
 
-	public static function generateURLToken(TenantSignup $signup)
-	{
+	public static function generateURLToken(TenantSignup $signup) {
 		return sha1(env('APP_KEY') . $signup->id . $signup->created_at);
 	}
 
@@ -221,8 +249,7 @@ class TenantSignup extends Model
 	 * @param array $data The data received from the form
 	 * @return string The ID of the sign-up request
 	 */
-	public static function createFromForm($data)
-	{
+	public static function createFromForm($data) {
 		$signup = new TenantSignup();
 
 		$signup->is_approved = false;
@@ -244,8 +271,7 @@ class TenantSignup extends Model
 	 * @param array $data The data received from the form
 	 * @return \Illuminate\Contracts\Validation\Validator
 	 */
-	public static function validate($data)
-	{
+	public static function validate($data) {
 		return validator($data, [
 			'city_id' => 'required',
 			'admin.dob' => 'required|date',
@@ -262,4 +288,5 @@ class TenantSignup extends Model
 			'mayor.mobile' => 'nullable|alpha_dash',
 		]);
 	}
+
 }
