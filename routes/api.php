@@ -251,7 +251,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 	Route::get('/lp/report/reach', 'LP\ReportsLandingPageController@reach');
 
 	//Open data to landing page pnad
-	Route::get('/pnad/report/capital', 'LP\ReportsPnadController@pnad_capital');
+    Route::get('/pnad/report', 'LP\ReportsPnadController@pnad_brasil');
+    Route::get('/pnad/report/capital', 'LP\ReportsPnadController@pnad_capital');
 	Route::get('/pnad/report/reg', 'LP\ReportsPnadController@pnad_regiao');
 	Route::get('/pnad/report/uf', 'LP\ReportsPnadController@pnad_uf');
 
