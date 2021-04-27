@@ -338,6 +338,7 @@ return [
         'reports.ufs',
         'users.view',
         'users.export',
+        'tenants.view',
 //        'cases.view',
 //
 //        'cases.step.alerta',
@@ -358,6 +359,7 @@ return [
         'reports.ufs',
         'users.view',
         'users.export',
+        'tenants.view',
 //        'cases.view',
 //
 //        'cases.step.alerta',
