@@ -135,12 +135,12 @@ class Group extends Model {
 	 * @return int[]
 	 */
 	public static function getGroupIDsByAlertCause(Tenant $tenant, $alert_cause_id) {
-		return DB::table("group_causes")
-			->select('group_id')
-			->where('tenant_id', $tenant->id)
-			->where('alert_cause_id', $alert_cause_id)
-			->pluck('group_id')
-			->toArray();
+        return DB::table("group_causes")
+            ->select('group_id')
+            ->where('tenant_id', $tenant->id)
+            ->where('alert_cause_id', $alert_cause_id)
+            ->pluck('group_id')
+            ->toArray();
 	}
 
 }

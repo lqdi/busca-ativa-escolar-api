@@ -164,7 +164,7 @@ class Child extends Model implements Searchable, CanBeAggregated, CollectsDailyM
      */
     public function tenant()
     {
-        return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id');
+        return $this->hasOne('BuscaAtivaEscolar\Tenant', 'id', 'tenant_id')->withTrashed();
     }
 
     /**
