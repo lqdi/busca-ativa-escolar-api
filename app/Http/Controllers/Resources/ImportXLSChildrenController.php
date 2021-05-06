@@ -71,7 +71,7 @@ class ImportXLSChildrenController extends BaseController
 
             $job = ImportJob::createFromAttachment(XLSFileChildrenImporter::TYPE, $attachment);
 
-            Queue::pushOn('default', new ProcessImportJob($job));
+            dispatch(new ProcessImportJob($job));
 
         } catch (Exception $ex) {
             return $this->api_exception($ex);
