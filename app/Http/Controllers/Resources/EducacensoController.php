@@ -18,11 +18,13 @@ use BuscaAtivaEscolar\Attachment;
 use BuscaAtivaEscolar\Http\Controllers\BaseController;
 use BuscaAtivaEscolar\Importers\EducacensoXLSChunkImporter;
 use BuscaAtivaEscolar\ImportJob;
+use BuscaAtivaEscolar\Jobs\ProcessEmailJob;
 use BuscaAtivaEscolar\Jobs\ProcessImportJob;
 use BuscaAtivaEscolar\Serializers\SimpleArraySerializer;
 use BuscaAtivaEscolar\Tenant;
 use BuscaAtivaEscolar\Transformers\ImportJobTransformer;
 use Excel;
+use Queue;
 
 
 class EducacensoController extends BaseController {
@@ -64,7 +66,7 @@ class EducacensoController extends BaseController {
 
 			$job = ImportJob::createFromAttachment(EducacensoXLSChunkImporter::TYPE, $attachment);
 
-			dispatch(new ProcessImportJob($job));
+            Queue::pushOn('default', new ProcessImportJob($job));
 
 		} catch (\Exception $ex) {
 			return $this->api_exception($ex);
