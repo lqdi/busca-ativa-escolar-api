@@ -18,18 +18,21 @@ class CreatePnad extends Migration
             $table->bigInteger('id_municipio');
             $table->integer('id_localizacao');
             $table->integer('id_faixa_etaria');
-            $table->integer('id_genero');
-            $table->integer('id_raca');
-            $table->integer('id_renda');
-            $table->bigInteger('value');
+            $table->bigInteger('value_masc');
+            $table->bigInteger('value_femn');
+            $table->bigInteger('value_ba'); //branco e amarelos
+            $table->bigInteger('value_pni'); //pardos, negros e indígenas
+            $table->bigInteger('value_sim'); //frequência
+            $table->bigInteger('value_nao'); //frequência.
+            $table->bigInteger('value_pb'); //20% mais pobres
+            $table->bigInteger('value_int'); //60% intermediário
+            $table->bigInteger('value_rc'); //20% mais tico
+            $table->bigInteger('total'); //valor total
             $table->foreign('id_regiao')->references('id')->on('tse_regiao');
             $table->foreign('id_uf')->references('id')->on('te_estados');
             $table->foreign('id_municipio')->references('id')->on('te_municipios');
             $table->foreign('id_localizacao')->references('id')->on('tse_localizacao');
             $table->foreign('id_faixa_etaria')->references('id')->on('tse_faixa_etaria');
-            $table->foreign('id_genero')->references('id')->on('tse_genero');
-            $table->foreign('id_raca')->references('id')->on('tse_cor_raca');
-            $table->foreign('id_renda')->references('id')->on('tse_renda');
             $table->timestamps();
         });
     }
