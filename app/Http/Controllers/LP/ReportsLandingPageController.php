@@ -27,9 +27,9 @@ class ReportsLandingPageController extends BaseController
 
         try {
 
+            $alerts = [];
             $causes = [];
-
-            foreach (AlertCause::getAll() as $cause) {
+            foreach (AlertCause::getAll() as $alert) {
 
                 //alerta pemanece com status de aceito se caso for cancelado!
                 $qtd =
@@ -37,7 +37,7 @@ class ReportsLandingPageController extends BaseController
                     ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                     ->where(
                         [
-                            ['case_steps_alerta.alert_cause_id', $cause->id],
+                            ['case_steps_alerta.alert_cause_id', $alert->id],
                             ['children.alert_status', 'accepted'],
                             ['children.child_status', '<>', 'cancelled']
                         ]
@@ -45,7 +45,26 @@ class ReportsLandingPageController extends BaseController
                     ->count();
 
                 if ($qtd > 0) {
-                    array_push($causes, ['id' => $cause->id, 'cause' => $cause->label, 'qtd' => $qtd]);
+                    array_push($alerts, ['id' => $alert->id, 'cause' => $alert->label, 'qtd' => $qtd]);
+                }
+            }
+            foreach (CaseCause::getAll() as $case) {
+
+                //alerta pemanece com status de aceito se caso for cancelado!
+                $qtd =
+                    \DB::table('children')
+                    ->join('case_steps_pesquisa', 'children.id', '=', 'case_steps_pesquisa.child_id')
+                    ->where(
+                        [
+                            ['case_steps_pesquisa.case_cause_ids', 'like', "%{$case->id}%"],
+                            ['children.alert_status', 'accepted'],
+                            ['children.child_status', '<>', 'cancelled']
+                        ]
+                    ) //->whereIn('case_steps_pesquisa.case_cause_ids', $case->id)
+                    ->count();
+
+                if ($qtd > 0) {
+                    array_push($causes, ['id' => $case->id, 'cause' => $case->label, 'qtd' => $qtd]);
                 }
             }
             //-1 * DATEDIFF('last_active_at', now()) < 30   diffInDays(Carbon::now()) >= 30
@@ -189,7 +208,8 @@ class ReportsLandingPageController extends BaseController
                         )->count(),
                 ],
 
-                'causes' => $causes
+                'causes_alerts' => $alerts,
+                'causes_cases' => $causes
 
             ];
 
@@ -213,9 +233,9 @@ class ReportsLandingPageController extends BaseController
 
         try {
 
+            $alerts = [];
             $causes = [];
-
-            foreach (AlertCause::getAll() as $cause) {
+            foreach (AlertCause::getAll() as $alert) {
 
                 //alerta pemanece com status de aceito se caso for cancelado!
                 $qtd =
@@ -223,7 +243,7 @@ class ReportsLandingPageController extends BaseController
                     ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                     ->where(
                         [
-                            ['case_steps_alerta.alert_cause_id', $cause->id],
+                            ['case_steps_alerta.alert_cause_id', $alert->id],
                             ['children.alert_status', 'accepted'],
                             //['children.child_status', '<>', 'cancelled']
                         ]
@@ -231,9 +251,29 @@ class ReportsLandingPageController extends BaseController
                     ->count();
 
                 if ($qtd > 0) {
-                    array_push($causes, ['id' => $cause->id, 'cause' => $cause->label, 'qtd' => $qtd]);
+                    array_push($alerts, ['id' => $alert->id, 'cause' => $alert->label, 'qtd' => $qtd]);
                 }
             }
+            foreach (CaseCause::getAll() as $case) {
+
+                //alerta pemanece com status de aceito se caso for cancelado!
+                $qtd =
+                    \DB::table('children')
+                    ->join('case_steps_pesquisa', 'children.id', '=', 'case_steps_pesquisa.child_id')
+                    ->where(
+                        [
+                            ['case_steps_pesquisa.case_cause_ids', 'like', "%{$case->id}%"],
+                            ['children.alert_status', 'accepted'],
+                            ['children.child_status', '<>', 'cancelled']
+                        ]
+                    )->whereIn('case_steps_alerta.place_uf', $states[$reg])
+                    ->count();
+
+                if ($qtd > 0) {
+                    array_push($causes, ['id' => $case->id, 'cause' => $case->label, 'qtd' => $qtd]);
+                }
+            }
+
 
             $expDate = Carbon::now()->subDays(30);
             $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->whereIn('tenants.uf', $states[$reg])->count();
@@ -378,7 +418,8 @@ class ReportsLandingPageController extends BaseController
                         )->whereIn('case_steps_alerta.place_uf', $states[$reg])->count(),
                 ],
 
-                'causes' => $causes
+                'causes_alerts' => $alerts,
+                'causes_cases' => $causes
 
             ];
 
@@ -395,9 +436,10 @@ class ReportsLandingPageController extends BaseController
 
         try {
 
+            $alerts = [];
             $causes = [];
 
-            foreach (AlertCause::getAll() as $cause) {
+            foreach (AlertCause::getAll() as $alert) {
 
                 //alerta pemanece com status de aceito se caso for cancelado!
                 $qtd =
@@ -406,7 +448,7 @@ class ReportsLandingPageController extends BaseController
                     ->where(
                         [
                             ['case_steps_alerta.place_uf', $uf],
-                            ['case_steps_alerta.alert_cause_id', $cause->id],
+                            ['case_steps_alerta.alert_cause_id', $alert->id],
                             ['children.alert_status', 'accepted'],
                             ['children.child_status', '<>', 'cancelled']
                         ]
@@ -414,9 +456,30 @@ class ReportsLandingPageController extends BaseController
                     ->count();
 
                 if ($qtd > 0) {
-                    array_push($causes, ['id' => $cause->id, 'cause' => $cause->label, 'qtd' => $qtd]);
+                    array_push($alerts, ['id' => $alert->id, 'cause' => $alert->label, 'qtd' => $qtd]);
                 }
             }
+            foreach (CaseCause::getAll() as $case) {
+
+                //alerta pemanece com status de aceito se caso for cancelado!
+                $qtd =
+                    \DB::table('children')
+                    ->join('case_steps_pesquisa', 'children.id', '=', 'case_steps_pesquisa.child_id')
+                    ->where(
+                        [
+                            ['case_steps_pesquisa.place_uf', $uf],
+                            ['case_steps_pesquisa.case_cause_ids', 'like', "%{$case->id}%"],
+                            ['children.alert_status', 'accepted'],
+                            ['children.child_status', '<>', 'cancelled']
+                        ]
+                    )
+                    ->count();
+
+                if ($qtd > 0) {
+                    array_push($causes, ['id' => $case->id, 'cause' => $case->label, 'qtd' => $qtd]);
+                }
+            }
+
 
             $expDate = Carbon::now()->subDays(30);
             $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->where('tenants.uf', $uf)->count();
@@ -572,7 +635,8 @@ class ReportsLandingPageController extends BaseController
                         )->count(),
                 ],
 
-                'causes' => $causes
+                'causes_alerts' => $alerts,
+                'causes_cases' => $causes
 
             ];
 
@@ -626,9 +690,9 @@ class ReportsLandingPageController extends BaseController
 
         try {
 
+            $alerts = [];
             $causes = [];
-
-            foreach (AlertCause::getAll() as $cause) {
+            foreach (AlertCause::getAll() as $alert) {
 
                 $qtd =
                     \DB::table('children')
@@ -636,7 +700,7 @@ class ReportsLandingPageController extends BaseController
                     ->where(
                         [
                             ['case_steps_alerta.tenant_id', $tenantId],
-                            ['case_steps_alerta.alert_cause_id', $cause->id],
+                            ['case_steps_alerta.alert_cause_id', $alert->id],
                             ['children.alert_status', 'accepted']
 
                         ]
@@ -644,7 +708,27 @@ class ReportsLandingPageController extends BaseController
                     ->count();
 
                 if ($qtd > 0) {
-                    array_push($causes, ['id' => $cause->id, 'cause' => $cause->label, 'qtd' => $qtd]);
+                    array_push($alerts, ['id' => $alert->id, 'cause' => $alert->label, 'qtd' => $qtd]);
+                }
+            }
+
+            foreach (CaseCause::getAll() as $case) {
+
+                //alerta pemanece com status de aceito se caso for cancelado!
+                $qtd =
+                    \DB::table('children')
+                    ->join('case_steps_pesquisa', 'children.id', '=', 'case_steps_pesquisa.child_id')
+                    ->where(
+                        [
+                            ['case_steps_pesquisa.tenant_id', $tenantId],
+                            ['case_steps_pesquisa.alert_cause_id', $alert->id],
+                            ['children.alert_status', 'accepted']
+                        ]
+                    )
+                    ->count();
+
+                if ($qtd > 0) {
+                    array_push($causes, ['id' => $case->id, 'cause' => $case->label, 'qtd' => $qtd]);
                 }
             }
 
@@ -811,7 +895,9 @@ class ReportsLandingPageController extends BaseController
 
                 ],
 
-                'causes' => $causes,
+                'causes_alerts' => $alerts,
+
+                'causes_cases' => $causes,
 
                 'data_city' => $data_city
 
