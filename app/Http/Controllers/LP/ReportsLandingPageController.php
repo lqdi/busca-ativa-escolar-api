@@ -80,7 +80,10 @@ class ReportsLandingPageController extends BaseController
                         ->count(),
                     'active' => $active,
                     'inactive' => $inactive,
-
+                    'num_pending_setup' => TenantSignup::query()
+                        ->where('is_approved', '=', 1)
+                        ->where('is_provisioned', '=', 0)
+                        ->count(),
                     //'num_ufs' => StateSignup::query()->count(),
 
                     /*'num_signups' => TenantSignup::query()
@@ -266,7 +269,7 @@ class ReportsLandingPageController extends BaseController
                             ['children.alert_status', 'accepted'],
                             ['children.child_status', '<>', 'cancelled']
                         ]
-                    )->whereIn('case_steps_alerta.place_uf', $states[$reg])
+                    )->whereIn('case_steps_pesquisa.place_uf', $states[$reg])
                     ->count();
 
                 if ($qtd > 0) {
@@ -284,6 +287,12 @@ class ReportsLandingPageController extends BaseController
                         ->count(),
                     'active' => $active,
                     'inactive' => $inactive,
+                    'num_pending_setup' => TenantSignup::query()
+                        ->join('tenants', 'tenants.id', '=', 'tenant_signups.tenant_id')
+                        ->whereIn('tenants.uf', $states[$reg])
+                        ->where('is_approved', '=', 1)
+                        ->where('is_provisioned', '=', 0)
+                        ->count(),
 
                     /*'num_signups' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
                         ->count(),
@@ -490,7 +499,12 @@ class ReportsLandingPageController extends BaseController
                         ->count(),
                     'active' => $active,
                     'inactive' => $inactive,
-
+                    'num_pending_setup' => Tenant::query()
+                        ->join('tenants', 'tenants.id', '=', 'tenant_signups.tenant_id')
+                        ->where('tenants.uf', $uf)
+                        ->where('is_approved', '=', 1)
+                        ->where('is_provisioned', '=', 0)
+                        ->count(),
                     /*'num_signups' => Tenant::query()->where('tenants.uf', $uf)
                         ->count(),
 
