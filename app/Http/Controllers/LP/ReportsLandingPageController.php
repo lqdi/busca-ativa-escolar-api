@@ -499,7 +499,7 @@ class ReportsLandingPageController extends BaseController
                         ->count(),
                     'active' => $active,
                     'inactive' => $inactive,
-                    'num_pending_setup' => Tenant::query()
+                    'num_pending_setup' => TenantSignup::query()
                         ->join('tenants', 'tenants.id', '=', 'tenant_signups.tenant_id')
                         ->where('tenants.uf', $uf)
                         ->where('is_approved', '=', 1)
@@ -735,7 +735,7 @@ class ReportsLandingPageController extends BaseController
                     ->where(
                         [
                             ['case_steps_pesquisa.tenant_id', $tenantId],
-                            ['case_steps_pesquisa.alert_cause_id', $alert->id],
+                            ['case_steps_pesquisa.case_cause_ids', 'like', "%{$case->id}%"],
                             ['children.alert_status', 'accepted']
                         ]
                     )
