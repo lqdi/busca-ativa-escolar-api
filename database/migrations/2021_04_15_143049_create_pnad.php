@@ -27,7 +27,7 @@ class CreatePnad extends Migration
             $table->double('value_pb', 16, 10); //20% mais pobres
             $table->double('value_int', 16, 10); //60% intermediário
             $table->double('value_rc', 16, 10); //20% mais tico
-            $table->double('total', 16, 16); //valor total
+            $table->double('total', 32, 16); //valor total
             $table->foreign('id_regiao')->references('id')->on('tse_regiao');
             $table->foreign('id_uf')->references('id')->on('te_estados');
             $table->foreign('id_municipio')->references('id')->on('te_municipios');
