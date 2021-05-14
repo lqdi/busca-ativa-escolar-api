@@ -18,15 +18,15 @@ class CreatePnad extends Migration
             $table->bigInteger('id_municipio');
             $table->integer('id_localizacao');
             $table->integer('id_faixa_etaria');
-            $table->double('value_masc', 16, 10);
-            $table->double('value_femn', 16, 10);
-            $table->double('value_ba', 16, 10); //branco e amarelos
-            $table->double('value_pni', 16, 10); //pardos, negros e indígenas
-            $table->double('value_sim', 16, 10); //frequência
-            $table->double('value_nao', 16, 10); //frequência.
-            $table->double('value_pb', 16, 10); //20% mais pobres
-            $table->double('value_int', 16, 10); //60% intermediário
-            $table->double('value_rc', 16, 10); //20% mais tico
+            $table->double('value_masc', 32, 16);
+            $table->double('value_femn', 32, 16);
+            $table->double('value_ba', 32, 16); //branco e amarelos
+            $table->double('value_pni', 32, 16); //pardos, negros e indígenas
+            $table->double('value_sim', 32, 16); //frequência
+            $table->double('value_nao', 32, 16); //frequência.
+            $table->double('value_pb', 32, 16); //20% mais pobres
+            $table->double('value_int', 32, 16); //60% intermediário
+            $table->double('value_rc', 32, 16); //20% mais tico
             $table->double('total', 32, 16); //valor total
             $table->foreign('id_regiao')->references('id')->on('tse_regiao');
             $table->foreign('id_uf')->references('id')->on('te_estados');
