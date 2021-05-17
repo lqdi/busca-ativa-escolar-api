@@ -54,7 +54,6 @@ class Kernel extends ConsoleKernel
         Commands\InserirDiaAusenteGraficoRematriculas::class,
         Commands\SendEmailsActualizeFrequency::class,
         Commands\CancelAllTenantsWithSigupsAndUsers::class,
-        Commands\FixErrorsWrongAcceptedAlerts::class
     ];
 
     /**
