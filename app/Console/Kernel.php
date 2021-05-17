@@ -53,7 +53,8 @@ class Kernel extends ConsoleKernel
         Commands\PopulateDailyMetricsConsolidated::class,
         Commands\InserirDiaAusenteGraficoRematriculas::class,
         Commands\SendEmailsActualizeFrequency::class,
-        Commands\CancelAllTenantsWithSigupsAndUsers::class
+        Commands\CancelAllTenantsWithSigupsAndUsers::class,
+        Commands\FixErrorsWrongAcceptedAlerts::class
     ];
 
     /**
