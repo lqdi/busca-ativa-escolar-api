@@ -245,6 +245,7 @@ class FixErrorsWrongAcceptedAlerts extends Command
             $child = Child::where('id', '=', $id)->get()->first();
             if($child != null){
                 $child->alert_status = 'pending';
+                $child->save();
             }
         }
 
