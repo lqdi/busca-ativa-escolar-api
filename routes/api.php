@@ -164,7 +164,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');
 		Route::get('/schools/all_educacenso', 'Resources\SchoolsController@all_educacenso')->middleware('can:settings.educacenso');
-		Route::put('/schools/{id}', 'Resources\SchoolsController@update')->middleware('can:settings.educacenso');
+		Route::put('/schools/{id}', 'Resources\SchoolsController@update')->middleware('can:update.school');
 
 		Route::get('/schools/all', 'Resources\SchoolsController@getAll')->middleware('can:school.list');
 
