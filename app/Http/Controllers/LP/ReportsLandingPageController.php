@@ -488,13 +488,15 @@ class ReportsLandingPageController extends BaseController
                     array_push($causes, ['id' => $case->id, 'cause' => $case->label, 'qtd' => $qtd]);
                 }
             }
-
+            $stateSignup = StateSignup::query()->where('is_approved', 1)
+                ->where('uf', $uf)->first() ? "yes" : "no";
 
             $expDate = Carbon::now()->subDays(30);
             $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->where('tenants.uf', $uf)->count();
             $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->where('tenants.uf', $uf)->count();
             $data = [
                 'tenants' => [
+                    'is_approved' => $stateSignup,
                     'num_tenants' => Tenant::query()->where('tenants.uf', $uf)
                         ->count(),
                     'active' => $active,
