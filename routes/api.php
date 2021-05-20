@@ -176,7 +176,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/user_preferences', 'Resources\PreferencesController@updateSettings');
 
 		// Reports
-		Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
+        Route::post('/reports/children/by_tenant', 'Resources\ReportsController@query_children_by_tenant'); //APLICAR MIDLLEWARE NACIONAL!
+
+
+        Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
 		Route::post('/reports/tenants', 'Resources\ReportsController@query_tenants')->middleware('can:reports.view');
 		Route::post('/reports/ufs', 'Resources\ReportsController@query_ufs')->middleware('can:reports.view');
 		Route::post('/reports/signups', 'Resources\ReportsController@query_signups')->middleware('can:reports.view');
@@ -258,4 +261,5 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	//Webhooks Mailgun
 	Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
+
 });
