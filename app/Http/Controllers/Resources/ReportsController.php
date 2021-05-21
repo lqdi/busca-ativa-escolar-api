@@ -785,7 +785,7 @@ class ReportsController extends BaseController
 
                     $lastDayOfMonthCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $lastDayOfMonth." 23:59:59");
 
-                    if( $lastDayOfMonthCarbon->greaterThan($tenant->activated_at) ){
+                    if( $lastDayOfMonthCarbon->greaterThan($tenant->created_at) ){
 
                         $filtersChild['date'] = [
                             'from' => $lastDayOfMonth,
