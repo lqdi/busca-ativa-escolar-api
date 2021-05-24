@@ -112,6 +112,7 @@ class TenantSignupExport implements FromQuery, ShouldAutoSize, WithHeadings
             'Data exclusão/ rejeição',
             'Instância - Nome',
             'Código - IBGE',
+            'Ciclo'
         ];
     }
 }
