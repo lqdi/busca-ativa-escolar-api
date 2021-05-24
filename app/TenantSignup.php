@@ -247,7 +247,7 @@ class TenantSignup extends Model
 			'Data exclusão/ rejeição' => $this->deleted_at ? Carbon::createFromFormat('Y-m-d H:i:s', $this->deleted_at)->format('d/m/Y') : null,
 			'Instância - Nome' => $this->tenant->name ?? null,
 			'Código - IBGE' => $this->tenant->city->ibge_city_id ?? null,
-			'Selo' => $this->created_at < '2021-01-01 00:00:00.0' ? '2014' : '2021'
+			'Ciclo' => $this->created_at < '2021-01-01 00:00:00.0' ? '2017-2020' : '2021-2024'
 		];
 	}
 
