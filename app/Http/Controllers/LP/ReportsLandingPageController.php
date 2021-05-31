@@ -43,17 +43,13 @@ class ReportsLandingPageController extends BaseController
                                 ['children.alert_status', 'accepted'],
                                 ['children.child_status', '<>', 'cancelled']
                             ]
-                        ) //->whereIn('case_steps_pesquisa.case_cause_ids', $case->id)
+                        )
                         ->count();
 
                     if ($qtd > 0) {
                         array_push($causes, ['id' => $case->id, 'cause' => $case->label, 'qtd' => $qtd]);
                     }
                 }
-                //-1 * DATEDIFF('last_active_at', now()) < 30   diffInDays(Carbon::now()) >= 30
-                //$active = Tenant::query()->where("DATEDIFF('last_active_at', '" . Carbon::now() . "')", '>', '-30')->count();
-                //print_r($active);
-                //$inactive = Tenant::query()->where("DATEDIFF('last_active_at', '" . Carbon::now() . "')", '<=', '-30')->count();
                 $expDate = Carbon::now()->subDays(30);
                 $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->count();
                 $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->count();
@@ -67,15 +63,6 @@ class ReportsLandingPageController extends BaseController
                             ->where('is_approved', '=', 1)
                             ->where('is_provisioned', '=', 0)
                             ->count(),
-                        //'num_ufs' => StateSignup::query()->count(),
-
-                        /*'num_signups' => TenantSignup::query()
-                            ->count(),*/
-
-                        /*'num_pending_setup' => TenantSignup::query()
-                            ->where('is_approved', '=', 1)
-                            ->where('is_provisioned', '=', 0)
-                            ->count(),*/
                     ],
                     'alerts' => [
 
@@ -87,7 +74,6 @@ class ReportsLandingPageController extends BaseController
                                 [
                                     ['case_steps_alerta.alert_status', 'accepted'],
                                     ['children.alert_status', 'accepted'],
-                                    //['children.child_status', '<>', 'cancelled']
                                 ]
                             )
                             ->count(),
@@ -164,7 +150,6 @@ class ReportsLandingPageController extends BaseController
                             ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
                             ->where(
                                 [
-                                    //['case_steps_alerta.alert_status', 'accepted'],
                                     ['children.child_status', 'out_of_school'],
                                     ['children.alert_status', 'accepted']
                                 ]
@@ -216,27 +201,8 @@ class ReportsLandingPageController extends BaseController
 
         try {
             $stats = Cache::remember('report_reg', 1440, function () use ($reg, $states) {
-                //$alerts = [];
                 $causes = [];
-                /*foreach (AlertCause::getAll() as $alert) {
 
-                //alerta pemanece com status de aceito se caso for cancelado!
-                $qtd =
-                    \DB::table('children')
-                    ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
-                    ->where(
-                        [
-                            ['case_steps_alerta.alert_cause_id', $alert->id],
-                            ['children.alert_status', 'accepted'],
-                            //['children.child_status', '<>', 'cancelled']
-                        ]
-                    )->whereIn('case_steps_alerta.place_uf', $states[$reg])
-                    ->count();
-
-                if ($qtd > 0) {
-                    array_push($alerts, ['id' => $alert->id, 'cause' => $alert->label, 'qtd' => $qtd]);
-                }
-            }*/
                 foreach (CaseCause::getAll() as $case) {
 
                     //alerta pemanece com status de aceito se caso for cancelado!
@@ -256,12 +222,13 @@ class ReportsLandingPageController extends BaseController
                         array_push($causes, ['id' => $case->id, 'cause' => $case->label, 'qtd' => $qtd]);
                     }
                 }
-
+                print_r($reg);
+                print_r($states);
 
                 $expDate = Carbon::now()->subDays(30);
                 $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->whereIn('tenants.uf', $states[$reg])->count();
                 $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->whereIn('tenants.uf', $states[$reg])->count();
-                $data = [
+                return [
                     'tenants' => [
                         'num_tenants' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
                             ->count(),
@@ -273,14 +240,6 @@ class ReportsLandingPageController extends BaseController
                             ->where('is_approved', '=', 1)
                             ->where('is_provisioned', '=', 0)
                             ->count(),
-
-                        /*'num_signups' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
-                        ->count(),
-
-                    'num_pending_setup' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
-                        ->where('is_approved', '=', 1)
-                        ->where('is_provisioned', '=', 0)
-                        ->count(),*/
                     ],
                     'alerts' => [
 
@@ -407,7 +366,6 @@ class ReportsLandingPageController extends BaseController
                             )->whereIn('case_steps_alerta.place_uf', $states[$reg])->count(),
                     ],
 
-                    // 'causes_alerts' => $alerts,
                     'causes_cases' => $causes
 
                 ];
@@ -425,29 +383,8 @@ class ReportsLandingPageController extends BaseController
 
         try {
             $stats = Cache::remember('report_uf', 1440, function () use ($uf) {
-                // $alerts = [];
                 $causes = [];
 
-                /*foreach (AlertCause::getAll() as $alert) {
-
-                //alerta pemanece com status de aceito se caso for cancelado!
-                $qtd =
-                    \DB::table('children')
-                    ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
-                    ->where(
-                        [
-                            ['case_steps_alerta.place_uf', $uf],
-                            ['case_steps_alerta.alert_cause_id', $alert->id],
-                            ['children.alert_status', 'accepted'],
-                            ['children.child_status', '<>', 'cancelled']
-                        ]
-                    )
-                    ->count();
-
-                if ($qtd > 0) {
-                    array_push($alerts, ['id' => $alert->id, 'cause' => $alert->label, 'qtd' => $qtd]);
-                }
-            }*/
                 foreach (CaseCause::getAll() as $case) {
 
                     //alerta pemanece com status de aceito se caso for cancelado!
@@ -474,7 +411,7 @@ class ReportsLandingPageController extends BaseController
                 $expDate = Carbon::now()->subDays(30);
                 $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->where('tenants.uf', $uf)->count();
                 $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->where('tenants.uf', $uf)->count();
-                $data = [
+                return [
                     'tenants' => [
                         'is_approved' => $stateSignup,
                         'num_tenants' => Tenant::query()->where('tenants.uf', $uf)
@@ -487,13 +424,6 @@ class ReportsLandingPageController extends BaseController
                             ->where('is_approved', '=', 1)
                             ->where('is_provisioned', '=', 0)
                             ->count(),
-                        /*'num_signups' => Tenant::query()->where('tenants.uf', $uf)
-                        ->count(),
-
-                    'num_pending_setup' => Tenant::query()->where('tenants.uf', $uf)
-                        ->where('is_approved', '=', 1)
-                        ->where('is_provisioned', '=', 0)
-                        ->count(),*/
                     ],
                     'alerts' => [
 
@@ -631,7 +561,6 @@ class ReportsLandingPageController extends BaseController
                             )->count(),
                     ],
 
-                    //'causes_alerts' => $alerts,
                     'causes_cases' => $causes
 
                 ];
@@ -686,28 +615,8 @@ class ReportsLandingPageController extends BaseController
 
         try {
 
-            // $alerts = [];
             $stats = Cache::remember('report_city', 1440, function () use ($tenantId, $data_city) {
                 $causes = [];
-                /*foreach (AlertCause::getAll() as $alert) {
-
-                $qtd =
-                    \DB::table('children')
-                    ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
-                    ->where(
-                        [
-                            ['case_steps_alerta.tenant_id', $tenantId],
-                            ['case_steps_alerta.alert_cause_id', $alert->id],
-                            ['children.alert_status', 'accepted']
-
-                        ]
-                    )
-                    ->count();
-
-                if ($qtd > 0) {
-                    array_push($alerts, ['id' => $alert->id, 'cause' => $alert->label, 'qtd' => $qtd]);
-                }
-            }*/
 
                 foreach (CaseCause::getAll() as $case) {
 
@@ -729,7 +638,7 @@ class ReportsLandingPageController extends BaseController
                     }
                 }
 
-                $data = [
+                return [
 
                     'alerts' => [
                         '_approved' =>
@@ -892,8 +801,6 @@ class ReportsLandingPageController extends BaseController
 
                     ],
 
-                    // 'causes_alerts' => $alerts,
-
                     'causes_cases' => $causes,
 
                     'data_city' => $data_city
@@ -910,7 +817,6 @@ class ReportsLandingPageController extends BaseController
     {
         try {
             $uf = request('uf');
-            //$collection_cities = Tenant::query()->where('uf', '=', $uf)->orderBy('name')->get(['name']);
             $collection_cities = City::query()->where('uf', '=', $uf)->orderBy('name')->get(['name']);
             $cities = [];
             foreach ($collection_cities as $city) {
