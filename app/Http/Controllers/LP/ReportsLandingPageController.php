@@ -218,6 +218,7 @@ class ReportsLandingPageController extends BaseController
             $stats = Cache::remember('report_reg', 1440, function () use ($reg, $states) {
                 //$alerts = [];
                 $causes = [];
+
                 /*foreach (AlertCause::getAll() as $alert) {
 
                 //alerta pemanece com status de aceito se caso for cancelado!
@@ -256,12 +257,13 @@ class ReportsLandingPageController extends BaseController
                         array_push($causes, ['id' => $case->id, 'cause' => $case->label, 'qtd' => $qtd]);
                     }
                 }
-
+                print_r($reg);
+                print_r($states);
 
                 $expDate = Carbon::now()->subDays(30);
                 $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->whereIn('tenants.uf', $states[$reg])->count();
                 $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->whereIn('tenants.uf', $states[$reg])->count();
-                $data = [
+                return [
                     'tenants' => [
                         'num_tenants' => Tenant::query()->whereIn('tenants.uf', $states[$reg])
                             ->count(),
@@ -411,6 +413,7 @@ class ReportsLandingPageController extends BaseController
                     'causes_cases' => $causes
 
                 ];
+                //return $data;
             });
             return response()->json(['status' => 'ok', '_data' => $stats]);
         } catch (\Exception $ex) {
@@ -474,7 +477,7 @@ class ReportsLandingPageController extends BaseController
                 $expDate = Carbon::now()->subDays(30);
                 $active = Tenant::query()->whereDate('last_active_at', '>', $expDate)->where('tenants.uf', $uf)->count();
                 $inactive = Tenant::query()->whereDate('last_active_at', '<=', $expDate)->where('tenants.uf', $uf)->count();
-                $data = [
+                return [
                     'tenants' => [
                         'is_approved' => $stateSignup,
                         'num_tenants' => Tenant::query()->where('tenants.uf', $uf)
@@ -729,7 +732,7 @@ class ReportsLandingPageController extends BaseController
                     }
                 }
 
-                $data = [
+                return [
 
                     'alerts' => [
                         '_approved' =>
