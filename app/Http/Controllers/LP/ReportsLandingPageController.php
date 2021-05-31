@@ -200,7 +200,7 @@ class ReportsLandingPageController extends BaseController
         ];
 
         try {
-            $stats = Cache::remember('report_reg', 1440, function () use ($reg, $states) {
+            $stats = Cache::remember('report_reg_' . $reg, 1440, function () use ($reg, $states) {
                 $causes = [];
 
                 foreach (CaseCause::getAll() as $case) {
@@ -382,7 +382,7 @@ class ReportsLandingPageController extends BaseController
         $uf = request('uf');
 
         try {
-            $stats = Cache::remember('report_uf', 1440, function () use ($uf) {
+            $stats = Cache::remember('report_uf_' . $uf, 1440, function () use ($uf) {
                 $causes = [];
 
                 foreach (CaseCause::getAll() as $case) {
@@ -615,7 +615,7 @@ class ReportsLandingPageController extends BaseController
 
         try {
 
-            $stats = Cache::remember('report_city', 1440, function () use ($tenantId, $data_city) {
+            $stats = Cache::remember('report_city_' . $tenantId, 1440, function () use ($tenantId, $data_city) {
                 $causes = [];
 
                 foreach (CaseCause::getAll() as $case) {
