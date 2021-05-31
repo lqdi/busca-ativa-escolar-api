@@ -164,7 +164,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		// INEP Schools
 		Route::post('/schools/search', 'Resources\SchoolsController@search')->name('api.school.search');
 		Route::get('/schools/all_educacenso', 'Resources\SchoolsController@all_educacenso')->middleware('can:settings.educacenso');
-		Route::put('/schools/{id}', 'Resources\SchoolsController@update')->middleware('can:settings.educacenso');
+		Route::put('/schools/{id}', 'Resources\SchoolsController@update')->middleware('can:update.school');
 
 		Route::get('/schools/all', 'Resources\SchoolsController@getAll')->middleware('can:school.list');
 
@@ -176,7 +176,10 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 		Route::post('/user_preferences', 'Resources\PreferencesController@updateSettings');
 
 		// Reports
-		Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
+        Route::post('/reports/children/by_tenant', 'Resources\ReportsController@query_children_by_tenant'); //APLICAR MIDLLEWARE NACIONAL!
+
+
+        Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
 		Route::post('/reports/tenants', 'Resources\ReportsController@query_tenants')->middleware('can:reports.view');
 		Route::post('/reports/ufs', 'Resources\ReportsController@query_ufs')->middleware('can:reports.view');
 		Route::post('/reports/signups', 'Resources\ReportsController@query_signups')->middleware('can:reports.view');
@@ -258,4 +261,5 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 	//Webhooks Mailgun
 	Route::post('/mailgun/update', 'Mailgun\MailgunController@update');
+
 });

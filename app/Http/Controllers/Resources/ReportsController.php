@@ -50,10 +50,12 @@ use Maatwebsite\Excel\Excel as ExcelB;
 class ReportsController extends BaseController
 {
     private $excel;
+
     public function __construct(ExcelB $excel)
     {
         $this->excel = $excel;
     }
+
     public function query_children(Reports $reports)
     {
 
@@ -404,7 +406,7 @@ class ReportsController extends BaseController
                             ->toArray();
                     }
 
-                    array_unshift($stats, $date);
+                    if ($stats != null) { array_unshift($stats, $date); }
 
                     return collect($stats)->values()->toArray();
                 })
@@ -707,6 +709,10 @@ class ReportsController extends BaseController
                 return trans('reports_terms.country_region');
             case 'school_last_grade':
                 return trans('reports_terms.school_last_grade');
+            case 'child_status_by_tenant':
+                return trans('reports_terms.child_status_by_tenant');
+            case 'alert_status_report_by_tenant':
+                return trans('reports_terms.alert_status_report_by_tenant');
             default:
                 return [];
         }
@@ -751,4 +757,114 @@ class ReportsController extends BaseController
             return response()->json(['error' => 'Arquivo inexistente.'], 403);
         }
     }
+
+    public function query_children_by_tenant(Reports $reports){
+
+        $params = request()->all();
+        $params['view'] = "time_series";
+
+        $filtersChild = request('filters_child_status', []);
+        $filtersAlert = request('filters_alert_status', []);
+
+        $year = request('year', 2017);
+
+        $entity = new Child();
+
+        Tenant::withTrashed()->chunk(100, function($tenants) use ($year, $filtersChild, $filtersAlert, $entity, $reports, $params){
+
+            foreach ($tenants as $tenant) {;
+
+                //months
+                for ($month = 1; $month <= 12; $month++) {
+
+                    $lastDayOfMonth = date("Y-m-t", strtotime(strval($year).'-'.strval($month).'-01'));
+                    $lastDayOfMonthptBr = date("t/m/Y", strtotime(strval($year).'-'.strval($month).'-01'));
+
+//                    $lastDayOfMonth = "2021-05-18";
+//                    $lastDayOfMonthptBr = "18/05/2021";
+
+                    $lastDayOfMonthCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $lastDayOfMonth." 23:59:59");
+
+                    if( $lastDayOfMonthCarbon->greaterThan($tenant->created_at) ){
+
+                        $filtersChild['date'] = [
+                            'from' => $lastDayOfMonth,
+                            'to' => $lastDayOfMonth
+                        ];
+
+                        $filtersAlert['date'] = $filtersChild['date'];
+
+                        $filtersChild['tenant_id'] = $tenant->id;
+
+                        $filtersAlert['tenant_id'] = $filtersChild['tenant_id'];
+
+                        $queryChild = $this->returnQueryForChildrenByTenant($filtersChild);
+
+                        $queryAlert = $this->returnQueryForChildrenByTenant($filtersAlert);
+
+                        $index = $entity->getTimeSeriesIndex();
+                        $type = $entity->getTimeSeriesType();
+
+                        try {
+                            $responseChild = $reports->timeline($index, $type, "child_status", $queryChild);
+                            $responseAlert = $reports->timeline($index, $type, "alert_status", $queryAlert);
+
+                            $idsChildStatus = $this->extractDimensionIDs($responseChild['report'], $params['view']);
+                            $labelsChildStatus = $this->fetchDimensionLabels("child_status_by_tenant", $idsChildStatus);
+
+                            $idsAlertStatus = $this->extractDimensionIDs($responseAlert['report'], $params['view']);
+                            $labelsAlertStatus = $this->fetchDimensionLabels("alert_status_report_by_tenant", $idsAlertStatus);
+
+                        } catch (\Exception $ex) {
+                            return $this->api_exception($ex);
+                        }
+
+                        $values = [];
+                        foreach ( $labelsAlertStatus as $key => $label ){
+                            if( sizeof($responseAlert["report"]) > 0) {
+                                $values[$key] = array_key_exists($key, $responseAlert["report"][$lastDayOfMonth]) ? $responseAlert["report"][$lastDayOfMonth][$key] : 0;
+                            }else{
+                                $values[$key] = 0;
+                            }
+                        }
+
+                        foreach ( $labelsChildStatus as $key => $label ){
+                            if( sizeof($responseChild["report"]) > 0) {
+                                $values[$key] = array_key_exists($key, $responseChild["report"][$lastDayOfMonth]) ? $responseChild["report"][$lastDayOfMonth][$key] : 0;
+                            }else{
+                                $values[$key] = 0;
+                            }
+                        }
+
+                        $fp = fopen('/home/forge/reports_children_daily_by_year/'.strval($year).'.csv', 'a');
+                        fwrite( $fp, "\n\"".$tenant->created_at->format('d/m/Y')."\",\"".$lastDayOfMonthptBr."\",\"".$tenant->uf."\",\"".str_replace($tenant->uf." / ", "", $tenant->name)."\",".implode(",", $values) );
+                        fclose($fp);
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+    private function returnQueryForChildrenByTenant($filters){
+        return ElasticSearchQuery::withParameters($filters)
+            ->filterByTerms('case_status', false)
+            ->filterByTerms('alert_status', false)
+            ->filterByTerm('step_slug', false)
+            ->filterByTerm('place_uf', false)
+            ->filterByTerm('place_city_id', false)
+            ->filterByTerm('case_cause_ids', false)
+            ->filterByTerms('child_status', false)
+            ->filterByTerm('school_last_grade', false)
+            ->filterByTerms('risk_level', false)
+            ->filterByTerms('gender', false)
+            ->filterByTerms('place_kind',false)
+            ->filterByRange('date', false)
+            ->filterByTerm('tenant_id',false, 'must');
+    }
+
 }

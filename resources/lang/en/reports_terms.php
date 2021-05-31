@@ -228,6 +228,21 @@ return [
         'sp' => 'São Paulo',
         'to' => 'Tocantins',
         'null' => 'Não Informado'
-    ]
+    ],
+
+    'child_status_by_tenant' => [
+        'out_of_school' => 'Em andamento/ Fora da escola',
+        'in_observation' => 'Em andamento/ Dentro da escola',
+        'in_school' => 'Casos concluídos',
+        'cancelled' => 'Casos cancelados',
+        'interrupted' => 'Casos interrompidos',
+        'transferred'  => 'Transferidos'
+    ],
+
+    'alert_status_report_by_tenant' => [
+        "pending" => 'Pendente',
+        "accepted" => 'Aceito',
+        "rejected" => 'Rejeitado',
+    ],
 
 ];

@@ -96,7 +96,7 @@ class SchoolCSVImporter implements Importer {
 			$this->log->info("Processing file: {$job->getAbsolutePath()}");
 			$this->log->info("Persisting offset every {$logEvery} records");
 
-			while(($line = fgetcsv($fp, 4096)) !== false) {
+			while(($line = fgetcsv($fp, 4096, '|')) !== false) {
 
 				if($current < $this->offset) continue;
 
@@ -176,6 +176,8 @@ class SchoolCSVImporter implements Importer {
 		$school->fill($data);
 
 		$this->search->index($school);
+
+		Log::info($data["name"]." indexed");
 
 	}
 
