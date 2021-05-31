@@ -27,27 +27,7 @@ class ReportsLandingPageController extends BaseController
 
         try {
 
-            $alerts = [];
             $causes = [];
-            foreach (AlertCause::getAll() as $alert) {
-
-                //alerta pemanece com status de aceito se caso for cancelado!
-                $qtd =
-                    \DB::table('children')
-                    ->join('case_steps_alerta', 'children.id', '=', 'case_steps_alerta.child_id')
-                    ->where(
-                        [
-                            ['case_steps_alerta.alert_cause_id', $alert->id],
-                            ['children.alert_status', 'accepted'],
-                            ['children.child_status', '<>', 'cancelled']
-                        ]
-                    )
-                    ->count();
-
-                if ($qtd > 0) {
-                    array_push($alerts, ['id' => $alert->id, 'cause' => $alert->label, 'qtd' => $qtd]);
-                }
-            }
             foreach (CaseCause::getAll() as $case) {
 
                 //alerta pemanece com status de aceito se caso for cancelado!
@@ -124,7 +104,6 @@ class ReportsLandingPageController extends BaseController
                         )
                         ->count(),
                 ],
-
                 'cases' => [
 
                     '_enrollment' =>
@@ -210,10 +189,7 @@ class ReportsLandingPageController extends BaseController
                             ]
                         )->count(),
                 ],
-
-                'causes_alerts' => $alerts,
                 'causes_cases' => $causes
-
             ];
 
             return response()->json(['status' => 'ok', '_data' => $data]);
