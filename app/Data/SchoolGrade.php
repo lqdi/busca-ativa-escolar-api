@@ -1,4 +1,5 @@
 <?php
+
 /**
  * busca-ativa-escolar-api
  * SchoolGrade.php
@@ -14,7 +15,8 @@
 namespace BuscaAtivaEscolar\Data;
 
 
-class SchoolGrade extends StaticObject {
+class SchoolGrade extends StaticObject
+{
 
 	protected static $data = [
 		1 => ['id' => 1, 'order' => 1, 'slug' => 'preescola_4anos', 'label' => "Pré-escola (4 anos)"],
@@ -34,6 +36,10 @@ class SchoolGrade extends StaticObject {
 		15 => ['id' => 15, 'order' => 15, 'slug' => 'eja_finais', 'label' => "EJA (ensino fundamental anos finais)"],
 		16 => ['id' => 16, 'order' => 16, 'slug' => 'eja_iniciais', 'label' => "EJA (ensino fundamental anos iniciais)"],
 		17 => ['id' => 17, 'order' => 17, 'slug' => 'eja_alfabetizado', 'label' => "EJA (Alfabetizado)"],
+		18 => ['id' => 18, 'order' => 18, 'slug' => 'creche_1ano', 'label' => "Creche (1 ano)"],
+		19 => ['id' => 19, 'order' => 19, 'slug' => 'creche_2ano', 'label' => "Creche (2 anos)"],
+		20 => ['id' => 20, 'order' => 20, 'slug' => 'creche_3ano', 'label' => "Creche (3 anos)"],
+		21 => ['id' => 21, 'order' => 21, 'slug' => 'creche_4ano', 'label' => "Creche (4 anos)"],
 	];
 
 	protected static $indexes = [
@@ -55,6 +61,10 @@ class SchoolGrade extends StaticObject {
 			'eja_finais' => 15,
 			'eja_iniciais' => 16,
 			'eja_alfabetizado' => 17,
+			'creche_1ano' => 18,
+			'creche_2ano' => 19,
+			'creche_3ano' => 20,
+			'creche_4ano' => 21,
 		]
 	];
 
@@ -83,8 +93,8 @@ class SchoolGrade extends StaticObject {
 	 * @param string $slug
 	 * @return SchoolGrade
 	 */
-	public static function getBySlug($slug) {
+	public static function getBySlug($slug)
+	{
 		return self::getByIndex('slug', $slug);
 	}
-
 }
