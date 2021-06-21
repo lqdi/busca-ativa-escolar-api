@@ -7,27 +7,27 @@ return [
         'null' => 'Não informado',
     ],
 
-//    'status' => [
-//        'out_of_school' => 'Fora da escola',
-//        'in_observation' => 'Em observação',
-//        'in_school' => 'Dentro da escola',
-//        'cancelled' => 'Cancelado',
-//        'completed' => 'Completo',
-//        'in_progress' => 'Em andamento',
-//        'interrupted' => 'Interrompido',
-//        'transferred' => 'Transferido'
-//    ],
+    //    'status' => [
+    //        'out_of_school' => 'Fora da escola',
+    //        'in_observation' => 'Em observação',
+    //        'in_school' => 'Dentro da escola',
+    //        'cancelled' => 'Cancelado',
+    //        'completed' => 'Completo',
+    //        'in_progress' => 'Em andamento',
+    //        'interrupted' => 'Interrompido',
+    //        'transferred' => 'Transferido'
+    //    ],
 
-//    'status' => [
-//        'out_of_school' => 'Caso em andamento: de pesquisa até (re)matrícula',
-//        'in_observation' => 'Dentro da escola e em observação: de 1ª a 4ª observação',
-//        'in_school' => 'Casos concluídos: caso finalizado com sucesso após a 4ª observação',
-//        'cancelled' => 'Caso cancelado: em qualquer etapa do processo',
-//        'completed' => 'Completo',
-//        'in_progress' => 'Em andamento',
-//        'interrupted' => 'Casos interrompidos: criança ou adolescente que evadiu durante as etapas de observação e cujo caso não foi reaberto',
-//        'transferred' => 'Transferido'
-//    ],
+    //    'status' => [
+    //        'out_of_school' => 'Caso em andamento: de pesquisa até (re)matrícula',
+    //        'in_observation' => 'Dentro da escola e em observação: de 1ª a 4ª observação',
+    //        'in_school' => 'Casos concluídos: caso finalizado com sucesso após a 4ª observação',
+    //        'cancelled' => 'Caso cancelado: em qualquer etapa do processo',
+    //        'completed' => 'Completo',
+    //        'in_progress' => 'Em andamento',
+    //        'interrupted' => 'Casos interrompidos: criança ou adolescente que evadiu durante as etapas de observação e cujo caso não foi reaberto',
+    //        'transferred' => 'Transferido'
+    //    ],
 
     'status' => [
         'out_of_school' => 'Em andamento/ Fora da escola',
@@ -137,6 +137,10 @@ return [
     ],
 
     'school_last_grade' => [
+        'creche_1ano' => 'Creche (1 ano)',
+        'creche_2ano' => 'Creche (2 anos)',
+        'creche_3ano' => 'Creche (3 anos)',
+        'creche_4ano' => 'Creche (4 anos)',
         'preescola_4anos' => 'Pré-escola (4 anos)',
         'preescola_5anos' => 'Pré-escola (5 anos)',
         'ef_1ano' => 'Ensino Fundamental - Anos iniciais (1º ano)',
