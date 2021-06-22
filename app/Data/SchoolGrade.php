@@ -44,6 +44,10 @@ class SchoolGrade extends StaticObject
 
 	protected static $indexes = [
 		'slug' => [
+			'creche_1ano' => 18,
+			'creche_2ano' => 19,
+			'creche_3ano' => 20,
+			'creche_4ano' => 21,
 			'preescola_4anos' => 1,
 			'preescola_5anos' => 2,
 			'ef_1ano' => 3,
@@ -61,10 +65,7 @@ class SchoolGrade extends StaticObject
 			'eja_finais' => 15,
 			'eja_iniciais' => 16,
 			'eja_alfabetizado' => 17,
-			'creche_1ano' => 18,
-			'creche_2ano' => 19,
-			'creche_3ano' => 20,
-			'creche_4ano' => 21,
+
 		]
 	];
 
