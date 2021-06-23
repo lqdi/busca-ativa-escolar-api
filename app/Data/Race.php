@@ -19,7 +19,7 @@ class Race extends StaticObject {
 	protected static $data = [
 		1 => ['id' => 1, 'slug' => 'indigena', 'label' => "Indígena"],
 		2 => ['id' => 2, 'slug' => 'branca', 'label' => "Branca"],
-		3 => ['id' => 3, 'slug' => 'preta', 'label' => "Preta (pretos e pardos)"],
+		3 => ['id' => 3, 'slug' => 'preta', 'label' => "Preta"],
 		4 => ['id' => 4, 'slug' => 'amarela', 'label' => "Amarela"],
         5 => ['id' => 5, 'slug' => 'no_info', 'label' => "Sem informação"],
         6 => ['id' => 6, 'slug' => 'parda', 'label' => "Parda"],
