@@ -33,7 +33,7 @@ return [
 		'preta' => "Preta",
 		'amarela' => "Amarela",
 		'null' => "Não disponível",
-        'negra_pretos_pardos' => "Negra (pretos e pardos)",
+        'negra_pretos_e_pardos' => "Negra (pretos e pardos)",
         'parda' => "Parda"
 	],
 	'risk_level' => [

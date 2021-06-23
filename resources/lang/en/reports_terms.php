@@ -95,7 +95,7 @@ return [
         'preta' => "Preta",
         'amarela' => "Amarela",
         'null' => "Não informado",
-        'negra_pretos_pardos' => "Negra (pretos e pardos)",
+        'negra_pretos_e_pardos' => "Negra (pretos e pardos)",
         'parda' => "Parda"
     ],
 
