@@ -22,6 +22,7 @@ class Race extends StaticObject {
 		3 => ['id' => 3, 'slug' => 'preta', 'label' => "Preta (pretos e pardos)"],
 		4 => ['id' => 4, 'slug' => 'amarela', 'label' => "Amarela"],
         5 => ['id' => 5, 'slug' => 'no_info', 'label' => "Sem informação"],
+        6 => ['id' => 6, 'slug' => 'parda', 'label' => "Parda"],
     ];
 
 	protected static $indexes = [
@@ -29,7 +30,8 @@ class Race extends StaticObject {
 			'indigena' => 1,
 			'branca' => 2,
 			'preta' => 3,
-			'amarela' => 4
+			'amarela' => 4,
+            'parda' => 5
         ]
 	];
 

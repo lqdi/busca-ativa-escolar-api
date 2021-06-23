@@ -92,9 +92,11 @@ return [
     'races' => [
         'indigena' => "Indígena",
         'branca' => "Branca",
-        'preta' => "Preta (pretos e pardos)",
+        'preta' => "Preta",
         'amarela' => "Amarela",
         'null' => "Não informado",
+        'negra_pretos_pardos' => "Negra (pretos e pardos)",
+        'parda' => "Parda"
     ],
 
     'risk_level' => [

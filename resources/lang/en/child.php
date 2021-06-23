@@ -30,9 +30,11 @@ return [
 	'race' => [
 		'indigena' => "Indígena",
 		'branca' => "Branca",
-		'preta' => "Preta (pretos e pardos)",
+		'preta' => "Preta",
 		'amarela' => "Amarela",
 		'null' => "Não disponível",
+        'negra_pretos_pardos' => "Negra (pretos e pardos)",
+        'parda' => "Parda"
 	],
 	'risk_level' => [
 		'high' => 'Alto',
