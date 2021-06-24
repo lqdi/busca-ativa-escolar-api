@@ -4,7 +4,7 @@ return [
     'gender' => [
         'male' => 'Masculino',
         'female' => 'Feminino',
-        'null' => 'Não informado',
+        'null' => 'Não declarado',
     ],
 
     //    'status' => [
@@ -95,7 +95,7 @@ return [
         'preta' => "Preta",
         'amarela' => "Amarela",
         'null' => "Não informado",
-        'no_info' => "Sem informação",
+        'no_info' => "Não declarado",
         'negra_pretos_e_pardos' => "Negra (pretos e pardos)",
         'parda' => "Parda"
     ],

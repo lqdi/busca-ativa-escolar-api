@@ -4,7 +4,7 @@ return [
 		'male' => 'Masculino',
 		'female' => 'Feminino',
 		'undefined' => 'Indefinido',
-		'null' => 'Não disponível',
+		'null' => 'Não declarado',
 	],
 	'status' => [
 		"out_of_school" => 'Fora da escola',
@@ -33,7 +33,7 @@ return [
 		'preta' => "Preta",
 		'amarela' => "Amarela",
 		'null' => "Não informado",
-        'no_info' => "Sem informação",
+        'no_info' => "Não declarado",
         'negra_pretos_e_pardos' => "Negra (pretos e pardos)",
         'parda' => "Parda"
 	],
