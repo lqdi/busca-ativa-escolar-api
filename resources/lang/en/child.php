@@ -32,7 +32,7 @@ return [
 		'branca' => "Branca",
 		'preta' => "Preta",
 		'amarela' => "Amarela",
-		'null' => "Não disponível",
+		'null' => "Não informado",
         'no_info' => "Sem informação",
         'negra_pretos_e_pardos' => "Negra (pretos e pardos)",
         'parda' => "Parda"
