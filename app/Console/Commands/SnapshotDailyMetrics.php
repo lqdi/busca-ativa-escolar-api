@@ -27,8 +27,10 @@ class SnapshotDailyMetrics extends Command
     public function handle(Reports $reports)
     {
         $this->rel = $reports;
-        Child::with(['currentCase', 'submitter', 'city'])->chunk(500, function ($children) {
-            $today = $this->argument('date') ?? date('Y-m-d');
+
+        $today = $this->argument('date') ?? date('Y-m-d');
+
+        Child::with(['currentCase', 'submitter', 'city'])->chunk(500, function ($children) use ($today){
 
             $this->info("[index] Building children index: {$today}...");
 
