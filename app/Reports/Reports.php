@@ -1,4 +1,5 @@
 <?php
+
 /**
  * busca-ativa-escolar-api
  * Reports.php
@@ -21,97 +22,93 @@ use BuscaAtivaEscolar\Search\ElasticSearchQuery;
 use Elasticsearch\Client;
 use Illuminate\Support\Arr;
 
-class Reports {
+class Reports
+{
 
 	protected $client;
 
-	public function __construct(Client $client) {
+	public function __construct(Client $client)
+	{
 		$this->client = $client;
 	}
 
-	public function linear(string $index, string $type, string $dimension, ElasticSearchQuery $query = null, $ageRanges = null, $nullAges = null) {
+	public function linear(string $index, string $type, string $dimension, ElasticSearchQuery $query = null, $ageRanges = null, $nullAges = null)
+	{
 
 
-         if( $dimension != "age" ){
+		if ($dimension != "age") {
 
-             $request = [
-                 'size' => 0,
-                 'aggs' => [
-                     'num_entities' => [
-                         'terms' => [
-                             'size' => 0,
-                             'field' => $dimension,
-                             'missing' => 'null'
-                         ]
-                     ]
-                 ]
-             ];
+			$request = [
+				'size' => 0,
+				'aggs' => [
+					'num_entities' => [
+						'terms' => [
+							'size' => 0,
+							'field' => $dimension,
+							'missing' => 'null'
+						]
+					]
+				]
+			];
+		} else {
 
-         }else{
+			if ($ageRanges != null) {
 
-             if( $ageRanges != null ){
+				$rangeArray = [];
 
-                 $rangeArray = [];
+				foreach ($ageRanges as $ageRange) {
+					$range = AgeRange::getBySlug($ageRange);
+					array_push(
+						$rangeArray,
+						['from' => $range->from, 'to' => $range->to + 1]
+					);
+				}
 
-                 foreach ($ageRanges as $ageRange) {
-                     $range = AgeRange::getBySlug($ageRange);
-                     array_push(
-                         $rangeArray,
-                         ['from' => $range->from, 'to' => $range->to+1]
-                     );
-                 }
+				if ($nullAges) {
 
-                 if( $nullAges ){
+					$request = [
+						'aggs' => [
+							'num_entities' => [
+								'range' => [
+									'field' => $dimension,
+									'ranges' => $rangeArray,
+								],
+							],
+							'num_entities_null' => [
+								'missing' => ['field' => $dimension]
+							]
+						]
+					];
+				} else {
 
-                     $request = [
-                         'aggs' => [
-                             'num_entities' => [
-                                 'range' => [
-                                     'field' => $dimension,
-                                     'ranges' => $rangeArray,
-                                 ],
-                             ],
-                             'num_entities_null' => [
-                                 'missing' => [ 'field' => $dimension ]
-                             ]
-                         ]
-                     ];
+					$request = [
+						'aggs' => [
+							'num_entities' => [
+								'range' => [
+									'field' => $dimension,
+									'ranges' => $rangeArray,
+								],
+							]
+						]
+					];
+				}
+			} else {
 
-                 }else{
-
-                     $request = [
-                         'aggs' => [
-                             'num_entities' => [
-                                 'range' => [
-                                     'field' => $dimension,
-                                     'ranges' => $rangeArray,
-                                 ],
-                             ]
-                         ]
-                     ];
-
-                 }
-
-             }else{
-
-                 $request = [
-                     'aggs' => [
-                         'num_entities' => [
-                             'terms' => [
-                                 'size' => 0,
-                                 'field' => $dimension
-                             ]
-                         ]
-                     ]
-                 ];
-
-             }
+				$request = [
+					'aggs' => [
+						'num_entities' => [
+							'terms' => [
+								'size' => 0,
+								'field' => $dimension
+							]
+						]
+					]
+				];
+			}
+		}
 
 
-         }
-
-
-		if($query !== null) {
+		if ($query !== null) {
 			$request['query'] = $query->getQuery();
 		}
 
@@ -124,20 +121,20 @@ class Reports {
 		// deprecated array_pluck
 		//$report = array_pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
 
-        $report = Arr::pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
+		$report = Arr::pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
 
-		if ( $dimension == 'age' AND $nullAges ){
-		    array_push($report, $response['aggregations']['num_entities_null']['doc_count']);
-        }
+		if ($dimension == 'age' and $nullAges) {
+			array_push($report, $response['aggregations']['num_entities_null']['doc_count']);
+		}
 
-        return [
-            'records_total' => $response['hits']['total'] ?? 0,
-            'report' => $report
-        ];
-
+		return [
+			'records_total' => $response['hits']['total'] ?? 0,
+			'report' => $report
+		];
 	}
 
-	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null) {
+	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null)
+	{
 
 		$request = [
 			'size' => 0,
@@ -152,7 +149,8 @@ class Reports {
 						'num_entities' => [
 							'terms' => [
 								'size' => 0,
-								'field' => $dimension
+								'field' => $dimension,
+								'missing' => 'null'
 							]
 						]
 					]
@@ -160,7 +158,7 @@ class Reports {
 			]
 		];
 
-		if($query !== null) {
+		if ($query !== null) {
 			$request['query'] = $query->getQuery();
 		}
 
@@ -172,9 +170,9 @@ class Reports {
 
 		$report = [];
 
-		foreach($response['aggregations']['daily']['buckets'] as $bucket) {
+		foreach ($response['aggregations']['daily']['buckets'] as $bucket) {
 
-			if(!$bucket['num_entities']['buckets'] || sizeof($bucket['num_entities']['buckets']) <= 0) {
+			if (!$bucket['num_entities']['buckets'] || sizeof($bucket['num_entities']['buckets']) <= 0) {
 				$report[$bucket['key_as_string']] = null;
 				continue;
 			}
@@ -186,10 +184,10 @@ class Reports {
 			'records_total' => $response['hits']['total'] ?? 0,
 			'report' => $report,
 		];
-
 	}
 
-	public function buildSnapshot(CollectsDailyMetrics $entity, string $date) {
+	public function buildSnapshot(CollectsDailyMetrics $entity, string $date)
+	{
 		$doc = $entity->buildMetricsDocument();
 		$doc['date'] = $date;
 
@@ -200,16 +198,18 @@ class Reports {
 		]);
 	}
 
-	public function rawSearch(array $parameters) {
+	public function rawSearch(array $parameters)
+	{
 		return $this->client->search($parameters);
 	}
 
-	public function rawIndex(array $parameters) {
+	public function rawIndex(array $parameters)
+	{
 		return $this->client->index($parameters);
 	}
 
-	public function rawDelete(array $parameters) {
+	public function rawDelete(array $parameters)
+	{
 		return $this->client->delete($parameters);
 	}
-
 }
