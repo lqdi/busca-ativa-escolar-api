@@ -135,7 +135,7 @@ class Reports
 
 	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null)
 	{
-		print_r($dimension);
+		//print_r($dimension);
 
 		$request = [
 			'size' => 0,
@@ -151,7 +151,7 @@ class Reports
 							'terms' => [
 								'size' => 0,
 								'field' => $dimension,
-								//'missing' => 'null'
+								'missing' => $dimension == 'age' ? '0' : 'null'
 							]
 						]
 					]
