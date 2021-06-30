@@ -135,28 +135,54 @@ class Reports
 
 	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null)
 	{
+		if ($dimension != "age") {
 
-		$request = [
-			'size' => 0,
-			'aggs' => [
-				'daily' => [
-					'date_histogram' => [
-						'field' => 'date',
-						'interval' => '1D',
-						'format' => 'yyyy-MM-dd'
-					],
-					'aggs' => [
-						'num_entities' => [
-							'terms' => [
-								'size' => 0,
-								'field' => $dimension,
-								'missing' => 'null'
+			$request = [
+				'size' => 0,
+				'aggs' => [
+					'daily' => [
+						'date_histogram' => [
+							'field' => 'date',
+							'interval' => '1D',
+							'format' => 'yyyy-MM-dd'
+						],
+						'aggs' => [
+							'num_entities' => [
+								'terms' => [
+									'size' => 0,
+									'field' => $dimension,
+									//'missing' => 'null'
+								]
 							]
 						]
 					]
 				]
-			]
-		];
+			];
+		} else {
+			$request = [
+				'size' => 0,
+				'aggs' => [
+					'daily' => [
+						'date_histogram' => [
+							'field' => 'date',
+							'interval' => '1D',
+							'format' => 'yyyy-MM-dd'
+						],
+						'aggs' => [
+							'num_entities' => [
+								'terms' => [
+									'size' => 0,
+									'field' => $dimension,
+									'missing' => 'null'
+								]
+							]
+						]
+					]
+				]
+			];
+		}
+
+
 
 		if ($query !== null) {
 			$request['query'] = $query->getQuery();
