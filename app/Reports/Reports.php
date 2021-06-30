@@ -135,6 +135,7 @@ class Reports
 
 	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null)
 	{
+		print_r($dimension);
 
 		$request = [
 			'size' => 0,
