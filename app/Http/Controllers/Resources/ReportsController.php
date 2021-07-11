@@ -774,75 +774,69 @@ class ReportsController extends BaseController
 
             foreach ($tenants as $tenant) {
 
-                //months
-                for ($month = 1; $month <= 12; $month++) {
+                $begin = new \DateTime( strval($year)."-01-01" );
+                $end   = new \DateTime( strval($year)."-12-31" );
 
-                    $firstDayOfMonth = date("Y-m-t", strtotime(strval($year).'-'.strval($month).'-01'));
-                    $numberOfTheLastDay = date('t', strtotime($firstDayOfMonth));
+                for($i = $begin; $i <= $end; $i->modify('+1 day')){
 
-                    for ($day = 1; $day <= $numberOfTheLastDay; $day++) {
+                    $dayOfMonth = $i->format("Y-m-d");
+                    $dayOfMonthptBr = $i->format("d/m/Y");
+                    $dayOfMonthCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $dayOfMonth." 23:59:59");
 
-                        $dayOfMonth = date("Y-m-t", strtotime(strval($year).'-'.strval($month).'-'.$day));
-                        $dayOfMonthptBr = date("t/m/Y", strtotime(strval($year).'-'.strval($month).'-'.$day));
+                    if( $dayOfMonthCarbon->greaterThan($tenant->created_at) ){
 
-                        $dayOfMonthCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $dayOfMonth." 23:59:59");
+                        $filtersChild['date'] = [
+                            'from' => $dayOfMonth,
+                            'to' => $dayOfMonth
+                        ];
 
-                        if( $dayOfMonthCarbon->greaterThan($tenant->created_at) ){
+                        $filtersAlert['date'] = $filtersChild['date'];
 
-                            $filtersChild['date'] = [
-                                'from' => $dayOfMonth,
-                                'to' => $dayOfMonth
-                            ];
+                        $filtersChild['tenant_id'] = $tenant->id;
 
-                            $filtersAlert['date'] = $filtersChild['date'];
+                        $filtersAlert['tenant_id'] = $filtersChild['tenant_id'];
 
-                            $filtersChild['tenant_id'] = $tenant->id;
+                        $queryChild = $this->returnQueryForChildrenByTenant($filtersChild);
 
-                            $filtersAlert['tenant_id'] = $filtersChild['tenant_id'];
+                        $queryAlert = $this->returnQueryForChildrenByTenant($filtersAlert);
 
-                            $queryChild = $this->returnQueryForChildrenByTenant($filtersChild);
+                        $index = $entity->getTimeSeriesIndex();
+                        $type = $entity->getTimeSeriesType();
 
-                            $queryAlert = $this->returnQueryForChildrenByTenant($filtersAlert);
+                        try {
+                            $responseChild = $reports->timeline($index, $type, "child_status", $queryChild);
+                            $responseAlert = $reports->timeline($index, $type, "alert_status", $queryAlert);
 
-                            $index = $entity->getTimeSeriesIndex();
-                            $type = $entity->getTimeSeriesType();
+                            $idsChildStatus = $this->extractDimensionIDs($responseChild['report'], $params['view']);
+                            $labelsChildStatus = $this->fetchDimensionLabels("child_status_by_tenant", $idsChildStatus);
 
-                            try {
-                                $responseChild = $reports->timeline($index, $type, "child_status", $queryChild);
-                                $responseAlert = $reports->timeline($index, $type, "alert_status", $queryAlert);
+                            $idsAlertStatus = $this->extractDimensionIDs($responseAlert['report'], $params['view']);
+                            $labelsAlertStatus = $this->fetchDimensionLabels("alert_status_report_by_tenant", $idsAlertStatus);
 
-                                $idsChildStatus = $this->extractDimensionIDs($responseChild['report'], $params['view']);
-                                $labelsChildStatus = $this->fetchDimensionLabels("child_status_by_tenant", $idsChildStatus);
-
-                                $idsAlertStatus = $this->extractDimensionIDs($responseAlert['report'], $params['view']);
-                                $labelsAlertStatus = $this->fetchDimensionLabels("alert_status_report_by_tenant", $idsAlertStatus);
-
-                            } catch (\Exception $ex) {
-                                return $this->api_exception($ex);
-                            }
-
-                            $values = [];
-                            foreach ( $labelsAlertStatus as $key => $label ){
-                                if( sizeof($responseAlert["report"]) > 0) {
-                                    $values[$key] = array_key_exists($key, $responseAlert["report"][$dayOfMonth]) ? $responseAlert["report"][$dayOfMonth][$key] : 0;
-                                }else{
-                                    $values[$key] = 0;
-                                }
-                            }
-
-                            foreach ( $labelsChildStatus as $key => $label ){
-                                if( sizeof($responseChild["report"]) > 0) {
-                                    $values[$key] = array_key_exists($key, $responseChild["report"][$dayOfMonth]) ? $responseChild["report"][$dayOfMonth][$key] : 0;
-                                }else{
-                                    $values[$key] = 0;
-                                }
-                            }
-
-                            $fp = fopen('/home/forge/reports_children_daily_by_year/'.strval($year).'.csv', 'a');
-                            fwrite( $fp, "\n\"".$tenant->created_at->format('d/m/Y')."\",\"".$dayOfMonthptBr."\",\"".$tenant->uf."\",\"".str_replace($tenant->uf." / ", "", $tenant->name)."\",".implode(",", $values) );
-                            fclose($fp);
-
+                        } catch (\Exception $ex) {
+                            return $this->api_exception($ex);
                         }
+
+                        $values = [];
+                        foreach ( $labelsAlertStatus as $key => $label ){
+                            if( sizeof($responseAlert["report"]) > 0) {
+                                $values[$key] = array_key_exists($key, $responseAlert["report"][$dayOfMonth]) ? $responseAlert["report"][$dayOfMonth][$key] : 0;
+                            }else{
+                                $values[$key] = 0;
+                            }
+                        }
+
+                        foreach ( $labelsChildStatus as $key => $label ){
+                            if( sizeof($responseChild["report"]) > 0) {
+                                $values[$key] = array_key_exists($key, $responseChild["report"][$dayOfMonth]) ? $responseChild["report"][$dayOfMonth][$key] : 0;
+                            }else{
+                                $values[$key] = 0;
+                            }
+                        }
+
+                        $fp = fopen('/home/forge/reports_children_daily_by_year/'.strval($year).'.csv', 'a');
+                        fwrite( $fp, "\n\"".$tenant->created_at->format('d/m/Y')."\",\"".$dayOfMonthptBr."\",\"".$tenant->uf."\",\"".str_replace($tenant->uf." / ", "", $tenant->name)."\",".implode(",", $values) );
+                        fclose($fp);
 
                     }
 
