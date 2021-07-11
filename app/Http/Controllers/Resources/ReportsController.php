@@ -835,7 +835,7 @@ class ReportsController extends BaseController
                         }
 
                         $fp = fopen('/home/forge/reports_children_daily_by_year/'.strval($year).'.csv', 'a');
-                        fwrite( $fp, "\n\"".$tenant->created_at->format('d/m/Y')."\",\"".$dayOfMonthptBr."\",\"".$tenant->uf."\",\"".str_replace($tenant->uf." / ", "", $tenant->name)."\",".implode(",", $values) );
+                        fwrite( $fp, "\n\"".$tenant->created_at->format('d/m/Y')."\",\"".$dayOfMonth."\",\"".$tenant->uf."\",\"".str_replace($tenant->uf." / ", "", $tenant->name)."\",".implode(",", $values) );
                         fclose($fp);
 
                     }
