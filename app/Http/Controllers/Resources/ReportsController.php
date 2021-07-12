@@ -775,7 +775,7 @@ class ReportsController extends BaseController
             foreach ($tenants as $tenant) {
 
                 $begin = new \DateTime( strval($year)."-01-01" );
-                $end   = new \DateTime( strval($year)."-12-31" );
+                $end   = new \DateTime( strval($year+1)."-01-01" );
 
                 for($i = $begin; $i <= $end; $i->modify('+1 day')){
 
