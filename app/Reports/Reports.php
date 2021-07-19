@@ -122,7 +122,7 @@ class Reports
 
 		// deprecated array_pluck
 		//$report = array_pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
-		print_r($response[])
+		//print_r($response[])
 		$report = Arr::pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
 		print_r($report);
 		if ($dimension == 'age' and $nullAges) {
