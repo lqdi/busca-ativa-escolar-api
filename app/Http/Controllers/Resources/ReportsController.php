@@ -156,7 +156,7 @@ class ReportsController extends BaseController
 
         try {
             $response = ($params['view'] == 'time_series') ?
-                $reports->timeline($index, $type, $params['dimension'], $query) :
+                $reports->timeline($index, $type, $params['dimension'], $query, $ageRanges, $nullAges) :
                 $reports->linear($index, $type, $params['dimension'], $query, $ageRanges, $nullAges);
 
             $ids = $this->extractDimensionIDs($response['report'], $params['view']);

@@ -135,7 +135,7 @@ class Reports
 		];
 	}
 
-	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null)
+	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null, $ageRanges = null, $nullAges = null)
 	{
 		//print_r($dimension);
 		if ($dimension === 'age') {
