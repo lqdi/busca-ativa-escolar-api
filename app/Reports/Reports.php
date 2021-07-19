@@ -140,47 +140,62 @@ class Reports
 		//print_r($dimension);
 		if ($dimension === 'age') {
 
-			if ($ageRanges != null) {
-
-				$rangeArray = [];
-
-				foreach ($ageRanges as $ageRange) {
-					$range = AgeRange::getBySlug($ageRange);
-
-					array_push(
-						$rangeArray,
-						['from' => $range->from, 'to' => $range->to + 1]
-					);
-					//print_r($rangeArray);
-				}
-
-				if ($nullAges) {
-					$request = [
-						'size' => 0,
-						'aggs' => [
-							'daily' => [
-								'date_histogram' => [
-									'field' => 'date',
-									'interval' => '1D',
-									'format' => 'yyyy-MM-dd'
-								],
-								'aggs' => [
-									'num_entities' => [
-										'range' => [
-											'field' => $dimension,
-											'ranges' => $rangeArray,
-										],
+				if ($ageRanges != null) {
+	
+					$rangeArray = [];
+	
+					foreach ($ageRanges as $ageRange) {
+						$range = AgeRange::getBySlug($ageRange);
+	
+						array_push(
+							$rangeArray,
+							['from' => $range->from, 'to' => $range->to + 1]
+						);
+						//print_r($rangeArray);
+					}
+	
+					if ($nullAges) {
+	
+						$request = [
+							'aggs' => [
+								'num_entities' => [
+									'range' => [
+										'field' => $dimension,
+										'ranges' => $rangeArray,
 									],
-									'num_entities_null' => [
-										'missing' => ['field' => $dimension]
-									]
+								],
+								'num_entities_null' => [
+									'missing' => ['field' => $dimension]
+								]
+							]
+						];
+					} else {
+	
+						$request = [
+							'aggs' => [
+								'num_entities' => [
+									'range' => [
+										'field' => $dimension,
+										'ranges' => $rangeArray,
+									],
+								]
+							]
+						];
+					}
+				} else {
+	
+					$request = [
+						'aggs' => [
+							'num_entities' => [
+								'terms' => [
+									'size' => 0,
+									'field' => $dimension
 								]
 							]
 						]
 					];
-
-				} 
-			
+				}
+			}
 		}else {
 			$request = [
 				'size' => 0,
