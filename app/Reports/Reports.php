@@ -124,10 +124,15 @@ class Reports
 		//$report = array_pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
 		//print_r($response[])
 		$report = Arr::pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
-		print_r($report);
+		//print_r($report);
 		if ($dimension == 'age' and $nullAges) {
 			array_push($report, $response['aggregations']['num_entities_null']['doc_count']);
 		}
+
+		/*if($dimension == 'school_last_id'){
+			$report[''] = $report['null'];
+           unset($arr[$oldkey]);
+		}*/
 
 		return [
 			'records_total' => $response['hits']['total'] ?? 0,
