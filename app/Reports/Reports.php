@@ -139,42 +139,49 @@ class Reports
 	{
 		//print_r($dimension);
 		if ($dimension === 'age') {
-			
-			$rangeArray = [];
 
-			foreach ($ageRanges as $ageRange) {
-				$range = AgeRange::getBySlug($ageRange);
+			if ($ageRanges != null) {
 
-				array_push(
-					$rangeArray,
-					['from' => $range->from, 'to' => $range->to + 1]
-				);
-			$request = [
-				'size' => 0,
-				"aggs" => [
-					"daily" => [
-						"date_histogram" => [
-							"field" => "date",
-							"interval" => "1D",
-							"format" => "yyyy-MM-dd"
-						],
-						"aggs" => [
-							"num_entities" => [
-								"range" => [
-									"field" => "age",
-									'ranges' => $rangeArray,
-								]
-							],
-							"num_entities_null" => [
-								"missing" => [
-									"field" => "age"
+				$rangeArray = [];
+
+				foreach ($ageRanges as $ageRange) {
+					$range = AgeRange::getBySlug($ageRange);
+
+					array_push(
+						$rangeArray,
+						['from' => $range->from, 'to' => $range->to + 1]
+					);
+					//print_r($rangeArray);
+				}
+
+				if ($nullAges) {
+					$request = [
+						'size' => 0,
+						'aggs' => [
+							'daily' => [
+								'date_histogram' => [
+									'field' => 'date',
+									'interval' => '1D',
+									'format' => 'yyyy-MM-dd'
+								],
+								'aggs' => [
+									'num_entities' => [
+										'range' => [
+											'field' => $dimension,
+											'ranges' => $rangeArray,
+										],
+									],
+									'num_entities_null' => [
+										'missing' => ['field' => $dimension]
+									]
 								]
 							]
 						]
-					]
-				]
-			];
-		} else {
+					];
+
+				} 
+			
+		}else {
 			$request = [
 				'size' => 0,
 				'aggs' => [
