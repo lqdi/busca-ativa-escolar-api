@@ -58,10 +58,12 @@ class Reports
 
 				foreach ($ageRanges as $ageRange) {
 					$range = AgeRange::getBySlug($ageRange);
+
 					array_push(
 						$rangeArray,
 						['from' => $range->from, 'to' => $range->to + 1]
 					);
+					//print_r($rangeArray);
 				}
 
 				if ($nullAges) {
@@ -136,33 +138,71 @@ class Reports
 	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null)
 	{
 		//print_r($dimension);
+		if ($dimension === 'age') {
+			
+			$rangeArray = [];
 
-		$request = [
-			'size' => 0,
-			'aggs' => [
-				'daily' => [
-					'date_histogram' => [
-						'field' => 'date',
-						'interval' => '1D',
-						'format' => 'yyyy-MM-dd'
-					],
-					'aggs' => [
-						'num_entities' => [
-							'terms' => [
-								'size' => 0,
-								'field' => $dimension,
-								'missing' => $dimension == 'age' ? '0' : 'null'
+			foreach ($ageRanges as $ageRange) {
+				$range = AgeRange::getBySlug($ageRange);
+
+				array_push(
+					$rangeArray,
+					['from' => $range->from, 'to' => $range->to + 1]
+				);
+			$request = [
+				'size' => 0,
+				"aggs" => [
+					"daily" => [
+						"date_histogram" => [
+							"field" => "date",
+							"interval" => "1D",
+							"format" => "yyyy-MM-dd"
+						],
+						"aggs" => [
+							"num_entities" => [
+								"range" => [
+									"field" => "age",
+									'ranges' => $rangeArray,
+								]
+							],
+							"num_entities_null" => [
+								"missing" => [
+									"field" => "age"
+								]
 							]
 						]
 					]
 				]
-			]
-		];
+			];
+		} else {
+			$request = [
+				'size' => 0,
+				'aggs' => [
+					'daily' => [
+						'date_histogram' => [
+							'field' => 'date',
+							'interval' => '1D',
+							'format' => 'yyyy-MM-dd'
+						],
+						'aggs' => [
+							'num_entities' => [
+								'terms' => [
+									'size' => 0,
+									'field' => $dimension,
+									'missing' => 'null'
+								]
+							]
+						]
+					]
+				]
+			];
+		}
 
+		//	echo $request;
 		if ($query !== null) {
 			$request['query'] = $query->getQuery();
 		}
-
+		//print_r($request);
 		$response = $this->rawSearch([
 			'index' => $index,
 			'type' => $type,
