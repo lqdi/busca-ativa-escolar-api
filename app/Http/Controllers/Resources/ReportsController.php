@@ -20,6 +20,7 @@ use BuscaAtivaEscolar\CaseSteps\Alerta;
 use BuscaAtivaEscolar\Child;
 use BuscaAtivaEscolar\ChildCase;
 use BuscaAtivaEscolar\City;
+use BuscaAtivaEscolar\DailyTests;
 use BuscaAtivaEscolar\Data\AgeRange;
 use BuscaAtivaEscolar\Data\AlertCause;
 use BuscaAtivaEscolar\Data\CaseCause;
@@ -863,6 +864,24 @@ class ReportsController extends BaseController
             ->filterByTerms('place_kind',false)
             ->filterByRange('date', false)
             ->filterByTerm('tenant_id',false, 'must');
+    }
+
+    public function query_children_tests(){
+
+        $daily_data = DB::table("daily_tests")
+            ->select('data_relatorio',
+                DB::raw('SUM(casos_andamento_fora_da_escola)'),
+                DB::raw('SUM(casos_andamentto_dentro_da_escola)'),
+                DB::raw('SUM(casos_concluidos)'),
+                DB::raw('SUM(casos_cancelados)'),
+                DB::raw('SUM(casos_interrompidos)'),
+                DB::raw('SUM(casos_transferidos)')
+            )
+            ->groupBy('data_relatorio')
+            //->where('municipio', '=', 'DOIS IRMÃOS DO TOCANTINS')
+            ->get();
+
+        return response()->json(['status' => 'ok', 'data' => $daily_data]);
     }
 
 }

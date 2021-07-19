@@ -180,6 +180,8 @@ Route::group(['prefix' => 'v1', 'middleware' => 'api'], function () {
 
 
         Route::post('/reports/children', 'Resources\ReportsController@query_children')->middleware('can:reports.view');
+        Route::post('/reports/children_tests', 'Resources\ReportsController@query_children_tests')->middleware('can:reports.view');
+
 		Route::post('/reports/tenants', 'Resources\ReportsController@query_tenants')->middleware('can:reports.view');
 		Route::post('/reports/ufs', 'Resources\ReportsController@query_ufs')->middleware('can:reports.view');
 		Route::post('/reports/signups', 'Resources\ReportsController@query_signups')->middleware('can:reports.view');
