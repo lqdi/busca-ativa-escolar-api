@@ -231,6 +231,8 @@ class Reports
 			}
 		}
 
+		print_r($report);
+
 		return [
 			'records_total' => $response['hits']['total'] ?? 0,
 			'report' => $report,
