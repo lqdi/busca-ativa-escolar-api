@@ -130,7 +130,7 @@ class Reports
 		}
 
 		if($dimension == 'school_last_id'){
-			$report['não informada'] = $report['null'];
+			$report['Não Informada'] = $report['null'];
            unset($report['null']);
 		}
 
