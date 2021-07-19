@@ -135,11 +135,11 @@ class Reports
 		];
 	}
 
-	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null)
+	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null, $ageRanges = null, $nullAges = null)
 	{
 		//print_r($dimension);
 		if ($dimension === 'age') {
-			
+
 			$rangeArray = [];
 
 			foreach ($ageRanges as $ageRange) {
@@ -149,8 +149,9 @@ class Reports
 					$rangeArray,
 					['from' => $range->from, 'to' => $range->to + 1]
 				);
+			}
 			$request = [
-				'size' => 0,
+				//'size' => 0,
 				"aggs" => [
 					"daily" => [
 						"date_histogram" => [
@@ -212,13 +213,17 @@ class Reports
 		$report = [];
 
 		foreach ($response['aggregations']['daily']['buckets'] as $bucket) {
-
+			//print_r($bucket);
 			if (!$bucket['num_entities']['buckets'] || sizeof($bucket['num_entities']['buckets']) <= 0) {
 				$report[$bucket['key_as_string']] = null;
 				continue;
 			}
 
 			$report[$bucket['key_as_string']] = array_pluck($bucket['num_entities']['buckets'], 'doc_count', 'key');
+			if (array_key_exists("num_entities_null", $bucket)) {
+				//$report[$bucket['key_as_string']] = array_pluck($bucket['num_entities_null'], 'doc_count', 'key');
+				array_push($report[$bucket['key_as_string']], $bucket['num_entities_null']['doc_count']);
+			}
 		}
 
 		return [
