@@ -155,8 +155,9 @@ class ReportsController extends BaseController
 
 
         try {
+            //print_r($reports->linear($index, $type, $params['dimension'], $query, $ageRanges, $nullAges));
             $response = ($params['view'] == 'time_series') ?
-                $reports->timeline($index, $type, $params['dimension'], $query) :
+                $reports->timeline($index, $type, $params['dimension'], $query, $ageRanges, $nullAges) :
                 $reports->linear($index, $type, $params['dimension'], $query, $ageRanges, $nullAges);
 
             $ids = $this->extractDimensionIDs($response['report'], $params['view']);
@@ -406,7 +407,9 @@ class ReportsController extends BaseController
                             ->toArray();
                     }
 
-                    if ($stats != null) { array_unshift($stats, $date); }
+                    if ($stats != null) {
+                        array_unshift($stats, $date);
+                    }
 
                     return collect($stats)->values()->toArray();
                 })
@@ -471,7 +474,7 @@ class ReportsController extends BaseController
                     })->pending()->count(),
 
                     'num_rejected_alerts' => Child::whereHas('alert', function ($query) {
-                        $query->where('alert_status','=', 'rejected');
+                        $query->where('alert_status', '=', 'rejected');
                     })->rejected()->count(),
 
                     'num_total_alerts' => ChildCase::query()
@@ -522,7 +525,6 @@ class ReportsController extends BaseController
                     // final do ciclo 2
 
                 ];
-
             });
 
             return response()->json(['status' => 'ok', 'stats' => $stats]);
@@ -758,7 +760,8 @@ class ReportsController extends BaseController
         }
     }
 
-    public function query_children_by_tenant(Reports $reports){
+    public function query_children_by_tenant(Reports $reports)
+    {
 
         $params = request()->all();
         $params['view'] = "time_series";
@@ -770,22 +773,22 @@ class ReportsController extends BaseController
 
         $entity = new Child();
 
-        Tenant::withTrashed()->chunk(100, function($tenants) use ($year, $filtersChild, $filtersAlert, $entity, $reports, $params){
+        Tenant::withTrashed()->chunk(100, function ($tenants) use ($year, $filtersChild, $filtersAlert, $entity, $reports, $params) {
 
             foreach ($tenants as $tenant) {;
 
                 //months
                 for ($month = 1; $month <= 12; $month++) {
 
-                    $lastDayOfMonth = date("Y-m-t", strtotime(strval($year).'-'.strval($month).'-01'));
-                    $lastDayOfMonthptBr = date("t/m/Y", strtotime(strval($year).'-'.strval($month).'-01'));
+                    $lastDayOfMonth = date("Y-m-t", strtotime(strval($year) . '-' . strval($month) . '-01'));
+                    $lastDayOfMonthptBr = date("t/m/Y", strtotime(strval($year) . '-' . strval($month) . '-01'));
 
-//                    $lastDayOfMonth = "2021-05-18";
-//                    $lastDayOfMonthptBr = "18/05/2021";
+                    //                    $lastDayOfMonth = "2021-05-18";
+                    //                    $lastDayOfMonthptBr = "18/05/2021";
 
-                    $lastDayOfMonthCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $lastDayOfMonth." 23:59:59");
+                    $lastDayOfMonthCarbon = Carbon::createFromFormat('Y-m-d H:i:s', $lastDayOfMonth . " 23:59:59");
 
-                    if( $lastDayOfMonthCarbon->greaterThan($tenant->created_at) ){
+                    if ($lastDayOfMonthCarbon->greaterThan($tenant->created_at)) {
 
                         $filtersChild['date'] = [
                             'from' => $lastDayOfMonth,
@@ -814,43 +817,38 @@ class ReportsController extends BaseController
 
                             $idsAlertStatus = $this->extractDimensionIDs($responseAlert['report'], $params['view']);
                             $labelsAlertStatus = $this->fetchDimensionLabels("alert_status_report_by_tenant", $idsAlertStatus);
-
                         } catch (\Exception $ex) {
                             return $this->api_exception($ex);
                         }
 
                         $values = [];
-                        foreach ( $labelsAlertStatus as $key => $label ){
-                            if( sizeof($responseAlert["report"]) > 0) {
+                        foreach ($labelsAlertStatus as $key => $label) {
+                            if (sizeof($responseAlert["report"]) > 0) {
                                 $values[$key] = array_key_exists($key, $responseAlert["report"][$lastDayOfMonth]) ? $responseAlert["report"][$lastDayOfMonth][$key] : 0;
-                            }else{
+                            } else {
                                 $values[$key] = 0;
                             }
                         }
 
-                        foreach ( $labelsChildStatus as $key => $label ){
-                            if( sizeof($responseChild["report"]) > 0) {
+                        foreach ($labelsChildStatus as $key => $label) {
+                            if (sizeof($responseChild["report"]) > 0) {
                                 $values[$key] = array_key_exists($key, $responseChild["report"][$lastDayOfMonth]) ? $responseChild["report"][$lastDayOfMonth][$key] : 0;
-                            }else{
+                            } else {
                                 $values[$key] = 0;
                             }
                         }
 
-                        $fp = fopen('/home/forge/reports_children_daily_by_year/'.strval($year).'.csv', 'a');
-                        fwrite( $fp, "\n\"".$tenant->created_at->format('d/m/Y')."\",\"".$lastDayOfMonthptBr."\",\"".$tenant->uf."\",\"".str_replace($tenant->uf." / ", "", $tenant->name)."\",".implode(",", $values) );
+                        $fp = fopen('/home/forge/reports_children_daily_by_year/' . strval($year) . '.csv', 'a');
+                        fwrite($fp, "\n\"" . $tenant->created_at->format('d/m/Y') . "\",\"" . $lastDayOfMonthptBr . "\",\"" . $tenant->uf . "\",\"" . str_replace($tenant->uf . " / ", "", $tenant->name) . "\"," . implode(",", $values));
                         fclose($fp);
-
                     }
-
                 }
-
             }
-
         });
-
     }
 
-    private function returnQueryForChildrenByTenant($filters){
+    private function returnQueryForChildrenByTenant($filters)
+    {
         return ElasticSearchQuery::withParameters($filters)
             ->filterByTerms('case_status', false)
             ->filterByTerms('alert_status', false)
@@ -862,9 +860,8 @@ class ReportsController extends BaseController
             ->filterByTerm('school_last_grade', false)
             ->filterByTerms('risk_level', false)
             ->filterByTerms('gender', false)
-            ->filterByTerms('place_kind',false)
+            ->filterByTerms('place_kind', false)
             ->filterByRange('date', false)
-            ->filterByTerm('tenant_id',false, 'must');
+            ->filterByTerm('tenant_id', false, 'must');
     }
-
 }
