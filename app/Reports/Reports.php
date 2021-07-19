@@ -137,66 +137,7 @@ class Reports
 
 	public function timeline(string $index, string $type, string $dimension, ElasticSearchQuery $query = null, $ageRanges = null, $nullAges = null)
 	{
-		//print_r($dimension);
-		if ($dimension === 'age') {
-
-				if ($ageRanges != null) {
-	
-					$rangeArray = [];
-	
-					foreach ($ageRanges as $ageRange) {
-						$range = AgeRange::getBySlug($ageRange);
-	
-						array_push(
-							$rangeArray,
-							['from' => $range->from, 'to' => $range->to + 1]
-						);
-						//print_r($rangeArray);
-					}
-	
-					if ($nullAges) {
-	
-						$request = [
-							'aggs' => [
-								'num_entities' => [
-									'range' => [
-										'field' => $dimension,
-										'ranges' => $rangeArray,
-									],
-								],
-								'num_entities_null' => [
-									'missing' => ['field' => $dimension]
-								]
-							]
-						];
-					} else {
-	
-						$request = [
-							'aggs' => [
-								'num_entities' => [
-									'range' => [
-										'field' => $dimension,
-										'ranges' => $rangeArray,
-									],
-								]
-							]
-						];
-					}
-				} else {
-	
-					$request = [
-						'aggs' => [
-							'num_entities' => [
-								'terms' => [
-									'size' => 0,
-									'field' => $dimension
-								]
-							]
-						]
-					];
-				}
-			}
-		}else {
+		
 			$request = [
 				'size' => 0,
 				'aggs' => [
@@ -218,7 +159,7 @@ class Reports
 					]
 				]
 			];
-		}
+		
 
 		//	echo $request;
 		if ($query !== null) {
