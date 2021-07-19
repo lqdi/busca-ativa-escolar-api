@@ -231,7 +231,13 @@ class Reports
 			}
 		}
 
-		print_r($report);
+		//print_r($report);
+		if($dimension == 'school_last_id'){
+		   foreach($report as $value){
+			   $report[$value]['Não Informada'] = $report[$value]['null'];
+           	   unset($report[$value]['null']);
+		   }
+		}
 
 		return [
 			'records_total' => $response['hits']['total'] ?? 0,
