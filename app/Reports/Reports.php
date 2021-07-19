@@ -113,7 +113,6 @@ class Reports
 		if ($query !== null) {
 			$request['query'] = $query->getQuery();
 		}
-		
 
 		$response = $this->rawSearch([
 			'index' => $index,
@@ -123,9 +122,9 @@ class Reports
 
 		// deprecated array_pluck
 		//$report = array_pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
-		print_r($response['aggregations']);
+		print_r($response[])
 		$report = Arr::pluck($response['aggregations']['num_entities']['buckets'] ?? [], 'doc_count', 'key');
-
+		print_r($report);
 		if ($dimension == 'age' and $nullAges) {
 			array_push($report, $response['aggregations']['num_entities_null']['doc_count']);
 		}
