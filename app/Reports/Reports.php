@@ -233,10 +233,10 @@ class Reports
 
 		//print_r($report);
 		if($dimension == 'school_last_id'){
-		   foreach($report as $value){
-			   $report[$value]['Não Informada'] = $report[$value]['null'];
-           	   unset($report[$value]['null']);
-		   }
+			array_walk($report, function (& $item) {
+				$item['Nâo Informada'] = $item['null'];
+				unset($item['null']);
+			 });
 		}
 
 		return [
