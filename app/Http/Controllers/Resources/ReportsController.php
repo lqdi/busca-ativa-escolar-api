@@ -702,7 +702,7 @@ class ReportsController extends BaseController
             case 'city_id':
                 return $hasIDs ? City::whereIn('id', $ids)->get()->pluck('name', 'id') : []; // TODO: create full_name field that contains UF
             case 'school_last_id':
-                return $hasIDs ? School::whereIn('id', $ids)->get()->pluck('name', 'id') : [];
+                return $hasIDs ? School::whereIn('id', $ids)->get()->pluck('name', 'id') : trans('reports_terms.school_last_id');
             case 'race':
                 return trans('reports_terms.races');
             case 'guardian_schooling':
