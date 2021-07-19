@@ -129,10 +129,10 @@ class Reports
 			array_push($report, $response['aggregations']['num_entities_null']['doc_count']);
 		}
 
-		/*if($dimension == 'school_last_id'){
-			$report[''] = $report['null'];
-           unset($arr[$oldkey]);
-		}*/
+		if($dimension == 'school_last_id'){
+			$report['não informada'] = $report['null'];
+           unset($report['null']);
+		}
 
 		return [
 			'records_total' => $response['hits']['total'] ?? 0,
