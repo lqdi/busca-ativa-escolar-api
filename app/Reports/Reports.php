@@ -234,7 +234,7 @@ class Reports
 		//print_r($report);
 		if($dimension == 'school_last_id'){
 			array_walk($report, function (& $item) {
-				$item['Nâo Informada'] = $item['null'];
+				$item['Não Informada'] = $item['null'];
 				unset($item['null']);
 			 });
 		}
