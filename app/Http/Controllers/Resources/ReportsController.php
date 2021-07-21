@@ -878,7 +878,10 @@ class ReportsController extends BaseController
                 DB::raw('SUM(casos_transferidos)')
             )
             ->groupBy('data_relatorio')
-            ->where('municipio', '=', 'DOIS IRMÃOS DO TOCANTINS')
+            ->where([
+                ['municipio', '=', 'DOIS IRMÃOS DO TOCANTINS'],
+                ['data_relatorio', '>', '2018-05-24']
+            ])
             ->get();
 
         return response()->json(['status' => 'ok', 'data' => $daily_data]);
